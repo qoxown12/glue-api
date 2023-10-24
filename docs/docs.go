@@ -46,19 +46,19 @@ var doc = `{
                     "400": {
                         "description": "Bad Request",
                         "schema": {
-                            "$ref": "#/definitions/httputil.HTTP400BadRequest"
+                            "$ref": "#/definitions/HTTP400BadRequest"
                         }
                     },
                     "404": {
                         "description": "Not Found",
                         "schema": {
-                            "$ref": "#/definitions/httputil.HTTP404NotFound"
+                            "$ref": "#/definitions/HTTP404NotFound"
                         }
                     },
                     "500": {
                         "description": "Internal Server Error",
                         "schema": {
-                            "$ref": "#/definitions/httputil.HTTP500InternalServerError"
+                            "$ref": "#/definitions/HTTP500InternalServerError"
                         }
                     }
                 }
@@ -87,19 +87,19 @@ var doc = `{
                     "400": {
                         "description": "Bad Request",
                         "schema": {
-                            "$ref": "#/definitions/httputil.HTTP400BadRequest"
+                            "$ref": "#/definitions/HTTP400BadRequest"
                         }
                     },
                     "404": {
                         "description": "Not Found",
                         "schema": {
-                            "$ref": "#/definitions/httputil.HTTP404NotFound"
+                            "$ref": "#/definitions/HTTP404NotFound"
                         }
                     },
                     "500": {
                         "description": "Internal Server Error",
                         "schema": {
-                            "$ref": "#/definitions/httputil.HTTP500InternalServerError"
+                            "$ref": "#/definitions/HTTP500InternalServerError"
                         }
                     }
                 }
@@ -137,19 +137,19 @@ var doc = `{
                     "400": {
                         "description": "Bad Request",
                         "schema": {
-                            "$ref": "#/definitions/httputil.HTTP400BadRequest"
+                            "$ref": "#/definitions/HTTP400BadRequest"
                         }
                     },
                     "404": {
                         "description": "Not Found",
                         "schema": {
-                            "$ref": "#/definitions/httputil.HTTP404NotFound"
+                            "$ref": "#/definitions/HTTP404NotFound"
                         }
                     },
                     "500": {
                         "description": "Internal Server Error",
                         "schema": {
-                            "$ref": "#/definitions/httputil.HTTP500InternalServerError"
+                            "$ref": "#/definitions/HTTP500InternalServerError"
                         }
                     }
                 }
@@ -178,19 +178,19 @@ var doc = `{
                     "400": {
                         "description": "Bad Request",
                         "schema": {
-                            "$ref": "#/definitions/httputil.HTTP400BadRequest"
+                            "$ref": "#/definitions/HTTP400BadRequest"
                         }
                     },
                     "404": {
                         "description": "Not Found",
                         "schema": {
-                            "$ref": "#/definitions/httputil.HTTP404NotFound"
+                            "$ref": "#/definitions/HTTP404NotFound"
                         }
                     },
                     "500": {
                         "description": "Internal Server Error",
                         "schema": {
-                            "$ref": "#/definitions/httputil.HTTP500InternalServerError"
+                            "$ref": "#/definitions/HTTP500InternalServerError"
                         }
                     }
                 }
@@ -219,19 +219,19 @@ var doc = `{
                     "400": {
                         "description": "Bad Request",
                         "schema": {
-                            "$ref": "#/definitions/httputil.HTTP400BadRequest"
+                            "$ref": "#/definitions/HTTP400BadRequest"
                         }
                     },
                     "404": {
                         "description": "Not Found",
                         "schema": {
-                            "$ref": "#/definitions/httputil.HTTP404NotFound"
+                            "$ref": "#/definitions/HTTP404NotFound"
                         }
                     },
                     "500": {
                         "description": "Internal Server Error",
                         "schema": {
-                            "$ref": "#/definitions/httputil.HTTP500InternalServerError"
+                            "$ref": "#/definitions/HTTP500InternalServerError"
                         }
                     }
                 }
@@ -295,19 +295,19 @@ var doc = `{
                     "400": {
                         "description": "Bad Request",
                         "schema": {
-                            "$ref": "#/definitions/httputil.HTTP400BadRequest"
+                            "$ref": "#/definitions/HTTP400BadRequest"
                         }
                     },
                     "404": {
                         "description": "Not Found",
                         "schema": {
-                            "$ref": "#/definitions/httputil.HTTP404NotFound"
+                            "$ref": "#/definitions/HTTP404NotFound"
                         }
                     },
                     "500": {
                         "description": "Internal Server Error",
                         "schema": {
-                            "$ref": "#/definitions/httputil.HTTP500InternalServerError"
+                            "$ref": "#/definitions/HTTP500InternalServerError"
                         }
                     }
                 }
@@ -357,19 +357,19 @@ var doc = `{
                     "400": {
                         "description": "Bad Request",
                         "schema": {
-                            "$ref": "#/definitions/httputil.HTTP400BadRequest"
+                            "$ref": "#/definitions/HTTP400BadRequest"
                         }
                     },
                     "404": {
                         "description": "Not Found",
                         "schema": {
-                            "$ref": "#/definitions/httputil.HTTP404NotFound"
+                            "$ref": "#/definitions/HTTP404NotFound"
                         }
                     },
                     "500": {
                         "description": "Internal Server Error",
                         "schema": {
-                            "$ref": "#/definitions/httputil.HTTP500InternalServerError"
+                            "$ref": "#/definitions/HTTP500InternalServerError"
                         }
                     }
                 }
@@ -398,19 +398,19 @@ var doc = `{
                     "400": {
                         "description": "Bad Request",
                         "schema": {
-                            "$ref": "#/definitions/httputil.HTTP400BadRequest"
+                            "$ref": "#/definitions/HTTP400BadRequest"
                         }
                     },
                     "404": {
                         "description": "Not Found",
                         "schema": {
-                            "$ref": "#/definitions/httputil.HTTP404NotFound"
+                            "$ref": "#/definitions/HTTP404NotFound"
                         }
                     },
                     "500": {
                         "description": "Internal Server Error",
                         "schema": {
-                            "$ref": "#/definitions/httputil.HTTP500InternalServerError"
+                            "$ref": "#/definitions/HTTP500InternalServerError"
                         }
                     }
                 }
@@ -449,25 +449,25 @@ var doc = `{
                     "200": {
                         "description": "OK",
                         "schema": {
-                            "$ref": "#/definitions/controller.Message"
+                            "$ref": "#/definitions/Message"
                         }
                     },
                     "400": {
                         "description": "Bad Request",
                         "schema": {
-                            "$ref": "#/definitions/httputil.HTTP400BadRequest"
+                            "$ref": "#/definitions/HTTP400BadRequest"
                         }
                     },
                     "404": {
                         "description": "Not Found",
                         "schema": {
-                            "$ref": "#/definitions/httputil.HTTP404NotFound"
+                            "$ref": "#/definitions/HTTP404NotFound"
                         }
                     },
                     "500": {
                         "description": "Internal Server Error",
                         "schema": {
-                            "$ref": "#/definitions/httputil.HTTP500InternalServerError"
+                            "$ref": "#/definitions/HTTP500InternalServerError"
                         }
                     }
                 }
@@ -496,19 +496,19 @@ var doc = `{
                     "400": {
                         "description": "Bad Request",
                         "schema": {
-                            "$ref": "#/definitions/httputil.HTTP400BadRequest"
+                            "$ref": "#/definitions/HTTP400BadRequest"
                         }
                     },
                     "404": {
                         "description": "Not Found",
                         "schema": {
-                            "$ref": "#/definitions/httputil.HTTP404NotFound"
+                            "$ref": "#/definitions/HTTP404NotFound"
                         }
                     },
                     "500": {
                         "description": "Internal Server Error",
                         "schema": {
-                            "$ref": "#/definitions/httputil.HTTP500InternalServerError"
+                            "$ref": "#/definitions/HTTP500InternalServerError"
                         }
                     }
                 }
@@ -752,6 +752,72 @@ var doc = `{
                 }
             }
         },
+        "HTTP400BadRequest": {
+            "type": "object",
+            "properties": {
+                "code": {
+                    "type": "integer",
+                    "example": 400
+                },
+                "debug": {
+                    "description": "Debug info",
+                    "type": "boolean",
+                    "format": "bool",
+                    "example": true
+                },
+                "message": {
+                    "type": "string",
+                    "example": "status bad request"
+                }
+            }
+        },
+        "HTTP404NotFound": {
+            "type": "object",
+            "properties": {
+                "code": {
+                    "type": "integer",
+                    "example": 404
+                },
+                "debug": {
+                    "description": "Debug info",
+                    "type": "boolean",
+                    "format": "bool",
+                    "example": true
+                },
+                "message": {
+                    "type": "string",
+                    "example": "Not Found"
+                }
+            }
+        },
+        "HTTP500InternalServerError": {
+            "type": "object",
+            "properties": {
+                "code": {
+                    "type": "integer",
+                    "example": 500
+                },
+                "debug": {
+                    "description": "Debug info",
+                    "type": "boolean",
+                    "format": "bool",
+                    "example": true
+                },
+                "message": {
+                    "type": "string",
+                    "example": "InternalServerError"
+                }
+            }
+        },
+        "Message": {
+            "type": "object",
+            "properties": {
+                "message": {
+                    "type": "string",
+                    "example": "message"
+                }
+            }
+        },
         "MirrorImage": {
             "type": "object",
             "properties": {
@@ -880,72 +946,6 @@ var doc = `{
                     "type": "string",
                     "format": "string",
                     "example": "1.0"
-                }
-            }
-        },
-        "controller.Message": {
-            "type": "object",
-            "properties": {
-                "message": {
-                    "type": "string",
-                    "example": "message"
-                }
-            }
-        },
-        "httputil.HTTP400BadRequest": {
-            "type": "object",
-            "properties": {
-                "code": {
-                    "type": "integer",
-                    "example": 400
-                },
-                "debug": {
-                    "description": "Debug info",
-                    "type": "boolean",
-                    "format": "bool",
-                    "example": true
-                },
-                "message": {
-                    "type": "string",
-                    "example": "status bad request"
-                }
-            }
-        },
-        "httputil.HTTP404NotFound": {
-            "type": "object",
-            "properties": {
-                "code": {
-                    "type": "integer",
-                    "example": 404
-                },
-                "debug": {
-                    "description": "Debug info",
-                    "type": "boolean",
-                    "format": "bool",
-                    "example": true
-                },
-                "message": {
-                    "type": "string",
-                    "example": "Not Found"
-                }
-            }
-        },
-        "httputil.HTTP500InternalServerError": {
-            "type": "object",
-            "properties": {
-                "code": {
-                    "type": "integer",
-                    "example": 500
-                },
-                "debug": {
-                    "description": "Debug info",
-                    "type": "boolean",
-                    "format": "bool",
-                    "example": true
-                },
-                "message": {
-                    "type": "string",
-                    "example": "InternalServerError"
                 }
             }
         }

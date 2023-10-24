@@ -2,7 +2,31 @@
 Glue의 기능을 제어하기 위한 REST API 입니다.
 
 본 문서는 swagger로 작성된 API 목록을 [swagger-markdown-ui](https://swagger-markdown-ui.netlify.app)를 사용해 작성된 README입니다.
+
 ## API 목록
+ㅁㅁㅁ
+
+##### 
+| Method | API                                      | 진행도 | 비고                |
+|--------|------------------------------------------|-----|-------------------|
+| GET    | api/v1/version                           | [x] | Version           |
+| GET    | api/v1/glue                              | [x] | GlueStatus        |
+| GET    | api/v1/glue/version                      | [x] | GlueVersion       |
+| GET    | api/v1/glue/pool                         | [x] | ListPools         |
+| GET    | api/v1/glue/pool/:poolname               | [x] | ListImages        |
+| GET    | api/v1/mirror                            | [x] | MirrorStatus      |
+| POST   | api/v1/mirror                            | [x] | MirrorSetup       |
+| PATCH  | api/v1/mirror                            | []  |                   |
+| DELETE | api/v1/mirror                            | △   | MirrorDelete      |
+| GET    | api/v1/mirror/image                      | [x] | MirrorImageList   |
+| GET    | api/v1/mirror/image/:pool/:image         | []  |                   |
+| POST   | api/v1/mirror/image/:pool/:image         | []  |                   |
+| PATCH  | api/v1/mirror/image/:pool/:image         | []  |                   |
+| DELETE | api/v1/mirror/image/:pool/:image         | [x] | MirrorImageDelete |
+| POST   | api/v1/mirror/image/prymary/:pool/:image | []  |                   |
+| DELETE | api/v1/mirror/image/prymary/:pool/:image | []  |                   |
+| GET    | api/v1/mirror/image/prymary/:pool/:image | []  |                   |
+| ANY    | swagger/index.html                       | [x] |                   |
 
 ### /api/v1/glue
 
@@ -17,12 +41,12 @@ Glue 의 상태값을 보여줍니다.
 
 ##### Responses
 
-| Code | Description           | Schema                                                                      |
-|------|-----------------------|-----------------------------------------------------------------------------|
-| 200  | OK                    | [GlueStatus](#GlueStatus)                                                   |
-| 400  | Bad Request           | [httputil.HTTP400BadRequest](#httputil.HTTP400BadRequest)                   |
-| 404  | Not Found             | [httputil.HTTP404NotFound](#httputil.HTTP404NotFound)                       |
-| 500  | Internal Server Error | [httputil.HTTP500InternalServerError](#httputil.HTTP500InternalServerError) |
+| Code | Description           | Schema                                                    |
+|------|-----------------------|-----------------------------------------------------------|
+| 200  | OK                    | [GlueStatus](#GlueStatus)                                 |
+| 400  | Bad Request           | [HTTP400BadRequest](#HTTP400BadRequest)                   |
+| 404  | Not Found             | [HTTP404NotFound](#HTTP404NotFound)                       |
+| 500  | Internal Server Error | [HTTP500InternalServerError](#HTTP500InternalServerError) |
 
 ### /api/v1/glue/pool
 
@@ -33,16 +57,16 @@ List Pools of Glue
 
 ##### Description:
 
-Glue 의 스토리지 풀 목록을 보여줍니다.
+Glue 의 스토리지 풀 목록을 보여줍니다..
 
 ##### Responses
 
-| Code | Description           | Schema                                                                      |
-|------|-----------------------|-----------------------------------------------------------------------------|
-| 200  | OK                    | [GlueVersion](#GlueVersion)                                                 |
-| 400  | Bad Request           | [httputil.HTTP400BadRequest](#httputil.HTTP400BadRequest)                   |
-| 404  | Not Found             | [httputil.HTTP404NotFound](#httputil.HTTP404NotFound)                       |
-| 500  | Internal Server Error | [httputil.HTTP500InternalServerError](#httputil.HTTP500InternalServerError) |
+| Code | Description           | Schema                                                    |
+|------|-----------------------|-----------------------------------------------------------|
+| 200  | OK                    | [GlueVersion](#GlueVersion)                               |
+| 400  | Bad Request           | [HTTP400BadRequest](#HTTP400BadRequest)                   |
+| 404  | Not Found             | [HTTP404NotFound](#HTTP404NotFound)                       |
+| 500  | Internal Server Error | [HTTP500InternalServerError](#HTTP500InternalServerError) |
 
 ### /api/v1/glue/pool/{pool}
 
@@ -53,22 +77,22 @@ List Images of Pool Glue
 
 ##### Description:
 
-Glue 스토리지 풀의 이미지 목록을 보여줍니다.
+Glue 스토리지 풀의 이미지 목록을 보여줍니다..
 
 ##### Parameters
 
 | Name | Located in | Description | Required | Schema |
-| ---- | ---------- | ----------- | -------- | ---- |
-| pool | path | pool | Yes | string |
+|------|------------|-------------|----------|--------|
+| pool | path       | pool        | Yes      | string |
 
 ##### Responses
 
-| Code | Description           | Schema                                                                      |
-|------|-----------------------|-----------------------------------------------------------------------------|
-| 200  | OK                    | [GlueVersion](#GlueVersion)                                                 |
-| 400  | Bad Request           | [httputil.HTTP400BadRequest](#httputil.HTTP400BadRequest)                   |
-| 404  | Not Found             | [httputil.HTTP404NotFound](#httputil.HTTP404NotFound)                       |
-| 500  | Internal Server Error | [httputil.HTTP500InternalServerError](#httputil.HTTP500InternalServerError) |
+| Code | Description           | Schema                                                    |
+|------|-----------------------|-----------------------------------------------------------|
+| 200  | OK                    | [GlueVersion](#GlueVersion)                               |
+| 400  | Bad Request           | [HTTP400BadRequest](#HTTP400BadRequest)                   |
+| 404  | Not Found             | [HTTP404NotFound](#HTTP404NotFound)                       |
+| 500  | Internal Server Error | [HTTP500InternalServerError](#HTTP500InternalServerError) |
 
 ### /api/v1/glue/version
 
@@ -83,12 +107,12 @@ Glue 의 버전을 보여줍니다.
 
 ##### Responses
 
-| Code | Description           | Schema                                                                      |
-|------|-----------------------|-----------------------------------------------------------------------------|
-| 200  | OK                    | [GlueVersion](#GlueVersion)                                                 |
-| 400  | Bad Request           | [httputil.HTTP400BadRequest](#httputil.HTTP400BadRequest)                   |
-| 404  | Not Found             | [httputil.HTTP404NotFound](#httputil.HTTP404NotFound)                       |
-| 500  | Internal Server Error | [httputil.HTTP500InternalServerError](#httputil.HTTP500InternalServerError) |
+| Code | Description           | Schema                                                    |
+|------|-----------------------|-----------------------------------------------------------|
+| 200  | OK                    | [GlueVersion](#GlueVersion)                               |
+| 400  | Bad Request           | [HTTP400BadRequest](#HTTP400BadRequest)                   |
+| 404  | Not Found             | [HTTP404NotFound](#HTTP404NotFound)                       |
+| 500  | Internal Server Error | [HTTP500InternalServerError](#HTTP500InternalServerError) |
 
 ### /api/v1/mirror
 
@@ -103,20 +127,20 @@ Glue 의 미러링 클러스터를 제거합니다.
 
 ##### Parameters
 
-| Name | Located in | Description | Required | Schema |
-| ---- | ---------- | ----------- | -------- | ---- |
-| host | formData | Remote Cluster Host Address | Yes | string |
-| privateKeyFile | formData | Remote Cluster PrivateKey | Yes | file |
-| mirrorPool | formData | Pool Name for Mirroring | Yes | string |
+| Name           | Located in | Description                 | Required | Schema |
+|----------------|------------|-----------------------------|----------|--------|
+| host           | formData   | Remote Cluster Host Address | Yes      | string |
+| privateKeyFile | formData   | Remote Cluster PrivateKey   | Yes      | file   |
+| mirrorPool     | formData   | Pool Name for Mirroring     | Yes      | string |
 
 ##### Responses
 
-| Code | Description | Schema |
-| ---- | ----------- | ------ |
-| 200 | OK | [MirrorSetup](#MirrorSetup) |
-| 400 | Bad Request | [httputil.HTTP400BadRequest](#httputil.HTTP400BadRequest) |
-| 404 | Not Found | [httputil.HTTP404NotFound](#httputil.HTTP404NotFound) |
-| 500 | Internal Server Error | [httputil.HTTP500InternalServerError](#httputil.HTTP500InternalServerError) |
+| Code | Description           | Schema                                                    |
+|------|-----------------------|-----------------------------------------------------------|
+| 200  | OK                    | [MirrorSetup](#MirrorSetup)                               |
+| 400  | Bad Request           | [HTTP400BadRequest](#HTTP400BadRequest)                   |
+| 404  | Not Found             | [HTTP404NotFound](#HTTP404NotFound)                       |
+| 500  | Internal Server Error | [HTTP500InternalServerError](#HTTP500InternalServerError) |
 
 #### GET
 ##### Summary:
@@ -129,12 +153,12 @@ Glue 의 미러링 상태를 보여줍니다.
 
 ##### Responses
 
-| Code | Description | Schema |
-| ---- | ----------- | ------ |
-| 200 | OK | [MirrorStatus](#MirrorStatus) |
-| 400 | Bad Request | [httputil.HTTP400BadRequest](#httputil.HTTP400BadRequest) |
-| 404 | Not Found | [httputil.HTTP404NotFound](#httputil.HTTP404NotFound) |
-| 500 | Internal Server Error | [httputil.HTTP500InternalServerError](#httputil.HTTP500InternalServerError) |
+| Code | Description           | Schema                                                    |
+|------|-----------------------|-----------------------------------------------------------|
+| 200  | OK                    | [MirrorStatus](#MirrorStatus)                             |
+| 400  | Bad Request           | [HTTP400BadRequest](#HTTP400BadRequest)                   |
+| 404  | Not Found             | [HTTP404NotFound](#HTTP404NotFound)                       |
+| 500  | Internal Server Error | [HTTP500InternalServerError](#HTTP500InternalServerError) |
 
 #### POST
 ##### Summary:
@@ -143,26 +167,26 @@ Setup Mirroring Cluster
 
 ##### Description:
 
-Glue 의 미러링 클러스터를 설정합니다.
+Glue 의 미러링 클러스터를 설정합니다..
 
 ##### Parameters
 
-| Name | Located in | Description | Required | Schema |
-| ---- | ---------- | ----------- | -------- | ---- |
-| localClusterName | formData | Local Cluster Name | Yes | string |
-| remoteClusterName | formData | Remote Cluster Name | Yes | string |
-| host | formData | Remote Cluster Host Address | Yes | string |
-| privateKeyFile | formData | Remote Cluster PrivateKey | Yes | file |
-| mirrorPool | formData | Pool Name for Mirroring | Yes | string |
+| Name              | Located in | Description                 | Required | Schema |
+|-------------------|------------|-----------------------------|----------|--------|
+| localClusterName  | formData   | Local Cluster Name          | Yes      | string |
+| remoteClusterName | formData   | Remote Cluster Name         | Yes      | string |
+| host              | formData   | Remote Cluster Host Address | Yes      | string |
+| privateKeyFile    | formData   | Remote Cluster PrivateKey   | Yes      | file   |
+| mirrorPool        | formData   | Pool Name for Mirroring     | Yes      | string |
 
 ##### Responses
 
-| Code | Description | Schema |
-| ---- | ----------- | ------ |
-| 200 | OK | [MirrorSetup](#MirrorSetup) |
-| 400 | Bad Request | [httputil.HTTP400BadRequest](#httputil.HTTP400BadRequest) |
-| 404 | Not Found | [httputil.HTTP404NotFound](#httputil.HTTP404NotFound) |
-| 500 | Internal Server Error | [httputil.HTTP500InternalServerError](#httputil.HTTP500InternalServerError) |
+| Code | Description           | Schema                                                    |
+|------|-----------------------|-----------------------------------------------------------|
+| 200  | OK                    | [MirrorSetup](#MirrorSetup)                               |
+| 400  | Bad Request           | [HTTP400BadRequest](#HTTP400BadRequest)                   |
+| 404  | Not Found             | [HTTP404NotFound](#HTTP404NotFound)                       |
+| 500  | Internal Server Error | [HTTP500InternalServerError](#HTTP500InternalServerError) |
 
 ### /api/v1/mirror/image
 
@@ -177,12 +201,12 @@ Show List of Mirrored Image
 
 ##### Responses
 
-| Code | Description | Schema |
-| ---- | ----------- | ------ |
-| 200 | OK | [MirrorList](#MirrorList) |
-| 400 | Bad Request | [httputil.HTTP400BadRequest](#httputil.HTTP400BadRequest) |
-| 404 | Not Found | [httputil.HTTP404NotFound](#httputil.HTTP404NotFound) |
-| 500 | Internal Server Error | [httputil.HTTP500InternalServerError](#httputil.HTTP500InternalServerError) |
+| Code | Description           | Schema                                                    |
+|------|-----------------------|-----------------------------------------------------------|
+| 200  | OK                    | [MirrorList](#MirrorList)                                 |
+| 400  | Bad Request           | [HTTP400BadRequest](#HTTP400BadRequest)                   |
+| 404  | Not Found             | [HTTP404NotFound](#HTTP404NotFound)                       |
+| 500  | Internal Server Error | [HTTP500InternalServerError](#HTTP500InternalServerError) |
 
 ### /api/v1/mirror/image/{pool}/{imagename}
 
@@ -197,19 +221,19 @@ Delete Mirrored Image
 
 ##### Parameters
 
-| Name | Located in | Description | Required | Schema |
-| ---- | ---------- | ----------- | -------- | ---- |
-| imageName | path | imageName | Yes | string |
-| pool | path | pool | Yes | string |
+| Name      | Located in | Description | Required | Schema |
+|-----------|------------|-------------|----------|--------|
+| imageName | path       | imageName   | Yes      | string |
+| pool      | path       | pool        | Yes      | string |
 
 ##### Responses
 
-| Code | Description | Schema |
-| ---- | ----------- | ------ |
-| 200 | OK | [controller.Message](#controller.Message) |
-| 400 | Bad Request | [httputil.HTTP400BadRequest](#httputil.HTTP400BadRequest) |
-| 404 | Not Found | [httputil.HTTP404NotFound](#httputil.HTTP404NotFound) |
-| 500 | Internal Server Error | [httputil.HTTP500InternalServerError](#httputil.HTTP500InternalServerError) |
+| Code | Description           | Schema                                                    |
+|------|-----------------------|-----------------------------------------------------------|
+| 200  | OK                    | [Message](#Message)                                       |
+| 400  | Bad Request           | [HTTP400BadRequest](#HTTP400BadRequest)                   |
+| 404  | Not Found             | [HTTP404NotFound](#HTTP404NotFound)                       |
+| 500  | Internal Server Error | [HTTP500InternalServerError](#HTTP500InternalServerError) |
 
 ### /version
 
@@ -224,127 +248,127 @@ API 의 버전을 보여줍니다.
 
 ##### Responses
 
-| Code | Description | Schema |
-| ---- | ----------- | ------ |
-| 200 | OK | [Version](#Version) |
-| 400 | Bad Request | [httputil.HTTP400BadRequest](#httputil.HTTP400BadRequest) |
-| 404 | Not Found | [httputil.HTTP404NotFound](#httputil.HTTP404NotFound) |
-| 500 | Internal Server Error | [httputil.HTTP500InternalServerError](#httputil.HTTP500InternalServerError) |
+| Code | Description           | Schema                                                    |
+|------|-----------------------|-----------------------------------------------------------|
+| 200  | OK                    | [Version](#Version)                                       |
+| 400  | Bad Request           | [HTTP400BadRequest](#HTTP400BadRequest)                   |
+| 404  | Not Found             | [HTTP404NotFound](#HTTP404NotFound)                       |
+| 500  | Internal Server Error | [HTTP500InternalServerError](#HTTP500InternalServerError) |
 
 ### Models
 
 
 #### GlueStatus
 
-| Name | Type | Description | Required |
-| ---- | ---- | ----------- | -------- |
-| debug | boolean (bool) | Debug info | No |
-| election_epoch | integer (uint32) |  | No |
-| fsid | string (uuid) | Glue클러스터를 구분하는 ID | No |
-| fsmap | object |  | No |
-| health | object |  | No |
-| mgrmap | object |  | No |
-| monmap | object |  | No |
-| osdmap | object |  | No |
-| pgmap | object |  | No |
-| progress_events | object |  | No |
-| quorum | [ integer ] |  | No |
-| quorum_age | integer |  | No |
-| quorum_names | [ string ] |  | No |
-| servicemap | object |  | No |
+| Name            | Type             | Description       | Required |
+|-----------------|------------------|-------------------|----------|
+| debug           | boolean (bool)   | Debug info        | No       |
+| election_epoch  | integer (uint32) |                   | No       |
+| fsid            | string (uuid)    | Glue클러스터를 구분하는 ID | No       |
+| fsmap           | object           |                   | No       |
+| health          | object           |                   | No       |
+| mgrmap          | object           |                   | No       |
+| monmap          | object           |                   | No       |
+| osdmap          | object           |                   | No       |
+| pgmap           | object           |                   | No       |
+| progress_events | object           |                   | No       |
+| quorum          | [ integer ]      |                   | No       |
+| quorum_age      | integer          |                   | No       |
+| quorum_names    | [ string ]       |                   | No       |
+| servicemap      | object           |                   | No       |
 
 #### GlueVersion
 
-| Name | Type | Description | Required |
-| ---- | ---- | ----------- | -------- |
-| debug | boolean (bool) | Debug info | No |
-| mgr | object |  | No |
-| mon | object |  | No |
-| osd | object |  | No |
-| overall | object |  | No |
-| rbd-mirror | object |  | No |
-| rgw | object |  | No |
+| Name       | Type           | Description | Required |
+|------------|----------------|-------------|----------|
+| debug      | boolean (bool) | Debug info  | No       |
+| mgr        | object         |             | No       |
+| mon        | object         |             | No       |
+| osd        | object         |             | No       |
+| overall    | object         |             | No       |
+| rbd-mirror | object         |             | No       |
+| rgw        | object         |             | No       |
+
+#### HTTP400BadRequest
+
+| Name    | Type           | Description | Required |
+|---------|----------------|-------------|----------|
+| code    | integer        |             | No       |
+| debug   | boolean (bool) | Debug info  | No       |
+| message | string         |             | No       |
+
+#### HTTP404NotFound
+
+| Name    | Type           | Description | Required |
+|---------|----------------|-------------|----------|
+| code    | integer        |             | No       |
+| debug   | boolean (bool) | Debug info  | No       |
+| message | string         |             | No       |
+
+#### HTTP500InternalServerError
+
+| Name    | Type           | Description | Required |
+|---------|----------------|-------------|----------|
+| code    | integer        |             | No       |
+| debug   | boolean (bool) | Debug info  | No       |
+| message | string         |             | No       |
+
+#### Message
+
+| Name    | Type   | Description | Required |
+|---------|--------|-------------|----------|
+| message | string |             | No       |
 
 #### MirrorImage
 
-| Name | Type | Description | Required |
-| ---- | ---- | ----------- | -------- |
-| image | string |  | No |
-| items | [ [MirrorImageItem](#MirrorImageItem) ] |  | No |
-| namespace | string |  | No |
-| pool | string |  | No |
+| Name      | Type                                    | Description | Required |
+|-----------|-----------------------------------------|-------------|----------|
+| image     | string                                  |             | No       |
+| items     | [ [MirrorImageItem](#MirrorImageItem) ] |             | No       |
+| namespace | string                                  |             | No       |
+| pool      | string                                  |             | No       |
 
 #### MirrorImageItem
 
-| Name | Type | Description | Required |
-| ---- | ---- | ----------- | -------- |
-| interval | string |  | No |
-| start_time | string |  | No |
+| Name       | Type   | Description | Required |
+|------------|--------|-------------|----------|
+| interval   | string |             | No       |
+| start_time | string |             | No       |
 
 #### MirrorList
 
-| Name | Type | Description | Required |
-| ---- | ---- | ----------- | -------- |
-| Local | [ [MirrorImage](#MirrorImage) ] |  | No |
-| Remote | [ [MirrorImage](#MirrorImage) ] |  | No |
-| debug | boolean (bool) | Debug info | No |
+| Name   | Type                            | Description | Required |
+|--------|---------------------------------|-------------|----------|
+| Local  | [ [MirrorImage](#MirrorImage) ] |             | No       |
+| Remote | [ [MirrorImage](#MirrorImage) ] |             | No       |
+| debug  | boolean (bool)                  | Debug info  | No       |
 
 #### MirrorSetup
 
-| Name | Type | Description | Required |
-| ---- | ---- | ----------- | -------- |
-| debug | boolean (bool) | Debug info | No |
-| host | string |  | No |
-| localClusterName | string | 미러링 상태 | No |
-| localToken | string |  | No |
-| mirrorPool | string |  | No |
-| privateKeyFile | object |  | No |
-| remoteClusterName | string | 미러링 상태 | No |
-| remoteToken | string |  | No |
+| Name              | Type           | Description | Required |
+|-------------------|----------------|-------------|----------|
+| debug             | boolean (bool) | Debug info  | No       |
+| host              | string         |             | No       |
+| localClusterName  | string         | 미러링 상태      | No       |
+| localToken        | string         |             | No       |
+| mirrorPool        | string         |             | No       |
+| privateKeyFile    | object         |             | No       |
+| remoteClusterName | string         | 미러링 상태      | No       |
+| remoteToken       | string         |             | No       |
 
 #### MirrorStatus
 
-| Name | Type | Description | Required |
-| ---- | ---- | ----------- | -------- |
-| daemon_health | string | 미러링 데몬 상태 | No |
-| debug | boolean (bool) | Debug info | No |
-| health | string | 미러링 상태 | No |
-| image_health | string | 이미지 상태 | No |
-| states | object | 이미지 상세 | No |
+| Name          | Type           | Description | Required |
+|---------------|----------------|-------------|----------|
+| daemon_health | string         | 미러링 데몬 상태   | No       |
+| debug         | boolean (bool) | Debug info  | No       |
+| health        | string         | 미러링 상태      | No       |
+| image_health  | string         | 이미지 상태      | No       |
+| states        | object         | 이미지 상세      | No       |
 
 #### Version
 
-| Name | Type | Description | Required |
-| ---- | ---- | ----------- | -------- |
-| debug | boolean (bool) | Debug info | No |
-| version | string (string) |  | No |
-
-#### controller.Message
-
-| Name | Type | Description | Required |
-| ---- | ---- | ----------- | -------- |
-| message | string |  | No |
-
-#### httputil.HTTP400BadRequest
-
-| Name    | Type           | Description | Required |
-|---------|----------------|-------------|----------|
-| code    | integer        |             | No       |
-| debug   | boolean (bool) | Debug info  | No       |
-| message | string         |             | No       |
-
-#### httputil.HTTP404NotFound
-
-| Name    | Type           | Description | Required |
-|---------|----------------|-------------|----------|
-| code    | integer        |             | No       |
-| debug   | boolean (bool) | Debug info  | No       |
-| message | string         |             | No       |
-
-#### httputil.HTTP500InternalServerError
-
-| Name | Type | Description | Required |
-| ---- | ---- | ----------- | -------- |
-| code  | integer |  | No |
-| debug | boolean (bool) | Debug info | No |
-| message | string |  | No |
+| Name    | Type            | Description | Required |
+|---------|-----------------|-------------|----------|
+| debug   | boolean (bool)  | Debug info  | No       |
+| version | string (string) |             | No       |

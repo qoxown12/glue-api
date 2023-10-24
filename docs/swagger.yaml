@@ -1,0 +1,630 @@
+definitions:
+  GlueStatus:
+    properties:
+      debug:
+        description: Debug info
+        example: true
+        format: bool
+        type: boolean
+      election_epoch:
+        example: 148
+        format: uint32
+        type: integer
+      fsid:
+        description: Glue클러스터를 구분하는 ID
+        example: 9980ffe8-4bc1-11ee-9b1f-002481004170
+        format: uuid
+        type: string
+      fsmap:
+        properties:
+          by_rank:
+            items:
+              type: object
+            type: array
+          epoch:
+            type: integer
+          up:standby:
+            type: integer
+        type: object
+      health:
+        properties:
+          checks:
+            type: object
+          mutes:
+            type: object
+          status:
+            example: HEALTH_WARN
+            format: string
+            type: string
+        type: object
+      mgrmap:
+        properties:
+          available:
+            type: boolean
+          modules:
+            items:
+              type: string
+            type: array
+          num_standbys:
+            type: integer
+          services:
+            properties:
+              dashboard:
+                type: string
+              prometheus:
+                type: string
+            type: object
+        type: object
+      monmap:
+        properties:
+          epoch:
+            type: integer
+          min_mon_release_name:
+            type: string
+          num_mons:
+            type: integer
+        type: object
+      osdmap:
+        properties:
+          epoch:
+            type: integer
+          num_in_osds:
+            type: integer
+          num_osds:
+            type: integer
+          num_remapped_pgs:
+            type: integer
+          num_up_osds:
+            type: integer
+          osd_in_since:
+            type: integer
+          osd_up_since:
+            type: integer
+        type: object
+      pgmap:
+        properties:
+          bytes_avail:
+            type: integer
+          bytes_total:
+            type: integer
+          bytes_used:
+            type: integer
+          data_bytes:
+            type: integer
+          num_objects:
+            type: integer
+          num_pgs:
+            type: integer
+          num_pools:
+            type: integer
+          pgs_by_state:
+            items:
+              properties:
+                count:
+                  type: integer
+                state_name:
+                  type: string
+              type: object
+            type: array
+          read_bytes_sec:
+            type: integer
+          read_op_per_sec:
+            type: integer
+          write_bytes_sec:
+            type: integer
+          write_op_per_sec:
+            type: integer
+        type: object
+      progress_events:
+        type: object
+      quorum:
+        items:
+          type: integer
+        type: array
+      quorum_age:
+        type: integer
+      quorum_names:
+        items:
+          type: string
+        type: array
+      servicemap:
+        properties:
+          epoch:
+            type: integer
+          modified:
+            type: string
+          services:
+            type: object
+        type: object
+    type: object
+  GlueVersion:
+    properties:
+      debug:
+        description: Debug info
+        example: true
+        format: bool
+        type: boolean
+      mgr:
+        type: object
+      mon:
+        type: object
+      osd:
+        type: object
+      overall:
+        type: object
+      rbd-mirror:
+        type: object
+      rgw:
+        type: object
+    type: object
+  MirrorImage:
+    properties:
+      image:
+        type: string
+      items:
+        items:
+          $ref: '#/definitions/MirrorImageItem'
+        type: array
+      namespace:
+        type: string
+      pool:
+        type: string
+    type: object
+  MirrorImageItem:
+    properties:
+      interval:
+        type: string
+      start_time:
+        type: string
+    type: object
+  MirrorList:
+    properties:
+      Local:
+        items:
+          $ref: '#/definitions/MirrorImage'
+        type: array
+      Remote:
+        items:
+          $ref: '#/definitions/MirrorImage'
+        type: array
+      debug:
+        description: Debug info
+        example: true
+        format: bool
+        type: boolean
+    type: object
+  MirrorSetup:
+    properties:
+      debug:
+        description: Debug info
+        example: true
+        format: bool
+        type: boolean
+      host:
+        type: string
+      localClusterName:
+        description: 미러링 상태
+        type: string
+      localToken:
+        type: string
+      mirrorPool:
+        type: string
+      privateKeyFile:
+        type: object
+      remoteClusterName:
+        description: 미러링 상태
+        type: string
+      remoteToken:
+        type: string
+    type: object
+  MirrorStatus:
+    properties:
+      daemon_health:
+        description: 미러링 데몬 상태
+        type: string
+      debug:
+        description: Debug info
+        example: true
+        format: bool
+        type: boolean
+      health:
+        description: 미러링 상태
+        type: string
+      image_health:
+        description: 이미지 상태
+        type: string
+      states:
+        description: 이미지 상세
+        type: object
+    type: object
+  Version:
+    properties:
+      debug:
+        description: Debug info
+        example: true
+        format: bool
+        type: boolean
+      version:
+        example: "1.0"
+        format: string
+        type: string
+    type: object
+  controller.Message:
+    properties:
+      message:
+        example: message
+        type: string
+    type: object
+  httputil.HTTP400BadRequest:
+    properties:
+      code:
+        example: 400
+        type: integer
+      debug:
+        description: Debug info
+        example: true
+        format: bool
+        type: boolean
+      message:
+        example: status bad request
+        type: string
+    type: object
+  httputil.HTTP404NotFound:
+    properties:
+      code:
+        example: 404
+        type: integer
+      debug:
+        description: Debug info
+        example: true
+        format: bool
+        type: boolean
+      message:
+        example: Not Found
+        type: string
+    type: object
+  httputil.HTTP500InternalServerError:
+    properties:
+      code:
+        example: 500
+        type: integer
+      debug:
+        description: Debug info
+        example: true
+        format: bool
+        type: boolean
+      message:
+        example: InternalServerError
+        type: string
+    type: object
+info:
+  contact: { }
+paths:
+  /api/v1/glue:
+    get:
+      consumes:
+        - application/json
+      description: Glue 의 상태값을 보여줍니다.
+      produces:
+        - application/json
+      responses:
+        "200":
+          description: OK
+          schema:
+            $ref: '#/definitions/GlueStatus'
+        "400":
+          description: Bad Request
+          schema:
+            $ref: '#/definitions/httputil.HTTP400BadRequest'
+        "404":
+          description: Not Found
+          schema:
+            $ref: '#/definitions/httputil.HTTP404NotFound'
+        "500":
+          description: Internal Server Error
+          schema:
+            $ref: '#/definitions/httputil.HTTP500InternalServerError'
+      summary: Show Status of Glue
+      tags:
+        - Glue
+  /api/v1/glue/pool:
+    get:
+      consumes:
+        - application/json
+      description: Glue 의 스토리지 풀 목록을 보여줍니다..
+      produces:
+        - application/json
+      responses:
+        "200":
+          description: OK
+          schema:
+            $ref: '#/definitions/GlueVersion'
+        "400":
+          description: Bad Request
+          schema:
+            $ref: '#/definitions/httputil.HTTP400BadRequest'
+        "404":
+          description: Not Found
+          schema:
+            $ref: '#/definitions/httputil.HTTP404NotFound'
+        "500":
+          description: Internal Server Error
+          schema:
+            $ref: '#/definitions/httputil.HTTP500InternalServerError'
+      summary: List Pools of Glue
+      tags:
+        - Glue
+  /api/v1/glue/pool/{pool}:
+    get:
+      consumes:
+        - application/json
+      description: Glue 스토리지 풀의 이미지 목록을 보여줍니다..
+      parameters:
+        - description: pool
+          in: path
+          name: pool
+          required: true
+          type: string
+      produces:
+        - application/json
+      responses:
+        "200":
+          description: OK
+          schema:
+            $ref: '#/definitions/GlueVersion'
+        "400":
+          description: Bad Request
+          schema:
+            $ref: '#/definitions/httputil.HTTP400BadRequest'
+        "404":
+          description: Not Found
+          schema:
+            $ref: '#/definitions/httputil.HTTP404NotFound'
+        "500":
+          description: Internal Server Error
+          schema:
+            $ref: '#/definitions/httputil.HTTP500InternalServerError'
+      summary: List Images of Pool Glue
+      tags:
+        - Glue
+  /api/v1/glue/version:
+    get:
+      consumes:
+        - application/json
+      description: Glue 의 버전을 보여줍니다.
+      produces:
+        - application/json
+      responses:
+        "200":
+          description: OK
+          schema:
+            $ref: '#/definitions/GlueVersion'
+        "400":
+          description: Bad Request
+          schema:
+            $ref: '#/definitions/httputil.HTTP400BadRequest'
+        "404":
+          description: Not Found
+          schema:
+            $ref: '#/definitions/httputil.HTTP404NotFound'
+        "500":
+          description: Internal Server Error
+          schema:
+            $ref: '#/definitions/httputil.HTTP500InternalServerError'
+      summary: Show Versions of Glue
+      tags:
+        - Glue
+  /api/v1/mirror:
+    delete:
+      consumes:
+        - application/json
+      description: Glue 의 미러링 클러스터를 제거합니다.
+      parameters:
+        - description: Remote Cluster Host Address
+          in: formData
+          name: host
+          required: true
+          type: string
+        - description: Remote Cluster PrivateKey
+          in: formData
+          name: privateKeyFile
+          required: true
+          type: file
+        - description: Pool Name for Mirroring
+          in: formData
+          name: mirrorPool
+          required: true
+          type: string
+      produces:
+        - application/json
+      responses:
+        "200":
+          description: OK
+          schema:
+            $ref: '#/definitions/MirrorSetup'
+        "400":
+          description: Bad Request
+          schema:
+            $ref: '#/definitions/httputil.HTTP400BadRequest'
+        "404":
+          description: Not Found
+          schema:
+            $ref: '#/definitions/httputil.HTTP404NotFound'
+        "500":
+          description: Internal Server Error
+          schema:
+            $ref: '#/definitions/httputil.HTTP500InternalServerError'
+      summary: Delete Mirroring Cluster
+      tags:
+        - Mirror
+    get:
+      consumes:
+        - application/json
+      description: Glue 의 미러링 상태를 보여줍니다.
+      produces:
+        - application/json
+      responses:
+        "200":
+          description: OK
+          schema:
+            $ref: '#/definitions/MirrorStatus'
+        "400":
+          description: Bad Request
+          schema:
+            $ref: '#/definitions/httputil.HTTP400BadRequest'
+        "404":
+          description: Not Found
+          schema:
+            $ref: '#/definitions/httputil.HTTP404NotFound'
+        "500":
+          description: Internal Server Error
+          schema:
+            $ref: '#/definitions/httputil.HTTP500InternalServerError'
+      summary: Show Status of Mirror
+      tags:
+        - Mirror
+    post:
+      consumes:
+        - application/json
+      description: Glue 의 미러링 클러스터를 설정합니다..
+      parameters:
+        - description: Local Cluster Name
+          in: formData
+          name: localClusterName
+          required: true
+          type: string
+        - description: Remote Cluster Name
+          in: formData
+          name: remoteClusterName
+          required: true
+          type: string
+        - description: Remote Cluster Host Address
+          in: formData
+          name: host
+          required: true
+          type: string
+        - description: Remote Cluster PrivateKey
+          in: formData
+          name: privateKeyFile
+          required: true
+          type: file
+        - description: Pool Name for Mirroring
+          in: formData
+          name: mirrorPool
+          required: true
+          type: string
+      produces:
+        - application/json
+      responses:
+        "200":
+          description: OK
+          schema:
+            $ref: '#/definitions/MirrorSetup'
+        "400":
+          description: Bad Request
+          schema:
+            $ref: '#/definitions/httputil.HTTP400BadRequest'
+        "404":
+          description: Not Found
+          schema:
+            $ref: '#/definitions/httputil.HTTP404NotFound'
+        "500":
+          description: Internal Server Error
+          schema:
+            $ref: '#/definitions/httputil.HTTP500InternalServerError'
+      summary: Setup Mirroring Cluster
+      tags:
+        - Mirror
+  /api/v1/mirror/image:
+    get:
+      consumes:
+        - application/json
+      description: 미러링중인 이미지의 목록과 상태를 보여줍니다.
+      produces:
+        - application/json
+      responses:
+        "200":
+          description: OK
+          schema:
+            $ref: '#/definitions/MirrorList'
+        "400":
+          description: Bad Request
+          schema:
+            $ref: '#/definitions/httputil.HTTP400BadRequest'
+        "404":
+          description: Not Found
+          schema:
+            $ref: '#/definitions/httputil.HTTP404NotFound'
+        "500":
+          description: Internal Server Error
+          schema:
+            $ref: '#/definitions/httputil.HTTP500InternalServerError'
+      summary: Show List of Mirrored Image
+      tags:
+        - Mirror
+  /api/v1/mirror/image/{pool}/{imagename}:
+    delete:
+      consumes:
+        - application/json
+      description: 이미지의 미러링을 비활성화 합니다.
+      parameters:
+        - description: imageName
+          in: path
+          name: imageName
+          required: true
+          type: string
+        - description: pool
+          in: path
+          name: pool
+          required: true
+          type: string
+      produces:
+        - application/json
+      responses:
+        "200":
+          description: OK
+          schema:
+            $ref: '#/definitions/controller.Message'
+        "400":
+          description: Bad Request
+          schema:
+            $ref: '#/definitions/httputil.HTTP400BadRequest'
+        "404":
+          description: Not Found
+          schema:
+            $ref: '#/definitions/httputil.HTTP404NotFound'
+        "500":
+          description: Internal Server Error
+          schema:
+            $ref: '#/definitions/httputil.HTTP500InternalServerError'
+      summary: Delete Mirrored Image
+      tags:
+        - Mirror
+  /version:
+    get:
+      consumes:
+        - application/json
+      description: API 의 버전을 보여줍니다.
+      produces:
+        - application/json
+      responses:
+        "200":
+          description: OK
+          schema:
+            $ref: '#/definitions/Version'
+        "400":
+          description: Bad Request
+          schema:
+            $ref: '#/definitions/httputil.HTTP400BadRequest'
+        "404":
+          description: Not Found
+          schema:
+            $ref: '#/definitions/httputil.HTTP404NotFound'
+        "500":
+          description: Internal Server Error
+          schema:
+            $ref: '#/definitions/httputil.HTTP500InternalServerError'
+      summary: Show Versions of API
+      tags:
+        - API
+swagger: "2.0"

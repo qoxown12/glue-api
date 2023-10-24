@@ -4,29 +4,28 @@ Glue의 기능을 제어하기 위한 REST API 입니다.
 본 문서는 swagger로 작성된 API 목록을 [swagger-markdown-ui](https://swagger-markdown-ui.netlify.app)를 사용해 작성된 README입니다.
 
 ## API 목록
-ㅁㅁㅁ
 
-##### 
-| Method | API                                      | 진행도 | 비고                |
-|--------|------------------------------------------|-----|-------------------|
-| GET    | api/v1/version                           | [x] | Version           |
-| GET    | api/v1/glue                              | [x] | GlueStatus        |
-| GET    | api/v1/glue/version                      | [x] | GlueVersion       |
-| GET    | api/v1/glue/pool                         | [x] | ListPools         |
-| GET    | api/v1/glue/pool/:poolname               | [x] | ListImages        |
-| GET    | api/v1/mirror                            | [x] | MirrorStatus      |
-| POST   | api/v1/mirror                            | [x] | MirrorSetup       |
-| PATCH  | api/v1/mirror                            | []  |                   |
-| DELETE | api/v1/mirror                            | △   | MirrorDelete      |
-| GET    | api/v1/mirror/image                      | [x] | MirrorImageList   |
-| GET    | api/v1/mirror/image/:pool/:image         | []  |                   |
-| POST   | api/v1/mirror/image/:pool/:image         | []  |                   |
-| PATCH  | api/v1/mirror/image/:pool/:image         | []  |                   |
-| DELETE | api/v1/mirror/image/:pool/:image         | [x] | MirrorImageDelete |
-| POST   | api/v1/mirror/image/prymary/:pool/:image | []  |                   |
-| DELETE | api/v1/mirror/image/prymary/:pool/:image | []  |                   |
-| GET    | api/v1/mirror/image/prymary/:pool/:image | []  |                   |
-| ANY    | swagger/index.html                       | [x] |                   |
+
+| Method | API                                                                    |        진행도         | 비고                |
+|--------|------------------------------------------------------------------------|:------------------:|-------------------|
+| GET    | [api/v1/version]()                                                     | :white_check_mark: | Version           |
+| GET    | [api/v1/glue](#apiv1glue)                                              | :white_check_mark: | GlueStatus        |
+| GET    | [api/v1/glue/version](#apiv1glueversion)                               | :white_check_mark: | GlueVersion       |
+| GET    | [api/v1/glue/pool](#apiv1gluepool)                                     | :white_check_mark: | ListPools         |
+| GET    | [api/v1/glue/pool/:poolname](#apiv1gluepoolpool)                       | :white_check_mark: | ListImages        |
+| GET    | [api/v1/mirror](#apiv1mirror)                                          | :white_check_mark: | MirrorStatus      |
+| POST   | [api/v1/mirror](#apiv1mirror)                                          | :white_check_mark: | MirrorSetup       |
+| PATCH  | [api/v1/mirror]()                                                      |                    |                   |
+| DELETE | [api/v1/mirror](#apiv1mirror)                                          |     :recycle:      | MirrorDelete      |
+| GET    | [api/v1/mirror/image](#apiv1mirrorimage)                               | :white_check_mark: | MirrorImageList   |
+| GET    | [api/v1/mirror/image/:pool/:imagename]()                               |                    |                   |
+| POST   | [api/v1/mirror/image/:pool/:imagename]()                               |                    |                   |
+| PATCH  | [api/v1/mirror/image/:pool/:imagename]()                               |                    |                   |
+| DELETE | [api/v1/mirror/image/:pool/:imagename](#apiv1mirrorimagepoolimagename) | :white_check_mark: | MirrorImageDelete |
+| POST   | [api/v1/mirror/image/prymary/:pool/:image]()                           |                    |                   |
+| DELETE | [api/v1/mirror/image/prymary/:pool/:image]()                           |                    |                   |
+| GET    | [api/v1/mirror/image/prymary/:pool/:image]()                           |                    |                   |
+| ANY    | swagger/index.html                                                     | :white_check_mark: |                   |
 
 ### /api/v1/glue
 

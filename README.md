@@ -1,6 +1,8 @@
-# glue-api
+# Glue-API
+Glue의 기능을 제어하기 위한 REST API 입니다.
 
-
+본 문서는 swagger로 작성된 API 목록을 [swagger-markdown-ui](https://swagger-markdown-ui.netlify.app)를 사용해 작성된 README입니다.
+## API 목록
 
 ### /api/v1/glue
 

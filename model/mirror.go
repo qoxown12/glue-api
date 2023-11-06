@@ -86,14 +86,50 @@ type AuthKey struct {
 	Key string `json:"key"`
 } //@name AuthKey
 
-type ImageList struct {
+type SnapshotList struct {
 	AbleModel
-	Images []Image `json:"images"`
-} // @name Images
+	Images []Snapshot `json:"images"`
+} // @name SnapshotList
 
-type Image struct {
+type Snapshot struct {
 	Image  string `json:"image"`
 	Id     string `json:"id"`
 	Size   int64  `json:"size"`
 	Format int    `json:"format"`
-} //@name Image
+} //@name Snapshot
+
+type ImageMirror struct {
+	AbleModel
+	Pool      string            `json:"pool"`
+	Namespace string            `json:"namespace"`
+	Image     string            `json:"image"`
+	Items     []MirrorImageItem `json:"items"`
+} //@name ImageMirror
+
+type ImageStatus struct {
+	AbleModel
+	Name          string `json:"name"`
+	GlobalId      string `json:"global_id"`
+	State         string `json:"state"`
+	Description   string `json:"description"`
+	DaemonService struct {
+		ServiceId  string `json:"service_id"`
+		InstanceId string `json:"instance_id"`
+		DaemonId   string `json:"daemon_id"`
+		Hostname   string `json:"hostname"`
+	} `json:"daemon_service"`
+	LastUpdate string `json:"last_update"`
+	PeerSites  []struct {
+		SiteName    string `json:"site_name"`
+		MirrorUuids string `json:"mirror_uuids"`
+		State       string `json:"state"`
+		Description string `json:"description"`
+		LastUpdate  string `json:"last_update"`
+	} `json:"peer_sites"`
+	Snapshots []struct {
+		Id              int      `json:"id"`
+		Name            string   `json:"name"`
+		Demoted         bool     `json:"demoted"`
+		MirrorPeerUuids []string `json:"mirror_peer_uuids"`
+	} `json:"snapshots"`
+} //@name ImageStatus

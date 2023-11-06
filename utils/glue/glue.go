@@ -13,7 +13,7 @@ func ListPool() (pools []string, err error) {
 	var stdout []byte
 	if gin.IsDebugging() != true {
 		cmd := exec.Command("ceph", "osd", "pool", "ls", "--format", "json")
-		stdout, err = cmd.Output()
+		stdout, err = cmd.CombinedOutput()
 
 		if err != nil {
 			return
@@ -30,6 +30,27 @@ func ListPool() (pools []string, err error) {
 	return
 }
 
+func ListImage(pool string) (images []model.Snapshot, err error) {
+	var stdout []byte
+	if gin.IsDebugging() != true {
+		cmd := exec.Command("rbd", "ls", "-l", "-p", pool, "--format", "json")
+		stdout, err = cmd.CombinedOutput()
+
+		if err != nil {
+			return
+		}
+
+	} else {
+		// Print the output
+		stdout = []byte("[{\"image\":\"test\",\"id\":\"15de89c519b8\",\"size\":10737418240,\"format\":2},{\"image\":\"test2\",\"id\":\"15dec78c7823\",\"size\":10737418240,\"format\":2},{\"image\":\"test3\",\"id\":\"15de61bec90f\",\"size\":10737418240,\"format\":2}]")
+
+	}
+	if err = json.Unmarshal(stdout, &images); err != nil {
+		return
+	}
+	return
+}
+
 func Status() (dat model.GlueStatus, err error) {
 
 	if gin.IsDebugging() != true {
@@ -37,7 +58,7 @@ func Status() (dat model.GlueStatus, err error) {
 		var out strings.Builder
 		cmd := exec.Command("ceph", "-s", "-f", "json")
 		cmd.Stderr = &out
-		stdout, err = cmd.Output()
+		stdout, err = cmd.CombinedOutput()
 
 		if err = json.Unmarshal(stdout, &dat); err != nil {
 			utils.FancyHandleError(err)

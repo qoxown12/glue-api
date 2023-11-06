@@ -8,7 +8,7 @@ Glue의 기능을 제어하기 위한 REST API 입니다.
 
 | Method | API                                                                    |        진행도         | 비고                |
 |--------|------------------------------------------------------------------------|:------------------:|-------------------|
-| GET    | [api/v1/version]()                                                     | :white_check_mark: | Version           |
+| GET    | [api/v1/version](#version)                                             | :white_check_mark: | Version           |
 | GET    | [api/v1/glue](#apiv1glue)                                              | :white_check_mark: | GlueStatus        |
 | GET    | [api/v1/glue/version](#apiv1glueversion)                               | :white_check_mark: | GlueVersion       |
 | GET    | [api/v1/glue/pool](#apiv1gluepool)                                     | :white_check_mark: | ListPools         |

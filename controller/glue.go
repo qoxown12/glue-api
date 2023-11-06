@@ -16,7 +16,7 @@ import (
 //	@Summary		Show Status of Glue
 //	@Description	Glue 의 상태값을 보여줍니다.
 //	@Tags			Glue
-//	@Accept			json
+//	@Accept			x-www-form-urlencoded
 //	@Produce		json
 //	@Success		200	{object}	model.GlueStatus
 //	@Failure		400	{object}	httputil.HTTP400BadRequest
@@ -41,7 +41,7 @@ func (c *Controller) GlueStatus(ctx *gin.Context) {
 //	@Summary		Show Versions of Glue
 //	@Description	Glue 의 버전을 보여줍니다.
 //	@Tags			Glue
-//	@Accept			json
+//	@Accept			x-www-form-urlencoded
 //	@Produce		json
 //	@Success		200	{object}	model.GlueVersion
 //	@Failure		400	{object}	httputil.HTTP400BadRequest
@@ -53,7 +53,7 @@ func (c *Controller) GlueVersion(ctx *gin.Context) {
 
 	if gin.IsDebugging() != true {
 		cmd := exec.Command("ceph", "versions")
-		stdout, err := cmd.Output()
+		stdout, err := cmd.CombinedOutput()
 
 		if err != nil {
 			httputil.NewError(ctx, http.StatusInternalServerError, err)
@@ -81,7 +81,7 @@ func (c *Controller) GlueVersion(ctx *gin.Context) {
 //	@Summary		List Pools of Glue
 //	@Description	Glue 의 스토리지 풀 목록을 보여줍니다..
 //	@Tags			Glue
-//	@Accept			json
+//	@Accept			x-www-form-urlencoded
 //	@Produce		json
 //	@Success		200	{object}	model.GlueVersion
 //	@Failure		400	{object}	httputil.HTTP400BadRequest
@@ -106,7 +106,7 @@ func (c *Controller) ListPools(ctx *gin.Context) {
 //	@Description	Glue 스토리지 풀의 이미지 목록을 보여줍니다..
 //	@Tags			Glue
 //	@param			pool			path	string	true	"pool"
-//	@Accept			json
+//	@Accept			x-www-form-urlencoded
 //	@Produce		json
 //	@Success		200	{object}	model.GlueVersion
 //	@Failure		400	{object}	httputil.HTTP400BadRequest
@@ -114,9 +114,9 @@ func (c *Controller) ListPools(ctx *gin.Context) {
 //	@Failure		500	{object}	httputil.HTTP500InternalServerError
 //	@Router			/api/v1/glue/pool/{pool} [get]
 func (c *Controller) ListImages(ctx *gin.Context) {
-	var dat model.ImageList
+	var dat model.SnapshotList
 	pool := ctx.Param("pool")
-	images, err := ListImage(pool)
+	images, err := glue.ListImage(pool)
 	if err != nil {
 		httputil.NewError(ctx, http.StatusInternalServerError, err)
 		return
@@ -124,25 +124,4 @@ func (c *Controller) ListImages(ctx *gin.Context) {
 	dat.Debug = gin.IsDebugging()
 	dat.Images = images
 	ctx.IndentedJSON(http.StatusOK, dat)
-}
-
-func ListImage(pool string) (images []model.Image, err error) {
-	var stdout []byte
-	if gin.IsDebugging() != true {
-		cmd := exec.Command("rbd", "ls", "-l", "-p", pool, "--format", "json")
-		stdout, err = cmd.Output()
-
-		if err != nil {
-			return
-		}
-
-	} else {
-		// Print the output
-		stdout = []byte("[{\"image\":\"test\",\"id\":\"15de89c519b8\",\"size\":10737418240,\"format\":2},{\"image\":\"test2\",\"id\":\"15dec78c7823\",\"size\":10737418240,\"format\":2},{\"image\":\"test3\",\"id\":\"15de61bec90f\",\"size\":10737418240,\"format\":2}]")
-
-	}
-	if err = json.Unmarshal(stdout, &images); err != nil {
-		return
-	}
-	return
 }

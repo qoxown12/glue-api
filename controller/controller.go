@@ -26,7 +26,7 @@ type Message struct {
 //	@Summary		Show Versions of API
 //	@Description	API 의 버전을 보여줍니다.
 //	@Tags			API
-//	@Accept			json
+//	@Accept			x-www-form-urlencoded
 //	@Produce		json
 //	@Success		200	{object}	model.Version
 //	@Failure		400	{object}	httputil.HTTP400BadRequest

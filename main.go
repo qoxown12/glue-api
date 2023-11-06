@@ -69,19 +69,18 @@ func main() {
 			//
 			mirrorimage := mirror.Group("/image")
 			{
-				mirrorimage.GET("", c.MirrorImageList) //List Mirroring Images
-				//mirror.GET("/image/:id", c.MirrorImageInfo)      //Get Image Mirroring Status
-				//mirror.POST("/image/:id", c.MirrorImageSetup)    //Setup Image Mirroring
-				//mirror.PATCH("/image/:id", c.MirrorImageUpdate)  //Config Image Mirroring
-				mirror.DELETE("/image/:pool/:imagename", c.MirrorImageDelete) //Unconfigure Mirroring
+				mirrorimage.GET("", c.MirrorImageList)                             //List Mirroring Images
+				mirrorimage.GET("/:mirrorPool/:imageName", c.MirrorImageInfo)      //Get Image Mirroring Status
+				mirrorimage.POST("/:mirrorPool/:imageName", c.MirrorImageSetup)    //Setup Image Mirroring
+				mirrorimage.PATCH("/:mirrorPool/:imageName", c.MirrorImageUpdate)  //Config Image Mirroring
+				mirrorimage.DELETE("/:mirrorPool/:imageName", c.MirrorImageDelete) //Unconfigure Mirroring
 
+				mirrorimage.GET("/promote/:mirrorPool/:imageName", c.MirrorImagestatus) //Promote Image
+				//mirrorimage.POST("/promote/:id", c.MirrorImagePromote) //
+				//mirrorimage.POST("/demote/:id", c.MirrorImageDemote)
 			}
 			//
-			//mirror.GET("/image/promote/:id", c.MirrorImagestatus)   //Promote Image
-			//mirror.POST("/image/promote/:id", c.MirrorImagePromote) //
 			//
-			////mirror.GET("/image/demote/:id", c.GlueStatus) //Demote Image
-			//mirror.POST("/image/demote/:id", c.MirrorImageDemote)
 		}
 		/*
 			admin := v1.Group("/admin")

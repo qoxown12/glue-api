@@ -199,6 +199,83 @@ definitions:
         example: InternalServerError
         type: string
     type: object
+  ImageMirror:
+    properties:
+      debug:
+        description: Debug info
+        example: true
+        format: bool
+        type: boolean
+      image:
+        type: string
+      items:
+        items:
+          $ref: '#/definitions/MirrorImageItem'
+        type: array
+      namespace:
+        type: string
+      pool:
+        type: string
+    type: object
+  ImageStatus:
+    properties:
+      daemon_service:
+        properties:
+          daemon_id:
+            type: string
+          hostname:
+            type: string
+          instance_id:
+            type: string
+          service_id:
+            type: string
+        type: object
+      debug:
+        description: Debug info
+        example: true
+        format: bool
+        type: boolean
+      description:
+        type: string
+      global_id:
+        type: string
+      last_update:
+        type: string
+      name:
+        type: string
+      peer_sites:
+        items:
+          properties:
+            description:
+              type: string
+            last_update:
+              type: string
+            mirror_uuids:
+              type: string
+            site_name:
+              type: string
+            state:
+              type: string
+          type: object
+        type: array
+      snapshots:
+        items:
+          properties:
+            demoted:
+              type: boolean
+            id:
+              type: integer
+            mirror_peer_uuids:
+              items:
+                type: string
+              type: array
+            name:
+              type: string
+          type: object
+        type: array
+      state:
+        type: string
+    type: object
   Message:
     properties:
       message:
@@ -303,7 +380,7 @@ paths:
   /api/v1/glue:
     get:
       consumes:
-      - application/json
+        - application/x-www-form-urlencoded
       description: Glue 의 상태값을 보여줍니다.
       produces:
       - application/json
@@ -330,7 +407,7 @@ paths:
   /api/v1/glue/pool:
     get:
       consumes:
-      - application/json
+        - application/x-www-form-urlencoded
       description: Glue 의 스토리지 풀 목록을 보여줍니다..
       produces:
       - application/json
@@ -357,7 +434,7 @@ paths:
   /api/v1/glue/pool/{pool}:
     get:
       consumes:
-      - application/json
+        - application/x-www-form-urlencoded
       description: Glue 스토리지 풀의 이미지 목록을 보여줍니다..
       parameters:
       - description: pool
@@ -390,7 +467,7 @@ paths:
   /api/v1/glue/version:
     get:
       consumes:
-      - application/json
+        - application/x-www-form-urlencoded
       description: Glue 의 버전을 보여줍니다.
       produces:
       - application/json
@@ -417,7 +494,7 @@ paths:
   /api/v1/mirror:
     delete:
       consumes:
-      - application/json
+        - application/x-www-form-urlencoded
       description: Glue 의 미러링 클러스터를 제거합니다.
       parameters:
       - description: Remote Cluster Host Address
@@ -459,7 +536,7 @@ paths:
       - Mirror
     get:
       consumes:
-      - application/json
+        - application/x-www-form-urlencoded
       description: Glue 의 미러링 상태를 보여줍니다.
       produces:
       - application/json
@@ -485,7 +562,7 @@ paths:
       - Mirror
     post:
       consumes:
-      - application/json
+        - application/x-www-form-urlencoded
       description: Glue 의 미러링 클러스터를 설정합니다..
       parameters:
       - description: Local Cluster Name
@@ -538,7 +615,7 @@ paths:
   /api/v1/mirror/image:
     get:
       consumes:
-      - application/json
+        - application/x-www-form-urlencoded
       description: 미러링중인 이미지의 목록과 상태를 보여줍니다.
       produces:
       - application/json
@@ -559,25 +636,25 @@ paths:
           description: Internal Server Error
           schema:
             $ref: '#/definitions/HTTP500InternalServerError'
-      summary: Show List of Mirrored Image
+      summary: Show List of Mirrored Snapshot
       tags:
       - Mirror
-  /api/v1/mirror/image/{pool}/{imagename}:
+  /api/v1/mirror/image/{mirrorPool}/{imageName}:
     delete:
       consumes:
-      - application/json
+        - application/x-www-form-urlencoded
       description: 이미지의 미러링을 비활성화 합니다.
       parameters:
-      - description: imageName
-        in: path
-        name: imageName
-        required: true
-        type: string
-      - description: pool
-        in: path
-        name: pool
-        required: true
-        type: string
+        - description: pool
+          in: path
+          name: mirrorPool
+          required: true
+          type: string
+        - description: imageName
+          in: path
+          name: imageName
+          required: true
+          type: string
       produces:
       - application/json
       responses:
@@ -597,13 +674,180 @@ paths:
           description: Internal Server Error
           schema:
             $ref: '#/definitions/HTTP500InternalServerError'
-      summary: Delete Mirrored Image
+      summary: Delete Mirrored Snapshot
+      tags:
+        - Mirror
+    get:
+      consumes:
+        - application/x-www-form-urlencoded
+      description: 미러링중인 이미지의 정보를 보여줍니다.
+      parameters:
+        - description: mirrorPool
+          in: path
+          name: mirrorPool
+          required: true
+          type: string
+        - description: imageName
+          in: path
+          name: imageName
+          required: true
+          type: string
+      produces:
+        - application/json
+      responses:
+        "200":
+          description: OK
+          schema:
+            $ref: '#/definitions/ImageMirror'
+        "400":
+          description: Bad Request
+          schema:
+            $ref: '#/definitions/HTTP400BadRequest'
+        "404":
+          description: Not Found
+          schema:
+            $ref: '#/definitions/HTTP404NotFound'
+        "500":
+          description: Internal Server Error
+          schema:
+            $ref: '#/definitions/HTTP500InternalServerError'
+      summary: Show Infomation of Mirrored Snapshot
+      tags:
+        - Mirror
+    patch:
+      consumes:
+        - application/x-www-form-urlencoded
+      description: Glue 의 이미지에 미러링의 설정을 변경합니다.
+      parameters:
+        - description: Pool Name for Mirroring
+          in: path
+          name: mirrorPool
+          required: true
+          type: string
+        - description: Image Name for Mirroring
+          in: path
+          name: imageName
+          required: true
+          type: string
+        - description: Interval of image snapshot
+          in: formData
+          name: interval
+          required: true
+          type: string
+        - description: Starttime of image snapshot
+          in: formData
+          name: startTime
+          type: string
+      produces:
+        - application/json
+      responses:
+        "200":
+          description: OK
+          schema:
+            $ref: '#/definitions/ImageMirror'
+        "400":
+          description: Bad Request
+          schema:
+            $ref: '#/definitions/HTTP400BadRequest'
+        "404":
+          description: Not Found
+          schema:
+            $ref: '#/definitions/HTTP404NotFound'
+        "500":
+          description: Internal Server Error
+          schema:
+            $ref: '#/definitions/HTTP500InternalServerError'
+      summary: Patch Image Mirroring
+      tags:
+        - Mirror
+    post:
+      consumes:
+        - application/x-www-form-urlencoded
+      description: Glue 의 이미지에 미러링을 설정합니다.
+      parameters:
+        - description: Pool Name for Mirroring
+          in: path
+          name: mirrorPool
+          required: true
+          type: string
+        - description: Image Name for Mirroring
+          in: path
+          name: imageName
+          required: true
+          type: string
+        - description: Interval of image snapshot
+          in: formData
+          name: interval
+          required: true
+          type: string
+        - description: StartTime of image snapshot
+          in: formData
+          name: startTime
+          type: string
+      produces:
+      - application/json
+      responses:
+        "200":
+          description: OK
+          schema:
+            $ref: '#/definitions/ImageMirror'
+        "400":
+          description: Bad Request
+          schema:
+            $ref: '#/definitions/HTTP400BadRequest'
+        "404":
+          description: Not Found
+          schema:
+            $ref: '#/definitions/HTTP404NotFound'
+        "500":
+          description: Internal Server Error
+          schema:
+            $ref: '#/definitions/HTTP500InternalServerError'
+      summary: Setup Image Mirroring
       tags:
       - Mirror
+  /api/v1/mirror/image/promote/{mirrorPool}/{imageName}:
+    get:
+      consumes:
+        - application/x-www-form-urlencoded
+      description: Glue 의 이미지에 미러링상태를 확인합니다.
+      parameters:
+        - description: Pool Name for Mirroring
+          in: path
+          name: mirrorPool
+          required: true
+          type: string
+        - description: Image Name for Mirroring
+          in: path
+          name: imageName
+          required: true
+          type: string
+      produces:
+      - application/json
+      responses:
+        "200":
+          description: OK
+          schema:
+            $ref: '#/definitions/ImageStatus'
+        "400":
+          description: Bad Request
+          schema:
+            $ref: '#/definitions/HTTP400BadRequest'
+        "404":
+          description: Not Found
+          schema:
+            $ref: '#/definitions/HTTP404NotFound'
+        "500":
+          description: Internal Server Error
+          schema:
+            $ref: '#/definitions/HTTP500InternalServerError'
+      summary: Patch Image Mirroring
+      tags:
+        - Mirror
   /version:
     get:
       consumes:
-      - application/json
+        - application/x-www-form-urlencoded
       description: API 의 버전을 보여줍니다.
       produces:
       - application/json

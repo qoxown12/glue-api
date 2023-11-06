@@ -10,8 +10,8 @@ import (
 	ginSwagger "github.com/swaggo/gin-swagger"
 )
 
-//	@title			Glue API
-//	@version		1.0
+//	@title			Glue-API
+//	@version		v1.0
 //	@description	This is a GlueAPI server.
 //	@termsOfService	http://swagger.io/terms/
 

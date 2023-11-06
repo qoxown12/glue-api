@@ -494,7 +494,7 @@ paths:
   /api/v1/mirror:
     delete:
       consumes:
-        - application/x-www-form-urlencoded
+        - multipart/form-data
       description: Glue 의 미러링 클러스터를 제거합니다.
       parameters:
       - description: Remote Cluster Host Address
@@ -562,7 +562,7 @@ paths:
       - Mirror
     post:
       consumes:
-        - application/x-www-form-urlencoded
+        - multipart/form-data
       description: Glue 의 미러링 클러스터를 설정합니다..
       parameters:
       - description: Local Cluster Name

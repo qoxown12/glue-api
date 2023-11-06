@@ -79,7 +79,7 @@ func (c *Controller) GlueVersion(ctx *gin.Context) {
 // ListPools godoc
 //
 //	@Summary		List Pools of Glue
-//	@Description	Glue 의 스토리지 풀 목록을 보여줍니다..
+//	@Description	Glue 의 스토리지 풀 목록을 보여줍니다.
 //	@Tags			Glue
 //	@Accept			x-www-form-urlencoded
 //	@Produce		json
@@ -103,7 +103,7 @@ func (c *Controller) ListPools(ctx *gin.Context) {
 // ListImages godoc
 //
 //	@Summary		List Images of Pool Glue
-//	@Description	Glue 스토리지 풀의 이미지 목록을 보여줍니다..
+//	@Description	Glue 스토리지 풀의 이미지 목록을 보여줍니다.
 //	@Tags			Glue
 //	@param			pool			path	string	true	"pool"
 //	@Accept			x-www-form-urlencoded

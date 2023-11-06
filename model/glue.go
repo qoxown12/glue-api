@@ -1,10 +1,10 @@
 package model
 
 import (
-	uuid "github.com/gofrs/uuid"
+	"github.com/gofrs/uuid"
 )
 
-// Glue Version
+// GlueVersion
 // @Description Glue의 버전
 type GlueVersion struct {
 	AbleModel

@@ -127,14 +127,14 @@ func (c *Controller) MirrorStatus(ctx *gin.Context) {
 // MirrorSetup godoc
 //
 //	@Summary		Setup Mirroring Cluster
-//	@Description	Glue 의 미러링 클러스터를 설정합니다..
+//	@Description	Glue 의 미러링 클러스터를 설정합니다.
 //	@param			localClusterName	formData	string	true	"Local Cluster Name"
 //	@param			remoteClusterName		formData	string	true	"Remote Cluster Name"
 //	@param			host		formData	string	true	"Remote Cluster Host Address"
 //	@param			privateKeyFile	formData	file	true	"Remote Cluster PrivateKey"
 //	@param			mirrorPool		formData	string	true	"Pool Name for Mirroring"
 //	@Tags			Mirror
-//	@Accept			x-www-form-urlencoded
+//	@Accept			multipart/form-data
 //	@Produce		json
 //	@Success		200	{object}	model.MirrorSetup
 //	@Failure		400	{object}	httputil.HTTP400BadRequest
@@ -187,7 +187,7 @@ func (c *Controller) MirrorSetup(ctx *gin.Context) {
 //	@param			privateKeyFile	formData	file	true	"Remote Cluster PrivateKey"
 //	@param			mirrorPool		formData	string	true	"Pool Name for Mirroring"
 //	@Tags			Mirror
-//	@Accept			x-www-form-urlencoded
+//	@Accept			multipart/form-data
 //	@Produce		json
 //	@Success		200	{object}	model.MirrorSetup
 //	@Failure		400	{object}	httputil.HTTP400BadRequest

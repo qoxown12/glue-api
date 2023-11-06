@@ -6,7 +6,7 @@ type AbleModel struct {
 	Debug bool `json:"debug" example:"true" format:"bool"` //Debug info
 }
 
-// API Version
+// Version API Version
 // @Description API의 버전
 type Version struct {
 	AbleModel

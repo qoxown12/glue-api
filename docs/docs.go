@@ -239,7 +239,7 @@ var doc = `{
             "post": {
                 "description": "Glue 의 미러링 클러스터를 설정합니다..",
                 "consumes": [
-                    "application/x-www-form-urlencoded"
+                    "multipart/form-data"
                 ],
                 "produces": [
                     "application/json"
@@ -315,7 +315,7 @@ var doc = `{
             "delete": {
                 "description": "Glue 의 미러링 클러스터를 제거합니다.",
                 "consumes": [
-                    "application/x-www-form-urlencoded"
+                    "multipart/form-data"
                 ],
                 "produces": [
                     "application/json"

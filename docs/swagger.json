@@ -1,8 +1,21 @@
 {
     "swagger": "2.0",
     "info": {
-        "contact": {}
+        "description": "This is a GlueAPI server.",
+        "title": "Glue-API",
+        "termsOfService": "http://swagger.io/terms/",
+        "contact": {
+            "name": "윤여천",
+            "url": "http://www.ablecloud.io",
+            "email": "support@ablecloud.io"
+        },
+        "license": {
+            "name": "Apache 2.0",
+            "url": "http://www.apache.org/licenses/LICENSE-2.0.html"
+        },
+        "version": "v1.0"
     },
+    "basePath": "/api/v1",
     "paths": {
         "/api/v1/glue": {
             "get": {
@@ -47,7 +60,7 @@
         },
         "/api/v1/glue/pool": {
             "get": {
-                "description": "Glue 의 스토리지 풀 목록을 보여줍니다..",
+                "description": "Glue 의 스토리지 풀 목록을 보여줍니다.",
                 "consumes": [
                     "application/x-www-form-urlencoded"
                 ],
@@ -88,7 +101,7 @@
         },
         "/api/v1/glue/pool/{pool}": {
             "get": {
-                "description": "Glue 스토리지 풀의 이미지 목록을 보여줍니다..",
+                "description": "Glue 스토리지 풀의 이미지 목록을 보여줍니다.",
                 "consumes": [
                     "application/x-www-form-urlencoded"
                 ],
@@ -218,7 +231,7 @@
                 }
             },
             "post": {
-                "description": "Glue 의 미러링 클러스터를 설정합니다..",
+                "description": "Glue 의 미러링 클러스터를 설정합니다.",
                 "consumes": [
                     "multipart/form-data"
                 ],
@@ -410,6 +423,116 @@
                     "Mirror"
                 ],
                 "summary": "Patch Image Mirroring",
+                "parameters": [
+                    {
+                        "type": "string",
+                        "description": "Pool Name for Mirroring",
+                        "name": "mirrorPool",
+                        "in": "path",
+                        "required": true
+                    },
+                    {
+                        "type": "string",
+                        "description": "Image Name for Mirroring",
+                        "name": "imageName",
+                        "in": "path",
+                        "required": true
+                    }
+                ],
+                "responses": {
+                    "200": {
+                        "description": "OK",
+                        "schema": {
+                            "$ref": "#/definitions/ImageStatus"
+                        }
+                    },
+                    "400": {
+                        "description": "Bad Request",
+                        "schema": {
+                            "$ref": "#/definitions/HTTP400BadRequest"
+                        }
+                    },
+                    "404": {
+                        "description": "Not Found",
+                        "schema": {
+                            "$ref": "#/definitions/HTTP404NotFound"
+                        }
+                    },
+                    "500": {
+                        "description": "Internal Server Error",
+                        "schema": {
+                            "$ref": "#/definitions/HTTP500InternalServerError"
+                        }
+                    }
+                }
+            },
+            "post": {
+                "description": "Glue 의 이미지를 활성화 합니다.",
+                "consumes": [
+                    "application/x-www-form-urlencoded"
+                ],
+                "produces": [
+                    "application/json"
+                ],
+                "tags": [
+                    "Mirror"
+                ],
+                "summary": "Promote Image Mirroring",
+                "parameters": [
+                    {
+                        "type": "string",
+                        "description": "Pool Name for Mirroring",
+                        "name": "mirrorPool",
+                        "in": "path",
+                        "required": true
+                    },
+                    {
+                        "type": "string",
+                        "description": "Image Name for Mirroring",
+                        "name": "imageName",
+                        "in": "path",
+                        "required": true
+                    }
+                ],
+                "responses": {
+                    "200": {
+                        "description": "OK",
+                        "schema": {
+                            "$ref": "#/definitions/ImageStatus"
+                        }
+                    },
+                    "400": {
+                        "description": "Bad Request",
+                        "schema": {
+                            "$ref": "#/definitions/HTTP400BadRequest"
+                        }
+                    },
+                    "404": {
+                        "description": "Not Found",
+                        "schema": {
+                            "$ref": "#/definitions/HTTP404NotFound"
+                        }
+                    },
+                    "500": {
+                        "description": "Internal Server Error",
+                        "schema": {
+                            "$ref": "#/definitions/HTTP500InternalServerError"
+                        }
+                    }
+                }
+            },
+            "delete": {
+                "description": "Glue 의 이미지를 활성화 합니다.",
+                "consumes": [
+                    "application/x-www-form-urlencoded"
+                ],
+                "produces": [
+                    "application/json"
+                ],
+                "tags": [
+                    "Mirror"
+                ],
+                "summary": "Promote Image Mirroring",
                 "parameters": [
                     {
                         "type": "string",
@@ -746,6 +869,7 @@
     },
     "definitions": {
         "GlueStatus": {
+            "description": "Glue의 상태를 나타내는 구조체",
             "type": "object",
             "properties": {
                 "debug": {
@@ -770,9 +894,7 @@
                     "properties": {
                         "by_rank": {
                             "type": "array",
-                            "items": {
-                                "type": "object"
-                            }
+                            "items": {}
                         },
                         "epoch": {
                             "type": "integer"
@@ -785,12 +907,8 @@
                 "health": {
                     "type": "object",
                     "properties": {
-                        "checks": {
-                            "type": "object"
-                        },
-                        "mutes": {
-                            "type": "object"
-                        },
+                        "checks": {},
+                        "mutes": {},
                         "status": {
                             "type": "string",
                             "format": "string",
@@ -945,14 +1063,13 @@
                         "modified": {
                             "type": "string"
                         },
-                        "services": {
-                            "type": "object"
-                        }
+                        "services": {}
                     }
                 }
             }
         },
         "GlueVersion": {
+            "description": "Glue의 버전",
             "type": "object",
             "properties": {
                 "debug": {
@@ -961,24 +1078,12 @@
                     "format": "bool",
                     "example": true
                 },
-                "mgr": {
-                    "type": "object"
-                },
-                "mon": {
-                    "type": "object"
-                },
-                "osd": {
-                    "type": "object"
-                },
-                "overall": {
-                    "type": "object"
-                },
-                "rbd-mirror": {
-                    "type": "object"
-                },
-                "rgw": {
-                    "type": "object"
-                }
+                "mgr": {},
+                "mon": {},
+                "osd": {},
+                "overall": {},
+                "rbd-mirror": {},
+                "rgw": {}
             }
         },
         "HTTP400BadRequest": {
@@ -1238,9 +1343,7 @@
                 "mirrorPool": {
                     "type": "string"
                 },
-                "privateKeyFile": {
-                    "type": "object"
-                },
+                "privateKeyFile": {},
                 "remoteClusterName": {
                     "description": "미러링 상태",
                     "type": "string"
@@ -1272,12 +1375,12 @@
                     "type": "string"
                 },
                 "states": {
-                    "description": "이미지 상세",
-                    "type": "object"
+                    "description": "이미지 상세"
                 }
             }
         },
         "Version": {
+            "description": "API의 버전",
             "type": "object",
             "properties": {
                 "debug": {
@@ -1292,6 +1395,17 @@
                     "example": "1.0"
                 }
             }
+        }
+    },
+    "securityDefinitions": {
+        "ApiKeyAuth": {
+            "description": "Description for what is this security definition being used",
+            "type": "apiKey",
+            "name": "Authorization",
+            "in": "header"
+        },
+        "BasicAuth": {
+            "type": "basic"
         }
     }
 }

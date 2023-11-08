@@ -253,7 +253,7 @@ func Status() (mirrorStatus model.MirrorStatus, err error) {
 
 		cmd := exec.Command("rbd", "mirror", "pool", "status", "--format", "json", "--pretty-format")
 		var out strings.Builder
-		cmd.Stderr = &out
+		//cmd.Stderr = &out
 		stdout, err = cmd.CombinedOutput()
 
 		if err != nil {
@@ -361,7 +361,6 @@ func ImageStatus(poolName string, imageName string) (imageStatus model.ImageStat
 
 	var stdoutScheduleEnable []byte
 	if gin.IsDebugging() != true {
-
 		strScheduleOutput := exec.Command("rbd", "mirror", "image", "status", "--pool", poolName, "--image", imageName, "--format", "json")
 		stdoutScheduleEnable, err = strScheduleOutput.CombinedOutput()
 	} else {
@@ -696,6 +695,72 @@ func ConfigMirror(dat model.MirrorSetup, privkeyname string) (EncodedLocalToken 
 		utils.FancyHandleError(err)
 		return
 
+	}
+	return
+}
+
+func ImagePromote(poolName string, imageName string) (imageStatus model.ImageStatus, err error) {
+
+	var stdoutScheduleEnable []byte
+	if gin.IsDebugging() != true {
+		strScheduleOutput := exec.Command("rbd", "mirror", "image", "promote", "--pool", poolName, "--image", imageName)
+		stdoutScheduleEnable, err = strScheduleOutput.CombinedOutput()
+	} else {
+		stdoutScheduleEnable = []byte("{\"name\":\"test\",\"global_id\":\"8a5db4a1-8d16-43df-bc9e-8ea8c8007879\",\"state\":\"up+stopped\",\"description\":\"local image is primary\",\"daemon_service\":{\"service_id\":\"1517082\",\"instance_id\":\"1707685\",\"daemon_id\":\"scvm13.kphwqj\",\"hostname\":\"scvm13\"},\"last_update\":\"2023-11-03 10:11:26\",\"peer_sites\":[{\"site_name\":\"rbd2\",\"mirror_uuids\":\"b69a89e3-ea2b-4ce5-8973-19ac0832281f\",\"state\":\"up+replaying\",\"description\":\"replaying, {\\\"bytes_per_second\\\":0.0,\\\"bytes_per_snapshot\\\":0.0,\\\"last_snapshot_bytes\\\":0,\\\"last_snapshot_sync_seconds\\\":0,\\\"local_snapshot_timestamp\\\":1698973860,\\\"remote_snapshot_timestamp\\\":1698973860,\\\"replay_state\\\":\\\"idle\\\"}\",\"last_update\":\"2023-11-03 10:11:28\"}],\"snapshots\":[{\"id\":6636,\"name\":\".mirror.primary.8a5db4a1-8d16-43df-bc9e-8ea8c8007879.68dfeb05-f9e1-4b4e-894e-5b622821320d\",\"demoted\":false,\"mirror_peer_uuids\":[]},{\"id\":6638,\"name\":\".mirror.primary.8a5db4a1-8d16-43df-bc9e-8ea8c8007879.71bb09d3-651c-4052-846f-c395563df597\",\"demoted\":false,\"mirror_peer_uuids\":[\"231f94df-9c4a-4316-8473-34fbc7f50d6b\"]}]}")
+	}
+
+	if !strings.Contains(string(stdoutScheduleEnable), "Image promoted") {
+		err = errors.Join(err, errors.New(string(stdoutScheduleEnable)))
+	}
+	if err != nil {
+		err = errors.Join(err, errors.New(string(stdoutScheduleEnable)))
+		utils.FancyHandleError(err)
+		return
+	}
+	return
+}
+
+func ImageDemote(poolName string, imageName string) (imageStatus model.ImageStatus, err error) {
+
+	var stdoutScheduleEnable []byte
+
+	strScheduleOutput := exec.Command("rbd", "mirror", "image", "demote", "--pool", poolName, "--image", imageName)
+	stdoutScheduleEnable, err = strScheduleOutput.CombinedOutput()
+	if !strings.Contains(string(stdoutScheduleEnable), "Image demoted") {
+		err = errors.Join(err, errors.New(string(stdoutScheduleEnable)))
+	}
+	if err != nil {
+		utils.FancyHandleError(err)
+	}
+	return
+}
+
+func RemoteImagePromote(poolName string, imageName string) (imageStatus model.ImageStatus, err error) {
+
+	var stdoutScheduleEnable []byte
+	conf, err := GetConfigure()
+	strScheduleOutput := exec.Command("rbd", "-c", conf.ClusterFileName, "--cluster", conf.ClusterName, "--name", conf.Peers[0].ClientName, "--keyfile", conf.KeyFileName, "mirror", "image", "promote", "--pool", poolName, "--image", imageName)
+	stdoutScheduleEnable, err = strScheduleOutput.CombinedOutput()
+	if !strings.Contains(string(stdoutScheduleEnable), "Image promoted") {
+		err = errors.Join(err, errors.New(string(stdoutScheduleEnable)))
+	}
+	if err != nil {
+		utils.FancyHandleError(err)
+	}
+	return
+}
+
+func RemoteImageDemote(poolName string, imageName string) (imageStatus model.ImageStatus, err error) {
+
+	var stdoutScheduleEnable []byte
+	conf, err := GetConfigure()
+	strScheduleOutput := exec.Command("rbd", "-c", conf.ClusterFileName, "--cluster", conf.ClusterName, "--name", conf.Peers[0].ClientName, "--keyfile", conf.KeyFileName, "mirror", "image", "demote", "--pool", poolName, "--image", imageName)
+	stdoutScheduleEnable, err = strScheduleOutput.CombinedOutput()
+	if !strings.Contains(string(stdoutScheduleEnable), "Image demoted") {
+		err = errors.Join(err, errors.New(string(stdoutScheduleEnable)))
+	}
+	if err != nil {
+		utils.FancyHandleError(err)
 	}
 	return
 }

@@ -40,8 +40,8 @@ func (c *Controller) MirrorImageList(ctx *gin.Context) {
 //
 //	@Summary		Show Infomation of Mirrored Snapshot
 //	@Description	미러링중인 이미지의 정보를 보여줍니다.
-//	@param			mirrorPool			path		string				true	"mirrorPool"
-//	@param			imageName			path		string				true	"imageName"
+//	@param			mirrorPool	path	string	true	"mirrorPool"
+//	@param			imageName	path	string	true	"imageName"
 //	@Tags			Mirror
 //	@Accept			x-www-form-urlencoded
 //	@Produce		json
@@ -76,8 +76,8 @@ func (c *Controller) MirrorImageInfo(ctx *gin.Context) {
 //
 //	@Summary		Delete Mirrored Snapshot
 //	@Description	이미지의 미러링을 비활성화 합니다.
-//	@param			mirrorPool		path		string				true	"pool"
-//	@param			imageName			path		string				true	"imageName"
+//	@param			mirrorPool	path	string	true	"pool"
+//	@param			imageName	path	string	true	"imageName"
 //	@Tags			Mirror
 //	@Accept			x-www-form-urlencoded
 //	@Produce		json
@@ -129,10 +129,10 @@ func (c *Controller) MirrorStatus(ctx *gin.Context) {
 //	@Summary		Setup Mirroring Cluster
 //	@Description	Glue 의 미러링 클러스터를 설정합니다.
 //	@param			localClusterName	formData	string	true	"Local Cluster Name"
-//	@param			remoteClusterName		formData	string	true	"Remote Cluster Name"
-//	@param			host		formData	string	true	"Remote Cluster Host Address"
-//	@param			privateKeyFile	formData	file	true	"Remote Cluster PrivateKey"
-//	@param			mirrorPool		formData	string	true	"Pool Name for Mirroring"
+//	@param			remoteClusterName	formData	string	true	"Remote Cluster Name"
+//	@param			host				formData	string	true	"Remote Cluster Host Address"
+//	@param			privateKeyFile		formData	file	true	"Remote Cluster PrivateKey"
+//	@param			mirrorPool			formData	string	true	"Pool Name for Mirroring"
 //	@Tags			Mirror
 //	@Accept			multipart/form-data
 //	@Produce		json
@@ -183,7 +183,7 @@ func (c *Controller) MirrorSetup(ctx *gin.Context) {
 //
 //	@Summary		Delete Mirroring Cluster
 //	@Description	Glue 의 미러링 클러스터를 제거합니다.
-//	@param			host		formData	string	true	"Remote Cluster Host Address"
+//	@param			host			formData	string	true	"Remote Cluster Host Address"
 //	@param			privateKeyFile	formData	file	true	"Remote Cluster PrivateKey"
 //	@param			mirrorPool		formData	string	true	"Pool Name for Mirroring"
 //	@Tags			Mirror
@@ -356,8 +356,8 @@ func (c *Controller) MirrorDelete(ctx *gin.Context) {
 //
 //	@Summary		Setup Image Mirroring
 //	@Description	Glue 의 이미지에 미러링을 설정합니다.
-//	@param			mirrorPool		path	string	true	"Pool Name for Mirroring"
-//	@param			imageName	path	string	true	"Image Name for Mirroring"
+//	@param			mirrorPool	path		string	true	"Pool Name for Mirroring"
+//	@param			imageName	path		string	true	"Image Name for Mirroring"
 //	@param			interval	formData	string	true	"Interval of image snapshot"
 //	@param			startTime	formData	string	false	"StartTime of image snapshot"
 //	@Tags			Mirror
@@ -404,8 +404,8 @@ func (c *Controller) MirrorImageSetup(ctx *gin.Context) {
 //
 //	@Summary		Patch Image Mirroring
 //	@Description	Glue 의 이미지에 미러링의 설정을 변경합니다.
-//	@param			mirrorPool		path	string	true	"Pool Name for Mirroring"
-//	@param			imageName	path	string	true	"Image Name for Mirroring"
+//	@param			mirrorPool	path		string	true	"Pool Name for Mirroring"
+//	@param			imageName	path		string	true	"Image Name for Mirroring"
 //	@param			interval	formData	string	true	"Interval of image snapshot"
 //	@param			startTime	formData	string	false	"Starttime of image snapshot"
 //	@Tags			Mirror
@@ -442,15 +442,15 @@ func (c *Controller) MirrorImageUpdate(ctx *gin.Context) {
 //
 //	@Summary		Patch Image Mirroring
 //	@Description	Glue 의 이미지에 미러링상태를 확인합니다.
-//	@param			mirrorPool		path	string	true	"Pool Name for Mirroring"
+//	@param			mirrorPool	path	string	true	"Pool Name for Mirroring"
 //	@param			imageName	path	string	true	"Image Name for Mirroring"
 //	@Tags			Mirror
 //	@Accept			x-www-form-urlencoded
 //	@Produce		json
-//	@Success		200	{object}	model.ImageStatus
-//	@Failure		400	{object}	httputil.HTTP400BadRequest
-//	@Failure		404	{object}	httputil.HTTP404NotFound
-//	@Failure		500	{object}	httputil.HTTP500InternalServerError
+//	@Success		200	{object}	ImageStatus
+//	@Failure		400	{object}	HTTP400BadRequest
+//	@Failure		404	{object}	HTTP404NotFound
+//	@Failure		500	{object}	HTTP500InternalServerError
 //	@Router			/api/v1/mirror/image/promote/{mirrorPool}/{imageName} [get]
 func (c *Controller) MirrorImagestatus(ctx *gin.Context) {
 
@@ -462,6 +462,97 @@ func (c *Controller) MirrorImagestatus(ctx *gin.Context) {
 	dat, err := mirror.ImageStatus(mirrorPool, imageName)
 	if err != nil {
 		utils.FancyHandleError(err)
+		print(err)
+		httputil.NewError(ctx, http.StatusInternalServerError, err)
+		return
+	}
+	print(dat.Description)
+	dat.Debug = gin.IsDebugging()
+	ctx.IndentedJSON(http.StatusOK, dat)
+}
+
+// MirrorImagePromote godoc
+//
+//	@Summary		Promote Image Mirroring
+//	@Description	Glue 의 이미지를 활성화 합니다.
+//	@param			mirrorPool	path	string	true	"Pool Name for Mirroring"
+//	@param			imageName	path	string	true	"Image Name for Mirroring"
+//	@Tags			Mirror
+//	@Accept			x-www-form-urlencoded
+//	@Produce		json
+//	@Success		200	{object}	model.ImageStatus
+//	@Failure		400	{object}	httputil.HTTP400BadRequest
+//	@Failure		404	{object}	httputil.HTTP404NotFound
+//	@Failure		500	{object}	httputil.HTTP500InternalServerError
+//	@Router			/api/v1/mirror/image/promote/{mirrorPool}/{imageName} [post]
+func (c *Controller) MirrorImagePromote(ctx *gin.Context) {
+
+	var (
+		dat model.ImageStatus
+		err error
+	)
+
+	mirrorPool := ctx.Param("mirrorPool")
+	imageName := ctx.Param("imageName")
+	dat, err = mirror.RemoteImageDemote(mirrorPool, imageName)
+
+	dat, err = mirror.ImageStatus(mirrorPool, imageName)
+
+	dat, err = mirror.ImagePromote(mirrorPool, imageName)
+	if err != nil {
+		utils.FancyHandleError(err)
+		httputil.NewError(ctx, http.StatusInternalServerError, err)
+		return
+	}
+
+	dat, err = mirror.ImageStatus(mirrorPool, imageName)
+	if err != nil {
+		utils.FancyHandleError(err)
+		print(err)
+		httputil.NewError(ctx, http.StatusInternalServerError, err)
+		return
+	}
+	dat.Debug = gin.IsDebugging()
+	ctx.IndentedJSON(http.StatusOK, dat)
+}
+
+// MirrorImageDemote godoc
+//
+//	@Summary		Promote Image Mirroring
+//	@Description	Glue 의 이미지를 활성화 합니다.
+//	@param			mirrorPool	path	string	true	"Pool Name for Mirroring"
+//	@param			imageName	path	string	true	"Image Name for Mirroring"
+//	@Tags			Mirror
+//	@Accept			x-www-form-urlencoded
+//	@Produce		json
+//	@Success		200	{object}	model.ImageStatus
+//	@Failure		400	{object}	httputil.HTTP400BadRequest
+//	@Failure		404	{object}	httputil.HTTP404NotFound
+//	@Failure		500	{object}	httputil.HTTP500InternalServerError
+//	@Router			/api/v1/mirror/image/promote/{mirrorPool}/{imageName} [delete]
+func (c *Controller) MirrorImageDemote(ctx *gin.Context) {
+
+	var (
+		dat model.ImageStatus
+		err error
+	)
+
+	mirrorPool := ctx.Param("mirrorPool")
+	imageName := ctx.Param("imageName")
+	dat, err = mirror.ImageDemote(mirrorPool, imageName)
+
+	dat, err = mirror.ImageStatus(mirrorPool, imageName)
+	dat, err = mirror.RemoteImagePromote(mirrorPool, imageName)
+	if err != nil {
+		utils.FancyHandleError(err)
+		httputil.NewError(ctx, http.StatusInternalServerError, err)
+		return
+	}
+
+	dat, err = mirror.ImageStatus(mirrorPool, imageName)
+	if err != nil {
+		utils.FancyHandleError(err)
+		print(err)
 		httputil.NewError(ctx, http.StatusInternalServerError, err)
 		return
 	}

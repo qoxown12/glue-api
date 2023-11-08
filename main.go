@@ -22,7 +22,6 @@ import (
 //	@license.name	Apache 2.0
 //	@license.url	http://www.apache.org/licenses/LICENSE-2.0.html
 
-//	@host		localhost:8080
 //	@BasePath	/api/v1
 
 //	@securityDefinitions.basic	BasicAuth
@@ -75,9 +74,9 @@ func main() {
 				mirrorimage.PATCH("/:mirrorPool/:imageName", c.MirrorImageUpdate)  //Config Image Mirroring
 				mirrorimage.DELETE("/:mirrorPool/:imageName", c.MirrorImageDelete) //Unconfigure Mirroring
 
-				mirrorimage.GET("/promote/:mirrorPool/:imageName", c.MirrorImagestatus) //Promote Image
-				//mirrorimage.POST("/promote/:id", c.MirrorImagePromote) //
-				//mirrorimage.POST("/demote/:id", c.MirrorImageDemote)
+				mirrorimage.GET("/promote/:mirrorPool/:imageName", c.MirrorImagestatus)   //Promote Image
+				mirrorimage.POST("/promote/:mirrorPool/:imageName", c.MirrorImagePromote) //
+				mirrorimage.DELETE("/promote/:mirrorPool/:imageName", c.MirrorImageDemote)
 			}
 			//
 			//

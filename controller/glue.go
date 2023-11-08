@@ -105,7 +105,7 @@ func (c *Controller) ListPools(ctx *gin.Context) {
 //	@Summary		List Images of Pool Glue
 //	@Description	Glue 스토리지 풀의 이미지 목록을 보여줍니다.
 //	@Tags			Glue
-//	@param			pool			path	string	true	"pool"
+//	@param			pool	path	string	true	"pool"
 //	@Accept			x-www-form-urlencoded
 //	@Produce		json
 //	@Success		200	{object}	model.GlueVersion

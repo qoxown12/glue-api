@@ -29,9 +29,9 @@ type Message struct {
 //	@Accept			x-www-form-urlencoded
 //	@Produce		json
 //	@Success		200	{object}	model.Version
-//	@Failure		400	{object}	httputil.HTTP400BadRequest
-//	@Failure		404	{object}	httputil.HTTP404NotFound
-//	@Failure		500	{object}	httputil.HTTP500InternalServerError
+//	@Failure		400	{object}	HTTP400BadRequest
+//	@Failure		404	{object}	HTTP404NotFound
+//	@Failure		500	{object}	HTTP500InternalServerError
 //	@Router			/version [get]
 func (c *Controller) Version(ctx *gin.Context) {
 	dat := model.Version{Version: docs.SwaggerInfo.Version}

@@ -1,0 +1,1411 @@
+{
+    "swagger": "2.0",
+    "info": {
+        "description": "This is a GlueAPI server.",
+        "title": "Glue-API",
+        "termsOfService": "http://swagger.io/terms/",
+        "contact": {
+            "name": "윤여천",
+            "url": "http://www.ablecloud.io",
+            "email": "support@ablecloud.io"
+        },
+        "license": {
+            "name": "Apache 2.0",
+            "url": "http://www.apache.org/licenses/LICENSE-2.0.html"
+        },
+        "version": "v1.0"
+    },
+    "basePath": "/api/v1",
+    "paths": {
+        "/api/v1/glue": {
+            "get": {
+                "description": "Glue 의 상태값을 보여줍니다.",
+                "consumes": [
+                    "application/x-www-form-urlencoded"
+                ],
+                "produces": [
+                    "application/json"
+                ],
+                "tags": [
+                    "Glue"
+                ],
+                "summary": "Show Status of Glue",
+                "responses": {
+                    "200": {
+                        "description": "OK",
+                        "schema": {
+                            "$ref": "#/definitions/GlueStatus"
+                        }
+                    },
+                    "400": {
+                        "description": "Bad Request",
+                        "schema": {
+                            "$ref": "#/definitions/HTTP400BadRequest"
+                        }
+                    },
+                    "404": {
+                        "description": "Not Found",
+                        "schema": {
+                            "$ref": "#/definitions/HTTP404NotFound"
+                        }
+                    },
+                    "500": {
+                        "description": "Internal Server Error",
+                        "schema": {
+                            "$ref": "#/definitions/HTTP500InternalServerError"
+                        }
+                    }
+                }
+            }
+        },
+        "/api/v1/glue/pool": {
+            "get": {
+                "description": "Glue 의 스토리지 풀 목록을 보여줍니다.",
+                "consumes": [
+                    "application/x-www-form-urlencoded"
+                ],
+                "produces": [
+                    "application/json"
+                ],
+                "tags": [
+                    "Glue"
+                ],
+                "summary": "List Pools of Glue",
+                "responses": {
+                    "200": {
+                        "description": "OK",
+                        "schema": {
+                            "$ref": "#/definitions/GlueVersion"
+                        }
+                    },
+                    "400": {
+                        "description": "Bad Request",
+                        "schema": {
+                            "$ref": "#/definitions/HTTP400BadRequest"
+                        }
+                    },
+                    "404": {
+                        "description": "Not Found",
+                        "schema": {
+                            "$ref": "#/definitions/HTTP404NotFound"
+                        }
+                    },
+                    "500": {
+                        "description": "Internal Server Error",
+                        "schema": {
+                            "$ref": "#/definitions/HTTP500InternalServerError"
+                        }
+                    }
+                }
+            }
+        },
+        "/api/v1/glue/pool/{pool}": {
+            "get": {
+                "description": "Glue 스토리지 풀의 이미지 목록을 보여줍니다.",
+                "consumes": [
+                    "application/x-www-form-urlencoded"
+                ],
+                "produces": [
+                    "application/json"
+                ],
+                "tags": [
+                    "Glue"
+                ],
+                "summary": "List Images of Pool Glue",
+                "parameters": [
+                    {
+                        "type": "string",
+                        "description": "pool",
+                        "name": "pool",
+                        "in": "path",
+                        "required": true
+                    }
+                ],
+                "responses": {
+                    "200": {
+                        "description": "OK",
+                        "schema": {
+                            "$ref": "#/definitions/GlueVersion"
+                        }
+                    },
+                    "400": {
+                        "description": "Bad Request",
+                        "schema": {
+                            "$ref": "#/definitions/HTTP400BadRequest"
+                        }
+                    },
+                    "404": {
+                        "description": "Not Found",
+                        "schema": {
+                            "$ref": "#/definitions/HTTP404NotFound"
+                        }
+                    },
+                    "500": {
+                        "description": "Internal Server Error",
+                        "schema": {
+                            "$ref": "#/definitions/HTTP500InternalServerError"
+                        }
+                    }
+                }
+            }
+        },
+        "/api/v1/glue/version": {
+            "get": {
+                "description": "Glue 의 버전을 보여줍니다.",
+                "consumes": [
+                    "application/x-www-form-urlencoded"
+                ],
+                "produces": [
+                    "application/json"
+                ],
+                "tags": [
+                    "Glue"
+                ],
+                "summary": "Show Versions of Glue",
+                "responses": {
+                    "200": {
+                        "description": "OK",
+                        "schema": {
+                            "$ref": "#/definitions/GlueVersion"
+                        }
+                    },
+                    "400": {
+                        "description": "Bad Request",
+                        "schema": {
+                            "$ref": "#/definitions/HTTP400BadRequest"
+                        }
+                    },
+                    "404": {
+                        "description": "Not Found",
+                        "schema": {
+                            "$ref": "#/definitions/HTTP404NotFound"
+                        }
+                    },
+                    "500": {
+                        "description": "Internal Server Error",
+                        "schema": {
+                            "$ref": "#/definitions/HTTP500InternalServerError"
+                        }
+                    }
+                }
+            }
+        },
+        "/api/v1/mirror": {
+            "get": {
+                "description": "Glue 의 미러링 상태를 보여줍니다.",
+                "consumes": [
+                    "application/x-www-form-urlencoded"
+                ],
+                "produces": [
+                    "application/json"
+                ],
+                "tags": [
+                    "Mirror"
+                ],
+                "summary": "Show Status of Mirror",
+                "responses": {
+                    "200": {
+                        "description": "OK",
+                        "schema": {
+                            "$ref": "#/definitions/MirrorStatus"
+                        }
+                    },
+                    "400": {
+                        "description": "Bad Request",
+                        "schema": {
+                            "$ref": "#/definitions/HTTP400BadRequest"
+                        }
+                    },
+                    "404": {
+                        "description": "Not Found",
+                        "schema": {
+                            "$ref": "#/definitions/HTTP404NotFound"
+                        }
+                    },
+                    "500": {
+                        "description": "Internal Server Error",
+                        "schema": {
+                            "$ref": "#/definitions/HTTP500InternalServerError"
+                        }
+                    }
+                }
+            },
+            "post": {
+                "description": "Glue 의 미러링 클러스터를 설정합니다.",
+                "consumes": [
+                    "multipart/form-data"
+                ],
+                "produces": [
+                    "application/json"
+                ],
+                "tags": [
+                    "Mirror"
+                ],
+                "summary": "Setup Mirroring Cluster",
+                "parameters": [
+                    {
+                        "type": "string",
+                        "description": "Local Cluster Name",
+                        "name": "localClusterName",
+                        "in": "formData",
+                        "required": true
+                    },
+                    {
+                        "type": "string",
+                        "description": "Remote Cluster Name",
+                        "name": "remoteClusterName",
+                        "in": "formData",
+                        "required": true
+                    },
+                    {
+                        "type": "string",
+                        "description": "Remote Cluster Host Address",
+                        "name": "host",
+                        "in": "formData",
+                        "required": true
+                    },
+                    {
+                        "type": "file",
+                        "description": "Remote Cluster PrivateKey",
+                        "name": "privateKeyFile",
+                        "in": "formData",
+                        "required": true
+                    },
+                    {
+                        "type": "string",
+                        "description": "Pool Name for Mirroring",
+                        "name": "mirrorPool",
+                        "in": "formData",
+                        "required": true
+                    }
+                ],
+                "responses": {
+                    "200": {
+                        "description": "OK",
+                        "schema": {
+                            "$ref": "#/definitions/MirrorSetup"
+                        }
+                    },
+                    "400": {
+                        "description": "Bad Request",
+                        "schema": {
+                            "$ref": "#/definitions/HTTP400BadRequest"
+                        }
+                    },
+                    "404": {
+                        "description": "Not Found",
+                        "schema": {
+                            "$ref": "#/definitions/HTTP404NotFound"
+                        }
+                    },
+                    "500": {
+                        "description": "Internal Server Error",
+                        "schema": {
+                            "$ref": "#/definitions/HTTP500InternalServerError"
+                        }
+                    }
+                }
+            },
+            "delete": {
+                "description": "Glue 의 미러링 클러스터를 제거합니다.",
+                "consumes": [
+                    "multipart/form-data"
+                ],
+                "produces": [
+                    "application/json"
+                ],
+                "tags": [
+                    "Mirror"
+                ],
+                "summary": "Delete Mirroring Cluster",
+                "parameters": [
+                    {
+                        "type": "string",
+                        "description": "Remote Cluster Host Address",
+                        "name": "host",
+                        "in": "formData",
+                        "required": true
+                    },
+                    {
+                        "type": "file",
+                        "description": "Remote Cluster PrivateKey",
+                        "name": "privateKeyFile",
+                        "in": "formData",
+                        "required": true
+                    },
+                    {
+                        "type": "string",
+                        "description": "Pool Name for Mirroring",
+                        "name": "mirrorPool",
+                        "in": "formData",
+                        "required": true
+                    }
+                ],
+                "responses": {
+                    "200": {
+                        "description": "OK",
+                        "schema": {
+                            "$ref": "#/definitions/MirrorSetup"
+                        }
+                    },
+                    "400": {
+                        "description": "Bad Request",
+                        "schema": {
+                            "$ref": "#/definitions/HTTP400BadRequest"
+                        }
+                    },
+                    "404": {
+                        "description": "Not Found",
+                        "schema": {
+                            "$ref": "#/definitions/HTTP404NotFound"
+                        }
+                    },
+                    "500": {
+                        "description": "Internal Server Error",
+                        "schema": {
+                            "$ref": "#/definitions/HTTP500InternalServerError"
+                        }
+                    }
+                }
+            }
+        },
+        "/api/v1/mirror/image": {
+            "get": {
+                "description": "미러링중인 이미지의 목록과 상태를 보여줍니다.",
+                "consumes": [
+                    "application/x-www-form-urlencoded"
+                ],
+                "produces": [
+                    "application/json"
+                ],
+                "tags": [
+                    "Mirror"
+                ],
+                "summary": "Show List of Mirrored Snapshot",
+                "responses": {
+                    "200": {
+                        "description": "OK",
+                        "schema": {
+                            "$ref": "#/definitions/MirrorList"
+                        }
+                    },
+                    "400": {
+                        "description": "Bad Request",
+                        "schema": {
+                            "$ref": "#/definitions/HTTP400BadRequest"
+                        }
+                    },
+                    "404": {
+                        "description": "Not Found",
+                        "schema": {
+                            "$ref": "#/definitions/HTTP404NotFound"
+                        }
+                    },
+                    "500": {
+                        "description": "Internal Server Error",
+                        "schema": {
+                            "$ref": "#/definitions/HTTP500InternalServerError"
+                        }
+                    }
+                }
+            }
+        },
+        "/api/v1/mirror/image/promote/{mirrorPool}/{imageName}": {
+            "get": {
+                "description": "Glue 의 이미지에 미러링상태를 확인합니다.",
+                "consumes": [
+                    "application/x-www-form-urlencoded"
+                ],
+                "produces": [
+                    "application/json"
+                ],
+                "tags": [
+                    "Mirror"
+                ],
+                "summary": "Patch Image Mirroring",
+                "parameters": [
+                    {
+                        "type": "string",
+                        "description": "Pool Name for Mirroring",
+                        "name": "mirrorPool",
+                        "in": "path",
+                        "required": true
+                    },
+                    {
+                        "type": "string",
+                        "description": "Image Name for Mirroring",
+                        "name": "imageName",
+                        "in": "path",
+                        "required": true
+                    }
+                ],
+                "responses": {
+                    "200": {
+                        "description": "OK",
+                        "schema": {
+                            "$ref": "#/definitions/ImageStatus"
+                        }
+                    },
+                    "400": {
+                        "description": "Bad Request",
+                        "schema": {
+                            "$ref": "#/definitions/HTTP400BadRequest"
+                        }
+                    },
+                    "404": {
+                        "description": "Not Found",
+                        "schema": {
+                            "$ref": "#/definitions/HTTP404NotFound"
+                        }
+                    },
+                    "500": {
+                        "description": "Internal Server Error",
+                        "schema": {
+                            "$ref": "#/definitions/HTTP500InternalServerError"
+                        }
+                    }
+                }
+            },
+            "post": {
+                "description": "Glue 의 이미지를 활성화 합니다.",
+                "consumes": [
+                    "application/x-www-form-urlencoded"
+                ],
+                "produces": [
+                    "application/json"
+                ],
+                "tags": [
+                    "Mirror"
+                ],
+                "summary": "Promote Image Mirroring",
+                "parameters": [
+                    {
+                        "type": "string",
+                        "description": "Pool Name for Mirroring",
+                        "name": "mirrorPool",
+                        "in": "path",
+                        "required": true
+                    },
+                    {
+                        "type": "string",
+                        "description": "Image Name for Mirroring",
+                        "name": "imageName",
+                        "in": "path",
+                        "required": true
+                    }
+                ],
+                "responses": {
+                    "200": {
+                        "description": "OK",
+                        "schema": {
+                            "$ref": "#/definitions/ImageStatus"
+                        }
+                    },
+                    "400": {
+                        "description": "Bad Request",
+                        "schema": {
+                            "$ref": "#/definitions/HTTP400BadRequest"
+                        }
+                    },
+                    "404": {
+                        "description": "Not Found",
+                        "schema": {
+                            "$ref": "#/definitions/HTTP404NotFound"
+                        }
+                    },
+                    "500": {
+                        "description": "Internal Server Error",
+                        "schema": {
+                            "$ref": "#/definitions/HTTP500InternalServerError"
+                        }
+                    }
+                }
+            },
+            "delete": {
+                "description": "Glue 의 이미지를 활성화 합니다.",
+                "consumes": [
+                    "application/x-www-form-urlencoded"
+                ],
+                "produces": [
+                    "application/json"
+                ],
+                "tags": [
+                    "Mirror"
+                ],
+                "summary": "Promote Image Mirroring",
+                "parameters": [
+                    {
+                        "type": "string",
+                        "description": "Pool Name for Mirroring",
+                        "name": "mirrorPool",
+                        "in": "path",
+                        "required": true
+                    },
+                    {
+                        "type": "string",
+                        "description": "Image Name for Mirroring",
+                        "name": "imageName",
+                        "in": "path",
+                        "required": true
+                    }
+                ],
+                "responses": {
+                    "200": {
+                        "description": "OK",
+                        "schema": {
+                            "$ref": "#/definitions/ImageStatus"
+                        }
+                    },
+                    "400": {
+                        "description": "Bad Request",
+                        "schema": {
+                            "$ref": "#/definitions/HTTP400BadRequest"
+                        }
+                    },
+                    "404": {
+                        "description": "Not Found",
+                        "schema": {
+                            "$ref": "#/definitions/HTTP404NotFound"
+                        }
+                    },
+                    "500": {
+                        "description": "Internal Server Error",
+                        "schema": {
+                            "$ref": "#/definitions/HTTP500InternalServerError"
+                        }
+                    }
+                }
+            }
+        },
+        "/api/v1/mirror/image/{mirrorPool}/{imageName}": {
+            "get": {
+                "description": "미러링중인 이미지의 정보를 보여줍니다.",
+                "consumes": [
+                    "application/x-www-form-urlencoded"
+                ],
+                "produces": [
+                    "application/json"
+                ],
+                "tags": [
+                    "Mirror"
+                ],
+                "summary": "Show Infomation of Mirrored Snapshot",
+                "parameters": [
+                    {
+                        "type": "string",
+                        "description": "mirrorPool",
+                        "name": "mirrorPool",
+                        "in": "path",
+                        "required": true
+                    },
+                    {
+                        "type": "string",
+                        "description": "imageName",
+                        "name": "imageName",
+                        "in": "path",
+                        "required": true
+                    }
+                ],
+                "responses": {
+                    "200": {
+                        "description": "OK",
+                        "schema": {
+                            "$ref": "#/definitions/ImageMirror"
+                        }
+                    },
+                    "400": {
+                        "description": "Bad Request",
+                        "schema": {
+                            "$ref": "#/definitions/HTTP400BadRequest"
+                        }
+                    },
+                    "404": {
+                        "description": "Not Found",
+                        "schema": {
+                            "$ref": "#/definitions/HTTP404NotFound"
+                        }
+                    },
+                    "500": {
+                        "description": "Internal Server Error",
+                        "schema": {
+                            "$ref": "#/definitions/HTTP500InternalServerError"
+                        }
+                    }
+                }
+            },
+            "post": {
+                "description": "Glue 의 이미지에 미러링을 설정합니다.",
+                "consumes": [
+                    "application/x-www-form-urlencoded"
+                ],
+                "produces": [
+                    "application/json"
+                ],
+                "tags": [
+                    "Mirror"
+                ],
+                "summary": "Setup Image Mirroring",
+                "parameters": [
+                    {
+                        "type": "string",
+                        "description": "Pool Name for Mirroring",
+                        "name": "mirrorPool",
+                        "in": "path",
+                        "required": true
+                    },
+                    {
+                        "type": "string",
+                        "description": "Image Name for Mirroring",
+                        "name": "imageName",
+                        "in": "path",
+                        "required": true
+                    },
+                    {
+                        "type": "string",
+                        "description": "Interval of image snapshot",
+                        "name": "interval",
+                        "in": "formData",
+                        "required": true
+                    },
+                    {
+                        "type": "string",
+                        "description": "StartTime of image snapshot",
+                        "name": "startTime",
+                        "in": "formData"
+                    }
+                ],
+                "responses": {
+                    "200": {
+                        "description": "OK",
+                        "schema": {
+                            "$ref": "#/definitions/ImageMirror"
+                        }
+                    },
+                    "400": {
+                        "description": "Bad Request",
+                        "schema": {
+                            "$ref": "#/definitions/HTTP400BadRequest"
+                        }
+                    },
+                    "404": {
+                        "description": "Not Found",
+                        "schema": {
+                            "$ref": "#/definitions/HTTP404NotFound"
+                        }
+                    },
+                    "500": {
+                        "description": "Internal Server Error",
+                        "schema": {
+                            "$ref": "#/definitions/HTTP500InternalServerError"
+                        }
+                    }
+                }
+            },
+            "delete": {
+                "description": "이미지의 미러링을 비활성화 합니다.",
+                "consumes": [
+                    "application/x-www-form-urlencoded"
+                ],
+                "produces": [
+                    "application/json"
+                ],
+                "tags": [
+                    "Mirror"
+                ],
+                "summary": "Delete Mirrored Snapshot",
+                "parameters": [
+                    {
+                        "type": "string",
+                        "description": "pool",
+                        "name": "mirrorPool",
+                        "in": "path",
+                        "required": true
+                    },
+                    {
+                        "type": "string",
+                        "description": "imageName",
+                        "name": "imageName",
+                        "in": "path",
+                        "required": true
+                    }
+                ],
+                "responses": {
+                    "200": {
+                        "description": "OK",
+                        "schema": {
+                            "$ref": "#/definitions/Message"
+                        }
+                    },
+                    "400": {
+                        "description": "Bad Request",
+                        "schema": {
+                            "$ref": "#/definitions/HTTP400BadRequest"
+                        }
+                    },
+                    "404": {
+                        "description": "Not Found",
+                        "schema": {
+                            "$ref": "#/definitions/HTTP404NotFound"
+                        }
+                    },
+                    "500": {
+                        "description": "Internal Server Error",
+                        "schema": {
+                            "$ref": "#/definitions/HTTP500InternalServerError"
+                        }
+                    }
+                }
+            },
+            "patch": {
+                "description": "Glue 의 이미지에 미러링의 설정을 변경합니다.",
+                "consumes": [
+                    "application/x-www-form-urlencoded"
+                ],
+                "produces": [
+                    "application/json"
+                ],
+                "tags": [
+                    "Mirror"
+                ],
+                "summary": "Patch Image Mirroring",
+                "parameters": [
+                    {
+                        "type": "string",
+                        "description": "Pool Name for Mirroring",
+                        "name": "mirrorPool",
+                        "in": "path",
+                        "required": true
+                    },
+                    {
+                        "type": "string",
+                        "description": "Image Name for Mirroring",
+                        "name": "imageName",
+                        "in": "path",
+                        "required": true
+                    },
+                    {
+                        "type": "string",
+                        "description": "Interval of image snapshot",
+                        "name": "interval",
+                        "in": "formData",
+                        "required": true
+                    },
+                    {
+                        "type": "string",
+                        "description": "Starttime of image snapshot",
+                        "name": "startTime",
+                        "in": "formData"
+                    }
+                ],
+                "responses": {
+                    "200": {
+                        "description": "OK",
+                        "schema": {
+                            "$ref": "#/definitions/ImageMirror"
+                        }
+                    },
+                    "400": {
+                        "description": "Bad Request",
+                        "schema": {
+                            "$ref": "#/definitions/HTTP400BadRequest"
+                        }
+                    },
+                    "404": {
+                        "description": "Not Found",
+                        "schema": {
+                            "$ref": "#/definitions/HTTP404NotFound"
+                        }
+                    },
+                    "500": {
+                        "description": "Internal Server Error",
+                        "schema": {
+                            "$ref": "#/definitions/HTTP500InternalServerError"
+                        }
+                    }
+                }
+            }
+        },
+        "/version": {
+            "get": {
+                "description": "API 의 버전을 보여줍니다.",
+                "consumes": [
+                    "application/x-www-form-urlencoded"
+                ],
+                "produces": [
+                    "application/json"
+                ],
+                "tags": [
+                    "API"
+                ],
+                "summary": "Show Versions of API",
+                "responses": {
+                    "200": {
+                        "description": "OK",
+                        "schema": {
+                            "$ref": "#/definitions/Version"
+                        }
+                    },
+                    "400": {
+                        "description": "Bad Request",
+                        "schema": {
+                            "$ref": "#/definitions/HTTP400BadRequest"
+                        }
+                    },
+                    "404": {
+                        "description": "Not Found",
+                        "schema": {
+                            "$ref": "#/definitions/HTTP404NotFound"
+                        }
+                    },
+                    "500": {
+                        "description": "Internal Server Error",
+                        "schema": {
+                            "$ref": "#/definitions/HTTP500InternalServerError"
+                        }
+                    }
+                }
+            }
+        }
+    },
+    "definitions": {
+        "GlueStatus": {
+            "description": "Glue의 상태를 나타내는 구조체",
+            "type": "object",
+            "properties": {
+                "debug": {
+                    "description": "Debug info",
+                    "type": "boolean",
+                    "format": "bool",
+                    "example": true
+                },
+                "election_epoch": {
+                    "type": "integer",
+                    "format": "uint32",
+                    "example": 148
+                },
+                "fsid": {
+                    "description": "Glue클러스터를 구분하는 ID",
+                    "type": "string",
+                    "format": "uuid",
+                    "example": "9980ffe8-4bc1-11ee-9b1f-002481004170"
+                },
+                "fsmap": {
+                    "type": "object",
+                    "properties": {
+                        "by_rank": {
+                            "type": "array",
+                            "items": {}
+                        },
+                        "epoch": {
+                            "type": "integer"
+                        },
+                        "up:standby": {
+                            "type": "integer"
+                        }
+                    }
+                },
+                "health": {
+                    "type": "object",
+                    "properties": {
+                        "checks": {},
+                        "mutes": {},
+                        "status": {
+                            "type": "string",
+                            "format": "string",
+                            "example": "HEALTH_WARN"
+                        }
+                    }
+                },
+                "mgrmap": {
+                    "type": "object",
+                    "properties": {
+                        "available": {
+                            "type": "boolean"
+                        },
+                        "modules": {
+                            "type": "array",
+                            "items": {
+                                "type": "string"
+                            }
+                        },
+                        "num_standbys": {
+                            "type": "integer"
+                        },
+                        "services": {
+                            "type": "object",
+                            "properties": {
+                                "dashboard": {
+                                    "type": "string"
+                                },
+                                "prometheus": {
+                                    "type": "string"
+                                }
+                            }
+                        }
+                    }
+                },
+                "monmap": {
+                    "type": "object",
+                    "properties": {
+                        "epoch": {
+                            "type": "integer"
+                        },
+                        "min_mon_release_name": {
+                            "type": "string"
+                        },
+                        "num_mons": {
+                            "type": "integer"
+                        }
+                    }
+                },
+                "osdmap": {
+                    "type": "object",
+                    "properties": {
+                        "epoch": {
+                            "type": "integer"
+                        },
+                        "num_in_osds": {
+                            "type": "integer"
+                        },
+                        "num_osds": {
+                            "type": "integer"
+                        },
+                        "num_remapped_pgs": {
+                            "type": "integer"
+                        },
+                        "num_up_osds": {
+                            "type": "integer"
+                        },
+                        "osd_in_since": {
+                            "type": "integer"
+                        },
+                        "osd_up_since": {
+                            "type": "integer"
+                        }
+                    }
+                },
+                "pgmap": {
+                    "type": "object",
+                    "properties": {
+                        "bytes_avail": {
+                            "type": "integer"
+                        },
+                        "bytes_total": {
+                            "type": "integer"
+                        },
+                        "bytes_used": {
+                            "type": "integer"
+                        },
+                        "data_bytes": {
+                            "type": "integer"
+                        },
+                        "num_objects": {
+                            "type": "integer"
+                        },
+                        "num_pgs": {
+                            "type": "integer"
+                        },
+                        "num_pools": {
+                            "type": "integer"
+                        },
+                        "pgs_by_state": {
+                            "type": "array",
+                            "items": {
+                                "type": "object",
+                                "properties": {
+                                    "count": {
+                                        "type": "integer"
+                                    },
+                                    "state_name": {
+                                        "type": "string"
+                                    }
+                                }
+                            }
+                        },
+                        "read_bytes_sec": {
+                            "type": "integer"
+                        },
+                        "read_op_per_sec": {
+                            "type": "integer"
+                        },
+                        "write_bytes_sec": {
+                            "type": "integer"
+                        },
+                        "write_op_per_sec": {
+                            "type": "integer"
+                        }
+                    }
+                },
+                "progress_events": {
+                    "type": "object"
+                },
+                "quorum": {
+                    "type": "array",
+                    "items": {
+                        "type": "integer"
+                    }
+                },
+                "quorum_age": {
+                    "type": "integer"
+                },
+                "quorum_names": {
+                    "type": "array",
+                    "items": {
+                        "type": "string"
+                    }
+                },
+                "servicemap": {
+                    "type": "object",
+                    "properties": {
+                        "epoch": {
+                            "type": "integer"
+                        },
+                        "modified": {
+                            "type": "string"
+                        },
+                        "services": {}
+                    }
+                }
+            }
+        },
+        "GlueVersion": {
+            "description": "Glue의 버전",
+            "type": "object",
+            "properties": {
+                "debug": {
+                    "description": "Debug info",
+                    "type": "boolean",
+                    "format": "bool",
+                    "example": true
+                },
+                "mgr": {},
+                "mon": {},
+                "osd": {},
+                "overall": {},
+                "rbd-mirror": {},
+                "rgw": {}
+            }
+        },
+        "HTTP400BadRequest": {
+            "type": "object",
+            "properties": {
+                "code": {
+                    "type": "integer",
+                    "example": 400
+                },
+                "debug": {
+                    "description": "Debug info",
+                    "type": "boolean",
+                    "format": "bool",
+                    "example": true
+                },
+                "message": {
+                    "type": "string",
+                    "example": "status bad request"
+                }
+            }
+        },
+        "HTTP404NotFound": {
+            "type": "object",
+            "properties": {
+                "code": {
+                    "type": "integer",
+                    "example": 404
+                },
+                "debug": {
+                    "description": "Debug info",
+                    "type": "boolean",
+                    "format": "bool",
+                    "example": true
+                },
+                "message": {
+                    "type": "string",
+                    "example": "Not Found"
+                }
+            }
+        },
+        "HTTP500InternalServerError": {
+            "type": "object",
+            "properties": {
+                "code": {
+                    "type": "integer",
+                    "example": 500
+                },
+                "debug": {
+                    "description": "Debug info",
+                    "type": "boolean",
+                    "format": "bool",
+                    "example": true
+                },
+                "message": {
+                    "type": "string",
+                    "example": "InternalServerError"
+                }
+            }
+        },
+        "ImageMirror": {
+            "type": "object",
+            "properties": {
+                "debug": {
+                    "description": "Debug info",
+                    "type": "boolean",
+                    "format": "bool",
+                    "example": true
+                },
+                "image": {
+                    "type": "string"
+                },
+                "items": {
+                    "type": "array",
+                    "items": {
+                        "$ref": "#/definitions/MirrorImageItem"
+                    }
+                },
+                "namespace": {
+                    "type": "string"
+                },
+                "pool": {
+                    "type": "string"
+                }
+            }
+        },
+        "ImageStatus": {
+            "type": "object",
+            "properties": {
+                "daemon_service": {
+                    "type": "object",
+                    "properties": {
+                        "daemon_id": {
+                            "type": "string"
+                        },
+                        "hostname": {
+                            "type": "string"
+                        },
+                        "instance_id": {
+                            "type": "string"
+                        },
+                        "service_id": {
+                            "type": "string"
+                        }
+                    }
+                },
+                "debug": {
+                    "description": "Debug info",
+                    "type": "boolean",
+                    "format": "bool",
+                    "example": true
+                },
+                "description": {
+                    "type": "string"
+                },
+                "global_id": {
+                    "type": "string"
+                },
+                "last_update": {
+                    "type": "string"
+                },
+                "name": {
+                    "type": "string"
+                },
+                "peer_sites": {
+                    "type": "array",
+                    "items": {
+                        "type": "object",
+                        "properties": {
+                            "description": {
+                                "type": "string"
+                            },
+                            "last_update": {
+                                "type": "string"
+                            },
+                            "mirror_uuids": {
+                                "type": "string"
+                            },
+                            "site_name": {
+                                "type": "string"
+                            },
+                            "state": {
+                                "type": "string"
+                            }
+                        }
+                    }
+                },
+                "snapshots": {
+                    "type": "array",
+                    "items": {
+                        "type": "object",
+                        "properties": {
+                            "demoted": {
+                                "type": "boolean"
+                            },
+                            "id": {
+                                "type": "integer"
+                            },
+                            "mirror_peer_uuids": {
+                                "type": "array",
+                                "items": {
+                                    "type": "string"
+                                }
+                            },
+                            "name": {
+                                "type": "string"
+                            }
+                        }
+                    }
+                },
+                "state": {
+                    "type": "string"
+                }
+            }
+        },
+        "Message": {
+            "type": "object",
+            "properties": {
+                "message": {
+                    "type": "string",
+                    "example": "message"
+                }
+            }
+        },
+        "MirrorImage": {
+            "type": "object",
+            "properties": {
+                "image": {
+                    "type": "string"
+                },
+                "items": {
+                    "type": "array",
+                    "items": {
+                        "$ref": "#/definitions/MirrorImageItem"
+                    }
+                },
+                "namespace": {
+                    "type": "string"
+                },
+                "pool": {
+                    "type": "string"
+                }
+            }
+        },
+        "MirrorImageItem": {
+            "type": "object",
+            "properties": {
+                "interval": {
+                    "type": "string"
+                },
+                "start_time": {
+                    "type": "string"
+                }
+            }
+        },
+        "MirrorList": {
+            "type": "object",
+            "properties": {
+                "Local": {
+                    "type": "array",
+                    "items": {
+                        "$ref": "#/definitions/MirrorImage"
+                    }
+                },
+                "Remote": {
+                    "type": "array",
+                    "items": {
+                        "$ref": "#/definitions/MirrorImage"
+                    }
+                },
+                "debug": {
+                    "description": "Debug info",
+                    "type": "boolean",
+                    "format": "bool",
+                    "example": true
+                }
+            }
+        },
+        "MirrorSetup": {
+            "type": "object",
+            "properties": {
+                "debug": {
+                    "description": "Debug info",
+                    "type": "boolean",
+                    "format": "bool",
+                    "example": true
+                },
+                "host": {
+                    "type": "string"
+                },
+                "localClusterName": {
+                    "description": "미러링 상태",
+                    "type": "string"
+                },
+                "localToken": {
+                    "type": "string"
+                },
+                "mirrorPool": {
+                    "type": "string"
+                },
+                "privateKeyFile": {},
+                "remoteClusterName": {
+                    "description": "미러링 상태",
+                    "type": "string"
+                },
+                "remoteToken": {
+                    "type": "string"
+                }
+            }
+        },
+        "MirrorStatus": {
+            "type": "object",
+            "properties": {
+                "daemon_health": {
+                    "description": "미러링 데몬 상태",
+                    "type": "string"
+                },
+                "debug": {
+                    "description": "Debug info",
+                    "type": "boolean",
+                    "format": "bool",
+                    "example": true
+                },
+                "health": {
+                    "description": "미러링 상태",
+                    "type": "string"
+                },
+                "image_health": {
+                    "description": "이미지 상태",
+                    "type": "string"
+                },
+                "states": {
+                    "description": "이미지 상세"
+                }
+            }
+        },
+        "Version": {
+            "description": "API의 버전",
+            "type": "object",
+            "properties": {
+                "debug": {
+                    "description": "Debug info",
+                    "type": "boolean",
+                    "format": "bool",
+                    "example": true
+                },
+                "version": {
+                    "type": "string",
+                    "format": "string",
+                    "example": "1.0"
+                }
+            }
+        }
+    },
+    "securityDefinitions": {
+        "ApiKeyAuth": {
+            "description": "Description for what is this security definition being used",
+            "type": "apiKey",
+            "name": "Authorization",
+            "in": "header"
+        },
+        "BasicAuth": {
+            "type": "basic"
+        }
+    }
+}

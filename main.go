@@ -3,8 +3,9 @@ package main
 import (
 	"Glue-API/controller"
 	"Glue-API/docs"
-	"github.com/gin-gonic/gin"
 	"log"
+
+	"github.com/gin-gonic/gin"
 
 	swaggerFiles "github.com/swaggo/files"
 	ginSwagger "github.com/swaggo/gin-swagger"
@@ -81,6 +82,21 @@ func main() {
 			//
 			//
 		}
+		gluevm := v1.Group("/gluevm")
+		{
+			gluevm.GET("", c.VmState)
+			gluevm.POST("", c.VmSetup)          //Setup Gateway VM
+			gluevm.PUT("/start", c.VmStart)     //Start to Gateway VM
+			gluevm.PUT("/stop", c.VmStop)       //Stop to Gateway VM
+			gluevm.PUT("/delete", c.VmDelete)   //Delete to Gateway VM
+			gluevm.PUT("/cleanup", c.VmCleanup) //Cleanup to Gateway VM
+			gluevm.PUT("/migrate", c.VmMigrate) //Migrate to Gateway VM
+		}
+		gluefs := v1.Group("/gluefs")
+		{
+			gluefs.GET("", c.ListFs)
+			gluefs.POST("", c.FsSetup) //Setup File System
+		}
 		/*
 			admin := v1.Group("/admin")
 			{
@@ -90,8 +106,8 @@ func main() {
 		*/
 		r.Any("/version", c.Version)
 	}
-	r.GET("/swagger/*any", ginSwagger.WrapHandler(swaggerFiles.Handler))
-	r.Run(":8080")
+	r.GET("/swaggers/*any", ginSwagger.WrapHandler(swaggerFiles.Handler))
+	r.Run(":18080")
 }
 
 /*

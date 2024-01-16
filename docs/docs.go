@@ -832,6 +832,125 @@ const docTemplate = `{
                 }
             }
         },
+        "/api/v1/gluevm": {
+            "post": {
+                "description": "Gateway VM을 배포하는 기능",
+                "consumes": [
+                    "application/x-www-form-urlencoded"
+                ],
+                "produces": [
+                    "application/json"
+                ],
+                "tags": [
+                    "GlueVm"
+                ],
+                "summary": "Gateway virtual machine deploy",
+                "parameters": [
+                    {
+                        "type": "string",
+                        "description": "Hypervisor Type",
+                        "name": "hypervisorType",
+                        "in": "formData",
+                        "required": true
+                    },
+                    {
+                        "type": "string",
+                        "description": "Gwvm Mngt Nic Paren",
+                        "name": "gwvmMngtNicParen",
+                        "in": "formData",
+                        "required": true
+                    },
+                    {
+                        "type": "string",
+                        "description": "Gwvm Mngt Nic Ip",
+                        "name": "gwvmMngtNicIp",
+                        "in": "formData",
+                        "required": true
+                    },
+                    {
+                        "type": "string",
+                        "description": "Gwvm Storage Nic Parent",
+                        "name": "gwvmStorageNicParent",
+                        "in": "formData",
+                        "required": true
+                    },
+                    {
+                        "type": "string",
+                        "description": "Gwvm Storage Nic Ip",
+                        "name": "gwvmStorageNicIp",
+                        "in": "formData",
+                        "required": true
+                    }
+                ],
+                "responses": {
+                    "200": {
+                        "description": "OK",
+                        "schema": {
+                            "$ref": "#/definitions/GlueDeploy"
+                        }
+                    },
+                    "400": {
+                        "description": "Bad Request",
+                        "schema": {
+                            "$ref": "#/definitions/HTTP400BadRequest"
+                        }
+                    },
+                    "404": {
+                        "description": "Not Found",
+                        "schema": {
+                            "$ref": "#/definitions/HTTP404NotFound"
+                        }
+                    },
+                    "500": {
+                        "description": "Internal Server Error",
+                        "schema": {
+                            "$ref": "#/definitions/HTTP500InternalServerError"
+                        }
+                    }
+                }
+            }
+        },
+        "/api/v1/gluefs": {
+            "get": {
+                "description": "GlueFS 의 상태값을 보여줍니다.",
+                "consumes": [
+                    "application/x-www-form-urlencoded"
+                ],
+                "produces": [
+                    "application/json"
+                ],
+                "tags": [
+                    "GlueFS"
+                ],
+                "summary": "Show Status of GlueFS",
+                "responses": {
+                    "200": {
+                        "description": "OK",
+                        "schema": {
+                            "$ref": "#/definitions/GlueFsList"
+                        }
+                    },
+                    "400": {
+                        "description": "Bad Request",
+                        "schema": {
+                            "$ref": "#/definitions/HTTP400BadRequest"
+                        }
+                    },
+                    "404": {
+                        "description": "Not Found",
+                        "schema": {
+                            "$ref": "#/definitions/HTTP404NotFound"
+                        }
+                    },
+                    "500": {
+                        "description": "Internal Server Error",
+                        "schema": {
+                            "$ref": "#/definitions/HTTP500InternalServerError"
+                        }
+                    }
+                }
+            }
+        },
         "/version": {
             "get": {
                 "description": "API 의 버전을 보여줍니다.",
@@ -873,7 +992,7 @@ const docTemplate = `{
                 }
             }
         }
-    },
+    },    
     "definitions": {
         "GlueStatus": {
             "description": "Glue의 상태를 나타내는 구조체",
@@ -1383,6 +1502,54 @@ const docTemplate = `{
                 },
                 "states": {
                     "description": "이미지 상세"
+                }
+            }
+        },
+        "GlueDeploy": {
+            "description": "GlueVm의 배포 결과를 나타내는 구조체",
+            "type": "object",
+            "properties": {
+                "debug": {
+                    "description": "Debug info",
+                    "type": "boolean",
+                    "format": "bool",
+                    "example": true
+                },
+                "name": {
+                    "type": "string"
+                }
+            }
+        },
+        "GlueFsList": {
+            "description": "GlueFS의 상태를 나타내는 구조체",
+            "type": "object",
+            "properties": {
+                "debug": {
+                    "description": "Debug info",
+                    "type": "boolean",
+                    "format": "bool",
+                    "example": true
+                },
+                "name": {
+                    "type": "string"
+                },
+                "metadata_pool": {
+                    "type": "string"
+                },
+                "metadata_pool_id": {
+                    "type": "integer"
+                },
+                "data_pool_ids": {
+                    "type": "array",
+                    "items": {
+                        "type": "integer"
+                    }
+                },
+                "data_pools": {
+                    "type": "array",
+                    "items": {
+                        "type": "integer"
+                    }
                 }
             }
         },

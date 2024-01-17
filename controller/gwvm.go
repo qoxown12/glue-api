@@ -4,7 +4,7 @@ import (
 	// "encoding/json"
 	"Glue-API/httputil"
 	"Glue-API/model"
-	"Glue-API/utils/gluevm"
+	gluevm "Glue-API/utils/gwvm"
 	"net/http"
 
 	"github.com/gin-gonic/gin"
@@ -13,9 +13,9 @@ import (
 
 // ListGlueFs godoc
 //
-//	@Summary		List Fs of Glue
-//	@Description	Glue의 파일 시스템 목록을 보여줍니다.
-//	@Tags			Glue
+//	@Summary		State of Gateway VM
+//	@Description	gwvm의 상태를 보여줍니다.
+//	@Tags			VM
 //	@Accept			x-www-form-urlencoded
 //	@Produce		json
 //	@Success		200	{object}	model.GlueVersion
@@ -28,8 +28,9 @@ func (c *Controller) VmState(ctx *gin.Context) {
 		model.AbleModel
 		Message string
 	}{}
+	hypervisorType := ctx.Param("hypervisorType")
 
-	message, err := gluevm.VmState()
+	message, err := gluevm.VmState(hypervisorType)
 
 	if err != nil {
 		httputil.NewError(ctx, http.StatusInternalServerError, err)
@@ -59,8 +60,13 @@ func (c *Controller) VmSetup(ctx *gin.Context) {
 		model.AbleModel
 		Message string
 	}{}
+	hypervisorType := ctx.Param("hypervisorType")
+	gwvmMngtNicParen, _ := ctx.GetPostForm("gwvmMngtNicParen")
+	gwvmMngtNicIp, _ := ctx.GetPostForm("gwvmMngtNicIp")
+	gwvmStorageNicParent, _ := ctx.GetPostForm("gwvmStorageNicParent")
+	gwvmStorageNicIp, _ := ctx.GetPostForm("gwvmStorageNicIp")
 
-	message, err := gluevm.VmStart()
+	message, err := gluevm.VmSetup(hypervisorType, gwvmMngtNicParen, gwvmMngtNicIp, gwvmStorageNicParent, gwvmStorageNicIp)
 
 	if err != nil {
 		httputil.NewError(ctx, http.StatusInternalServerError, err)
@@ -90,8 +96,9 @@ func (c *Controller) VmStart(ctx *gin.Context) {
 		model.AbleModel
 		Message string
 	}{}
+	hypervisorType := ctx.Param("hypervisorType")
 
-	message, err := gluevm.VmStart()
+	message, err := gluevm.VmStart(hypervisorType)
 
 	if err != nil {
 		httputil.NewError(ctx, http.StatusInternalServerError, err)
@@ -121,8 +128,9 @@ func (c *Controller) VmStop(ctx *gin.Context) {
 		model.AbleModel
 		Message string
 	}{}
+	hypervisorType := ctx.Param("hypervisorType")
 
-	message, err := gluevm.VmStop()
+	message, err := gluevm.VmStop(hypervisorType)
 
 	if err != nil {
 		httputil.NewError(ctx, http.StatusInternalServerError, err)
@@ -152,8 +160,9 @@ func (c *Controller) VmDelete(ctx *gin.Context) {
 		model.AbleModel
 		Message string
 	}{}
+	hypervisorType := ctx.Param("hypervisorType")
 
-	message, err := gluevm.VmDelete()
+	message, err := gluevm.VmDelete(hypervisorType)
 
 	if err != nil {
 		httputil.NewError(ctx, http.StatusInternalServerError, err)
@@ -183,8 +192,9 @@ func (c *Controller) VmCleanup(ctx *gin.Context) {
 		model.AbleModel
 		Message string
 	}{}
+	hypervisorType := ctx.Param("hypervisorType")
 
-	message, err := gluevm.VmCleanup()
+	message, err := gluevm.VmCleanup(hypervisorType)
 
 	if err != nil {
 		httputil.NewError(ctx, http.StatusInternalServerError, err)
@@ -214,10 +224,10 @@ func (c *Controller) VmMigrate(ctx *gin.Context) {
 		model.AbleModel
 		Message string
 	}{}
-
+	hypervisorType := ctx.Param("hypervisorType")
 	target, _ := ctx.GetPostForm("target")
 
-	message, err := gluevm.VmMigrate(target)
+	message, err := gluevm.VmMigrate(hypervisorType, target)
 
 	if err != nil {
 		httputil.NewError(ctx, http.StatusInternalServerError, err)

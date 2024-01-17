@@ -1,0 +1,6 @@
+{
+    
+    "remote_host_ip": "ablecube"
+    , "remote_root_rsa_id_path": "/root/.ssh/id_rsa"
+    
+}

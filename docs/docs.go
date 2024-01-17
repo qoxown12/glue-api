@@ -910,47 +910,6 @@ const docTemplate = `{
                 }
             }
         },
-        "/api/v1/gluefs": {
-            "get": {
-                "description": "GlueFS 의 상태값을 보여줍니다.",
-                "consumes": [
-                    "application/x-www-form-urlencoded"
-                ],
-                "produces": [
-                    "application/json"
-                ],
-                "tags": [
-                    "GlueFS"
-                ],
-                "summary": "Show Status of GlueFS",
-                "responses": {
-                    "200": {
-                        "description": "OK",
-                        "schema": {
-                            "$ref": "#/definitions/GlueFsList"
-                        }
-                    },
-                    "400": {
-                        "description": "Bad Request",
-                        "schema": {
-                            "$ref": "#/definitions/HTTP400BadRequest"
-                        }
-                    },
-                    "404": {
-                        "description": "Not Found",
-                        "schema": {
-                            "$ref": "#/definitions/HTTP404NotFound"
-                        }
-                    },
-                    "500": {
-                        "description": "Internal Server Error",
-                        "schema": {
-                            "$ref": "#/definitions/HTTP500InternalServerError"
-                        }
-                    }
-                }
-            }
-        },
         "/version": {
             "get": {
                 "description": "API 의 버전을 보여줍니다.",
@@ -1515,41 +1474,9 @@ const docTemplate = `{
                     "format": "bool",
                     "example": true
                 },
-                "name": {
-                    "type": "string"
-                }
-            }
-        },
-        "GlueFsList": {
-            "description": "GlueFS의 상태를 나타내는 구조체",
-            "type": "object",
-            "properties": {
-                "debug": {
-                    "description": "Debug info",
-                    "type": "boolean",
-                    "format": "bool",
-                    "example": true
-                },
-                "name": {
-                    "type": "string"
-                },
-                "metadata_pool": {
-                    "type": "string"
-                },
-                "metadata_pool_id": {
-                    "type": "integer"
-                },
-                "data_pool_ids": {
-                    "type": "array",
-                    "items": {
-                        "type": "integer"
-                    }
-                },
-                "data_pools": {
-                    "type": "array",
-                    "items": {
-                        "type": "integer"
-                    }
+                "message": {
+                    "type": "string",
+                    "example": ""
                 }
             }
         },

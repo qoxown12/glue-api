@@ -27,11 +27,10 @@ import (
 
 //	@securityDefinitions.basic	BasicAuth
 
-//	@securityDefinitions.apikey	ApiKeyAuth
-//	@in							header
-//	@name						Authorization
-//	@description				Description for what is this security definition being used
-
+// @securityDefinitions.apikey	ApiKeyAuth
+// @in							header
+// @name						Authorization
+// @description				Description for what is this security definition being used
 func main() {
 	// programmatically set swagger info
 
@@ -82,20 +81,15 @@ func main() {
 			//
 			//
 		}
-		gluevm := v1.Group("/gluevm")
+		gwvm := v1.Group("/gwvm")
 		{
-			gluevm.GET("", c.VmState)
-			gluevm.POST("", c.VmSetup)          //Setup Gateway VM
-			gluevm.PUT("/start", c.VmStart)     //Start to Gateway VM
-			gluevm.PUT("/stop", c.VmStop)       //Stop to Gateway VM
-			gluevm.PUT("/delete", c.VmDelete)   //Delete to Gateway VM
-			gluevm.PUT("/cleanup", c.VmCleanup) //Cleanup to Gateway VM
-			gluevm.PUT("/migrate", c.VmMigrate) //Migrate to Gateway VM
-		}
-		gluefs := v1.Group("/gluefs")
-		{
-			gluefs.GET("", c.ListFs)
-			gluefs.POST("", c.FsSetup) //Setup File System
+			gwvm.GET("/:hypervisorType", c.VmState)
+			gwvm.POST("/:hypervisorType", c.VmSetup)          //Setup Gateway VM
+			gwvm.PUT("/start/:hypervisorType", c.VmStart)     //Start to Gateway VM
+			gwvm.PUT("/stop/:hypervisorType", c.VmStop)       //Stop to Gateway VM
+			gwvm.PUT("/delete/:hypervisorType", c.VmDelete)   //Delete to Gateway VM
+			gwvm.PUT("/cleanup/:hypervisorType", c.VmCleanup) //Cleanup to Gateway VM
+			gwvm.PUT("/migrate/:hypervisorType", c.VmMigrate) //Migrate to Gateway VM
 		}
 		/*
 			admin := v1.Group("/admin")

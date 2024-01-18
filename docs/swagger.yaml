@@ -1,13 +1,185 @@
 basePath: /api/v1
 definitions:
+  FsGetInfo:
+    description: GlueFS의 상세정보 구조체
+    properties:
+      id:
+        type: integer
+      mdsmap:
+        properties:
+          bal_rank_mask:
+            type: string
+          balancer:
+            type: string
+          compat:
+            properties:
+              compat:
+                type: object
+              incompat:
+                properties:
+                  feature_1:
+                    type: string
+                  feature_2:
+                    type: string
+                  feature_3:
+                    type: string
+                  feature_4:
+                    type: string
+                  feature_5:
+                    type: string
+                  feature_6:
+                    type: string
+                  feature_7:
+                    type: string
+                  feature_8:
+                    type: string
+                  feature_9:
+                    type: string
+                  feature_10:
+                    type: string
+                type: object
+              ro_compat:
+                type: object
+            type: object
+          created:
+            type: string
+          damaged:
+            items: {}
+            type: array
+          data_pools:
+            items:
+              type: integer
+            type: array
+          enabled:
+            type: boolean
+          epoch:
+            type: integer
+          ever_allowed_features:
+            type: integer
+          explicitly_allowed_features:
+            type: integer
+          failed:
+            items: {}
+            type: array
+          flags:
+            type: integer
+          flags_state:
+            properties:
+              allow_multimds_snaps:
+                type: boolean
+              allow_snaps:
+                type: boolean
+              allow_standby_replay:
+                type: boolean
+              joinable:
+                type: boolean
+              refuse_client_session:
+                type: boolean
+            type: object
+          fs_name:
+            type: string
+          in:
+            items:
+              type: integer
+            type: array
+          info: {}
+          last_failure:
+            type: integer
+          last_failure_osd_epoch:
+            type: integer
+          max_file_size:
+            type: integer
+          max_mds:
+            type: integer
+          metadata_pool:
+            type: integer
+          modified:
+            type: string
+          required_client_features:
+            type: object
+          root:
+            type: integer
+          session_autoclose:
+            type: integer
+          session_timeout:
+            type: integer
+          standby_count_wanted:
+            type: integer
+          stopped:
+            items: {}
+            type: array
+          tableserver:
+            type: integer
+          up:
+            properties:
+              mds_0:
+                type: integer
+            type: object
+        type: object
+    type: object
+  FsStatus:
+    description: GlueFS의 상태 구조체
+    properties:
+      clients:
+        items:
+          properties:
+            clients:
+              type: integer
+            fs:
+              type: string
+          type: object
+        type: array
+      mds_version:
+        items:
+          properties:
+            daemon:
+              items:
+                type: string
+              type: array
+            version:
+              type: string
+          type: object
+        type: array
+      mdsmap:
+        items:
+          properties:
+            caps:
+              type: integer
+            dirs:
+              type: integer
+            dns:
+              type: integer
+            inos:
+              type: integer
+            name:
+              type: string
+            rank:
+              type: integer
+            rate:
+              type: integer
+            state:
+              type: string
+          type: object
+        type: array
+      pools:
+        items:
+          properties:
+            avail:
+              type: integer
+            id:
+              type: integer
+            name:
+              type: string
+            type:
+              type: string
+            used:
+              type: integer
+          type: object
+        type: array
+    type: object
   GlueStatus:
     description: Glue의 상태를 나타내는 구조체
     properties:
-      debug:
-        description: Debug info
-        example: true
-        format: bool
-        type: boolean
       election_epoch:
         example: 148
         format: uint32
@@ -20,7 +192,7 @@ definitions:
       fsmap:
         properties:
           by_rank:
-            items: { }
+            items: {}
             type: array
           epoch:
             type: integer
@@ -29,8 +201,8 @@ definitions:
         type: object
       health:
         properties:
-          checks: { }
-          mutes: { }
+          checks: {}
+          mutes: {}
           status:
             example: HEALTH_WARN
             format: string
@@ -132,23 +304,19 @@ definitions:
             type: integer
           modified:
             type: string
-          services: { }
+          services: {}
         type: object
     type: object
   GlueVersion:
     description: Glue의 버전
     properties:
-      debug:
-        description: Debug info
-        example: true
-        format: bool
-        type: boolean
-      mgr: { }
-      mon: { }
-      osd: { }
-      overall: { }
-      rbd-mirror: { }
-      rgw: { }
+      mds: {}
+      mgr: {}
+      mon: {}
+      osd: {}
+      overall: {}
+      rbd-mirror: {}
+      rgw: {}
     type: object
   HTTP400BadRequest:
     properties:
@@ -194,11 +362,6 @@ definitions:
     type: object
   ImageMirror:
     properties:
-      debug:
-        description: Debug info
-        example: true
-        format: bool
-        type: boolean
       image:
         type: string
       items:
@@ -223,11 +386,6 @@ definitions:
           service_id:
             type: string
         type: object
-      debug:
-        description: Debug info
-        example: true
-        format: bool
-        type: boolean
       description:
         type: string
       global_id:
@@ -305,19 +463,9 @@ definitions:
         items:
           $ref: '#/definitions/MirrorImage'
         type: array
-      debug:
-        description: Debug info
-        example: true
-        format: bool
-        type: boolean
     type: object
   MirrorSetup:
     properties:
-      debug:
-        description: Debug info
-        example: true
-        format: bool
-        type: boolean
       host:
         type: string
       localClusterName:
@@ -327,7 +475,7 @@ definitions:
         type: string
       mirrorPool:
         type: string
-      privateKeyFile: { }
+      privateKeyFile: {}
       remoteClusterName:
         description: 미러링 상태
         type: string
@@ -339,11 +487,6 @@ definitions:
       daemon_health:
         description: 미러링 데몬 상태
         type: string
-      debug:
-        description: Debug info
-        example: true
-        format: bool
-        type: boolean
       health:
         description: 미러링 상태
         type: string
@@ -352,6 +495,102 @@ definitions:
         type: string
       states:
         description: 이미지 상세
+    type: object
+  NfsClusterLs:
+    description: Glue NFS Cluster 리스트 구조체
+    properties:
+      name:
+        type: string
+    type: object
+  NfsExportCreate:
+    description: Glue NFS Export 생성 구조체
+    properties:
+      access_type:
+        type: string
+      clients:
+        items:
+          properties:
+            access_type:
+              type: string
+            addresses:
+              items:
+                type: string
+              type: array
+            squash:
+              type: string
+          type: object
+        type: array
+      fsal:
+        properties:
+          fs_name:
+            type: string
+          name:
+            type: string
+          sec_label_xattr:
+            type: string
+        type: object
+      path:
+        type: string
+      protocols:
+        items:
+          type: integer
+        type: array
+      pseudo:
+        type: string
+      security:
+        type: boolean
+      squash:
+        type: string
+      transports:
+        items:
+          type: string
+        type: array
+    type: object
+  NfsExportUpdate:
+    description: Glue NFS Export 수정 구조체
+    properties:
+      access_type:
+        type: string
+      clients:
+        items:
+          properties:
+            access_type:
+              type: string
+            addresses:
+              items:
+                type: string
+              type: array
+            squash:
+              type: string
+          type: object
+        type: array
+      export_id:
+        type: integer
+      fsal:
+        properties:
+          fs_name:
+            type: string
+          name:
+            type: string
+          sec_label_xattr:
+            type: string
+        type: object
+      path:
+        type: string
+      protocols:
+        items:
+          type: integer
+        type: array
+      pseudo:
+        type: string
+      security:
+        type: boolean
+      squash:
+        type: string
+      transports:
+        items:
+          type: string
+        type: array
     type: object
   Version:
     description: API의 버전
@@ -382,7 +621,7 @@ paths:
   /api/v1/glue:
     get:
       consumes:
-        - application/x-www-form-urlencoded
+      - application/x-www-form-urlencoded
       description: Glue 의 상태값을 보여줍니다.
       produces:
       - application/json
@@ -409,7 +648,7 @@ paths:
   /api/v1/glue/pool:
     get:
       consumes:
-        - application/x-www-form-urlencoded
+      - application/x-www-form-urlencoded
       description: Glue 의 스토리지 풀 목록을 보여줍니다.
       produces:
       - application/json
@@ -433,15 +672,48 @@ paths:
       summary: List Pools of Glue
       tags:
       - Glue
-  /api/v1/glue/pool/{pool}:
-    get:
+  /api/v1/glue/pool/{pool_name}:
+    delete:
       consumes:
-        - application/x-www-form-urlencoded
+      - application/x-www-form-urlencoded
       description: Glue 스토리지 풀의 이미지 목록을 보여줍니다.
       parameters:
-      - description: pool
+      - description: pool_name
         in: path
-        name: pool
+        name: pool_name
+        required: true
+        type: string
+      produces:
+      - application/json
+      responses:
+        "200":
+          description: Success
+          schema:
+            type: string
+        "400":
+          description: Bad Request
+          schema:
+            $ref: '#/definitions/HTTP400BadRequest'
+        "404":
+          description: Not Found
+          schema:
+            $ref: '#/definitions/HTTP404NotFound'
+        "500":
+          description: Internal Server Error
+          schema:
+            $ref: '#/definitions/HTTP500InternalServerError'
+      summary: List Images of Pool Glue
+      tags:
+      - Glue
+  /api/v1/glue/rbd/{pool_name}:
+    get:
+      consumes:
+      - application/x-www-form-urlencoded
+      description: Glue 스토리지 풀의 이미지 목록을 보여줍니다.
+      parameters:
+      - description: pool_name
+        in: path
+        name: pool_name
         required: true
         type: string
       produces:
@@ -463,13 +735,13 @@ paths:
           description: Internal Server Error
           schema:
             $ref: '#/definitions/HTTP500InternalServerError'
-      summary: List Images of Pool Glue
+      summary: List RBD Images of Pool Glue
       tags:
       - Glue
   /api/v1/glue/version:
     get:
       consumes:
-        - application/x-www-form-urlencoded
+      - application/x-www-form-urlencoded
       description: Glue 의 버전을 보여줍니다.
       produces:
       - application/json
@@ -493,10 +765,180 @@ paths:
       summary: Show Versions of Glue
       tags:
       - Glue
+  /api/v1/gluefs:
+    get:
+      consumes:
+      - application/x-www-form-urlencoded
+      description: GlueFS의 상태값을 보여줍니다.
+      produces:
+      - application/json
+      responses:
+        "200":
+          description: OK
+          schema:
+            $ref: '#/definitions/FsStatus'
+        "400":
+          description: Bad Request
+          schema:
+            $ref: '#/definitions/HTTP400BadRequest'
+        "404":
+          description: Not Found
+          schema:
+            $ref: '#/definitions/HTTP404NotFound'
+        "500":
+          description: Internal Server Error
+          schema:
+            $ref: '#/definitions/HTTP500InternalServerError'
+      summary: Show Status of Glue FS
+      tags:
+      - GlueFS
+  /api/v1/gluefs/{fs_name}:
+    delete:
+      consumes:
+      - application/x-www-form-urlencoded
+      description: GlueFS를 삭제합니다.
+      parameters:
+      - description: Glue FS Name
+        in: path
+        name: fs_name
+        required: true
+        type: string
+      produces:
+      - application/json
+      responses:
+        "200":
+          description: Success
+          schema:
+            type: string
+        "400":
+          description: Bad Request
+          schema:
+            $ref: '#/definitions/HTTP400BadRequest'
+        "404":
+          description: Not Found
+          schema:
+            $ref: '#/definitions/HTTP404NotFound'
+        "500":
+          description: Internal Server Error
+          schema:
+            $ref: '#/definitions/HTTP500InternalServerError'
+      summary: Delete of Glue FS
+      tags:
+      - GlueFS
+    post:
+      consumes:
+      - application/x-www-form-urlencoded
+      description: GlueFS를 생성합니다.
+      parameters:
+      - description: Glue FS Name
+        in: path
+        name: fs_name
+        required: true
+        type: string
+      produces:
+      - application/json
+      responses:
+        "200":
+          description: Success
+          schema:
+            type: string
+        "400":
+          description: Bad Request
+          schema:
+            $ref: '#/definitions/HTTP400BadRequest'
+        "404":
+          description: Not Found
+          schema:
+            $ref: '#/definitions/HTTP404NotFound'
+        "500":
+          description: Internal Server Error
+          schema:
+            $ref: '#/definitions/HTTP500InternalServerError'
+      summary: Create of Glue FS
+      tags:
+      - GlueFS
+  /api/v1/gluefs/info/{fs_name}:
+    get:
+      consumes:
+      - application/x-www-form-urlencoded
+      description: GlueFS의 상세 정보를 보여줍니다.
+      parameters:
+      - description: Glue FS Name
+        in: path
+        name: fs_name
+        required: true
+        type: string
+      produces:
+      - application/json
+      responses:
+        "200":
+          description: OK
+          schema:
+            $ref: '#/definitions/FsGetInfo'
+        "400":
+          description: Bad Request
+          schema:
+            $ref: '#/definitions/HTTP400BadRequest'
+        "404":
+          description: Not Found
+          schema:
+            $ref: '#/definitions/HTTP404NotFound'
+        "500":
+          description: Internal Server Error
+          schema:
+            $ref: '#/definitions/HTTP500InternalServerError'
+      summary: Detail Info of Glue FS
+      tags:
+      - GlueFS
+  /api/v1/gluefs/list:
+    get:
+      consumes:
+      - application/x-www-form-urlencoded
+      description: GlueFS의 리스트를 보여줍니다.
+      produces:
+      - application/json
+      responses:
+        "200":
+          description: OK
+          schema:
+            description: GlueFS 리스트 구조체
+            items:
+              properties:
+                data_pool_ids:
+                  items:
+                    type: integer
+                  type: array
+                data_pools:
+                  items:
+                    type: string
+                  type: array
+                metadata_pool:
+                  type: string
+                metadata_pool_id:
+                  type: integer
+                name:
+                  type: string
+              type: object
+            type: array
+        "400":
+          description: Bad Request
+          schema:
+            $ref: '#/definitions/HTTP400BadRequest'
+        "404":
+          description: Not Found
+          schema:
+            $ref: '#/definitions/HTTP404NotFound'
+        "500":
+          description: Internal Server Error
+          schema:
+            $ref: '#/definitions/HTTP500InternalServerError'
+      summary: List of Glue FS
+      tags:
+      - GlueFS
   /api/v1/mirror:
     delete:
       consumes:
-        - multipart/form-data
+      - multipart/form-data
       description: Glue 의 미러링 클러스터를 제거합니다.
       parameters:
       - description: Remote Cluster Host Address
@@ -538,7 +980,7 @@ paths:
       - Mirror
     get:
       consumes:
-        - application/x-www-form-urlencoded
+      - application/x-www-form-urlencoded
       description: Glue 의 미러링 상태를 보여줍니다.
       produces:
       - application/json
@@ -562,62 +1004,10 @@ paths:
       summary: Show Status of Mirror
       tags:
       - Mirror
-    post:
-      consumes:
-        - multipart/form-data
-      description: Glue 의 미러링 클러스터를 설정합니다.
-      parameters:
-      - description: Local Cluster Name
-        in: formData
-        name: localClusterName
-        required: true
-        type: string
-      - description: Remote Cluster Name
-        in: formData
-        name: remoteClusterName
-        required: true
-        type: string
-      - description: Remote Cluster Host Address
-        in: formData
-        name: host
-        required: true
-        type: string
-      - description: Remote Cluster PrivateKey
-        in: formData
-        name: privateKeyFile
-        required: true
-        type: file
-      - description: Pool Name for Mirroring
-        in: formData
-        name: mirrorPool
-        required: true
-        type: string
-      produces:
-      - application/json
-      responses:
-        "200":
-          description: OK
-          schema:
-            $ref: '#/definitions/MirrorSetup'
-        "400":
-          description: Bad Request
-          schema:
-            $ref: '#/definitions/HTTP400BadRequest'
-        "404":
-          description: Not Found
-          schema:
-            $ref: '#/definitions/HTTP404NotFound'
-        "500":
-          description: Internal Server Error
-          schema:
-            $ref: '#/definitions/HTTP500InternalServerError'
-      summary: Setup Mirroring Cluster
-      tags:
-      - Mirror
   /api/v1/mirror/image:
     get:
       consumes:
-        - application/x-www-form-urlencoded
+      - application/x-www-form-urlencoded
       description: 미러링중인 이미지의 목록과 상태를 보여줍니다.
       produces:
       - application/json
@@ -644,19 +1034,19 @@ paths:
   /api/v1/mirror/image/{mirrorPool}/{imageName}:
     delete:
       consumes:
-        - application/x-www-form-urlencoded
+      - application/x-www-form-urlencoded
       description: 이미지의 미러링을 비활성화 합니다.
       parameters:
-        - description: pool
-          in: path
-          name: mirrorPool
-          required: true
-          type: string
-        - description: imageName
-          in: path
-          name: imageName
-          required: true
-          type: string
+      - description: pool
+        in: path
+        name: mirrorPool
+        required: true
+        type: string
+      - description: imageName
+        in: path
+        name: imageName
+        required: true
+        type: string
       produces:
       - application/json
       responses:
@@ -678,24 +1068,24 @@ paths:
             $ref: '#/definitions/HTTP500InternalServerError'
       summary: Delete Mirrored Snapshot
       tags:
-        - Mirror
+      - Mirror
     get:
       consumes:
-        - application/x-www-form-urlencoded
+      - application/x-www-form-urlencoded
       description: 미러링중인 이미지의 정보를 보여줍니다.
       parameters:
-        - description: mirrorPool
-          in: path
-          name: mirrorPool
-          required: true
-          type: string
-        - description: imageName
-          in: path
-          name: imageName
-          required: true
-          type: string
+      - description: mirrorPool
+        in: path
+        name: mirrorPool
+        required: true
+        type: string
+      - description: imageName
+        in: path
+        name: imageName
+        required: true
+        type: string
       produces:
-        - application/json
+      - application/json
       responses:
         "200":
           description: OK
@@ -715,33 +1105,33 @@ paths:
             $ref: '#/definitions/HTTP500InternalServerError'
       summary: Show Infomation of Mirrored Snapshot
       tags:
-        - Mirror
+      - Mirror
     patch:
       consumes:
-        - application/x-www-form-urlencoded
+      - application/x-www-form-urlencoded
       description: Glue 의 이미지에 미러링의 설정을 변경합니다.
       parameters:
-        - description: Pool Name for Mirroring
-          in: path
-          name: mirrorPool
-          required: true
-          type: string
-        - description: Image Name for Mirroring
-          in: path
-          name: imageName
-          required: true
-          type: string
-        - description: Interval of image snapshot
-          in: formData
-          name: interval
-          required: true
-          type: string
-        - description: Starttime of image snapshot
-          in: formData
-          name: startTime
-          type: string
+      - description: Pool Name for Mirroring
+        in: path
+        name: mirrorPool
+        required: true
+        type: string
+      - description: Image Name for Mirroring
+        in: path
+        name: imageName
+        required: true
+        type: string
+      - description: Interval of image snapshot
+        in: formData
+        name: interval
+        required: true
+        type: string
+      - description: Starttime of image snapshot
+        in: formData
+        name: startTime
+        type: string
       produces:
-        - application/json
+      - application/json
       responses:
         "200":
           description: OK
@@ -761,31 +1151,31 @@ paths:
             $ref: '#/definitions/HTTP500InternalServerError'
       summary: Patch Image Mirroring
       tags:
-        - Mirror
+      - Mirror
     post:
       consumes:
-        - application/x-www-form-urlencoded
+      - application/x-www-form-urlencoded
       description: Glue 의 이미지에 미러링을 설정합니다.
       parameters:
-        - description: Pool Name for Mirroring
-          in: path
-          name: mirrorPool
-          required: true
-          type: string
-        - description: Image Name for Mirroring
-          in: path
-          name: imageName
-          required: true
-          type: string
-        - description: Interval of image snapshot
-          in: formData
-          name: interval
-          required: true
-          type: string
-        - description: StartTime of image snapshot
-          in: formData
-          name: startTime
-          type: string
+      - description: Pool Name for Mirroring
+        in: path
+        name: mirrorPool
+        required: true
+        type: string
+      - description: Image Name for Mirroring
+        in: path
+        name: imageName
+        required: true
+        type: string
+      - description: Interval of image snapshot
+        in: formData
+        name: interval
+        required: true
+        type: string
+      - description: StartTime of image snapshot
+        in: formData
+        name: startTime
+        type: string
       produces:
       - application/json
       responses:
@@ -811,21 +1201,21 @@ paths:
   /api/v1/mirror/image/promote/{mirrorPool}/{imageName}:
     delete:
       consumes:
-        - application/x-www-form-urlencoded
+      - application/x-www-form-urlencoded
       description: Glue 의 이미지를 활성화 합니다.
       parameters:
-        - description: Pool Name for Mirroring
-          in: path
-          name: mirrorPool
-          required: true
-          type: string
-        - description: Image Name for Mirroring
-          in: path
-          name: imageName
-          required: true
-          type: string
+      - description: Pool Name for Mirroring
+        in: path
+        name: mirrorPool
+        required: true
+        type: string
+      - description: Image Name for Mirroring
+        in: path
+        name: imageName
+        required: true
+        type: string
       produces:
-        - application/json
+      - application/json
       responses:
         "200":
           description: OK
@@ -845,22 +1235,22 @@ paths:
             $ref: '#/definitions/HTTP500InternalServerError'
       summary: Promote Image Mirroring
       tags:
-        - Mirror
+      - Mirror
     get:
       consumes:
-        - application/x-www-form-urlencoded
+      - application/x-www-form-urlencoded
       description: Glue 의 이미지에 미러링상태를 확인합니다.
       parameters:
-        - description: Pool Name for Mirroring
-          in: path
-          name: mirrorPool
-          required: true
-          type: string
-        - description: Image Name for Mirroring
-          in: path
-          name: imageName
-          required: true
-          type: string
+      - description: Pool Name for Mirroring
+        in: path
+        name: mirrorPool
+        required: true
+        type: string
+      - description: Image Name for Mirroring
+        in: path
+        name: imageName
+        required: true
+        type: string
       produces:
       - application/json
       responses:
@@ -882,24 +1272,24 @@ paths:
             $ref: '#/definitions/HTTP500InternalServerError'
       summary: Patch Image Mirroring
       tags:
-        - Mirror
+      - Mirror
     post:
       consumes:
-        - application/x-www-form-urlencoded
+      - application/x-www-form-urlencoded
       description: Glue 의 이미지를 활성화 합니다.
       parameters:
-        - description: Pool Name for Mirroring
-          in: path
-          name: mirrorPool
-          required: true
-          type: string
-        - description: Image Name for Mirroring
-          in: path
-          name: imageName
-          required: true
-          type: string
+      - description: Pool Name for Mirroring
+        in: path
+        name: mirrorPool
+        required: true
+        type: string
+      - description: Image Name for Mirroring
+        in: path
+        name: imageName
+        required: true
+        type: string
       produces:
-        - application/json
+      - application/json
       responses:
         "200":
           description: OK
@@ -919,11 +1309,326 @@ paths:
             $ref: '#/definitions/HTTP500InternalServerError'
       summary: Promote Image Mirroring
       tags:
-        - Mirror
+      - Mirror
+  /api/v1/nfs:
+    get:
+      consumes:
+      - application/x-www-form-urlencoded
+      description: Glue NFS Cluster의 리스트를 보여줍니다.
+      produces:
+      - application/json
+      responses:
+        "200":
+          description: OK
+          schema:
+            $ref: '#/definitions/NfsClusterLs'
+        "400":
+          description: Bad Request
+          schema:
+            $ref: '#/definitions/HTTP400BadRequest'
+        "404":
+          description: Not Found
+          schema:
+            $ref: '#/definitions/HTTP404NotFound'
+        "500":
+          description: Internal Server Error
+          schema:
+            $ref: '#/definitions/HTTP500InternalServerError'
+      summary: Show List of Glue NFS Cluster
+      tags:
+      - NFS
+  /api/v1/nfs/{cluster_id}:
+    delete:
+      consumes:
+      - application/x-www-form-urlencoded
+      description: Glue NFS Cluster를 삭제합니다.
+      parameters:
+      - description: NFS Cluster Identifier
+        in: path
+        name: cluster_id
+        required: true
+        type: string
+      produces:
+      - application/json
+      responses:
+        "200":
+          description: Success
+          schema:
+            type: string
+        "400":
+          description: Bad Request
+          schema:
+            $ref: '#/definitions/HTTP400BadRequest'
+        "404":
+          description: Not Found
+          schema:
+            $ref: '#/definitions/HTTP404NotFound'
+        "500":
+          description: Internal Server Error
+          schema:
+            $ref: '#/definitions/HTTP500InternalServerError'
+      summary: Delete of Glue NFS Cluster
+      tags:
+      - NFS
+    get:
+      consumes:
+      - application/x-www-form-urlencoded
+      description: Glue NFS Cluster의 상세 정보를 보여줍니다.
+      parameters:
+      - description: NFS Cluster Identifier
+        in: path
+        name: cluster_id
+        required: true
+        type: string
+      produces:
+      - application/json
+      responses:
+        "200":
+          description: OK
+          schema:
+            description: Glue NFS Cluster 상세정보 구조체
+        "400":
+          description: Bad Request
+          schema:
+            $ref: '#/definitions/HTTP400BadRequest'
+        "404":
+          description: Not Found
+          schema:
+            $ref: '#/definitions/HTTP404NotFound'
+        "500":
+          description: Internal Server Error
+          schema:
+            $ref: '#/definitions/HTTP500InternalServerError'
+      summary: Show Info of Glue NFS Cluster
+      tags:
+      - NFS
+  /api/v1/nfs/{cluster_id}/{port}:
+    post:
+      consumes:
+      - application/x-www-form-urlencoded
+      description: Glue NFS Cluster를 생성합니다.
+      parameters:
+      - description: NFS Cluster Identifier
+        in: path
+        name: cluster_id
+        required: true
+        type: string
+      - description: Cluster Port
+        in: path
+        name: port
+        required: true
+        type: string
+      produces:
+      - application/json
+      responses:
+        "200":
+          description: Success
+          schema:
+            type: string
+        "400":
+          description: Bad Request
+          schema:
+            $ref: '#/definitions/HTTP400BadRequest'
+        "404":
+          description: Not Found
+          schema:
+            $ref: '#/definitions/HTTP404NotFound'
+        "500":
+          description: Internal Server Error
+          schema:
+            $ref: '#/definitions/HTTP500InternalServerError'
+      summary: Create of Glue NFS Cluster
+      tags:
+      - NFS
+  /api/v1/nfs/export/{cluster_id}:
+    get:
+      consumes:
+      - application/x-www-form-urlencoded
+      description: Glue NFS Export 상세 정보를 보여줍니다.
+      parameters:
+      - description: NFS Cluster Identifier
+        in: path
+        name: cluster_id
+        required: true
+        type: string
+      produces:
+      - application/json
+      responses:
+        "200":
+          description: OK
+          schema:
+            description: Glue NFS Export 상세정보 구조체
+            items:
+              properties:
+                access_type:
+                  type: string
+                clients:
+                  items: {}
+                  type: array
+                cluster_id:
+                  type: string
+                export_id:
+                  type: integer
+                fsal:
+                  properties:
+                    fs_name:
+                      type: string
+                    name:
+                      type: string
+                    user_id:
+                      type: string
+                  type: object
+                path:
+                  type: string
+                protocols:
+                  items:
+                    type: integer
+                  type: array
+                pseudo:
+                  type: string
+                security_label:
+                  type: boolean
+                squash:
+                  type: string
+                transports:
+                  items:
+                    type: string
+                  type: array
+              type: object
+            type: array
+        "400":
+          description: Bad Request
+          schema:
+            $ref: '#/definitions/HTTP400BadRequest'
+        "404":
+          description: Not Found
+          schema:
+            $ref: '#/definitions/HTTP404NotFound'
+        "500":
+          description: Internal Server Error
+          schema:
+            $ref: '#/definitions/HTTP500InternalServerError'
+      summary: Show Detail of Glue NFS Export
+      tags:
+      - NFS
+    post:
+      consumes:
+      - application/x-www-form-urlencoded
+      description: Glue NFS Export를 생성합니다.
+      parameters:
+      - description: NFS Cluster Identifier
+        in: path
+        name: cluster_id
+        required: true
+        type: string
+      - description: NFS Export JSON file
+        in: body
+        name: json_file
+        required: true
+        schema:
+          $ref: '#/definitions/NfsExportCreate'
+      produces:
+      - application/json
+      responses:
+        "200":
+          description: Success
+          schema:
+            type: string
+        "400":
+          description: Bad Request
+          schema:
+            $ref: '#/definitions/HTTP400BadRequest'
+        "404":
+          description: Not Found
+          schema:
+            $ref: '#/definitions/HTTP404NotFound'
+        "500":
+          description: Internal Server Error
+          schema:
+            $ref: '#/definitions/HTTP500InternalServerError'
+      summary: Create of Glue NFS Export
+      tags:
+      - NFS
+    put:
+      consumes:
+      - application/x-www-form-urlencoded
+      description: Glue NFS Export를 수정합니다.
+      parameters:
+      - description: NFS Cluster Identifier
+        in: path
+        name: cluster_id
+        required: true
+        type: string
+      - description: NFS Export JSON file
+        in: body
+        name: json_file
+        required: true
+        schema:
+          $ref: '#/definitions/NfsExportUpdate'
+      produces:
+      - application/json
+      responses:
+        "200":
+          description: Success
+          schema:
+            type: string
+        "400":
+          description: Bad Request
+          schema:
+            $ref: '#/definitions/HTTP400BadRequest'
+        "404":
+          description: Not Found
+          schema:
+            $ref: '#/definitions/HTTP404NotFound'
+        "500":
+          description: Internal Server Error
+          schema:
+            $ref: '#/definitions/HTTP500InternalServerError'
+      summary: Update of Glue NFS Export
+      tags:
+      - NFS
+  /api/v1/nfs/export/{cluster_id}/{export_id}:
+    delete:
+      consumes:
+      - application/x-www-form-urlencoded
+      description: Glue NFS Export를 삭제합니다.
+      parameters:
+      - description: NFS Cluster Identifier
+        in: path
+        name: cluster_id
+        required: true
+        type: string
+      - description: NFS Export ID
+        in: path
+        name: export_id
+        required: true
+        type: string
+      produces:
+      - application/json
+      responses:
+        "200":
+          description: Success
+          schema:
+            type: string
+        "400":
+          description: Bad Request
+          schema:
+            $ref: '#/definitions/HTTP400BadRequest'
+        "404":
+          description: Not Found
+          schema:
+            $ref: '#/definitions/HTTP404NotFound'
+        "500":
+          description: Internal Server Error
+          schema:
+            $ref: '#/definitions/HTTP500InternalServerError'
+      summary: Delete of Glue NFS Export
+      tags:
+      - NFS
   /version:
     get:
       consumes:
-        - application/x-www-form-urlencoded
+      - application/x-www-form-urlencoded
       description: API 의 버전을 보여줍니다.
       produces:
       - application/json

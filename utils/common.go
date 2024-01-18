@@ -33,7 +33,7 @@ func FancyHandleError(err error) (b bool) {
 	return
 }
 
-// ReadConfFile this logs the function name as well.
+// Read the settings file.
 func ReadConfFile() (settings model.Settings, err error) {
 	content, err := os.ReadFile("./conf.json")
 	if err != nil {

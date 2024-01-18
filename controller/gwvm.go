@@ -11,23 +11,21 @@ import (
 	// "os/exec"
 )
 
-// ListGlueFs godoc
+// VmState godoc
 //
 //	@Summary		State of Gateway VM
 //	@Description	gwvm의 상태를 보여줍니다.
-//	@Tags			VM
+//	@Tags			Gwvm
 //	@Accept			x-www-form-urlencoded
 //	@Produce		json
-//	@Success		200	{object}	model.GlueVersion
+//	@Success		200	{object}	model.GwvmMgmt
 //	@Failure		400	{object}	httputil.HTTP400BadRequest
 //	@Failure		404	{object}	httputil.HTTP404NotFound
 //	@Failure		500	{object}	httputil.HTTP500InternalServerError
-//	@Router			/api/v1/gluefs [get]
+//	@Router			/api/v1/gwvm/{hypervisorType} [get]
 func (c *Controller) VmState(ctx *gin.Context) {
-	var dat = struct {
-		model.AbleModel
-		Message string
-	}{}
+	var dat model.GwvmMgmt
+
 	hypervisorType := ctx.Param("hypervisorType")
 
 	message, err := gluevm.VmState(hypervisorType)
@@ -41,25 +39,26 @@ func (c *Controller) VmState(ctx *gin.Context) {
 	ctx.IndentedJSON(http.StatusOK, dat)
 }
 
-// FsSetup godoc
+// VmSetup godoc
 //
-//	@Summary		Setup Glue File System
-//	@Description	Glue의 파일 시스템을 생성합니다.
-//	@param			privateKeyFile		formData	file	true	"Remote Cluster PrivateKey"
-//	@param			mirrorPool			formData	string	true	"Pool Name for Mirroring"
-//	@Tags			Mirror
+//	@Summary		Setup Gateway Vm
+//	@Description	gwvm을 생성합니다.
+//	@param			hypervisorType			path		string	true	"Hypervisor Type"
+//	@param			gwvmMngtNicParen		formData	string	true	"Gwvm Management Nic Paren"
+//	@param			gwvmMngtNicIp			formData	string	true	"Gwvm Management Nic Ip"
+//	@param			gwvmStorageNicParent	formData	string	true	"Gwvm Storage Nic Parent"
+//	@param			gwvmStorageNicIp		formData	string	true	"Gwvm Storage Nic Ip"
+//	@Tags			Gwvm
 //	@Accept			multipart/form-data
 //	@Produce		json
-//	@Success		200	{object}	model.MirrorSetup
+//	@Success		200	{object}	model.GwvmMgmt
 //	@Failure		400	{object}	httputil.HTTP400BadRequest
 //	@Failure		404	{object}	httputil.HTTP404NotFound
 //	@Failure		500	{object}	httputil.HTTP500InternalServerError
-//	@Router			/api/v1/mirror [post]
+//	@Router			/api/v1/gwvm/{hypervisorType} post]
 func (c *Controller) VmSetup(ctx *gin.Context) {
-	var dat = struct {
-		model.AbleModel
-		Message string
-	}{}
+	var dat model.GwvmMgmt
+
 	hypervisorType := ctx.Param("hypervisorType")
 	gwvmMngtNicParen, _ := ctx.GetPostForm("gwvmMngtNicParen")
 	gwvmMngtNicIp, _ := ctx.GetPostForm("gwvmMngtNicIp")
@@ -77,25 +76,22 @@ func (c *Controller) VmSetup(ctx *gin.Context) {
 	ctx.IndentedJSON(http.StatusOK, dat)
 }
 
-// FsSetup godoc
+// VmStart godoc
 //
-//	@Summary		Setup Glue File System
-//	@Description	Glue의 파일 시스템을 생성합니다.
-//	@param			privateKeyFile		formData	file	true	"Remote Cluster PrivateKey"
-//	@param			mirrorPool			formData	string	true	"Pool Name for Mirroring"
-//	@Tags			Mirror
+//	@Summary		Start to Gateway VM
+//	@Description	Gateway VM을 실행합니다.
+//	@param			hypervisorType	path	string	true	"Hypervisor Type"
+//	@Tags			Gwvm
 //	@Accept			multipart/form-data
 //	@Produce		json
-//	@Success		200	{object}	model.MirrorSetup
+//	@Success		200	{object}	model.GwvmMgmt
 //	@Failure		400	{object}	httputil.HTTP400BadRequest
 //	@Failure		404	{object}	httputil.HTTP404NotFound
 //	@Failure		500	{object}	httputil.HTTP500InternalServerError
-//	@Router			/api/v1/mirror [post]
+//	@Router			/api/v1/gwvm/start/{hypervisorType} [put]
 func (c *Controller) VmStart(ctx *gin.Context) {
-	var dat = struct {
-		model.AbleModel
-		Message string
-	}{}
+	var dat model.GwvmMgmt
+
 	hypervisorType := ctx.Param("hypervisorType")
 
 	message, err := gluevm.VmStart(hypervisorType)
@@ -109,25 +105,22 @@ func (c *Controller) VmStart(ctx *gin.Context) {
 	ctx.IndentedJSON(http.StatusOK, dat)
 }
 
-// FsSetup godoc
+// VmStop godoc
 //
-//	@Summary		Setup Glue File System
-//	@Description	Glue의 파일 시스템을 생성합니다.
-//	@param			privateKeyFile		formData	file	true	"Remote Cluster PrivateKey"
-//	@param			mirrorPool			formData	string	true	"Pool Name for Mirroring"
-//	@Tags			Mirror
+//	@Summary		Stop to Gateway VM
+//	@Description	Gateway VM을 정지합니다.
+//	@param			hypervisorType	path	string	true	"Hypervisor Type"
+//	@Tags			Gwvm
 //	@Accept			multipart/form-data
 //	@Produce		json
-//	@Success		200	{object}	model.MirrorSetup
+//	@Success		200	{object}	model.GwvmMgmt
 //	@Failure		400	{object}	httputil.HTTP400BadRequest
 //	@Failure		404	{object}	httputil.HTTP404NotFound
 //	@Failure		500	{object}	httputil.HTTP500InternalServerError
-//	@Router			/api/v1/mirror [post]
+//	@Router			/api/v1/gwvm/stop/{hypervisorType} [put]
 func (c *Controller) VmStop(ctx *gin.Context) {
-	var dat = struct {
-		model.AbleModel
-		Message string
-	}{}
+	var dat model.GwvmMgmt
+
 	hypervisorType := ctx.Param("hypervisorType")
 
 	message, err := gluevm.VmStop(hypervisorType)
@@ -141,25 +134,22 @@ func (c *Controller) VmStop(ctx *gin.Context) {
 	ctx.IndentedJSON(http.StatusOK, dat)
 }
 
-// FsSetup godoc
+// VmDelete godoc
 //
-//	@Summary		Setup Glue File System
-//	@Description	Glue의 파일 시스템을 생성합니다.
-//	@param			privateKeyFile		formData	file	true	"Remote Cluster PrivateKey"
-//	@param			mirrorPool			formData	string	true	"Pool Name for Mirroring"
-//	@Tags			Mirror
+//	@Summary		Delete to Gateway VM
+//	@Description	Gateway VM을 삭제합니다.
+//	@param			hypervisorType	path	string	true	"Hypervisor Type"
+//	@Tags			Gwvm
 //	@Accept			multipart/form-data
 //	@Produce		json
-//	@Success		200	{object}	model.MirrorSetup
+//	@Success		200	{object}	model.GwvmMgmt
 //	@Failure		400	{object}	httputil.HTTP400BadRequest
 //	@Failure		404	{object}	httputil.HTTP404NotFound
 //	@Failure		500	{object}	httputil.HTTP500InternalServerError
-//	@Router			/api/v1/mirror [post]
+//	@Router			/api/v1/gwvm/delete/{hypervisorType} [delete]
 func (c *Controller) VmDelete(ctx *gin.Context) {
-	var dat = struct {
-		model.AbleModel
-		Message string
-	}{}
+	var dat model.GwvmMgmt
+
 	hypervisorType := ctx.Param("hypervisorType")
 
 	message, err := gluevm.VmDelete(hypervisorType)
@@ -173,20 +163,19 @@ func (c *Controller) VmDelete(ctx *gin.Context) {
 	ctx.IndentedJSON(http.StatusOK, dat)
 }
 
-// FsSetup godoc
+// VmCleanup godoc
 //
-//	@Summary		Setup Glue File System
-//	@Description	Glue의 파일 시스템을 생성합니다.
-//	@param			privateKeyFile		formData	file	true	"Remote Cluster PrivateKey"
-//	@param			mirrorPool			formData	string	true	"Pool Name for Mirroring"
-//	@Tags			Mirror
+//	@Summary		Cleanup to Gateway VM
+//	@Description	Gateway VM Pcs cluster를 Cleanup 합니다.
+//	@param			hypervisorType	path	string	true	"Hypervisor Type"
+//	@Tags			Gwvm
 //	@Accept			multipart/form-data
 //	@Produce		json
-//	@Success		200	{object}	model.MirrorSetup
+//	@Success		200	{object}	model.GwvmMgmt
 //	@Failure		400	{object}	httputil.HTTP400BadRequest
 //	@Failure		404	{object}	httputil.HTTP404NotFound
 //	@Failure		500	{object}	httputil.HTTP500InternalServerError
-//	@Router			/api/v1/mirror [post]
+//	@Router			/api/v1/gwvm/stop/{hypervisorType} [put]
 func (c *Controller) VmCleanup(ctx *gin.Context) {
 	var dat = struct {
 		model.AbleModel
@@ -205,25 +194,23 @@ func (c *Controller) VmCleanup(ctx *gin.Context) {
 	ctx.IndentedJSON(http.StatusOK, dat)
 }
 
-// FsSetup godoc
+// VmCleanup godoc
 //
-//	@Summary		Setup Glue File System
-//	@Description	Glue의 파일 시스템을 생성합니다.
-//	@param			privateKeyFile		formData	file	true	"Remote Cluster PrivateKey"
-//	@param			mirrorPool			formData	string	true	"Pool Name for Mirroring"
-//	@Tags			Mirror
+//	@Summary		VmMigrate to Gateway VM
+//	@Description	Gateway VM을 Pcs cluster내 다른 호스트로 마이그레이션 합니다.
+//	@param			hypervisorType	path	string	true	"Hypervisor Type"
+//	@param			target		formData	string	true	"Migration Target Host"
+//	@Tags			Gwvm
 //	@Accept			multipart/form-data
 //	@Produce		json
-//	@Success		200	{object}	model.MirrorSetup
+//	@Success		200	{object}	model.GwvmMgmt
 //	@Failure		400	{object}	httputil.HTTP400BadRequest
 //	@Failure		404	{object}	httputil.HTTP404NotFound
 //	@Failure		500	{object}	httputil.HTTP500InternalServerError
-//	@Router			/api/v1/mirror [post]
+//	@Router			/api/v1/gwvm/migrate/{hypervisorType} [put]
 func (c *Controller) VmMigrate(ctx *gin.Context) {
-	var dat = struct {
-		model.AbleModel
-		Message string
-	}{}
+	var dat model.GwvmMgmt
+
 	hypervisorType := ctx.Param("hypervisorType")
 	target, _ := ctx.GetPostForm("target")
 

@@ -508,6 +508,12 @@ paths:
       consumes:
       - application/x-www-form-urlencoded
       description: gwvm의 상태를 보여줍니다.
+      parameters:
+      - description: Hypervisor Type
+        in: path
+        name: hypervisorType
+        required: true
+        type: string
       produces:
       - application/json
       responses:

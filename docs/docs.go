@@ -417,6 +417,15 @@ const docTemplate = `{
                     "Gwvm"
                 ],
                 "summary": "State of Gateway VM",
+                "parameters": [
+                    {
+                        "type": "string",
+                        "description": "Hypervisor Type",
+                        "name": "hypervisorType",
+                        "in": "path",
+                        "required": true
+                    }
+                ],
                 "responses": {
                     "200": {
                         "description": "OK",

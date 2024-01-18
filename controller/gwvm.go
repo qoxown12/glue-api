@@ -15,6 +15,7 @@ import (
 //
 //	@Summary		State of Gateway VM
 //	@Description	gwvm의 상태를 보여줍니다.
+//	@param			hypervisorType	path	string	true	"Hypervisor Type"
 //	@Tags			Gwvm
 //	@Accept			x-www-form-urlencoded
 //	@Produce		json

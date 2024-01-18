@@ -12,7 +12,7 @@ Glue의 기능을 제어하기 위한 REST API 입니다.
 | GET    | [api/v1/glue](#apiv1glue)                                              | :white_check_mark: | GlueStatus        |
 | GET    | [api/v1/glue/version](#apiv1glueversion)                               | :white_check_mark: | GlueVersion       |
 | GET    | [api/v1/glue/pool](#apiv1gluepool)                                     | :white_check_mark: | ListPools         |
-| DELETE | [api/v1/glue/pool/:poolname](#apiv1gluepool)                           | :white_check_mark: | PoolDelete        |
+| DELETE | [api/v1/glue/pool/:poolname](#apiv1gluepoolpoolname)                   | :white_check_mark: | PoolDelete        |
 | GET    | [api/v1/glue/rbd/:poolname](#apiv1gluerbdpool)                         | :white_check_mark: | ListImages        |
 | GET    | [api/v1/gluefs](#apiv1gluefs)                                          | :white_check_mark: | FsStatus          |
 | GET    | [api/v1/gluefs/info/:fs_name](#apiv1gluefsinfo)                        | :white_check_mark: | FsGetInfo         |

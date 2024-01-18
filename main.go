@@ -101,7 +101,7 @@ func main() {
 		r.Any("/version", c.Version)
 	}
 	r.GET("/swaggers/*any", ginSwagger.WrapHandler(swaggerFiles.Handler))
-	r.Run(":18080")
+	r.Run(":8080")
 }
 
 /*

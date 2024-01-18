@@ -197,6 +197,330 @@ const docTemplate = `{
                 }
             }
         },
+        "/api/v1/gwvm/delete/{hypervisorType}": {
+            "delete": {
+                "description": "Gateway VM을 삭제합니다.",
+                "consumes": [
+                    "multipart/form-data"
+                ],
+                "produces": [
+                    "application/json"
+                ],
+                "tags": [
+                    "Gwvm"
+                ],
+                "summary": "Delete to Gateway VM",
+                "parameters": [
+                    {
+                        "type": "string",
+                        "description": "Hypervisor Type",
+                        "name": "hypervisorType",
+                        "in": "path",
+                        "required": true
+                    }
+                ],
+                "responses": {
+                    "200": {
+                        "description": "OK",
+                        "schema": {
+                            "$ref": "#/definitions/model.GwvmMgmt"
+                        }
+                    },
+                    "400": {
+                        "description": "Bad Request",
+                        "schema": {
+                            "$ref": "#/definitions/HTTP400BadRequest"
+                        }
+                    },
+                    "404": {
+                        "description": "Not Found",
+                        "schema": {
+                            "$ref": "#/definitions/HTTP404NotFound"
+                        }
+                    },
+                    "500": {
+                        "description": "Internal Server Error",
+                        "schema": {
+                            "$ref": "#/definitions/HTTP500InternalServerError"
+                        }
+                    }
+                }
+            }
+        },
+        "/api/v1/gwvm/migrate/{hypervisorType}": {
+            "put": {
+                "description": "Gateway VM을 Pcs cluster내 다른 호스트로 마이그레이션 합니다.",
+                "consumes": [
+                    "multipart/form-data"
+                ],
+                "produces": [
+                    "application/json"
+                ],
+                "tags": [
+                    "Gwvm"
+                ],
+                "summary": "VmMigrate to Gateway VM",
+                "parameters": [
+                    {
+                        "type": "string",
+                        "description": "Hypervisor Type",
+                        "name": "hypervisorType",
+                        "in": "path",
+                        "required": true
+                    },
+                    {
+                        "type": "string",
+                        "description": "Migration Target Host",
+                        "name": "target",
+                        "in": "formData",
+                        "required": true
+                    }
+                ],
+                "responses": {
+                    "200": {
+                        "description": "OK",
+                        "schema": {
+                            "$ref": "#/definitions/model.GwvmMgmt"
+                        }
+                    },
+                    "400": {
+                        "description": "Bad Request",
+                        "schema": {
+                            "$ref": "#/definitions/HTTP400BadRequest"
+                        }
+                    },
+                    "404": {
+                        "description": "Not Found",
+                        "schema": {
+                            "$ref": "#/definitions/HTTP404NotFound"
+                        }
+                    },
+                    "500": {
+                        "description": "Internal Server Error",
+                        "schema": {
+                            "$ref": "#/definitions/HTTP500InternalServerError"
+                        }
+                    }
+                }
+            }
+        },
+        "/api/v1/gwvm/start/{hypervisorType}": {
+            "put": {
+                "description": "Gateway VM을 실행합니다.",
+                "consumes": [
+                    "multipart/form-data"
+                ],
+                "produces": [
+                    "application/json"
+                ],
+                "tags": [
+                    "Gwvm"
+                ],
+                "summary": "Start to Gateway VM",
+                "parameters": [
+                    {
+                        "type": "string",
+                        "description": "Hypervisor Type",
+                        "name": "hypervisorType",
+                        "in": "path",
+                        "required": true
+                    }
+                ],
+                "responses": {
+                    "200": {
+                        "description": "OK",
+                        "schema": {
+                            "$ref": "#/definitions/model.GwvmMgmt"
+                        }
+                    },
+                    "400": {
+                        "description": "Bad Request",
+                        "schema": {
+                            "$ref": "#/definitions/HTTP400BadRequest"
+                        }
+                    },
+                    "404": {
+                        "description": "Not Found",
+                        "schema": {
+                            "$ref": "#/definitions/HTTP404NotFound"
+                        }
+                    },
+                    "500": {
+                        "description": "Internal Server Error",
+                        "schema": {
+                            "$ref": "#/definitions/HTTP500InternalServerError"
+                        }
+                    }
+                }
+            }
+        },
+        "/api/v1/gwvm/stop/{hypervisorType}": {
+            "put": {
+                "description": "Gateway VM Pcs cluster를 Cleanup 합니다.",
+                "consumes": [
+                    "multipart/form-data"
+                ],
+                "produces": [
+                    "application/json"
+                ],
+                "tags": [
+                    "Gwvm"
+                ],
+                "summary": "Cleanup to Gateway VM",
+                "parameters": [
+                    {
+                        "type": "string",
+                        "description": "Hypervisor Type",
+                        "name": "hypervisorType",
+                        "in": "path",
+                        "required": true
+                    }
+                ],
+                "responses": {
+                    "200": {
+                        "description": "OK",
+                        "schema": {
+                            "$ref": "#/definitions/model.GwvmMgmt"
+                        }
+                    },
+                    "400": {
+                        "description": "Bad Request",
+                        "schema": {
+                            "$ref": "#/definitions/HTTP400BadRequest"
+                        }
+                    },
+                    "404": {
+                        "description": "Not Found",
+                        "schema": {
+                            "$ref": "#/definitions/HTTP404NotFound"
+                        }
+                    },
+                    "500": {
+                        "description": "Internal Server Error",
+                        "schema": {
+                            "$ref": "#/definitions/HTTP500InternalServerError"
+                        }
+                    }
+                }
+            }
+        },
+        "/api/v1/gwvm/{hypervisorType}": {
+            "get": {
+                "description": "gwvm의 상태를 보여줍니다.",
+                "consumes": [
+                    "application/x-www-form-urlencoded"
+                ],
+                "produces": [
+                    "application/json"
+                ],
+                "tags": [
+                    "Gwvm"
+                ],
+                "summary": "State of Gateway VM",
+                "responses": {
+                    "200": {
+                        "description": "OK",
+                        "schema": {
+                            "$ref": "#/definitions/model.GwvmMgmt"
+                        }
+                    },
+                    "400": {
+                        "description": "Bad Request",
+                        "schema": {
+                            "$ref": "#/definitions/HTTP400BadRequest"
+                        }
+                    },
+                    "404": {
+                        "description": "Not Found",
+                        "schema": {
+                            "$ref": "#/definitions/HTTP404NotFound"
+                        }
+                    },
+                    "500": {
+                        "description": "Internal Server Error",
+                        "schema": {
+                            "$ref": "#/definitions/HTTP500InternalServerError"
+                        }
+                    }
+                }
+            },
+            "post": {
+                "description": "gwvm을 생성합니다.",
+                "consumes": [
+                    "multipart/form-data"
+                ],
+                "produces": [
+                    "application/json"
+                ],
+                "tags": [
+                    "Gwvm"
+                ],
+                "summary": "Setup Gateway Vm",
+                "parameters": [
+                    {
+                        "type": "string",
+                        "description": "Hypervisor Type",
+                        "name": "hypervisorType",
+                        "in": "path",
+                        "required": true
+                    },
+                    {
+                        "type": "string",
+                        "description": "Gwvm Management Nic Paren",
+                        "name": "gwvmMngtNicParen",
+                        "in": "formData",
+                        "required": true
+                    },
+                    {
+                        "type": "string",
+                        "description": "Gwvm Management Nic Ip",
+                        "name": "gwvmMngtNicIp",
+                        "in": "formData",
+                        "required": true
+                    },
+                    {
+                        "type": "string",
+                        "description": "Gwvm Storage Nic Parent",
+                        "name": "gwvmStorageNicParent",
+                        "in": "formData",
+                        "required": true
+                    },
+                    {
+                        "type": "string",
+                        "description": "Gwvm Storage Nic Ip",
+                        "name": "gwvmStorageNicIp",
+                        "in": "formData",
+                        "required": true
+                    }
+                ],
+                "responses": {
+                    "200": {
+                        "description": "OK",
+                        "schema": {
+                            "$ref": "#/definitions/model.GwvmMgmt"
+                        }
+                    },
+                    "400": {
+                        "description": "Bad Request",
+                        "schema": {
+                            "$ref": "#/definitions/HTTP400BadRequest"
+                        }
+                    },
+                    "404": {
+                        "description": "Not Found",
+                        "schema": {
+                            "$ref": "#/definitions/HTTP404NotFound"
+                        }
+                    },
+                    "500": {
+                        "description": "Internal Server Error",
+                        "schema": {
+                            "$ref": "#/definitions/HTTP500InternalServerError"
+                        }
+                    }
+                }
+            }
+        },
         "/api/v1/mirror": {
             "get": {
                 "description": "Glue 의 미러링 상태를 보여줍니다.",
@@ -832,84 +1156,6 @@ const docTemplate = `{
                 }
             }
         },
-        "/api/v1/gluevm": {
-            "post": {
-                "description": "Gateway VM을 배포하는 기능",
-                "consumes": [
-                    "application/x-www-form-urlencoded"
-                ],
-                "produces": [
-                    "application/json"
-                ],
-                "tags": [
-                    "GlueVm"
-                ],
-                "summary": "Gateway virtual machine deploy",
-                "parameters": [
-                    {
-                        "type": "string",
-                        "description": "Hypervisor Type",
-                        "name": "hypervisorType",
-                        "in": "formData",
-                        "required": true
-                    },
-                    {
-                        "type": "string",
-                        "description": "Gwvm Mngt Nic Paren",
-                        "name": "gwvmMngtNicParen",
-                        "in": "formData",
-                        "required": true
-                    },
-                    {
-                        "type": "string",
-                        "description": "Gwvm Mngt Nic Ip",
-                        "name": "gwvmMngtNicIp",
-                        "in": "formData",
-                        "required": true
-                    },
-                    {
-                        "type": "string",
-                        "description": "Gwvm Storage Nic Parent",
-                        "name": "gwvmStorageNicParent",
-                        "in": "formData",
-                        "required": true
-                    },
-                    {
-                        "type": "string",
-                        "description": "Gwvm Storage Nic Ip",
-                        "name": "gwvmStorageNicIp",
-                        "in": "formData",
-                        "required": true
-                    }
-                ],
-                "responses": {
-                    "200": {
-                        "description": "OK",
-                        "schema": {
-                            "$ref": "#/definitions/GlueDeploy"
-                        }
-                    },
-                    "400": {
-                        "description": "Bad Request",
-                        "schema": {
-                            "$ref": "#/definitions/HTTP400BadRequest"
-                        }
-                    },
-                    "404": {
-                        "description": "Not Found",
-                        "schema": {
-                            "$ref": "#/definitions/HTTP404NotFound"
-                        }
-                    },
-                    "500": {
-                        "description": "Internal Server Error",
-                        "schema": {
-                            "$ref": "#/definitions/HTTP500InternalServerError"
-                        }
-                    }
-                }
-            }
-        },
         "/version": {
             "get": {
                 "description": "API 의 버전을 보여줍니다.",
@@ -951,7 +1197,7 @@ const docTemplate = `{
                 }
             }
         }
-    },    
+    },
     "definitions": {
         "GlueStatus": {
             "description": "Glue의 상태를 나타내는 구조체",
@@ -1464,22 +1710,6 @@ const docTemplate = `{
                 }
             }
         },
-        "GlueDeploy": {
-            "description": "GlueVm의 배포 결과를 나타내는 구조체",
-            "type": "object",
-            "properties": {
-                "debug": {
-                    "description": "Debug info",
-                    "type": "boolean",
-                    "format": "bool",
-                    "example": true
-                },
-                "message": {
-                    "type": "string",
-                    "example": ""
-                }
-            }
-        },
         "Version": {
             "description": "API의 버전",
             "type": "object",
@@ -1494,6 +1724,20 @@ const docTemplate = `{
                     "type": "string",
                     "format": "string",
                     "example": "1.0"
+                }
+            }
+        },
+        "model.GwvmMgmt": {
+            "type": "object",
+            "properties": {
+                "debug": {
+                    "description": "Debug info",
+                    "type": "boolean",
+                    "format": "bool",
+                    "example": true
+                },
+                "message": {
+                    "type": "string"
                 }
             }
         }

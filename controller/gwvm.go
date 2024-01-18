@@ -55,7 +55,7 @@ func (c *Controller) VmState(ctx *gin.Context) {
 //	@Failure		400	{object}	httputil.HTTP400BadRequest
 //	@Failure		404	{object}	httputil.HTTP404NotFound
 //	@Failure		500	{object}	httputil.HTTP500InternalServerError
-//	@Router			/api/v1/gwvm/{hypervisorType} post]
+//	@Router			/api/v1/gwvm/{hypervisorType} [post]
 func (c *Controller) VmSetup(ctx *gin.Context) {
 	var dat model.GwvmMgmt
 

@@ -20,7 +20,7 @@ definitions:
       fsmap:
         properties:
           by_rank:
-            items: { }
+            items: {}
             type: array
           epoch:
             type: integer
@@ -29,8 +29,8 @@ definitions:
         type: object
       health:
         properties:
-          checks: { }
-          mutes: { }
+          checks: {}
+          mutes: {}
           status:
             example: HEALTH_WARN
             format: string
@@ -132,7 +132,7 @@ definitions:
             type: integer
           modified:
             type: string
-          services: { }
+          services: {}
         type: object
     type: object
   GlueVersion:
@@ -143,12 +143,12 @@ definitions:
         example: true
         format: bool
         type: boolean
-      mgr: { }
-      mon: { }
-      osd: { }
-      overall: { }
-      rbd-mirror: { }
-      rgw: { }
+      mgr: {}
+      mon: {}
+      osd: {}
+      overall: {}
+      rbd-mirror: {}
+      rgw: {}
     type: object
   HTTP400BadRequest:
     properties:
@@ -327,7 +327,7 @@ definitions:
         type: string
       mirrorPool:
         type: string
-      privateKeyFile: { }
+      privateKeyFile: {}
       remoteClusterName:
         description: 미러링 상태
         type: string
@@ -366,6 +366,16 @@ definitions:
         format: string
         type: string
     type: object
+  model.GwvmMgmt:
+    properties:
+      debug:
+        description: Debug info
+        example: true
+        format: bool
+        type: boolean
+      message:
+        type: string
+    type: object
 info:
   contact:
     email: support@ablecloud.io
@@ -382,7 +392,7 @@ paths:
   /api/v1/glue:
     get:
       consumes:
-        - application/x-www-form-urlencoded
+      - application/x-www-form-urlencoded
       description: Glue 의 상태값을 보여줍니다.
       produces:
       - application/json
@@ -409,7 +419,7 @@ paths:
   /api/v1/glue/pool:
     get:
       consumes:
-        - application/x-www-form-urlencoded
+      - application/x-www-form-urlencoded
       description: Glue 의 스토리지 풀 목록을 보여줍니다.
       produces:
       - application/json
@@ -436,7 +446,7 @@ paths:
   /api/v1/glue/pool/{pool}:
     get:
       consumes:
-        - application/x-www-form-urlencoded
+      - application/x-www-form-urlencoded
       description: Glue 스토리지 풀의 이미지 목록을 보여줍니다.
       parameters:
       - description: pool
@@ -469,7 +479,7 @@ paths:
   /api/v1/glue/version:
     get:
       consumes:
-        - application/x-www-form-urlencoded
+      - application/x-www-form-urlencoded
       description: Glue 의 버전을 보여줍니다.
       produces:
       - application/json
@@ -493,10 +503,226 @@ paths:
       summary: Show Versions of Glue
       tags:
       - Glue
+  /api/v1/gwvm/{hypervisorType}:
+    get:
+      consumes:
+      - application/x-www-form-urlencoded
+      description: gwvm의 상태를 보여줍니다.
+      produces:
+      - application/json
+      responses:
+        "200":
+          description: OK
+          schema:
+            $ref: '#/definitions/model.GwvmMgmt'
+        "400":
+          description: Bad Request
+          schema:
+            $ref: '#/definitions/HTTP400BadRequest'
+        "404":
+          description: Not Found
+          schema:
+            $ref: '#/definitions/HTTP404NotFound'
+        "500":
+          description: Internal Server Error
+          schema:
+            $ref: '#/definitions/HTTP500InternalServerError'
+      summary: State of Gateway VM
+      tags:
+      - Gwvm
+    post:
+      consumes:
+      - multipart/form-data
+      description: gwvm을 생성합니다.
+      parameters:
+      - description: Hypervisor Type
+        in: path
+        name: hypervisorType
+        required: true
+        type: string
+      - description: Gwvm Management Nic Paren
+        in: formData
+        name: gwvmMngtNicParen
+        required: true
+        type: string
+      - description: Gwvm Management Nic Ip
+        in: formData
+        name: gwvmMngtNicIp
+        required: true
+        type: string
+      - description: Gwvm Storage Nic Parent
+        in: formData
+        name: gwvmStorageNicParent
+        required: true
+        type: string
+      - description: Gwvm Storage Nic Ip
+        in: formData
+        name: gwvmStorageNicIp
+        required: true
+        type: string
+      produces:
+      - application/json
+      responses:
+        "200":
+          description: OK
+          schema:
+            $ref: '#/definitions/model.GwvmMgmt'
+        "400":
+          description: Bad Request
+          schema:
+            $ref: '#/definitions/HTTP400BadRequest'
+        "404":
+          description: Not Found
+          schema:
+            $ref: '#/definitions/HTTP404NotFound'
+        "500":
+          description: Internal Server Error
+          schema:
+            $ref: '#/definitions/HTTP500InternalServerError'
+      summary: Setup Gateway Vm
+      tags:
+      - Gwvm
+  /api/v1/gwvm/delete/{hypervisorType}:
+    delete:
+      consumes:
+      - multipart/form-data
+      description: Gateway VM을 삭제합니다.
+      parameters:
+      - description: Hypervisor Type
+        in: path
+        name: hypervisorType
+        required: true
+        type: string
+      produces:
+      - application/json
+      responses:
+        "200":
+          description: OK
+          schema:
+            $ref: '#/definitions/model.GwvmMgmt'
+        "400":
+          description: Bad Request
+          schema:
+            $ref: '#/definitions/HTTP400BadRequest'
+        "404":
+          description: Not Found
+          schema:
+            $ref: '#/definitions/HTTP404NotFound'
+        "500":
+          description: Internal Server Error
+          schema:
+            $ref: '#/definitions/HTTP500InternalServerError'
+      summary: Delete to Gateway VM
+      tags:
+      - Gwvm
+  /api/v1/gwvm/migrate/{hypervisorType}:
+    put:
+      consumes:
+      - multipart/form-data
+      description: Gateway VM을 Pcs cluster내 다른 호스트로 마이그레이션 합니다.
+      parameters:
+      - description: Hypervisor Type
+        in: path
+        name: hypervisorType
+        required: true
+        type: string
+      - description: Migration Target Host
+        in: formData
+        name: target
+        required: true
+        type: string
+      produces:
+      - application/json
+      responses:
+        "200":
+          description: OK
+          schema:
+            $ref: '#/definitions/model.GwvmMgmt'
+        "400":
+          description: Bad Request
+          schema:
+            $ref: '#/definitions/HTTP400BadRequest'
+        "404":
+          description: Not Found
+          schema:
+            $ref: '#/definitions/HTTP404NotFound'
+        "500":
+          description: Internal Server Error
+          schema:
+            $ref: '#/definitions/HTTP500InternalServerError'
+      summary: VmMigrate to Gateway VM
+      tags:
+      - Gwvm
+  /api/v1/gwvm/start/{hypervisorType}:
+    put:
+      consumes:
+      - multipart/form-data
+      description: Gateway VM을 실행합니다.
+      parameters:
+      - description: Hypervisor Type
+        in: path
+        name: hypervisorType
+        required: true
+        type: string
+      produces:
+      - application/json
+      responses:
+        "200":
+          description: OK
+          schema:
+            $ref: '#/definitions/model.GwvmMgmt'
+        "400":
+          description: Bad Request
+          schema:
+            $ref: '#/definitions/HTTP400BadRequest'
+        "404":
+          description: Not Found
+          schema:
+            $ref: '#/definitions/HTTP404NotFound'
+        "500":
+          description: Internal Server Error
+          schema:
+            $ref: '#/definitions/HTTP500InternalServerError'
+      summary: Start to Gateway VM
+      tags:
+      - Gwvm
+  /api/v1/gwvm/stop/{hypervisorType}:
+    put:
+      consumes:
+      - multipart/form-data
+      description: Gateway VM Pcs cluster를 Cleanup 합니다.
+      parameters:
+      - description: Hypervisor Type
+        in: path
+        name: hypervisorType
+        required: true
+        type: string
+      produces:
+      - application/json
+      responses:
+        "200":
+          description: OK
+          schema:
+            $ref: '#/definitions/model.GwvmMgmt'
+        "400":
+          description: Bad Request
+          schema:
+            $ref: '#/definitions/HTTP400BadRequest'
+        "404":
+          description: Not Found
+          schema:
+            $ref: '#/definitions/HTTP404NotFound'
+        "500":
+          description: Internal Server Error
+          schema:
+            $ref: '#/definitions/HTTP500InternalServerError'
+      summary: Cleanup to Gateway VM
+      tags:
+      - Gwvm
   /api/v1/mirror:
     delete:
       consumes:
-        - multipart/form-data
+      - multipart/form-data
       description: Glue 의 미러링 클러스터를 제거합니다.
       parameters:
       - description: Remote Cluster Host Address
@@ -538,7 +764,7 @@ paths:
       - Mirror
     get:
       consumes:
-        - application/x-www-form-urlencoded
+      - application/x-www-form-urlencoded
       description: Glue 의 미러링 상태를 보여줍니다.
       produces:
       - application/json
@@ -564,7 +790,7 @@ paths:
       - Mirror
     post:
       consumes:
-        - multipart/form-data
+      - multipart/form-data
       description: Glue 의 미러링 클러스터를 설정합니다.
       parameters:
       - description: Local Cluster Name
@@ -617,7 +843,7 @@ paths:
   /api/v1/mirror/image:
     get:
       consumes:
-        - application/x-www-form-urlencoded
+      - application/x-www-form-urlencoded
       description: 미러링중인 이미지의 목록과 상태를 보여줍니다.
       produces:
       - application/json
@@ -644,19 +870,19 @@ paths:
   /api/v1/mirror/image/{mirrorPool}/{imageName}:
     delete:
       consumes:
-        - application/x-www-form-urlencoded
+      - application/x-www-form-urlencoded
       description: 이미지의 미러링을 비활성화 합니다.
       parameters:
-        - description: pool
-          in: path
-          name: mirrorPool
-          required: true
-          type: string
-        - description: imageName
-          in: path
-          name: imageName
-          required: true
-          type: string
+      - description: pool
+        in: path
+        name: mirrorPool
+        required: true
+        type: string
+      - description: imageName
+        in: path
+        name: imageName
+        required: true
+        type: string
       produces:
       - application/json
       responses:
@@ -678,24 +904,24 @@ paths:
             $ref: '#/definitions/HTTP500InternalServerError'
       summary: Delete Mirrored Snapshot
       tags:
-        - Mirror
+      - Mirror
     get:
       consumes:
-        - application/x-www-form-urlencoded
+      - application/x-www-form-urlencoded
       description: 미러링중인 이미지의 정보를 보여줍니다.
       parameters:
-        - description: mirrorPool
-          in: path
-          name: mirrorPool
-          required: true
-          type: string
-        - description: imageName
-          in: path
-          name: imageName
-          required: true
-          type: string
+      - description: mirrorPool
+        in: path
+        name: mirrorPool
+        required: true
+        type: string
+      - description: imageName
+        in: path
+        name: imageName
+        required: true
+        type: string
       produces:
-        - application/json
+      - application/json
       responses:
         "200":
           description: OK
@@ -715,33 +941,33 @@ paths:
             $ref: '#/definitions/HTTP500InternalServerError'
       summary: Show Infomation of Mirrored Snapshot
       tags:
-        - Mirror
+      - Mirror
     patch:
       consumes:
-        - application/x-www-form-urlencoded
+      - application/x-www-form-urlencoded
       description: Glue 의 이미지에 미러링의 설정을 변경합니다.
       parameters:
-        - description: Pool Name for Mirroring
-          in: path
-          name: mirrorPool
-          required: true
-          type: string
-        - description: Image Name for Mirroring
-          in: path
-          name: imageName
-          required: true
-          type: string
-        - description: Interval of image snapshot
-          in: formData
-          name: interval
-          required: true
-          type: string
-        - description: Starttime of image snapshot
-          in: formData
-          name: startTime
-          type: string
+      - description: Pool Name for Mirroring
+        in: path
+        name: mirrorPool
+        required: true
+        type: string
+      - description: Image Name for Mirroring
+        in: path
+        name: imageName
+        required: true
+        type: string
+      - description: Interval of image snapshot
+        in: formData
+        name: interval
+        required: true
+        type: string
+      - description: Starttime of image snapshot
+        in: formData
+        name: startTime
+        type: string
       produces:
-        - application/json
+      - application/json
       responses:
         "200":
           description: OK
@@ -761,31 +987,31 @@ paths:
             $ref: '#/definitions/HTTP500InternalServerError'
       summary: Patch Image Mirroring
       tags:
-        - Mirror
+      - Mirror
     post:
       consumes:
-        - application/x-www-form-urlencoded
+      - application/x-www-form-urlencoded
       description: Glue 의 이미지에 미러링을 설정합니다.
       parameters:
-        - description: Pool Name for Mirroring
-          in: path
-          name: mirrorPool
-          required: true
-          type: string
-        - description: Image Name for Mirroring
-          in: path
-          name: imageName
-          required: true
-          type: string
-        - description: Interval of image snapshot
-          in: formData
-          name: interval
-          required: true
-          type: string
-        - description: StartTime of image snapshot
-          in: formData
-          name: startTime
-          type: string
+      - description: Pool Name for Mirroring
+        in: path
+        name: mirrorPool
+        required: true
+        type: string
+      - description: Image Name for Mirroring
+        in: path
+        name: imageName
+        required: true
+        type: string
+      - description: Interval of image snapshot
+        in: formData
+        name: interval
+        required: true
+        type: string
+      - description: StartTime of image snapshot
+        in: formData
+        name: startTime
+        type: string
       produces:
       - application/json
       responses:
@@ -811,21 +1037,21 @@ paths:
   /api/v1/mirror/image/promote/{mirrorPool}/{imageName}:
     delete:
       consumes:
-        - application/x-www-form-urlencoded
+      - application/x-www-form-urlencoded
       description: Glue 의 이미지를 활성화 합니다.
       parameters:
-        - description: Pool Name for Mirroring
-          in: path
-          name: mirrorPool
-          required: true
-          type: string
-        - description: Image Name for Mirroring
-          in: path
-          name: imageName
-          required: true
-          type: string
+      - description: Pool Name for Mirroring
+        in: path
+        name: mirrorPool
+        required: true
+        type: string
+      - description: Image Name for Mirroring
+        in: path
+        name: imageName
+        required: true
+        type: string
       produces:
-        - application/json
+      - application/json
       responses:
         "200":
           description: OK
@@ -845,22 +1071,22 @@ paths:
             $ref: '#/definitions/HTTP500InternalServerError'
       summary: Promote Image Mirroring
       tags:
-        - Mirror
+      - Mirror
     get:
       consumes:
-        - application/x-www-form-urlencoded
+      - application/x-www-form-urlencoded
       description: Glue 의 이미지에 미러링상태를 확인합니다.
       parameters:
-        - description: Pool Name for Mirroring
-          in: path
-          name: mirrorPool
-          required: true
-          type: string
-        - description: Image Name for Mirroring
-          in: path
-          name: imageName
-          required: true
-          type: string
+      - description: Pool Name for Mirroring
+        in: path
+        name: mirrorPool
+        required: true
+        type: string
+      - description: Image Name for Mirroring
+        in: path
+        name: imageName
+        required: true
+        type: string
       produces:
       - application/json
       responses:
@@ -882,24 +1108,24 @@ paths:
             $ref: '#/definitions/HTTP500InternalServerError'
       summary: Patch Image Mirroring
       tags:
-        - Mirror
+      - Mirror
     post:
       consumes:
-        - application/x-www-form-urlencoded
+      - application/x-www-form-urlencoded
       description: Glue 의 이미지를 활성화 합니다.
       parameters:
-        - description: Pool Name for Mirroring
-          in: path
-          name: mirrorPool
-          required: true
-          type: string
-        - description: Image Name for Mirroring
-          in: path
-          name: imageName
-          required: true
-          type: string
+      - description: Pool Name for Mirroring
+        in: path
+        name: mirrorPool
+        required: true
+        type: string
+      - description: Image Name for Mirroring
+        in: path
+        name: imageName
+        required: true
+        type: string
       produces:
-        - application/json
+      - application/json
       responses:
         "200":
           description: OK
@@ -919,11 +1145,11 @@ paths:
             $ref: '#/definitions/HTTP500InternalServerError'
       summary: Promote Image Mirroring
       tags:
-        - Mirror
+      - Mirror
   /version:
     get:
       consumes:
-        - application/x-www-form-urlencoded
+      - application/x-www-form-urlencoded
       description: API 의 버전을 보여줍니다.
       produces:
       - application/json

@@ -6,9 +6,10 @@ import (
 	"Glue-API/utils"
 	"Glue-API/utils/glue"
 	"encoding/json"
-	"github.com/gin-gonic/gin"
 	"net/http"
 	"os/exec"
+
+	"github.com/gin-gonic/gin"
 )
 
 // GlueStatus godoc

@@ -3,8 +3,9 @@ package controller
 import (
 	"Glue-API/docs"
 	"Glue-API/model"
-	"github.com/gin-gonic/gin"
 	"net/http"
+
+	"github.com/gin-gonic/gin"
 )
 
 // Controller example

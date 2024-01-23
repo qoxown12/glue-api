@@ -1,7 +1,10 @@
 package utils
 
 import (
+	"Glue-API/model"
+	"encoding/json"
 	"log"
+	"os"
 	"runtime"
 )
 
@@ -26,6 +29,22 @@ func FancyHandleError(err error) (b bool) {
 		log.Printf("[error] in %s[%s:%d] %v", runtime.FuncForPC(pc).Name(), filename, line, err)
 
 		b = true
+	}
+	return
+}
+
+// Read the settings file.
+func ReadConfFile() (settings model.Settings, err error) {
+	content, err := os.ReadFile("./conf.json")
+	if err != nil {
+		log.Fatal("Error when opening file: ", err)
+		return
+	}
+
+	err = json.Unmarshal(content, &settings)
+	if err != nil {
+		log.Fatal("Error during Unmarshal(): ", err)
+		return
 	}
 	return
 }

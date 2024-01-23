@@ -3,8 +3,9 @@ package main
 import (
 	"Glue-API/controller"
 	"Glue-API/docs"
-	"github.com/gin-gonic/gin"
 	"log"
+
+	"github.com/gin-gonic/gin"
 
 	swaggerFiles "github.com/swaggo/files"
 	ginSwagger "github.com/swaggo/gin-swagger"
@@ -26,11 +27,10 @@ import (
 
 //	@securityDefinitions.basic	BasicAuth
 
-//	@securityDefinitions.apikey	ApiKeyAuth
-//	@in							header
-//	@name						Authorization
-//	@description				Description for what is this security definition being used
-
+// @securityDefinitions.apikey	ApiKeyAuth
+// @in							header
+// @name						Authorization
+// @description				Description for what is this security definition being used
 func main() {
 	// programmatically set swagger info
 
@@ -81,6 +81,16 @@ func main() {
 			//
 			//
 		}
+		gwvm := v1.Group("/gwvm")
+		{
+			gwvm.GET("/:hypervisorType", c.VmState)
+			gwvm.POST("/:hypervisorType", c.VmSetup)           //Setup Gateway VM
+			gwvm.PUT("/start/:hypervisorType", c.VmStart)      //Start to Gateway VM
+			gwvm.PUT("/stop/:hypervisorType", c.VmStop)        //Stop to Gateway VM
+			gwvm.DELETE("/delete/:hypervisorType", c.VmDelete) //Delete to Gateway VM
+			gwvm.PUT("/cleanup/:hypervisorType", c.VmCleanup)  //Cleanup to Gateway VM
+			gwvm.PUT("/migrate/:hypervisorType", c.VmMigrate)  //Migrate to Gateway VM
+		}
 		/*
 			admin := v1.Group("/admin")
 			{
@@ -90,8 +100,9 @@ func main() {
 		*/
 		r.Any("/version", c.Version)
 	}
-	r.GET("/swagger/*any", ginSwagger.WrapHandler(swaggerFiles.Handler))
-	r.Run(":8080")
+	r.GET("/swaggers/*any", ginSwagger.WrapHandler(swaggerFiles.Handler))
+	r.RunTLS(":8080", "/root/ssl/server.crt", "/root/ssl/server.key")
+	// r.Run(":8080")
 }
 
 /*

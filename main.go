@@ -101,7 +101,8 @@ func main() {
 		r.Any("/version", c.Version)
 	}
 	r.GET("/swaggers/*any", ginSwagger.WrapHandler(swaggerFiles.Handler))
-	r.Run(":8080")
+	r.RunTLS(":8080", "/root/ssl/server.crt", "/root/ssl/server.key")
+	// r.Run(":8080")
 }
 
 /*

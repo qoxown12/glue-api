@@ -18,6 +18,7 @@ import (
 //	@param			hypervisorType	path	string	true	"Hypervisor Type"
 //	@Tags			Gwvm
 //	@Accept			x-www-form-urlencoded
+//	@Header			200	{string}	Access-Control-Allow-Origin	"*"
 //	@Produce		json
 //	@Success		200	{object}	model.GwvmMgmt
 //	@Failure		400	{object}	httputil.HTTP400BadRequest
@@ -26,7 +27,6 @@ import (
 //	@Router			/api/v1/gwvm/{hypervisorType} [get]
 func (c *Controller) VmState(ctx *gin.Context) {
 	var dat model.GwvmMgmt
-
 	hypervisorType := ctx.Param("hypervisorType")
 
 	message, err := gluevm.VmState(hypervisorType)
@@ -37,6 +37,7 @@ func (c *Controller) VmState(ctx *gin.Context) {
 	}
 
 	dat.Message = message
+	ctx.Header("Access-Control-Allow-Origin", "*")
 	ctx.IndentedJSON(http.StatusOK, dat)
 }
 

@@ -85,11 +85,16 @@ func main() {
 		{
 			gwvm.GET("/:hypervisorType", c.VmState)
 			gwvm.POST("/:hypervisorType", c.VmSetup)           //Setup Gateway VM
-			gwvm.PUT("/start/:hypervisorType", c.VmStart)      //Start to Gateway VM
-			gwvm.PUT("/stop/:hypervisorType", c.VmStop)        //Stop to Gateway VM
+			gwvm.PATCH("/start/:hypervisorType", c.VmStart)      //Start to Gateway VM
+			gwvm.OPTIONS("/start/:hypervisorType", c.VmStartOptions)
+			gwvm.PATCH("/stop/:hypervisorType", c.VmStop)        //Stop to Gateway VM
+			gwvm.OPTIONS("/stop/:hypervisorType", c.VmStopOptions)
 			gwvm.DELETE("/delete/:hypervisorType", c.VmDelete) //Delete to Gateway VM
-			gwvm.PUT("/cleanup/:hypervisorType", c.VmCleanup)  //Cleanup to Gateway VM
-			gwvm.PUT("/migrate/:hypervisorType", c.VmMigrate)  //Migrate to Gateway VM
+			gwvm.OPTIONS("/delete/:hypervisorType", c.VmDeleteOptions)
+			gwvm.PATCH("/cleanup/:hypervisorType", c.VmCleanup)  //Cleanup to Gateway VM
+			gwvm.OPTIONS("/cleanup/:hypervisorType", c.VmCleanupOptions)
+			gwvm.PATCH("/migrate/:hypervisorType", c.VmMigrate)  //Migrate to Gateway VM
+			gwvm.OPTIONS("/migrate/:hypervisorType", c.VmMigrateOptions)
 		}
 		/*
 			admin := v1.Group("/admin")

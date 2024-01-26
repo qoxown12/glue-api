@@ -75,6 +75,7 @@ func (c *Controller) VmSetup(ctx *gin.Context) {
 	}
 
 	dat.Message = message
+	ctx.Header("Access-Control-Allow-Origin", "*")
 	ctx.IndentedJSON(http.StatusOK, dat)
 }
 
@@ -104,7 +105,13 @@ func (c *Controller) VmStart(ctx *gin.Context) {
 	}
 
 	dat.Message = message
+	ctx.Header("Access-Control-Allow-Origin", "*")
 	ctx.IndentedJSON(http.StatusOK, dat)
+}
+
+func (c *Controller) VmStartOptions(ctx *gin.Context) {
+	SetOptionHeader(ctx)
+	ctx.IndentedJSON(http.StatusOK, nil)
 }
 
 // VmStop godoc
@@ -133,7 +140,13 @@ func (c *Controller) VmStop(ctx *gin.Context) {
 	}
 
 	dat.Message = message
+	ctx.Header("Access-Control-Allow-Origin", "*")
 	ctx.IndentedJSON(http.StatusOK, dat)
+}
+
+func (c *Controller) VmStopOptions(ctx *gin.Context) {
+	SetOptionHeader(ctx)
+	ctx.IndentedJSON(http.StatusOK, nil)
 }
 
 // VmDelete godoc
@@ -162,7 +175,13 @@ func (c *Controller) VmDelete(ctx *gin.Context) {
 	}
 
 	dat.Message = message
+	ctx.Header("Access-Control-Allow-Origin", "*")
 	ctx.IndentedJSON(http.StatusOK, dat)
+}
+
+func (c *Controller) VmDeleteOptions(ctx *gin.Context) {
+	SetOptionHeader(ctx)
+	ctx.IndentedJSON(http.StatusOK, nil)
 }
 
 // VmCleanup godoc
@@ -193,7 +212,13 @@ func (c *Controller) VmCleanup(ctx *gin.Context) {
 	}
 
 	dat.Message = message
+	ctx.Header("Access-Control-Allow-Origin", "*")
 	ctx.IndentedJSON(http.StatusOK, dat)
+}
+
+func (c *Controller) VmCleanupOptions(ctx *gin.Context) {
+	SetOptionHeader(ctx)
+	ctx.IndentedJSON(http.StatusOK, nil)
 }
 
 // VmCleanup godoc
@@ -224,5 +249,18 @@ func (c *Controller) VmMigrate(ctx *gin.Context) {
 	}
 
 	dat.Message = message
+	ctx.Header("Access-Control-Allow-Origin", "*")
 	ctx.IndentedJSON(http.StatusOK, dat)
+}
+
+func (c *Controller) VmMigrateOptions(ctx *gin.Context) {
+	SetOptionHeader(ctx)
+	ctx.IndentedJSON(http.StatusOK, nil)
+}
+
+func SetOptionHeader(ctx *gin.Context){
+	ctx.Header("Access-Control-Allow-Origin", "*")
+	ctx.Header("Access-Control-Allow-Methods", "*")
+	ctx.Header("Access-Control-Allow-Headers", "*")
+	ctx.Header("Access-Control-Max-Age", "3600")
 }

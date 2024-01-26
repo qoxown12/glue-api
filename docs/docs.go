@@ -504,6 +504,207 @@ const docTemplate = `{
                 }
             }
         },
+        "/api/v1/iscsi": {
+            "post": {
+                "description": "Iscsi 서비스 데몬을 생성합니다.",
+                "consumes": [
+                    "application/x-www-form-urlencoded"
+                ],
+                "produces": [
+                    "application/json"
+                ],
+                "tags": [
+                    "ISCSI"
+                ],
+                "summary": "Create of Iscsi Servcie Daemon",
+                "parameters": [
+                    {
+                        "description": "Iscsi Servcie YAML file",
+                        "name": "json_file",
+                        "in": "body",
+                        "required": true,
+                        "schema": {
+                            "$ref": "#/definitions/IscsiServiceCreate"
+                        }
+                    }
+                ],
+                "responses": {
+                    "200": {
+                        "description": "Success",
+                        "schema": {
+                            "type": "string"
+                        }
+                    },
+                    "400": {
+                        "description": "Bad Request",
+                        "schema": {
+                            "$ref": "#/definitions/HTTP400BadRequest"
+                        }
+                    },
+                    "404": {
+                        "description": "Not Found",
+                        "schema": {
+                            "$ref": "#/definitions/HTTP404NotFound"
+                        }
+                    },
+                    "500": {
+                        "description": "Internal Server Error",
+                        "schema": {
+                            "$ref": "#/definitions/HTTP500InternalServerError"
+                        }
+                    }
+                }
+            }
+        },
+        "/api/v1/iscsi/target": {
+            "get": {
+                "description": "Iscsi 타겟 리스트를 가져옵니다.",
+                "consumes": [
+                    "application/x-www-form-urlencoded"
+                ],
+                "produces": [
+                    "application/json"
+                ],
+                "tags": [
+                    "ISCSI"
+                ],
+                "summary": "Show List of Iscsi Target",
+                "responses": {
+                    "200": {
+                        "description": "OK",
+                        "schema": {
+                            "$ref": "#/definitions/IscsiTargetList"
+                        }
+                    },
+                    "400": {
+                        "description": "Bad Request",
+                        "schema": {
+                            "$ref": "#/definitions/HTTP400BadRequest"
+                        }
+                    },
+                    "404": {
+                        "description": "Not Found",
+                        "schema": {
+                            "$ref": "#/definitions/HTTP404NotFound"
+                        }
+                    },
+                    "500": {
+                        "description": "Internal Server Error",
+                        "schema": {
+                            "$ref": "#/definitions/HTTP500InternalServerError"
+                        }
+                    }
+                }
+            }
+        },
+        "/api/v1/iscsi/target/{iqn_id}": {
+            "delete": {
+                "description": "Iscsi 타겟을 삭제합니다.",
+                "consumes": [
+                    "application/x-www-form-urlencoded"
+                ],
+                "produces": [
+                    "application/json"
+                ],
+                "tags": [
+                    "ISCSI"
+                ],
+                "summary": "Delete of Iscsi Target",
+                "parameters": [
+                    {
+                        "type": "string",
+                        "description": "Iscsi IQN ID",
+                        "name": "iqn_id",
+                        "in": "path",
+                        "required": true
+                    }
+                ],
+                "responses": {
+                    "200": {
+                        "description": "Success",
+                        "schema": {
+                            "type": "string"
+                        }
+                    },
+                    "400": {
+                        "description": "Bad Request",
+                        "schema": {
+                            "$ref": "#/definitions/HTTP400BadRequest"
+                        }
+                    },
+                    "404": {
+                        "description": "Not Found",
+                        "schema": {
+                            "$ref": "#/definitions/HTTP404NotFound"
+                        }
+                    },
+                    "500": {
+                        "description": "Internal Server Error",
+                        "schema": {
+                            "$ref": "#/definitions/HTTP500InternalServerError"
+                        }
+                    }
+                }
+            }
+        },
+        "/api/v1/iscsi/target/{iqn_id}/{hostname}": {
+            "post": {
+                "description": "Iscsi 타겟을 생성합니다.",
+                "consumes": [
+                    "application/x-www-form-urlencoded"
+                ],
+                "produces": [
+                    "application/json"
+                ],
+                "tags": [
+                    "ISCSI"
+                ],
+                "summary": "Create of Iscsi Target",
+                "parameters": [
+                    {
+                        "type": "string",
+                        "example": "\"iqn.{yyyy-mm}.{naming-authority}:{unique-name}\"",
+                        "description": "Iscsi IQN ID",
+                        "name": "iqn_id",
+                        "in": "path",
+                        "required": true
+                    },
+                    {
+                        "type": "string",
+                        "description": "Gateway Host Name",
+                        "name": "hostname",
+                        "in": "path",
+                        "required": true
+                    }
+                ],
+                "responses": {
+                    "200": {
+                        "description": "Success",
+                        "schema": {
+                            "type": "string"
+                        }
+                    },
+                    "400": {
+                        "description": "Bad Request",
+                        "schema": {
+                            "$ref": "#/definitions/HTTP400BadRequest"
+                        }
+                    },
+                    "404": {
+                        "description": "Not Found",
+                        "schema": {
+                            "$ref": "#/definitions/HTTP404NotFound"
+                        }
+                    },
+                    "500": {
+                        "description": "Internal Server Error",
+                        "schema": {
+                            "$ref": "#/definitions/HTTP500InternalServerError"
+                        }
+                    }
+                }
+            }
+        },
         "/api/v1/mirror": {
             "get": {
                 "description": "Glue 의 미러링 상태를 보여줍니다.",
@@ -2212,6 +2413,61 @@ const docTemplate = `{
                 },
                 "state": {
                     "type": "string"
+                }
+            }
+        },
+        "IscsiServiceCreate": {
+            "description": "Iscsi Service daemon 구조체",
+            "type": "object",
+            "properties": {
+                "placement": {
+                    "type": "object",
+                    "properties": {
+                        "hosts": {
+                            "type": "array",
+                            "items": {
+                                "type": "string"
+                            }
+                        }
+                    }
+                },
+                "service_id": {
+                    "type": "string"
+                },
+                "service_name": {
+                    "type": "string"
+                },
+                "service_type": {
+                    "type": "string"
+                },
+                "spec": {
+                    "type": "object",
+                    "properties": {
+                        "api_password": {
+                            "type": "string"
+                        },
+                        "api_port": {
+                            "type": "integer"
+                        },
+                        "api_user": {
+                            "type": "string"
+                        },
+                        "pool": {
+                            "type": "string"
+                        },
+                        "trusted_ip_list": {
+                            "type": "string"
+                        }
+                    }
+                }
+            }
+        },
+        "IscsiTargetList": {
+            "description": "Iscsi Target List 구조체",
+            "type": "object",
+            "properties": {
+                "targets": {
+                    "description": "Created       string ` + "`" + `json:\"created\"` + "`" + `\nDiscoveryAuth struct {\n\tMutualPassword                  string ` + "`" + `json:\"mutual_password\"` + "`" + `\n\tMutualPasswordEncryptionEnabled bool   ` + "`" + `json:\"mutual_password_encryption_enabled\"` + "`" + `\n\tMutualUsername                  string ` + "`" + `json:\"mutual_username\"` + "`" + `\n\tPassword                        string ` + "`" + `json:\"password\"` + "`" + `\n\tPasswordEncryptionEnabled       bool   ` + "`" + `json:\"password_encryption_enabled\"` + "`" + `\n\tUsername                        string ` + "`" + `json:\"username\"` + "`" + `\n} ` + "`" + `json:\"discovery_auth\"` + "`" + `\nDisks struct {\n} ` + "`" + `json:\"disks\"` + "`" + `\nEpoch    int ` + "`" + `json:\"epoch\"` + "`" + `\nGateways struct {\n\tGwvm struct {\n\t\tActiveLuns int    ` + "`" + `json:\"active_luns\"` + "`" + `\n\t\tCreated    string ` + "`" + `json:\"created\"` + "`" + `\n\t\tUpdated    string ` + "`" + `json:\"updated\"` + "`" + `\n\t} ` + "`" + `json:\"gwvm\"` + "`" + `\n} ` + "`" + `json:\"gateways\"` + "`" + `"
                 }
             }
         },

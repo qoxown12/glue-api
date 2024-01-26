@@ -79,6 +79,13 @@ func main() {
 			nfs.PUT("/export/:cluster_id", c.NfsExportUpdate)
 			nfs.DELETE("/export/:cluster_id/:export_id", c.NfsExportDelete)
 		}
+		iscsi := v1.Group("/iscsi")
+		{
+			iscsi.POST("", c.IscsiServiceCreate)
+			iscsi.GET("/target", c.IscsiTargetList)
+			iscsi.POST("/target/:iqn_id/:hostname", c.IscsiTargetCreate)
+			iscsi.DELETE("/target/:iqn_id", c.IscsiTargetDelete)
+		}
 		mirror := v1.Group("/mirror")
 		{
 			mirror.GET("", c.MirrorStatus) //Get Mirroring Status

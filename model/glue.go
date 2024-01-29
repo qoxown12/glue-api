@@ -91,6 +91,6 @@ type GlueStatus struct {
 	} `json:"progress_events"`
 } // @name GlueStatus
 
-type GluePools struct {
-	Pools []string `json:"pools"`
-} // @name GluePools
+type GluePools interface{} // @name GluePools
+
+type ServiceLs interface{} // @name ServiceLs

@@ -689,99 +689,6 @@ paths:
       summary: Show Status of Glue
       tags:
       - Glue
-  /api/v1/glue/pool:
-    get:
-      consumes:
-      - application/x-www-form-urlencoded
-      description: Glue 의 스토리지 풀 목록을 보여줍니다.
-      produces:
-      - application/json
-      responses:
-        "200":
-          description: OK
-          schema:
-            $ref: '#/definitions/GlueVersion'
-        "400":
-          description: Bad Request
-          schema:
-            $ref: '#/definitions/HTTP400BadRequest'
-        "404":
-          description: Not Found
-          schema:
-            $ref: '#/definitions/HTTP404NotFound'
-        "500":
-          description: Internal Server Error
-          schema:
-            $ref: '#/definitions/HTTP500InternalServerError'
-      summary: List Pools of Glue
-      tags:
-      - Glue
-  /api/v1/glue/pool/{pool_name}:
-    delete:
-      consumes:
-      - application/x-www-form-urlencoded
-      description: Glue 스토리지 풀의 이미지 목록을 보여줍니다.
-      parameters:
-      - description: pool_name
-        in: path
-        name: pool_name
-        required: true
-        type: string
-      produces:
-      - application/json
-      responses:
-        "200":
-          description: Success
-          schema:
-            type: string
-        "400":
-          description: Bad Request
-          schema:
-            $ref: '#/definitions/HTTP400BadRequest'
-        "404":
-          description: Not Found
-          schema:
-            $ref: '#/definitions/HTTP404NotFound'
-        "500":
-          description: Internal Server Error
-          schema:
-            $ref: '#/definitions/HTTP500InternalServerError'
-      summary: List Images of Pool Glue
-      tags:
-      - Glue
-  /api/v1/glue/rbd/{pool_name}:
-    get:
-      consumes:
-      - application/x-www-form-urlencoded
-      description: Glue 스토리지 풀의 이미지 목록을 보여줍니다.
-      parameters:
-      - description: pool_name
-        in: path
-        name: pool_name
-        required: true
-        type: string
-      produces:
-      - application/json
-      responses:
-        "200":
-          description: OK
-          schema:
-            $ref: '#/definitions/GlueVersion'
-        "400":
-          description: Bad Request
-          schema:
-            $ref: '#/definitions/HTTP400BadRequest'
-        "404":
-          description: Not Found
-          schema:
-            $ref: '#/definitions/HTTP404NotFound'
-        "500":
-          description: Internal Server Error
-          schema:
-            $ref: '#/definitions/HTTP500InternalServerError'
-      summary: List RBD Images of Pool Glue
-      tags:
-      - Glue
   /api/v1/glue/version:
     get:
       consumes:
@@ -1011,6 +918,49 @@ paths:
           schema:
             $ref: '#/definitions/HTTP500InternalServerError'
       summary: Create of Iscsi Servcie Daemon
+      tags:
+      - ISCSI
+  /api/v1/iscsi/disk/{image_name}:
+    post:
+      consumes:
+      - application/x-www-form-urlencoded
+      description: Iscsi 디스크를 생성합니다.
+      parameters:
+      - description: Iscsi Disk Name
+        in: path
+        name: image_name
+        required: true
+        type: string
+      - description: Iscsi Disk Pool Name
+        in: formData
+        name: pool_name
+        required: true
+        type: string
+      - description: Iscsi Disk Image Size(Default GB)
+        in: formData
+        name: size
+        required: true
+        type: string
+      produces:
+      - application/json
+      responses:
+        "200":
+          description: Success
+          schema:
+            type: string
+        "400":
+          description: Bad Request
+          schema:
+            $ref: '#/definitions/HTTP400BadRequest'
+        "404":
+          description: Not Found
+          schema:
+            $ref: '#/definitions/HTTP404NotFound'
+        "500":
+          description: Internal Server Error
+          schema:
+            $ref: '#/definitions/HTTP500InternalServerError'
+      summary: Create of Iscsi Disk
       tags:
       - ISCSI
   /api/v1/iscsi/target:
@@ -1802,6 +1752,169 @@ paths:
       summary: Delete of Glue NFS Export
       tags:
       - NFS
+  /api/v1/pool:
+    get:
+      consumes:
+      - application/x-www-form-urlencoded
+      description: Glue 의 스토리지 풀 목록을 보여줍니다.
+      produces:
+      - application/json
+      responses:
+        "200":
+          description: OK
+          schema: {}
+        "400":
+          description: Bad Request
+          schema:
+            $ref: '#/definitions/HTTP400BadRequest'
+        "404":
+          description: Not Found
+          schema:
+            $ref: '#/definitions/HTTP404NotFound'
+        "500":
+          description: Internal Server Error
+          schema:
+            $ref: '#/definitions/HTTP500InternalServerError'
+      summary: List Pools of Glue
+      tags:
+      - Pool
+  /api/v1/pool/{pool_name}:
+    delete:
+      consumes:
+      - application/x-www-form-urlencoded
+      description: Glue 스토리지 풀의 이미지 목록을 보여줍니다.
+      parameters:
+      - description: pool_name
+        in: path
+        name: pool_name
+        required: true
+        type: string
+      produces:
+      - application/json
+      responses:
+        "200":
+          description: Success
+          schema:
+            type: string
+        "400":
+          description: Bad Request
+          schema:
+            $ref: '#/definitions/HTTP400BadRequest'
+        "404":
+          description: Not Found
+          schema:
+            $ref: '#/definitions/HTTP404NotFound'
+        "500":
+          description: Internal Server Error
+          schema:
+            $ref: '#/definitions/HTTP500InternalServerError'
+      summary: List Images of Pool
+      tags:
+      - Pool
+    get:
+      consumes:
+      - application/x-www-form-urlencoded
+      description: Glue 스토리지 풀의 이미지 목록을 보여줍니다.
+      parameters:
+      - description: pool_name
+        in: path
+        name: pool_name
+        required: true
+        type: string
+      produces:
+      - application/json
+      responses:
+        "200":
+          description: OK
+          schema: {}
+        "400":
+          description: Bad Request
+          schema:
+            $ref: '#/definitions/HTTP400BadRequest'
+        "404":
+          description: Not Found
+          schema:
+            $ref: '#/definitions/HTTP404NotFound'
+        "500":
+          description: Internal Server Error
+          schema:
+            $ref: '#/definitions/HTTP500InternalServerError'
+      summary: List RBD Images of Pool
+      tags:
+      - Pool
+  /api/v1/service:
+    get:
+      consumes:
+      - application/x-www-form-urlencoded
+      description: Glue 서비스 목록 또는 정보를 보여줍니다.
+      parameters:
+      - description: Glue Service Name
+        in: query
+        name: service_name
+        type: string
+      produces:
+      - application/json
+      responses:
+        "200":
+          description: OK
+          schema: {}
+        "400":
+          description: Bad Request
+          schema:
+            $ref: '#/definitions/HTTP400BadRequest'
+        "404":
+          description: Not Found
+          schema:
+            $ref: '#/definitions/HTTP404NotFound'
+        "500":
+          description: Internal Server Error
+          schema:
+            $ref: '#/definitions/HTTP500InternalServerError'
+      summary: Show List or Info of Glue Service
+      tags:
+      - Service
+  /api/v1/service/{service_name}:
+    post:
+      consumes:
+      - application/x-www-form-urlencoded
+      description: Glue 서비스를 제어합니다.
+      parameters:
+      - description: Glue Service Name
+        in: path
+        name: service_name
+        required: true
+        type: string
+      - description: Glue Service Control
+        enum:
+        - start
+        - stop
+        - restart
+        in: query
+        name: control
+        required: true
+        type: string
+      produces:
+      - application/json
+      responses:
+        "200":
+          description: Success
+          schema:
+            type: string
+        "400":
+          description: Bad Request
+          schema:
+            $ref: '#/definitions/HTTP400BadRequest'
+        "404":
+          description: Not Found
+          schema:
+            $ref: '#/definitions/HTTP404NotFound'
+        "500":
+          description: Internal Server Error
+          schema:
+            $ref: '#/definitions/HTTP500InternalServerError'
+      summary: Control of Glue Service
+      tags:
+      - Service
   /version:
     get:
       consumes:

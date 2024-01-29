@@ -55,8 +55,35 @@ func main() {
 			pool := glue.Group("/pool")
 			{
 				pool.GET("", c.ListPools)
-				pool.GET("/:pool", c.ListImages)
+				pool.GET("/:pool_name", c.ListImages)
+				pool.DELETE("/:pool_name", c.PoolDelete)
 			}
+		}
+		fs := v1.Group("/gluefs")
+		{
+			fs.GET("", c.FsStatus)
+			fs.POST("/:fs_name", c.FsCreate)
+			fs.DELETE("/:fs_name", c.FsDelete)
+			fs.GET("/info/:fs_name", c.FsGetInfo)
+			fs.GET("/list", c.FsList)
+		}
+		nfs := v1.Group("/nfs")
+		{
+			nfs.GET("", c.NfsClusterLs)
+			nfs.GET("/:cluster_id", c.NfsClusterInfo)
+			nfs.POST("/:cluster_id/:port", c.NfsClusterCreate)
+			nfs.DELETE("/:cluster_id", c.NfsClusterDelete)
+			nfs.GET("/export/:cluster_id", c.NfsExportDetailed)
+			nfs.POST("/export/:cluster_id", c.NfsExportCreate)
+			nfs.PUT("/export/:cluster_id", c.NfsExportUpdate)
+			nfs.DELETE("/export/:cluster_id/:export_id", c.NfsExportDelete)
+		}
+		iscsi := v1.Group("/iscsi")
+		{
+			iscsi.POST("", c.IscsiServiceCreate)
+			iscsi.GET("/target", c.IscsiTargetList)
+			iscsi.POST("/target/:iqn_id/:hostname", c.IscsiTargetCreate)
+			iscsi.DELETE("/target/:iqn_id", c.IscsiTargetDelete)
 		}
 		mirror := v1.Group("/mirror")
 		{

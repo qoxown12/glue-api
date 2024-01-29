@@ -37,7 +37,6 @@ type Message struct {
 func (c *Controller) Version(ctx *gin.Context) {
 	dat := model.Version{Version: docs.SwaggerInfo.Version}
 	// Print the output
-	dat.Debug = gin.IsDebugging()
 	ctx.IndentedJSON(http.StatusOK, dat)
 
 }

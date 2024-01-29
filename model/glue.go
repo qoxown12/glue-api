@@ -7,13 +7,14 @@ import (
 // GlueVersion
 // @Description Glue의 버전
 type GlueVersion struct {
-	AbleModel
 	Mon interface {
 	} `json:"mon"`
 	Mgr interface {
 	} `json:"mgr"`
 	Osd interface {
 	} `json:"osd"`
+	Mds interface {
+	} `json:"mds"`
 	RbdMirror interface {
 	} `json:"rbd-mirror"`
 	Rgw interface {
@@ -25,7 +26,6 @@ type GlueVersion struct {
 // GlueStatus model info
 // @Description Glue의 상태를 나타내는 구조체
 type GlueStatus struct {
-	AbleModel
 	Fsid   uuid.UUID `json:"fsid" example:"9980ffe8-4bc1-11ee-9b1f-002481004170" format:"uuid"` //Glue클러스터를 구분하는 ID
 	Health struct {
 		Status string `json:"status" example:"HEALTH_WARN" format:"string"`
@@ -92,6 +92,5 @@ type GlueStatus struct {
 } // @name GlueStatus
 
 type GluePools struct {
-	AbleModel
 	Pools []string `json:"pools"`
 } // @name GluePools

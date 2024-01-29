@@ -106,8 +106,8 @@ const docTemplate = `{
                 }
             }
         },
-        "/api/v1/glue/pool/{pool}": {
-            "get": {
+        "/api/v1/glue/pool/{pool_name}": {
+            "delete": {
                 "description": "Glue 스토리지 풀의 이미지 목록을 보여줍니다.",
                 "consumes": [
                     "application/x-www-form-urlencoded"
@@ -122,8 +122,58 @@ const docTemplate = `{
                 "parameters": [
                     {
                         "type": "string",
-                        "description": "pool",
-                        "name": "pool",
+                        "description": "pool_name",
+                        "name": "pool_name",
+                        "in": "path",
+                        "required": true
+                    }
+                ],
+                "responses": {
+                    "200": {
+                        "description": "Success",
+                        "schema": {
+                            "type": "string"
+                        }
+                    },
+                    "400": {
+                        "description": "Bad Request",
+                        "schema": {
+                            "$ref": "#/definitions/HTTP400BadRequest"
+                        }
+                    },
+                    "404": {
+                        "description": "Not Found",
+                        "schema": {
+                            "$ref": "#/definitions/HTTP404NotFound"
+                        }
+                    },
+                    "500": {
+                        "description": "Internal Server Error",
+                        "schema": {
+                            "$ref": "#/definitions/HTTP500InternalServerError"
+                        }
+                    }
+                }
+            }
+        },
+        "/api/v1/glue/rbd/{pool_name}": {
+            "get": {
+                "description": "Glue 스토리지 풀의 이미지 목록을 보여줍니다.",
+                "consumes": [
+                    "application/x-www-form-urlencoded"
+                ],
+                "produces": [
+                    "application/json"
+                ],
+                "tags": [
+                    "Glue"
+                ],
+                "summary": "List RBD Images of Pool Glue",
+                "parameters": [
+                    {
+                        "type": "string",
+                        "description": "pool_name",
+                        "name": "pool_name",
                         "in": "path",
                         "required": true
                     }
@@ -530,9 +580,9 @@ const docTemplate = `{
                 }
             }
         },
-        "/api/v1/mirror": {
+        "/api/v1/gluefs": {
             "get": {
-                "description": "Glue 의 미러링 상태를 보여줍니다.",
+                "description": "GlueFS의 상태값을 보여줍니다.",
                 "consumes": [
                     "application/x-www-form-urlencoded"
                 ],
@@ -540,14 +590,182 @@ const docTemplate = `{
                     "application/json"
                 ],
                 "tags": [
-                    "Mirror"
+                    "GlueFS"
                 ],
-                "summary": "Show Status of Mirror",
+                "summary": "Show Status of Glue FS",
                 "responses": {
                     "200": {
                         "description": "OK",
                         "schema": {
-                            "$ref": "#/definitions/MirrorStatus"
+                            "$ref": "#/definitions/FsStatus"
+                        }
+                    },
+                    "400": {
+                        "description": "Bad Request",
+                        "schema": {
+                            "$ref": "#/definitions/HTTP400BadRequest"
+                        }
+                    },
+                    "404": {
+                        "description": "Not Found",
+                        "schema": {
+                            "$ref": "#/definitions/HTTP404NotFound"
+                        }
+                    },
+                    "500": {
+                        "description": "Internal Server Error",
+                        "schema": {
+                            "$ref": "#/definitions/HTTP500InternalServerError"
+                        }
+                    }
+                }
+            }
+        },
+        "/api/v1/gluefs/info/{fs_name}": {
+            "get": {
+                "description": "GlueFS의 상세 정보를 보여줍니다.",
+                "consumes": [
+                    "application/x-www-form-urlencoded"
+                ],
+                "produces": [
+                    "application/json"
+                ],
+                "tags": [
+                    "GlueFS"
+                ],
+                "summary": "Detail Info of Glue FS",
+                "parameters": [
+                    {
+                        "type": "string",
+                        "description": "Glue FS Name",
+                        "name": "fs_name",
+                        "in": "path",
+                        "required": true
+                    }
+                ],
+                "responses": {
+                    "200": {
+                        "description": "OK",
+                        "schema": {
+                            "$ref": "#/definitions/FsGetInfo"
+                        }
+                    },
+                    "400": {
+                        "description": "Bad Request",
+                        "schema": {
+                            "$ref": "#/definitions/HTTP400BadRequest"
+                        }
+                    },
+                    "404": {
+                        "description": "Not Found",
+                        "schema": {
+                            "$ref": "#/definitions/HTTP404NotFound"
+                        }
+                    },
+                    "500": {
+                        "description": "Internal Server Error",
+                        "schema": {
+                            "$ref": "#/definitions/HTTP500InternalServerError"
+                        }
+                    }
+                }
+            }
+        },
+        "/api/v1/gluefs/list": {
+            "get": {
+                "description": "GlueFS의 리스트를 보여줍니다.",
+                "consumes": [
+                    "application/x-www-form-urlencoded"
+                ],
+                "produces": [
+                    "application/json"
+                ],
+                "tags": [
+                    "GlueFS"
+                ],
+                "summary": "List of Glue FS",
+                "responses": {
+                    "200": {
+                        "description": "OK",
+                        "schema": {
+                            "description": "GlueFS 리스트 구조체",
+                            "type": "array",
+                            "items": {
+                                "type": "object",
+                                "properties": {
+                                    "data_pool_ids": {
+                                        "type": "array",
+                                        "items": {
+                                            "type": "integer"
+                                        }
+                                    },
+                                    "data_pools": {
+                                        "type": "array",
+                                        "items": {
+                                            "type": "string"
+                                        }
+                                    },
+                                    "metadata_pool": {
+                                        "type": "string"
+                                    },
+                                    "metadata_pool_id": {
+                                        "type": "integer"
+                                    },
+                                    "name": {
+                                        "type": "string"
+                                    }
+                                }
+                            }
+                        }
+                    },
+                    "400": {
+                        "description": "Bad Request",
+                        "schema": {
+                            "$ref": "#/definitions/HTTP400BadRequest"
+                        }
+                    },
+                    "404": {
+                        "description": "Not Found",
+                        "schema": {
+                            "$ref": "#/definitions/HTTP404NotFound"
+                        }
+                    },
+                    "500": {
+                        "description": "Internal Server Error",
+                        "schema": {
+                            "$ref": "#/definitions/HTTP500InternalServerError"
+                        }
+                    }
+                }
+            }
+        },
+        "/api/v1/gluefs/{fs_name}": {
+            "post": {
+                "description": "GlueFS를 생성합니다.",
+                "consumes": [
+                    "application/x-www-form-urlencoded"
+                ],
+                "produces": [
+                    "application/json"
+                ],
+                "tags": [
+                    "GlueFS"
+                ],
+                "summary": "Create of Glue FS",
+                "parameters": [
+                    {
+                        "type": "string",
+                        "description": "Glue FS Name",
+                        "name": "fs_name",
+                        "in": "path",
+                        "required": true
+                    }
+                ],
+                "responses": {
+                    "200": {
+                        "description": "Success",
+                        "schema": {
+                            "type": "string"
                         }
                     },
                     "400": {
@@ -570,10 +788,261 @@ const docTemplate = `{
                     }
                 }
             },
-            "post": {
-                "description": "Glue 의 미러링 클러스터를 설정합니다.",
+            "delete": {
+                "description": "GlueFS를 삭제합니다.",
                 "consumes": [
-                    "multipart/form-data"
+                    "application/x-www-form-urlencoded"
+                ],
+                "produces": [
+                    "application/json"
+                ],
+                "tags": [
+                    "GlueFS"
+                ],
+                "summary": "Delete of Glue FS",
+                "parameters": [
+                    {
+                        "type": "string",
+                        "description": "Glue FS Name",
+                        "name": "fs_name",
+                        "in": "path",
+                        "required": true
+                    }
+                ],
+                "responses": {
+                    "200": {
+                        "description": "Success",
+                        "schema": {
+                            "type": "string"
+                        }
+                    },
+                    "400": {
+                        "description": "Bad Request",
+                        "schema": {
+                            "$ref": "#/definitions/HTTP400BadRequest"
+                        }
+                    },
+                    "404": {
+                        "description": "Not Found",
+                        "schema": {
+                            "$ref": "#/definitions/HTTP404NotFound"
+                        }
+                    },
+                    "500": {
+                        "description": "Internal Server Error",
+                        "schema": {
+                            "$ref": "#/definitions/HTTP500InternalServerError"
+                        }
+                    }
+                }
+            }
+        },
+        "/api/v1/iscsi": {
+            "post": {
+                "description": "Iscsi 서비스 데몬을 생성합니다.",
+                "consumes": [
+                    "application/x-www-form-urlencoded"
+                ],
+                "produces": [
+                    "application/json"
+                ],
+                "tags": [
+                    "ISCSI"
+                ],
+                "summary": "Create of Iscsi Servcie Daemon",
+                "parameters": [
+                    {
+                        "description": "Iscsi Servcie YAML file",
+                        "name": "json_file",
+                        "in": "body",
+                        "required": true,
+                        "schema": {
+                            "$ref": "#/definitions/IscsiServiceCreate"
+                        }
+                    }
+                ],
+                "responses": {
+                    "200": {
+                        "description": "Success",
+                        "schema": {
+                            "type": "string"
+                        }
+                    },
+                    "400": {
+                        "description": "Bad Request",
+                        "schema": {
+                            "$ref": "#/definitions/HTTP400BadRequest"
+                        }
+                    },
+                    "404": {
+                        "description": "Not Found",
+                        "schema": {
+                            "$ref": "#/definitions/HTTP404NotFound"
+                        }
+                    },
+                    "500": {
+                        "description": "Internal Server Error",
+                        "schema": {
+                            "$ref": "#/definitions/HTTP500InternalServerError"
+                        }
+                    }
+                }
+            }
+        },
+        "/api/v1/iscsi/target": {
+            "get": {
+                "description": "Iscsi 타겟 리스트를 가져옵니다.",
+                "consumes": [
+                    "application/x-www-form-urlencoded"
+                ],
+                "produces": [
+                    "application/json"
+                ],
+                "tags": [
+                    "ISCSI"
+                ],
+                "summary": "Show List of Iscsi Target",
+                "responses": {
+                    "200": {
+                        "description": "OK",
+                        "schema": {
+                            "$ref": "#/definitions/IscsiTargetList"
+                        }
+                    },
+                    "400": {
+                        "description": "Bad Request",
+                        "schema": {
+                            "$ref": "#/definitions/HTTP400BadRequest"
+                        }
+                    },
+                    "404": {
+                        "description": "Not Found",
+                        "schema": {
+                            "$ref": "#/definitions/HTTP404NotFound"
+                        }
+                    },
+                    "500": {
+                        "description": "Internal Server Error",
+                        "schema": {
+                            "$ref": "#/definitions/HTTP500InternalServerError"
+                        }
+                    }
+                }
+            }
+        },
+        "/api/v1/iscsi/target/{iqn_id}": {
+            "delete": {
+                "description": "Iscsi 타겟을 삭제합니다.",
+                "consumes": [
+                    "application/x-www-form-urlencoded"
+                ],
+                "produces": [
+                    "application/json"
+                ],
+                "tags": [
+                    "ISCSI"
+                ],
+                "summary": "Delete of Iscsi Target",
+                "parameters": [
+                    {
+                        "type": "string",
+                        "description": "Iscsi IQN ID",
+                        "name": "iqn_id",
+                        "in": "path",
+                        "required": true
+                    }
+                ],
+                "responses": {
+                    "200": {
+                        "description": "Success",
+                        "schema": {
+                            "type": "string"
+                        }
+                    },
+                    "400": {
+                        "description": "Bad Request",
+                        "schema": {
+                            "$ref": "#/definitions/HTTP400BadRequest"
+                        }
+                    },
+                    "404": {
+                        "description": "Not Found",
+                        "schema": {
+                            "$ref": "#/definitions/HTTP404NotFound"
+                        }
+                    },
+                    "500": {
+                        "description": "Internal Server Error",
+                        "schema": {
+                            "$ref": "#/definitions/HTTP500InternalServerError"
+                        }
+                    }
+                }
+            }
+        },
+        "/api/v1/iscsi/target/{iqn_id}/{hostname}": {
+            "post": {
+                "description": "Iscsi 타겟을 생성합니다.",
+                "consumes": [
+                    "application/x-www-form-urlencoded"
+                ],
+                "produces": [
+                    "application/json"
+                ],
+                "tags": [
+                    "ISCSI"
+                ],
+                "summary": "Create of Iscsi Target",
+                "parameters": [
+                    {
+                        "type": "string",
+                        "example": "\"iqn.{yyyy-mm}.{naming-authority}:{unique-name}\"",
+                        "description": "Iscsi IQN ID",
+                        "name": "iqn_id",
+                        "in": "path",
+                        "required": true
+                    },
+                    {
+                        "type": "string",
+                        "description": "Gateway Host Name",
+                        "name": "hostname",
+                        "in": "path",
+                        "required": true
+                    }
+                ],
+                "responses": {
+                    "200": {
+                        "description": "Success",
+                        "schema": {
+                            "type": "string"
+                        }
+                    },
+                    "400": {
+                        "description": "Bad Request",
+                        "schema": {
+                            "$ref": "#/definitions/HTTP400BadRequest"
+                        }
+                    },
+                    "404": {
+                        "description": "Not Found",
+                        "schema": {
+                            "$ref": "#/definitions/HTTP404NotFound"
+                        }
+                    },
+                    "500": {
+                        "description": "Internal Server Error",
+                        "schema": {
+                            "$ref": "#/definitions/HTTP500InternalServerError"
+                        }
+                    }
+                }
+            }
+        },
+        "/api/v1/mirror": {
+            "get": {
+                "description": "Glue 의 미러링 상태를 보여줍니다.",
+                "consumes": [
+                    "application/x-www-form-urlencoded"
                 ],
                 "produces": [
                     "application/json"
@@ -581,49 +1050,12 @@ const docTemplate = `{
                 "tags": [
                     "Mirror"
                 ],
-                "summary": "Setup Mirroring Cluster",
-                "parameters": [
-                    {
-                        "type": "string",
-                        "description": "Local Cluster Name",
-                        "name": "localClusterName",
-                        "in": "formData",
-                        "required": true
-                    },
-                    {
-                        "type": "string",
-                        "description": "Remote Cluster Name",
-                        "name": "remoteClusterName",
-                        "in": "formData",
-                        "required": true
-                    },
-                    {
-                        "type": "string",
-                        "description": "Remote Cluster Host Address",
-                        "name": "host",
-                        "in": "formData",
-                        "required": true
-                    },
-                    {
-                        "type": "file",
-                        "description": "Remote Cluster PrivateKey",
-                        "name": "privateKeyFile",
-                        "in": "formData",
-                        "required": true
-                    },
-                    {
-                        "type": "string",
-                        "description": "Pool Name for Mirroring",
-                        "name": "mirrorPool",
-                        "in": "formData",
-                        "required": true
-                    }
-                ],
+                "summary": "Show Status of Mirror",
                 "responses": {
                     "200": {
                         "description": "OK",
                         "schema": {
-                            "$ref": "#/definitions/MirrorSetup"
+                            "$ref": "#/definitions/MirrorStatus"
                         }
                     },
                     "400": {
@@ -1165,6 +1597,480 @@ const docTemplate = `{
                 }
             }
         },
+        "/api/v1/nfs": {
+            "get": {
+                "description": "Glue NFS Cluster의 리스트를 보여줍니다.",
+                "consumes": [
+                    "application/x-www-form-urlencoded"
+                ],
+                "produces": [
+                    "application/json"
+                ],
+                "tags": [
+                    "NFS"
+                ],
+                "summary": "Show List of Glue NFS Cluster",
+                "responses": {
+                    "200": {
+                        "description": "OK",
+                        "schema": {
+                            "$ref": "#/definitions/NfsClusterLs"
+                        }
+                    },
+                    "400": {
+                        "description": "Bad Request",
+                        "schema": {
+                            "$ref": "#/definitions/HTTP400BadRequest"
+                        }
+                    },
+                    "404": {
+                        "description": "Not Found",
+                        "schema": {
+                            "$ref": "#/definitions/HTTP404NotFound"
+                        }
+                    },
+                    "500": {
+                        "description": "Internal Server Error",
+                        "schema": {
+                            "$ref": "#/definitions/HTTP500InternalServerError"
+                        }
+                    }
+                }
+            }
+        },
+        "/api/v1/nfs/export/{cluster_id}": {
+            "get": {
+                "description": "Glue NFS Export 상세 정보를 보여줍니다.",
+                "consumes": [
+                    "application/x-www-form-urlencoded"
+                ],
+                "produces": [
+                    "application/json"
+                ],
+                "tags": [
+                    "NFS"
+                ],
+                "summary": "Show Detail of Glue NFS Export",
+                "parameters": [
+                    {
+                        "type": "string",
+                        "description": "NFS Cluster Identifier",
+                        "name": "cluster_id",
+                        "in": "path",
+                        "required": true
+                    }
+                ],
+                "responses": {
+                    "200": {
+                        "description": "OK",
+                        "schema": {
+                            "description": "Glue NFS Export 상세정보 구조체",
+                            "type": "array",
+                            "items": {
+                                "type": "object",
+                                "properties": {
+                                    "access_type": {
+                                        "type": "string"
+                                    },
+                                    "clients": {
+                                        "type": "array",
+                                        "items": {}
+                                    },
+                                    "cluster_id": {
+                                        "type": "string"
+                                    },
+                                    "export_id": {
+                                        "type": "integer"
+                                    },
+                                    "fsal": {
+                                        "type": "object",
+                                        "properties": {
+                                            "fs_name": {
+                                                "type": "string"
+                                            },
+                                            "name": {
+                                                "type": "string"
+                                            },
+                                            "user_id": {
+                                                "type": "string"
+                                            }
+                                        }
+                                    },
+                                    "path": {
+                                        "type": "string"
+                                    },
+                                    "protocols": {
+                                        "type": "array",
+                                        "items": {
+                                            "type": "integer"
+                                        }
+                                    },
+                                    "pseudo": {
+                                        "type": "string"
+                                    },
+                                    "security_label": {
+                                        "type": "boolean"
+                                    },
+                                    "squash": {
+                                        "type": "string"
+                                    },
+                                    "transports": {
+                                        "type": "array",
+                                        "items": {
+                                            "type": "string"
+                                        }
+                                    }
+                                }
+                            }
+                        }
+                    },
+                    "400": {
+                        "description": "Bad Request",
+                        "schema": {
+                            "$ref": "#/definitions/HTTP400BadRequest"
+                        }
+                    },
+                    "404": {
+                        "description": "Not Found",
+                        "schema": {
+                            "$ref": "#/definitions/HTTP404NotFound"
+                        }
+                    },
+                    "500": {
+                        "description": "Internal Server Error",
+                        "schema": {
+                            "$ref": "#/definitions/HTTP500InternalServerError"
+                        }
+                    }
+                }
+            },
+            "put": {
+                "description": "Glue NFS Export를 수정합니다.",
+                "consumes": [
+                    "application/x-www-form-urlencoded"
+                ],
+                "produces": [
+                    "application/json"
+                ],
+                "tags": [
+                    "NFS"
+                ],
+                "summary": "Update of Glue NFS Export",
+                "parameters": [
+                    {
+                        "type": "string",
+                        "description": "NFS Cluster Identifier",
+                        "name": "cluster_id",
+                        "in": "path",
+                        "required": true
+                    },
+                    {
+                        "description": "NFS Export JSON file",
+                        "name": "json_file",
+                        "in": "body",
+                        "required": true,
+                        "schema": {
+                            "$ref": "#/definitions/NfsExportUpdate"
+                        }
+                    }
+                ],
+                "responses": {
+                    "200": {
+                        "description": "Success",
+                        "schema": {
+                            "type": "string"
+                        }
+                    },
+                    "400": {
+                        "description": "Bad Request",
+                        "schema": {
+                            "$ref": "#/definitions/HTTP400BadRequest"
+                        }
+                    },
+                    "404": {
+                        "description": "Not Found",
+                        "schema": {
+                            "$ref": "#/definitions/HTTP404NotFound"
+                        }
+                    },
+                    "500": {
+                        "description": "Internal Server Error",
+                        "schema": {
+                            "$ref": "#/definitions/HTTP500InternalServerError"
+                        }
+                    }
+                }
+            },
+            "post": {
+                "description": "Glue NFS Export를 생성합니다.",
+                "consumes": [
+                    "application/x-www-form-urlencoded"
+                ],
+                "produces": [
+                    "application/json"
+                ],
+                "tags": [
+                    "NFS"
+                ],
+                "summary": "Create of Glue NFS Export",
+                "parameters": [
+                    {
+                        "type": "string",
+                        "description": "NFS Cluster Identifier",
+                        "name": "cluster_id",
+                        "in": "path",
+                        "required": true
+                    },
+                    {
+                        "description": "NFS Export JSON file",
+                        "name": "json_file",
+                        "in": "body",
+                        "required": true,
+                        "schema": {
+                            "$ref": "#/definitions/NfsExportCreate"
+                        }
+                    }
+                ],
+                "responses": {
+                    "200": {
+                        "description": "Success",
+                        "schema": {
+                            "type": "string"
+                        }
+                    },
+                    "400": {
+                        "description": "Bad Request",
+                        "schema": {
+                            "$ref": "#/definitions/HTTP400BadRequest"
+                        }
+                    },
+                    "404": {
+                        "description": "Not Found",
+                        "schema": {
+                            "$ref": "#/definitions/HTTP404NotFound"
+                        }
+                    },
+                    "500": {
+                        "description": "Internal Server Error",
+                        "schema": {
+                            "$ref": "#/definitions/HTTP500InternalServerError"
+                        }
+                    }
+                }
+            }
+        },
+        "/api/v1/nfs/export/{cluster_id}/{export_id}": {
+            "delete": {
+                "description": "Glue NFS Export를 삭제합니다.",
+                "consumes": [
+                    "application/x-www-form-urlencoded"
+                ],
+                "produces": [
+                    "application/json"
+                ],
+                "tags": [
+                    "NFS"
+                ],
+                "summary": "Delete of Glue NFS Export",
+                "parameters": [
+                    {
+                        "type": "string",
+                        "description": "NFS Cluster Identifier",
+                        "name": "cluster_id",
+                        "in": "path",
+                        "required": true
+                    },
+                    {
+                        "type": "string",
+                        "description": "NFS Export ID",
+                        "name": "export_id",
+                        "in": "path",
+                        "required": true
+                    }
+                ],
+                "responses": {
+                    "200": {
+                        "description": "Success",
+                        "schema": {
+                            "type": "string"
+                        }
+                    },
+                    "400": {
+                        "description": "Bad Request",
+                        "schema": {
+                            "$ref": "#/definitions/HTTP400BadRequest"
+                        }
+                    },
+                    "404": {
+                        "description": "Not Found",
+                        "schema": {
+                            "$ref": "#/definitions/HTTP404NotFound"
+                        }
+                    },
+                    "500": {
+                        "description": "Internal Server Error",
+                        "schema": {
+                            "$ref": "#/definitions/HTTP500InternalServerError"
+                        }
+                    }
+                }
+            }
+        },
+        "/api/v1/nfs/{cluster_id}": {
+            "get": {
+                "description": "Glue NFS Cluster의 상세 정보를 보여줍니다.",
+                "consumes": [
+                    "application/x-www-form-urlencoded"
+                ],
+                "produces": [
+                    "application/json"
+                ],
+                "tags": [
+                    "NFS"
+                ],
+                "summary": "Show Info of Glue NFS Cluster",
+                "parameters": [
+                    {
+                        "type": "string",
+                        "description": "NFS Cluster Identifier",
+                        "name": "cluster_id",
+                        "in": "path",
+                        "required": true
+                    }
+                ],
+                "responses": {
+                    "200": {
+                        "description": "OK",
+                        "schema": {
+                            "description": "Glue NFS Cluster 상세정보 구조체"
+                        }
+                    },
+                    "400": {
+                        "description": "Bad Request",
+                        "schema": {
+                            "$ref": "#/definitions/HTTP400BadRequest"
+                        }
+                    },
+                    "404": {
+                        "description": "Not Found",
+                        "schema": {
+                            "$ref": "#/definitions/HTTP404NotFound"
+                        }
+                    },
+                    "500": {
+                        "description": "Internal Server Error",
+                        "schema": {
+                            "$ref": "#/definitions/HTTP500InternalServerError"
+                        }
+                    }
+                }
+            },
+            "delete": {
+                "description": "Glue NFS Cluster를 삭제합니다.",
+                "consumes": [
+                    "application/x-www-form-urlencoded"
+                ],
+                "produces": [
+                    "application/json"
+                ],
+                "tags": [
+                    "NFS"
+                ],
+                "summary": "Delete of Glue NFS Cluster",
+                "parameters": [
+                    {
+                        "type": "string",
+                        "description": "NFS Cluster Identifier",
+                        "name": "cluster_id",
+                        "in": "path",
+                        "required": true
+                    }
+                ],
+                "responses": {
+                    "200": {
+                        "description": "Success",
+                        "schema": {
+                            "type": "string"
+                        }
+                    },
+                    "400": {
+                        "description": "Bad Request",
+                        "schema": {
+                            "$ref": "#/definitions/HTTP400BadRequest"
+                        }
+                    },
+                    "404": {
+                        "description": "Not Found",
+                        "schema": {
+                            "$ref": "#/definitions/HTTP404NotFound"
+                        }
+                    },
+                    "500": {
+                        "description": "Internal Server Error",
+                        "schema": {
+                            "$ref": "#/definitions/HTTP500InternalServerError"
+                        }
+                    }
+                }
+            }
+        },
+        "/api/v1/nfs/{cluster_id}/{port}": {
+            "post": {
+                "description": "Glue NFS Cluster를 생성합니다.",
+                "consumes": [
+                    "application/x-www-form-urlencoded"
+                ],
+                "produces": [
+                    "application/json"
+                ],
+                "tags": [
+                    "NFS"
+                ],
+                "summary": "Create of Glue NFS Cluster",
+                "parameters": [
+                    {
+                        "type": "string",
+                        "description": "NFS Cluster Identifier",
+                        "name": "cluster_id",
+                        "in": "path",
+                        "required": true
+                    },
+                    {
+                        "type": "string",
+                        "description": "Cluster Port",
+                        "name": "port",
+                        "in": "path",
+                        "required": true
+                    }
+                ],
+                "responses": {
+                    "200": {
+                        "description": "Success",
+                        "schema": {
+                            "type": "string"
+                        }
+                    },
+                    "400": {
+                        "description": "Bad Request",
+                        "schema": {
+                            "$ref": "#/definitions/HTTP400BadRequest"
+                        }
+                    },
+                    "404": {
+                        "description": "Not Found",
+                        "schema": {
+                            "$ref": "#/definitions/HTTP404NotFound"
+                        }
+                    },
+                    "500": {
+                        "description": "Internal Server Error",
+                        "schema": {
+                            "$ref": "#/definitions/HTTP500InternalServerError"
+                        }
+                    }
+                }
+            }
+        },
         "/version": {
             "get": {
                 "description": "API 의 버전을 보여줍니다.",
@@ -1208,16 +2114,278 @@ const docTemplate = `{
         }
     },
     "definitions": {
+        "FsGetInfo": {
+            "description": "GlueFS의 상세정보 구조체",
+            "type": "object",
+            "properties": {
+                "id": {
+                    "type": "integer"
+                },
+                "mdsmap": {
+                    "type": "object",
+                    "properties": {
+                        "bal_rank_mask": {
+                            "type": "string"
+                        },
+                        "balancer": {
+                            "type": "string"
+                        },
+                        "compat": {
+                            "type": "object",
+                            "properties": {
+                                "compat": {
+                                    "type": "object"
+                                },
+                                "incompat": {
+                                    "type": "object",
+                                    "properties": {
+                                        "feature_1": {
+                                            "type": "string"
+                                        },
+                                        "feature_10": {
+                                            "type": "string"
+                                        },
+                                        "feature_2": {
+                                            "type": "string"
+                                        },
+                                        "feature_3": {
+                                            "type": "string"
+                                        },
+                                        "feature_4": {
+                                            "type": "string"
+                                        },
+                                        "feature_5": {
+                                            "type": "string"
+                                        },
+                                        "feature_6": {
+                                            "type": "string"
+                                        },
+                                        "feature_7": {
+                                            "type": "string"
+                                        },
+                                        "feature_8": {
+                                            "type": "string"
+                                        },
+                                        "feature_9": {
+                                            "type": "string"
+                                        }
+                                    }
+                                },
+                                "ro_compat": {
+                                    "type": "object"
+                                }
+                            }
+                        },
+                        "created": {
+                            "type": "string"
+                        },
+                        "damaged": {
+                            "type": "array",
+                            "items": {}
+                        },
+                        "data_pools": {
+                            "type": "array",
+                            "items": {
+                                "type": "integer"
+                            }
+                        },
+                        "enabled": {
+                            "type": "boolean"
+                        },
+                        "epoch": {
+                            "type": "integer"
+                        },
+                        "ever_allowed_features": {
+                            "type": "integer"
+                        },
+                        "explicitly_allowed_features": {
+                            "type": "integer"
+                        },
+                        "failed": {
+                            "type": "array",
+                            "items": {}
+                        },
+                        "flags": {
+                            "type": "integer"
+                        },
+                        "flags_state": {
+                            "type": "object",
+                            "properties": {
+                                "allow_multimds_snaps": {
+                                    "type": "boolean"
+                                },
+                                "allow_snaps": {
+                                    "type": "boolean"
+                                },
+                                "allow_standby_replay": {
+                                    "type": "boolean"
+                                },
+                                "joinable": {
+                                    "type": "boolean"
+                                },
+                                "refuse_client_session": {
+                                    "type": "boolean"
+                                }
+                            }
+                        },
+                        "fs_name": {
+                            "type": "string"
+                        },
+                        "in": {
+                            "type": "array",
+                            "items": {
+                                "type": "integer"
+                            }
+                        },
+                        "info": {},
+                        "last_failure": {
+                            "type": "integer"
+                        },
+                        "last_failure_osd_epoch": {
+                            "type": "integer"
+                        },
+                        "max_file_size": {
+                            "type": "integer"
+                        },
+                        "max_mds": {
+                            "type": "integer"
+                        },
+                        "metadata_pool": {
+                            "type": "integer"
+                        },
+                        "modified": {
+                            "type": "string"
+                        },
+                        "required_client_features": {
+                            "type": "object"
+                        },
+                        "root": {
+                            "type": "integer"
+                        },
+                        "session_autoclose": {
+                            "type": "integer"
+                        },
+                        "session_timeout": {
+                            "type": "integer"
+                        },
+                        "standby_count_wanted": {
+                            "type": "integer"
+                        },
+                        "stopped": {
+                            "type": "array",
+                            "items": {}
+                        },
+                        "tableserver": {
+                            "type": "integer"
+                        },
+                        "up": {
+                            "type": "object",
+                            "properties": {
+                                "mds_0": {
+                                    "type": "integer"
+                                }
+                            }
+                        }
+                    }
+                }
+            }
+        },
+        "FsStatus": {
+            "description": "GlueFS의 상태 구조체",
+            "type": "object",
+            "properties": {
+                "clients": {
+                    "type": "array",
+                    "items": {
+                        "type": "object",
+                        "properties": {
+                            "clients": {
+                                "type": "integer"
+                            },
+                            "fs": {
+                                "type": "string"
+                            }
+                        }
+                    }
+                },
+                "mds_version": {
+                    "type": "array",
+                    "items": {
+                        "type": "object",
+                        "properties": {
+                            "daemon": {
+                                "type": "array",
+                                "items": {
+                                    "type": "string"
+                                }
+                            },
+                            "version": {
+                                "type": "string"
+                            }
+                        }
+                    }
+                },
+                "mdsmap": {
+                    "type": "array",
+                    "items": {
+                        "type": "object",
+                        "properties": {
+                            "caps": {
+                                "type": "integer"
+                            },
+                            "dirs": {
+                                "type": "integer"
+                            },
+                            "dns": {
+                                "type": "integer"
+                            },
+                            "inos": {
+                                "type": "integer"
+                            },
+                            "name": {
+                                "type": "string"
+                            },
+                            "rank": {
+                                "type": "integer"
+                            },
+                            "rate": {
+                                "type": "integer"
+                            },
+                            "state": {
+                                "type": "string"
+                            }
+                        }
+                    }
+                },
+                "pools": {
+                    "type": "array",
+                    "items": {
+                        "type": "object",
+                        "properties": {
+                            "avail": {
+                                "type": "integer"
+                            },
+                            "id": {
+                                "type": "integer"
+                            },
+                            "name": {
+                                "type": "string"
+                            },
+                            "type": {
+                                "type": "string"
+                            },
+                            "used": {
+                                "type": "integer"
+                            }
+                        }
+                    }
+                }
+            }
+        },
         "GlueStatus": {
             "description": "Glue의 상태를 나타내는 구조체",
             "type": "object",
             "properties": {
-                "debug": {
-                    "description": "Debug info",
-                    "type": "boolean",
-                    "format": "bool",
-                    "example": true
-                },
                 "election_epoch": {
                     "type": "integer",
                     "format": "uint32",
@@ -1412,12 +2580,7 @@ const docTemplate = `{
             "description": "Glue의 버전",
             "type": "object",
             "properties": {
-                "debug": {
-                    "description": "Debug info",
-                    "type": "boolean",
-                    "format": "bool",
-                    "example": true
-                },
+                "mds": {},
                 "mgr": {},
                 "mon": {},
                 "osd": {},
@@ -1486,12 +2649,6 @@ const docTemplate = `{
         "ImageMirror": {
             "type": "object",
             "properties": {
-                "debug": {
-                    "description": "Debug info",
-                    "type": "boolean",
-                    "format": "bool",
-                    "example": true
-                },
                 "image": {
                     "type": "string"
                 },
@@ -1528,12 +2685,6 @@ const docTemplate = `{
                             "type": "string"
                         }
                     }
-                },
-                "debug": {
-                    "description": "Debug info",
-                    "type": "boolean",
-                    "format": "bool",
-                    "example": true
                 },
                 "description": {
                     "type": "string"
@@ -1598,6 +2749,61 @@ const docTemplate = `{
                 }
             }
         },
+        "IscsiServiceCreate": {
+            "description": "Iscsi Service daemon 구조체",
+            "type": "object",
+            "properties": {
+                "placement": {
+                    "type": "object",
+                    "properties": {
+                        "hosts": {
+                            "type": "array",
+                            "items": {
+                                "type": "string"
+                            }
+                        }
+                    }
+                },
+                "service_id": {
+                    "type": "string"
+                },
+                "service_name": {
+                    "type": "string"
+                },
+                "service_type": {
+                    "type": "string"
+                },
+                "spec": {
+                    "type": "object",
+                    "properties": {
+                        "api_password": {
+                            "type": "string"
+                        },
+                        "api_port": {
+                            "type": "integer"
+                        },
+                        "api_user": {
+                            "type": "string"
+                        },
+                        "pool": {
+                            "type": "string"
+                        },
+                        "trusted_ip_list": {
+                            "type": "string"
+                        }
+                    }
+                }
+            }
+        },
+        "IscsiTargetList": {
+            "description": "Iscsi Target List 구조체",
+            "type": "object",
+            "properties": {
+                "targets": {
+                    "description": "Created       string ` + "`" + `json:\"created\"` + "`" + `\nDiscoveryAuth struct {\n\tMutualPassword                  string ` + "`" + `json:\"mutual_password\"` + "`" + `\n\tMutualPasswordEncryptionEnabled bool   ` + "`" + `json:\"mutual_password_encryption_enabled\"` + "`" + `\n\tMutualUsername                  string ` + "`" + `json:\"mutual_username\"` + "`" + `\n\tPassword                        string ` + "`" + `json:\"password\"` + "`" + `\n\tPasswordEncryptionEnabled       bool   ` + "`" + `json:\"password_encryption_enabled\"` + "`" + `\n\tUsername                        string ` + "`" + `json:\"username\"` + "`" + `\n} ` + "`" + `json:\"discovery_auth\"` + "`" + `\nDisks struct {\n} ` + "`" + `json:\"disks\"` + "`" + `\nEpoch    int ` + "`" + `json:\"epoch\"` + "`" + `\nGateways struct {\n\tGwvm struct {\n\t\tActiveLuns int    ` + "`" + `json:\"active_luns\"` + "`" + `\n\t\tCreated    string ` + "`" + `json:\"created\"` + "`" + `\n\t\tUpdated    string ` + "`" + `json:\"updated\"` + "`" + `\n\t} ` + "`" + `json:\"gwvm\"` + "`" + `\n} ` + "`" + `json:\"gateways\"` + "`" + `"
+                }
+            }
+        },
         "Message": {
             "type": "object",
             "properties": {
@@ -1652,24 +2858,12 @@ const docTemplate = `{
                     "items": {
                         "$ref": "#/definitions/MirrorImage"
                     }
-                },
-                "debug": {
-                    "description": "Debug info",
-                    "type": "boolean",
-                    "format": "bool",
-                    "example": true
                 }
             }
         },
         "MirrorSetup": {
             "type": "object",
             "properties": {
-                "debug": {
-                    "description": "Debug info",
-                    "type": "boolean",
-                    "format": "bool",
-                    "example": true
-                },
                 "host": {
                     "type": "string"
                 },
@@ -1700,12 +2894,6 @@ const docTemplate = `{
                     "description": "미러링 데몬 상태",
                     "type": "string"
                 },
-                "debug": {
-                    "description": "Debug info",
-                    "type": "boolean",
-                    "format": "bool",
-                    "example": true
-                },
                 "health": {
                     "description": "미러링 상태",
                     "type": "string"
@@ -1716,6 +2904,152 @@ const docTemplate = `{
                 },
                 "states": {
                     "description": "이미지 상세"
+                }
+            }
+        },
+        "NfsClusterLs": {
+            "description": "Glue NFS Cluster 리스트 구조체",
+            "type": "object",
+            "properties": {
+                "name": {
+                    "type": "string"
+                }
+            }
+        },
+        "NfsExportCreate": {
+            "description": "Glue NFS Export 생성 구조체",
+            "type": "object",
+            "properties": {
+                "access_type": {
+                    "type": "string"
+                },
+                "clients": {
+                    "type": "array",
+                    "items": {
+                        "type": "object",
+                        "properties": {
+                            "access_type": {
+                                "type": "string"
+                            },
+                            "addresses": {
+                                "type": "array",
+                                "items": {
+                                    "type": "string"
+                                }
+                            },
+                            "squash": {
+                                "type": "string"
+                            }
+                        }
+                    }
+                },
+                "fsal": {
+                    "type": "object",
+                    "properties": {
+                        "fs_name": {
+                            "type": "string"
+                        },
+                        "name": {
+                            "type": "string"
+                        },
+                        "sec_label_xattr": {
+                            "type": "string"
+                        }
+                    }
+                },
+                "path": {
+                    "type": "string"
+                },
+                "protocols": {
+                    "type": "array",
+                    "items": {
+                        "type": "integer"
+                    }
+                },
+                "pseudo": {
+                    "type": "string"
+                },
+                "security": {
+                    "type": "boolean"
+                },
+                "squash": {
+                    "type": "string"
+                },
+                "transports": {
+                    "type": "array",
+                    "items": {
+                        "type": "string"
+                    }
+                }
+            }
+        },
+        "NfsExportUpdate": {
+            "description": "Glue NFS Export 수정 구조체",
+            "type": "object",
+            "properties": {
+                "access_type": {
+                    "type": "string"
+                },
+                "clients": {
+                    "type": "array",
+                    "items": {
+                        "type": "object",
+                        "properties": {
+                            "access_type": {
+                                "type": "string"
+                            },
+                            "addresses": {
+                                "type": "array",
+                                "items": {
+                                    "type": "string"
+                                }
+                            },
+                            "squash": {
+                                "type": "string"
+                            }
+                        }
+                    }
+                },
+                "export_id": {
+                    "type": "integer"
+                },
+                "fsal": {
+                    "type": "object",
+                    "properties": {
+                        "fs_name": {
+                            "type": "string"
+                        },
+                        "name": {
+                            "type": "string"
+                        },
+                        "sec_label_xattr": {
+                            "type": "string"
+                        }
+                    }
+                },
+                "path": {
+                    "type": "string"
+                },
+                "protocols": {
+                    "type": "array",
+                    "items": {
+                        "type": "integer"
+                    }
+                },
+                "pseudo": {
+                    "type": "string"
+                },
+                "security": {
+                    "type": "boolean"
+                },
+                "squash": {
+                    "type": "string"
+                },
+                "transports": {
+                    "type": "array",
+                    "items": {
+                        "type": "string"
+                    }
                 }
             }
         },

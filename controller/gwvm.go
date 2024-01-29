@@ -18,7 +18,6 @@ import (
 //	@param			hypervisorType	path	string	true	"Hypervisor Type"
 //	@Tags			Gwvm
 //	@Accept			x-www-form-urlencoded
-//	@Header			200	{string}	Access-Control-Allow-Origin	"*"
 //	@Produce		json
 //	@Success		200	{object}	model.GwvmMgmt
 //	@Failure		400	{object}	httputil.HTTP400BadRequest
@@ -30,6 +29,35 @@ func (c *Controller) VmState(ctx *gin.Context) {
 	hypervisorType := ctx.Param("hypervisorType")
 
 	message, err := gluevm.VmState(hypervisorType)
+
+	if err != nil {
+		httputil.NewError(ctx, http.StatusInternalServerError, err)
+		return
+	}
+
+	dat.Message = message
+	ctx.Header("Access-Control-Allow-Origin", "*")
+	ctx.IndentedJSON(http.StatusOK, dat)
+}
+
+// VmDetail godoc
+//
+//	@Summary		Detail of Gateway VM
+//	@Description	gwvm의 상세정보 상태를 보여줍니다.
+//	@param			hypervisorType	path	string	true	"Hypervisor Type"
+//	@Tags			Gwvm
+//	@Accept			x-www-form-urlencoded
+//	@Produce		json
+//	@Success		200	{object}	model.GwvmMgmt
+//	@Failure		400	{object}	httputil.HTTP400BadRequest
+//	@Failure		404	{object}	httputil.HTTP404NotFound
+//	@Failure		500	{object}	httputil.HTTP500InternalServerError
+//	@Router			/api/v1/gwvm/{hypervisorType} [get]
+func (c *Controller) VmDetail(ctx *gin.Context) {
+	var dat model.GwvmMgmt
+	hypervisorType := ctx.Param("hypervisorType")
+
+	message, err := gluevm.VmDetail(hypervisorType)
 
 	if err != nil {
 		httputil.NewError(ctx, http.StatusInternalServerError, err)
@@ -258,7 +286,7 @@ func (c *Controller) VmMigrateOptions(ctx *gin.Context) {
 	ctx.IndentedJSON(http.StatusOK, nil)
 }
 
-func SetOptionHeader(ctx *gin.Context){
+func SetOptionHeader(ctx *gin.Context) {
 	ctx.Header("Access-Control-Allow-Origin", "*")
 	ctx.Header("Access-Control-Allow-Methods", "*")
 	ctx.Header("Access-Control-Allow-Headers", "*")

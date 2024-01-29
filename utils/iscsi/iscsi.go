@@ -5,6 +5,7 @@ import (
 	"Glue-API/utils"
 	"encoding/json"
 	"errors"
+	"fmt"
 	"os/exec"
 )
 
@@ -52,6 +53,7 @@ func IscsiTargetCreate(ceph_container_name string, iqn_id string, hostname strin
 	var target []byte
 	cmd := exec.Command("ssh", "gwvm", "podman", "exec", "-it", ceph_container_name, "gwcli", "/iscsi-targets", "create", iqn_id)
 	target, err = cmd.CombinedOutput()
+
 	if err != nil {
 		err = errors.New(string(target))
 		utils.FancyHandleError(err)
@@ -59,7 +61,7 @@ func IscsiTargetCreate(ceph_container_name string, iqn_id string, hostname strin
 		return
 	} else {
 		var gateway []byte
-		cmd := exec.Command("ssh", "gwvm", "podman", "exec", "-it", ceph_container_name, "gwcli", "/iscsi-targets/"+iqn_id+"/gateways", "create", hostname, ip_address)
+		cmd := exec.Command("ssh", "gwvm", "podman", "exec", "-it", ceph_container_name, "gwcli", "/iscsi-targets/"+iqn_id+"/gateways", "create", "skipchecks=true", hostname, ip_address)
 		gateway, err = cmd.CombinedOutput()
 		if err != nil {
 			err = errors.New(string(gateway))
@@ -78,6 +80,21 @@ func IscsiTargetDelete(ceph_container_name string, iqn_id string) (output string
 	stdDelete, err = cmd.CombinedOutput()
 	if err != nil {
 		err = errors.New(string(stdDelete))
+		utils.FancyHandleError(err)
+		output = "Fail"
+		return
+	}
+	output = "Success"
+	return
+}
+
+func IscsiDiskCreate(ceph_container_name string, pool_name string, image_name string, size string) (output string, err error) {
+	var stdout []byte
+	cmd := exec.Command("ssh", "gwvm", "podman", "exec", "-it", ceph_container_name, "gwcli", "/disks", "create", "pool="+pool_name, "image="+image_name, "size="+size)
+	fmt.Println(cmd)
+	stdout, err = cmd.CombinedOutput()
+	if err != nil {
+		err = errors.New(string(stdout))
 		utils.FancyHandleError(err)
 		output = "Fail"
 		return

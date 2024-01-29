@@ -53,12 +53,17 @@ func main() {
 		{
 			glue.GET("", c.GlueStatus)
 			glue.GET("/version", c.GlueVersion)
-			pool := glue.Group("/pool")
-			{
-				pool.GET("", c.ListPools)
-				pool.GET("/:pool_name", c.ListImages)
-				pool.DELETE("/:pool_name", c.PoolDelete)
-			}
+		}
+		pool := v1.Group("/pool")
+		{
+			pool.GET("", c.ListPools)
+			pool.GET("/:pool_name", c.ListImages)
+			pool.DELETE("/:pool_name", c.PoolDelete)
+		}
+		service := v1.Group("/service")
+		{
+			service.GET("", c.ServiceLs)
+			service.POST("/:service_name", c.ServiceControl)
 		}
 		fs := v1.Group("/gluefs")
 		{
@@ -85,6 +90,8 @@ func main() {
 			iscsi.GET("/target", c.IscsiTargetList)
 			iscsi.POST("/target/:iqn_id/:hostname", c.IscsiTargetCreate)
 			iscsi.DELETE("/target/:iqn_id", c.IscsiTargetDelete)
+			iscsi.POST("/disk/:image_name", c.IscsiDiskCreate)
+
 		}
 		mirror := v1.Group("/mirror")
 		{

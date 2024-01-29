@@ -62,3 +62,33 @@ func PoolDelete(pool_name string) (output string, err error) {
 
 	return
 }
+func ServiceLs(service_name string) (dat model.ServiceLs, err error) {
+	var stdout []byte
+	if service_name == "" {
+		cmd := exec.Command("ceph", "orch", "ls", "-f", "json")
+		stdout, err = cmd.CombinedOutput()
+		if err = json.Unmarshal(stdout, &dat); err != nil {
+			utils.FancyHandleError(err)
+			return
+		}
+	} else {
+		cmd := exec.Command("ceph", "orch", "ls", "--service_name", service_name, "-f", "json")
+		stdout, err = cmd.CombinedOutput()
+		if err = json.Unmarshal(stdout, &dat); err != nil {
+			utils.FancyHandleError(err)
+			return
+		}
+	}
+	return
+}
+
+func ServiceControl(control string, service_name string) (output string, err error) {
+	var stdout []byte
+	cmd := exec.Command("ceph", "orch", control, service_name)
+	stdout, err = cmd.CombinedOutput()
+	if err != nil {
+		return
+	}
+	output = string(stdout)
+	return
+}

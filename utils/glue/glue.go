@@ -36,7 +36,18 @@ func ListImage(pool_name string) (images []model.Snapshot, err error) {
 	}
 	return
 }
-
+func InfoImage(image_name string) (dat model.InfoImage, err error) {
+	var stdout []byte
+	cmd := exec.Command("rbd", "info", image_name, "--format", "json")
+	stdout, err = cmd.CombinedOutput()
+	if err != nil {
+		return
+	}
+	if err = json.Unmarshal(stdout, &dat); err != nil {
+		return
+	}
+	return
+}
 func Status() (dat model.GlueStatus, err error) {
 
 	var stdout []byte

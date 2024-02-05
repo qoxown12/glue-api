@@ -427,6 +427,48 @@ definitions:
       state:
         type: string
     type: object
+  InfoImage:
+    properties:
+      access_timestamp:
+        type: string
+      block_name_prefix:
+        type: string
+      create_timestamp:
+        type: string
+      features:
+        items:
+          type: string
+        type: array
+      flags:
+        items: {}
+        type: array
+      format:
+        type: integer
+      id:
+        type: string
+      modify_timestamp:
+        type: string
+      name:
+        type: string
+      object_size:
+        type: integer
+      objects:
+        type: integer
+      op_features:
+        items: {}
+        type: array
+      order:
+        type: integer
+      size:
+        type: integer
+      snapshot_count:
+        type: integer
+    type: object
+  IscsiDiskList:
+    description: Iscsi Disk List 구조체
+    properties:
+      disks: {}
+    type: object
   IscsiServiceCreate:
     description: Iscsi Service daemon 구조체
     properties:
@@ -539,102 +581,6 @@ definitions:
         type: string
       states:
         description: 이미지 상세
-    type: object
-  NfsClusterLs:
-    description: Glue NFS Cluster 리스트 구조체
-    properties:
-      name:
-        type: string
-    type: object
-  NfsExportCreate:
-    description: Glue NFS Export 생성 구조체
-    properties:
-      access_type:
-        type: string
-      clients:
-        items:
-          properties:
-            access_type:
-              type: string
-            addresses:
-              items:
-                type: string
-              type: array
-            squash:
-              type: string
-          type: object
-        type: array
-      fsal:
-        properties:
-          fs_name:
-            type: string
-          name:
-            type: string
-          sec_label_xattr:
-            type: string
-        type: object
-      path:
-        type: string
-      protocols:
-        items:
-          type: integer
-        type: array
-      pseudo:
-        type: string
-      security:
-        type: boolean
-      squash:
-        type: string
-      transports:
-        items:
-          type: string
-        type: array
-    type: object
-  NfsExportUpdate:
-    description: Glue NFS Export 수정 구조체
-    properties:
-      access_type:
-        type: string
-      clients:
-        items:
-          properties:
-            access_type:
-              type: string
-            addresses:
-              items:
-                type: string
-              type: array
-            squash:
-              type: string
-          type: object
-        type: array
-      export_id:
-        type: integer
-      fsal:
-        properties:
-          fs_name:
-            type: string
-          name:
-            type: string
-          sec_label_xattr:
-            type: string
-        type: object
-      path:
-        type: string
-      protocols:
-        items:
-          type: integer
-        type: array
-      pseudo:
-        type: string
-      security:
-        type: boolean
-      squash:
-        type: string
-      transports:
-        items:
-          type: string
-        type: array
     type: object
   Version:
     description: API의 버전
@@ -919,26 +865,34 @@ paths:
             $ref: '#/definitions/HTTP500InternalServerError'
       summary: Create of Iscsi Servcie Daemon
       tags:
-      - ISCSI
-  /api/v1/iscsi/disk/{image_name}:
-    post:
+      - Iscsi
+  /api/v1/iscsi/disk:
+    delete:
       consumes:
       - application/x-www-form-urlencoded
-      description: Iscsi 디스크를 생성합니다.
+      description: Iscsi 디스크를 삭제합니다.
       parameters:
-      - description: Iscsi Disk Name
-        in: path
-        name: image_name
-        required: true
-        type: string
       - description: Iscsi Disk Pool Name
-        in: formData
+        in: query
         name: pool_name
         required: true
         type: string
-      - description: Iscsi Disk Image Size(Default GB)
-        in: formData
-        name: size
+      - description: Iscsi Disk Name
+        in: query
+        name: disk_name
+        required: true
+        type: string
+      - description: Iscsi IQN ID
+        in: query
+        name: iqn_id
+        type: string
+      - default: "false"
+        description: Whether to Delete RBD Image
+        enum:
+        - "true"
+        - "false"
+        in: query
+        name: image
         required: true
         type: string
       produces:
@@ -960,9 +914,117 @@ paths:
           description: Internal Server Error
           schema:
             $ref: '#/definitions/HTTP500InternalServerError'
-      summary: Create of Iscsi Disk
+      summary: Delete of Iscsi Disk
       tags:
-      - ISCSI
+      - IscsiDisk
+    get:
+      consumes:
+      - application/x-www-form-urlencoded
+      description: Iscsi 디스크 리스트를 보여줍니다.
+      produces:
+      - application/json
+      responses:
+        "200":
+          description: OK
+          schema:
+            $ref: '#/definitions/IscsiDiskList'
+        "400":
+          description: Bad Request
+          schema:
+            $ref: '#/definitions/HTTP400BadRequest'
+        "404":
+          description: Not Found
+          schema:
+            $ref: '#/definitions/HTTP404NotFound'
+        "500":
+          description: Internal Server Error
+          schema:
+            $ref: '#/definitions/HTTP500InternalServerError'
+      summary: Show List of Iscsi Disk
+      tags:
+      - IscsiDisk
+    post:
+      consumes:
+      - application/x-www-form-urlencoded
+      description: Iscsi 디스크를 생성 또는 부착합니다.
+      parameters:
+      - description: Iscsi Disk Pool Name
+        in: formData
+        name: pool_name
+        required: true
+        type: string
+      - description: Iscsi Disk Name
+        in: formData
+        name: disk_name
+        required: true
+        type: string
+      - description: Iscsi Disk Image Size(Default GB)
+        in: formData
+        name: size
+        type: integer
+      - description: Iscsi IQN ID
+        in: formData
+        name: iqn_id
+        type: string
+      produces:
+      - application/json
+      responses:
+        "200":
+          description: Success
+          schema:
+            type: string
+        "400":
+          description: Bad Request
+          schema:
+            $ref: '#/definitions/HTTP400BadRequest'
+        "404":
+          description: Not Found
+          schema:
+            $ref: '#/definitions/HTTP404NotFound'
+        "500":
+          description: Internal Server Error
+          schema:
+            $ref: '#/definitions/HTTP500InternalServerError'
+      summary: Create Or Attach of Iscsi Disk
+      tags:
+      - IscsiDisk
+    put:
+      consumes:
+      - application/x-www-form-urlencoded
+      description: Iscsi 디스크 용량을 변경합니다.
+      parameters:
+      - description: Iscsi Disk Name
+        in: query
+        name: disk_name
+        required: true
+        type: string
+      - description: Iscsi Disk New Size(default GB)
+        in: query
+        name: new_size
+        required: true
+        type: integer
+      produces:
+      - application/json
+      responses:
+        "200":
+          description: Success
+          schema:
+            type: string
+        "400":
+          description: Bad Request
+          schema:
+            $ref: '#/definitions/HTTP400BadRequest'
+        "404":
+          description: Not Found
+          schema:
+            $ref: '#/definitions/HTTP404NotFound'
+        "500":
+          description: Internal Server Error
+          schema:
+            $ref: '#/definitions/HTTP500InternalServerError'
+      summary: Change Size of Iscsi Disk
+      tags:
+      - IscsiDisk
   /api/v1/iscsi/target:
     get:
       consumes:
@@ -989,7 +1051,7 @@ paths:
             $ref: '#/definitions/HTTP500InternalServerError'
       summary: Show List of Iscsi Target
       tags:
-      - ISCSI
+      - IscsiTarget
   /api/v1/iscsi/target/{iqn_id}:
     delete:
       consumes:
@@ -999,6 +1061,25 @@ paths:
       - description: Iscsi IQN ID
         in: path
         name: iqn_id
+        required: true
+        type: string
+      - description: Glue Pool Name
+        in: query
+        name: pool_name
+        required: true
+        type: string
+      - description: Iscsi Disk Name
+        in: query
+        name: disk_name
+        required: true
+        type: string
+      - default: "false"
+        description: Whether to Delete RBD Image
+        enum:
+        - "true"
+        - "false"
+        in: query
+        name: image
         required: true
         type: string
       produces:
@@ -1022,8 +1103,7 @@ paths:
             $ref: '#/definitions/HTTP500InternalServerError'
       summary: Delete of Iscsi Target
       tags:
-      - ISCSI
-  /api/v1/iscsi/target/{iqn_id}/{hostname}:
+      - IscsiTarget
     post:
       consumes:
       - application/x-www-form-urlencoded
@@ -1036,10 +1116,29 @@ paths:
         required: true
         type: string
       - description: Gateway Host Name
-        in: path
+        in: formData
         name: hostname
         required: true
         type: string
+      - description: Gateway Host IP Address
+        in: formData
+        name: ip_address
+        required: true
+        type: string
+      - description: Glue Pool Name
+        in: formData
+        name: pool_name
+        required: true
+        type: string
+      - description: Iscsi Disk Name
+        in: formData
+        name: disk_name
+        required: true
+        type: string
+      - description: Iscsi Disk Image Size(Default GB)
+        in: formData
+        name: size
+        type: integer
       produces:
       - application/json
       responses:
@@ -1061,7 +1160,7 @@ paths:
             $ref: '#/definitions/HTTP500InternalServerError'
       summary: Create of Iscsi Target
       tags:
-      - ISCSI
+      - IscsiTarget
   /api/v1/mirror:
     delete:
       consumes:
@@ -1441,14 +1540,18 @@ paths:
     get:
       consumes:
       - application/x-www-form-urlencoded
-      description: Glue NFS Cluster의 리스트를 보여줍니다.
+      description: Glue NFS Cluster의 리스트 및 상세정보를 보여줍니다.
+      parameters:
+      - description: NFS Cluster Identifier
+        in: query
+        name: cluster_id
+        type: string
       produces:
       - application/json
       responses:
         "200":
           description: OK
-          schema:
-            $ref: '#/definitions/NfsClusterLs'
+          schema: {}
         "400":
           description: Bad Request
           schema:
@@ -1461,7 +1564,7 @@ paths:
           description: Internal Server Error
           schema:
             $ref: '#/definitions/HTTP500InternalServerError'
-      summary: Show List of Glue NFS Cluster
+      summary: Show List of Info of Glue NFS Cluster
       tags:
       - NFS
   /api/v1/nfs/{cluster_id}:
@@ -1495,38 +1598,6 @@ paths:
           schema:
             $ref: '#/definitions/HTTP500InternalServerError'
       summary: Delete of Glue NFS Cluster
-      tags:
-      - NFS
-    get:
-      consumes:
-      - application/x-www-form-urlencoded
-      description: Glue NFS Cluster의 상세 정보를 보여줍니다.
-      parameters:
-      - description: NFS Cluster Identifier
-        in: path
-        name: cluster_id
-        required: true
-        type: string
-      produces:
-      - application/json
-      responses:
-        "200":
-          description: OK
-          schema:
-            description: Glue NFS Cluster 상세정보 구조체
-        "400":
-          description: Bad Request
-          schema:
-            $ref: '#/definitions/HTTP400BadRequest'
-        "404":
-          description: Not Found
-          schema:
-            $ref: '#/definitions/HTTP404NotFound'
-        "500":
-          description: Internal Server Error
-          schema:
-            $ref: '#/definitions/HTTP500InternalServerError'
-      summary: Show Info of Glue NFS Cluster
       tags:
       - NFS
   /api/v1/nfs/{cluster_id}/{port}:
@@ -1567,16 +1638,15 @@ paths:
       summary: Create of Glue NFS Cluster
       tags:
       - NFS
-  /api/v1/nfs/export/{cluster_id}:
+  /api/v1/nfs/export:
     get:
       consumes:
       - application/x-www-form-urlencoded
       description: Glue NFS Export 상세 정보를 보여줍니다.
       parameters:
       - description: NFS Cluster Identifier
-        in: path
+        in: query
         name: cluster_id
-        required: true
         type: string
       produces:
       - application/json
@@ -1638,6 +1708,7 @@ paths:
       summary: Show Detail of Glue NFS Export
       tags:
       - NFS
+  /api/v1/nfs/export/{cluster_id}:
     post:
       consumes:
       - application/x-www-form-urlencoded
@@ -1648,12 +1719,62 @@ paths:
         name: cluster_id
         required: true
         type: string
-      - description: NFS Export JSON file
-        in: body
-        name: json_file
+      - default: RW
+        description: NFS Access Type
+        enum:
+        - RW
+        - RO
+        - NONE
+        in: formData
+        name: access_type
         required: true
-        schema:
-          $ref: '#/definitions/NfsExportCreate'
+        type: string
+      - description: FS Name
+        in: formData
+        name: fs_name
+        required: true
+        type: string
+      - default: CEPH
+        description: NFS Storage Name
+        in: formData
+        name: storage_name
+        required: true
+        type: string
+      - description: Glue FS Path
+        in: formData
+        name: path
+        required: true
+        type: string
+      - description: NFS Export Path
+        in: formData
+        name: pseudo
+        required: true
+        type: string
+      - default: no_root_squash
+        description: Squash
+        enum:
+        - no_root_squash
+        - root_id_squash
+        - all_squash
+        - root_squash
+        in: formData
+        name: squash
+        required: true
+        type: string
+      - collectionFormat: multi
+        default: TCP
+        description: Transports
+        in: formData
+        items:
+          type: string
+        name: transports
+        type: array
+      - default: false
+        description: Security Label
+        in: formData
+        name: security_label
+        required: true
+        type: boolean
       produces:
       - application/json
       responses:
@@ -1686,12 +1807,62 @@ paths:
         name: cluster_id
         required: true
         type: string
-      - description: NFS Export JSON file
-        in: body
-        name: json_file
+      - default: RW
+        description: NFS Access Type
+        enum:
+        - RW
+        - RO
+        - NONE
+        in: formData
+        name: access_type
         required: true
-        schema:
-          $ref: '#/definitions/NfsExportUpdate'
+        type: string
+      - description: FS Name
+        in: formData
+        name: fs_name
+        required: true
+        type: string
+      - default: CEPH
+        description: NFS Storage Name
+        in: formData
+        name: storage_name
+        required: true
+        type: string
+      - description: Glue FS Path
+        in: formData
+        name: path
+        required: true
+        type: string
+      - description: NFS Export Path
+        in: formData
+        name: pseudo
+        required: true
+        type: string
+      - default: no_root_squash
+        description: Squash
+        enum:
+        - no_root_squash
+        - root_id_squash
+        - all_squash
+        - root_squash
+        in: formData
+        name: squash
+        required: true
+        type: string
+      - collectionFormat: multi
+        default: TCP
+        description: Transports
+        in: formData
+        items:
+          type: string
+        name: transports
+        type: array
+      - default: false
+        description: Security Label
+        in: formData
+        name: security_label
+        required: true
+        type: boolean
       produces:
       - application/json
       responses:
@@ -1782,7 +1953,7 @@ paths:
     delete:
       consumes:
       - application/x-www-form-urlencoded
-      description: Glue 스토리지 풀의 이미지 목록을 보여줍니다.
+      description: Glue 스토리지 풀을 삭제합니다.
       parameters:
       - description: pool_name
         in: path
@@ -1816,7 +1987,7 @@ paths:
       - application/x-www-form-urlencoded
       description: Glue 스토리지 풀의 이미지 목록을 보여줍니다.
       parameters:
-      - description: pool_name
+      - description: Glue Pool Name
         in: path
         name: pool_name
         required: true
@@ -1840,6 +2011,39 @@ paths:
           schema:
             $ref: '#/definitions/HTTP500InternalServerError'
       summary: List RBD Images of Pool
+      tags:
+      - Pool
+  /api/v1/pool/info/{image_name}:
+    get:
+      consumes:
+      - application/x-www-form-urlencoded
+      description: Glue 스토리지 풀의 이미지 상세정보를 보여줍니다.
+      parameters:
+      - description: Glue Image Name
+        in: path
+        name: image_name
+        required: true
+        type: string
+      produces:
+      - application/json
+      responses:
+        "200":
+          description: OK
+          schema:
+            $ref: '#/definitions/InfoImage'
+        "400":
+          description: Bad Request
+          schema:
+            $ref: '#/definitions/HTTP400BadRequest'
+        "404":
+          description: Not Found
+          schema:
+            $ref: '#/definitions/HTTP404NotFound'
+        "500":
+          description: Internal Server Error
+          schema:
+            $ref: '#/definitions/HTTP500InternalServerError'
+      summary: Info Images of Pool
       tags:
       - Pool
   /api/v1/service:

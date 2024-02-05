@@ -65,37 +65,34 @@ func NfsExportDelete(cluster_id string, pseudo string) (output string, err error
 	}
 	return
 }
-func NfsClusterLs() (list []string, err error) {
-
+func NfsClusterList(cluster_id string) (dat model.NfsClusterList, err error) {
 	var stdout []byte
+	if cluster_id == "" {
+		cmd := exec.Command("ceph", "nfs", "cluster", "info")
+		stdout, err = cmd.CombinedOutput()
+		if err != nil {
+			return
+		}
 
-	cmd := exec.Command("ceph", "nfs", "cluster", "ls")
-	stdout, err = cmd.CombinedOutput()
-	if err != nil {
-		return
-	}
+		if err = json.Unmarshal(stdout, &dat); err != nil {
+			return
+		}
+	} else {
+		cmd := exec.Command("ceph", "nfs", "cluster", "info", cluster_id)
+		stdout, err = cmd.CombinedOutput()
+		if err != nil {
+			return
+		}
 
-	if err = json.Unmarshal(stdout, &list); err != nil {
-		return
-	}
-	return
-
-}
-func NfsClusterInfo(cluster_id string) (dat model.NfsClusterInfo, err error) {
-	var stdout []byte
-	cmd := exec.Command("ceph", "nfs", "cluster", "info", cluster_id)
-	stdout, err = cmd.CombinedOutput()
-	if err != nil {
-		return
-	}
-
-	if err = json.Unmarshal(stdout, &dat); err != nil {
-		return
+		if err = json.Unmarshal(stdout, &dat); err != nil {
+			return
+		}
 	}
 	return
 }
 func NfsExportDetailed(cluster_id string) (dat model.NfsExportDetailed, err error) {
 	var stdout []byte
+
 	cmd := exec.Command("ceph", "nfs", "export", "ls", cluster_id, "--detailed")
 	stdout, err = cmd.CombinedOutput()
 	if err != nil {

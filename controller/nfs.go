@@ -2,9 +2,10 @@ package controller
 
 import (
 	"Glue-API/httputil"
+	"Glue-API/model"
 	"Glue-API/utils"
 	"Glue-API/utils/nfs"
-	"io"
+	"encoding/json"
 	"net/http"
 	"os"
 	"strconv"
@@ -12,47 +13,22 @@ import (
 	"github.com/gin-gonic/gin"
 )
 
-// NfsClusterLs godoc
+// NfsClusterList godoc
 //
-//	@Summary		Show List of Glue NFS Cluster
-//	@Description	Glue NFS Cluster의 리스트를 보여줍니다.
+//	@Summary		Show List of Info of Glue NFS Cluster
+//	@Description	Glue NFS Cluster의 리스트 및 상세정보를 보여줍니다.
+//	@param			cluster_id 	query	string	false	"NFS Cluster Identifier"
 //	@Tags			NFS
 //	@Accept			x-www-form-urlencoded
 //	@Produce		json
-//	@Success		200	{object}	NfsClusterLs
+//	@Success		200	{object}	NfsClusterList
 //	@Failure		400	{object}	httputil.HTTP400BadRequest
 //	@Failure		404	{object}	httputil.HTTP404NotFound
 //	@Failure		500	{object}	httputil.HTTP500InternalServerError
 //	@Router			/api/v1/nfs [get]
-func (c *Controller) NfsClusterLs(ctx *gin.Context) {
-	dat, err := nfs.NfsClusterLs()
-	if err != nil {
-		utils.FancyHandleError(err)
-		httputil.NewError(ctx, http.StatusInternalServerError, err)
-		return
-	}
-	// Print the output
-	ctx.IndentedJSON(http.StatusOK, dat)
-}
-
-// NfsClusterInfo godoc
-//
-//	@Summary		Show Info of Glue NFS Cluster
-//	@Description	Glue NFS Cluster의 상세 정보를 보여줍니다.
-//	@param			cluster_id 	path	string	true	"NFS Cluster Identifier"
-//	@Tags			NFS
-//	@Accept			x-www-form-urlencoded
-//	@Produce		json
-//	@Success		200	{object}	NfsClusterInfo
-//	@Failure		400	{object}	httputil.HTTP400BadRequest
-//	@Failure		404	{object}	httputil.HTTP404NotFound
-//	@Failure		500	{object}	httputil.HTTP500InternalServerError
-//	@Router			/api/v1/nfs/{cluster_id} [get]
-func (c *Controller) NfsClusterInfo(ctx *gin.Context) {
-
-	cluster_id := ctx.Param("cluster_id")
-
-	dat, err := nfs.NfsClusterInfo(cluster_id)
+func (c *Controller) NfsClusterList(ctx *gin.Context) {
+	cluster_id := ctx.Request.URL.Query().Get("cluster_id")
+	dat, err := nfs.NfsClusterList(cluster_id)
 	if err != nil {
 		utils.FancyHandleError(err)
 		httputil.NewError(ctx, http.StatusInternalServerError, err)
@@ -119,7 +95,14 @@ func (c *Controller) NfsClusterDelete(ctx *gin.Context) {
 //	@Summary		Create of Glue NFS Export
 //	@Description	Glue NFS Export를 생성합니다.
 //	@param			cluster_id 	path	string	true	"NFS Cluster Identifier"
-//	@param			json_file 	body	NfsExportCreate true 	"NFS Export JSON file"
+//	@param			access_type formData   string	true    "NFS Access Type" Enums(RW, RO, NONE) default(RW)
+//	@param			fs_name     formData   string	true    "FS Name"
+//	@param			storage_name formData   string	true    "NFS Storage Name" default(CEPH)
+//	@param			path         formData    string true    "Glue FS Path"
+//	@param			pseudo     formData   string	true    "NFS Export Path"
+//	@param			squash     formData   string	true    "Squash"	Enums(no_root_squash, root_id_squash, all_squash, root_squash) default(no_root_squash)
+//	@param			transports     formData   []string	false    "Transports" collectionFormat(multi) default(TCP)
+//	@param			security_label     formData   boolean	true    "Security Label" default(false)
 //	@Tags			NFS
 //	@Accept			x-www-form-urlencoded
 //	@Produce		json
@@ -129,8 +112,31 @@ func (c *Controller) NfsClusterDelete(ctx *gin.Context) {
 //	@Failure		500	{object}	httputil.HTTP500InternalServerError
 //	@Router			/api/v1/nfs/export/{cluster_id} [post]
 func (c *Controller) NfsExportCreate(ctx *gin.Context) {
-	json_data, err := io.ReadAll(ctx.Request.Body)
-	nfs_export_create_conf := "/usr/share/cockpit/ablestack/tools/properties/nfs_export_create.conf"
+
+	access_type, _ := ctx.GetPostForm("access_type")
+	fs_name, _ := ctx.GetPostForm("fs_name")
+	storage_name, _ := ctx.GetPostForm("storage_name")
+	path, _ := ctx.GetPostForm("path")
+	pseudo, _ := ctx.GetPostForm("pseudo")
+	squash, _ := ctx.GetPostForm("squash")
+	transports, _ := ctx.GetPostFormArray("transports")
+	security_label := ctx.GetBool("security_label")
+
+	var protocols = []int{4}
+	value := model.NfsExportCreate{
+		AccessType: access_type,
+		Fsal: model.Fsal{
+			Name:   storage_name,
+			FsName: fs_name},
+		Protocols:     protocols,
+		Path:          path,
+		Pseudo:        pseudo,
+		Squash:        squash,
+		SecurityLabel: security_label,
+		Transports:    transports}
+	//value := []byte("EXPORT {\n \tFSAL {\n\t\tname = \"" + storage_name + "\";\n\t\tfilesystem = \"" + fs_name + "\";\n\t}\n\texport_id = 1;\n\tpath = \"" + path + "\";\n\tpseudo = \"" + pseudo + "\";\n\taccess_type = \"" + access_type + "\";\n\tsquash = \"" + squash + "\";\n\tprotocols = 4;\n\ttrasnports = \"" + transports + "\";\n}")
+	json_data, err := json.MarshalIndent(value, "", " ")
+	nfs_export_create_conf := "/root/nfs_export_create.conf"
 	err = os.WriteFile(nfs_export_create_conf, json_data, 0644)
 
 	if err != nil {
@@ -160,7 +166,14 @@ func (c *Controller) NfsExportCreate(ctx *gin.Context) {
 //	@Summary		Update of Glue NFS Export
 //	@Description	Glue NFS Export를 수정합니다.
 //	@param			cluster_id 	path	string	true	"NFS Cluster Identifier"
-//	@param			json_file 	body	NfsExportUpdate true 	"NFS Export JSON file"
+//	@param			access_type formData   string	true    "NFS Access Type" Enums(RW, RO, NONE) default(RW)
+//	@param			fs_name     formData   string	true    "FS Name"
+//	@param			storage_name formData   string	true    "NFS Storage Name" default(CEPH)
+//	@param			path         formData    string true    "Glue FS Path"
+//	@param			pseudo     formData   string	true    "NFS Export Path"
+//	@param			squash     formData   string	true    "Squash"	Enums(no_root_squash, root_id_squash, all_squash, root_squash) default(no_root_squash)
+//	@param			transports     formData   []string	false    "Transports" collectionFormat(multi) default(TCP)
+//	@param			security_label     formData   boolean	true    "Security Label" default(false)
 //	@Tags			NFS
 //	@Accept			x-www-form-urlencoded
 //	@Produce		json
@@ -170,8 +183,39 @@ func (c *Controller) NfsExportCreate(ctx *gin.Context) {
 //	@Failure		500	{object}	httputil.HTTP500InternalServerError
 //	@Router			/api/v1/nfs/export/{cluster_id} [put]
 func (c *Controller) NfsExportUpdate(ctx *gin.Context) {
-	json_data, err := io.ReadAll(ctx.Request.Body)
-	nfs_export_update_conf := "/usr/share/cockpit/ablestack/tools/properties/nfs_export_update.conf"
+	cluster_id := ctx.Param("cluster_id")
+	access_type, _ := ctx.GetPostForm("access_type")
+	fs_name, _ := ctx.GetPostForm("fs_name")
+	storage_name, _ := ctx.GetPostForm("storage_name")
+	path, _ := ctx.GetPostForm("path")
+	pseudo, _ := ctx.GetPostForm("pseudo")
+	squash, _ := ctx.GetPostForm("squash")
+	transports, _ := ctx.GetPostFormArray("transports")
+	security_label := ctx.GetBool("security_label")
+
+	var export_id int
+	dat, err := nfs.NfsExportDetailed(cluster_id)
+
+	for i := 0; i < len(dat); i++ {
+		if dat[i].Pseudo == pseudo {
+			export_id = dat[i].ExportID
+		}
+	}
+	var protocols = []int{4}
+	value := model.NfsExportUpdate{
+		AccessType: access_type,
+		Fsal: model.Fsal{
+			Name:   storage_name,
+			FsName: fs_name},
+		Protocols:     protocols,
+		Path:          path,
+		Pseudo:        pseudo,
+		Squash:        squash,
+		SecurityLabel: security_label,
+		ExportID:      export_id,
+		Transports:    transports}
+	json_data, err := json.MarshalIndent(value, "", " ")
+	nfs_export_update_conf := "/root/nfs_export_update.conf"
 	err = os.WriteFile(nfs_export_update_conf, json_data, 0644)
 
 	if err != nil {
@@ -179,8 +223,6 @@ func (c *Controller) NfsExportUpdate(ctx *gin.Context) {
 		httputil.NewError(ctx, http.StatusInternalServerError, err)
 		return
 	} else {
-		cluster_id := ctx.Param("cluster_id")
-
 		dat, err := nfs.NfsExportCreateOrUpdate(cluster_id, nfs_export_update_conf)
 		if err != nil {
 			utils.FancyHandleError(err)
@@ -239,7 +281,7 @@ func (c *Controller) NfsExportDelete(ctx *gin.Context) {
 //
 //	@Summary		Show Detail of Glue NFS Export
 //	@Description	Glue NFS Export 상세 정보를 보여줍니다.
-//	@param			cluster_id 	path	string	true	"NFS Cluster Identifier"
+//	@param			cluster_id 	query	string	false	"NFS Cluster Identifier"
 //	@Tags			NFS
 //	@Accept			x-www-form-urlencoded
 //	@Produce		json
@@ -247,9 +289,9 @@ func (c *Controller) NfsExportDelete(ctx *gin.Context) {
 //	@Failure		400	{object}	httputil.HTTP400BadRequest
 //	@Failure		404	{object}	httputil.HTTP404NotFound
 //	@Failure		500	{object}	httputil.HTTP500InternalServerError
-//	@Router			/api/v1/nfs/export/{cluster_id} [get]
+//	@Router			/api/v1/nfs/export [get]
 func (c *Controller) NfsExportDetailed(ctx *gin.Context) {
-	cluster_id := ctx.Param("cluster_id")
+	cluster_id := ctx.Request.URL.Query().Get("cluster_id")
 	dat, err := nfs.NfsExportDetailed(cluster_id)
 	if err != nil {
 		utils.FancyHandleError(err)

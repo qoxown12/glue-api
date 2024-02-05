@@ -126,6 +126,14 @@ func (c *Controller) FsList(ctx *gin.Context) {
 		httputil.NewError(ctx, http.StatusInternalServerError, err)
 		return
 	}
+	// var data string
+	// dat2, err := fs.FsStatus()
+	// dat2[0].Clients = data
+	// if err != nil {
+	// 	utils.FancyHandleError(err)
+	// 	httputil.NewError(ctx, http.StatusInternalServerError, err)
+	// 	return
+	// }
 	// Print the output
 	ctx.IndentedJSON(http.StatusOK, dat)
 }

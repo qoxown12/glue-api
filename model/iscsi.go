@@ -45,3 +45,9 @@ type IscsiTargetList struct {
 	// Updated string `json:"updated"`
 	// Version int    `json:"version"`
 } //@name IscsiTargetList
+
+// IscsiDiskList model info
+// @Description Iscsi Disk List 구조체
+type IscsiDiskList struct {
+	Disks interface{} `json:"disks"`
+} //@name IscsiDiskList

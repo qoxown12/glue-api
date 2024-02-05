@@ -58,6 +58,7 @@ func main() {
 			pool.GET("", c.ListPools)
 			pool.GET("/:pool_name", c.ListImages)
 			pool.DELETE("/:pool_name", c.PoolDelete)
+			pool.GET("/info/:image_name", c.InfoImage)
 		}
 		service := v1.Group("/service")
 		{
@@ -74,23 +75,33 @@ func main() {
 		}
 		nfs := v1.Group("/nfs")
 		{
-			nfs.GET("", c.NfsClusterLs)
-			nfs.GET("/:cluster_id", c.NfsClusterInfo)
+			nfs.GET("", c.NfsClusterList)
 			nfs.POST("/:cluster_id/:port", c.NfsClusterCreate)
 			nfs.DELETE("/:cluster_id", c.NfsClusterDelete)
-			nfs.GET("/export/:cluster_id", c.NfsExportDetailed)
-			nfs.POST("/export/:cluster_id", c.NfsExportCreate)
-			nfs.PUT("/export/:cluster_id", c.NfsExportUpdate)
-			nfs.DELETE("/export/:cluster_id/:export_id", c.NfsExportDelete)
+			nfs_export := nfs.Group("/export")
+			{
+				nfs_export.GET("", c.NfsExportDetailed)
+				nfs_export.POST("/:cluster_id", c.NfsExportCreate)
+				nfs_export.PUT("/:cluster_id", c.NfsExportUpdate)
+				nfs_export.DELETE("/:cluster_id/:export_id", c.NfsExportDelete)
+			}
 		}
 		iscsi := v1.Group("/iscsi")
 		{
 			iscsi.POST("", c.IscsiServiceCreate)
-			iscsi.GET("/target", c.IscsiTargetList)
-			iscsi.POST("/target/:iqn_id/:hostname", c.IscsiTargetCreate)
-			iscsi.DELETE("/target/:iqn_id", c.IscsiTargetDelete)
-			iscsi.POST("/disk/:image_name", c.IscsiDiskCreate)
-
+			iscsi_target := iscsi.Group("/target")
+			{
+				iscsi_target.GET("", c.IscsiTargetList)
+				iscsi_target.POST("/:iqn_id", c.IscsiTargetCreate)
+				iscsi_target.DELETE("/:iqn_id", c.IscsiTargetDelete)
+			}
+			iscsi_disk := iscsi.Group("/disk")
+			{
+				iscsi_disk.GET("", c.IscsiDiskList)
+				iscsi_disk.POST("", c.IscsiDiskCreate)
+				iscsi_disk.DELETE("", c.IscsiDiskDelete)
+				iscsi_disk.PUT("", c.IscsiDiskResize)
+			}
 		}
 		mirror := v1.Group("/mirror")
 		{

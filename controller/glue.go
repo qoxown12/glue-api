@@ -94,7 +94,7 @@ func (c *Controller) ListPools(ctx *gin.Context) {
 //	@Summary		List RBD Images of Pool
 //	@Description	Glue 스토리지 풀의 이미지 목록을 보여줍니다.
 //	@Tags			Pool
-//	@param			pool_name	path	string	true	"pool_name"
+//	@param			pool_name	path	string	true	"Glue Pool Name"
 //	@Accept			x-www-form-urlencoded
 //	@Produce		json
 //	@Success		200	{object}	model.GluePools
@@ -114,10 +114,33 @@ func (c *Controller) ListImages(ctx *gin.Context) {
 	ctx.IndentedJSON(http.StatusOK, dat)
 }
 
-// ListImages godoc
+// InfoImage godoc
+//
+//	@Summary		Info Images of Pool
+//	@Description	Glue 스토리지 풀의 이미지 상세정보를 보여줍니다.
+//	@Tags			Pool
+//	@param			image_name	path	string	true	"Glue Image Name"
+//	@Accept			x-www-form-urlencoded
+//	@Produce		json
+//	@Success		200	{object}	model.InfoImage
+//	@Failure		400	{object}	httputil.HTTP400BadRequest
+//	@Failure		404	{object}	httputil.HTTP404NotFound
+//	@Failure		500	{object}	httputil.HTTP500InternalServerError
+//	@Router			/api/v1/pool/info/{image_name} [get]
+func (c *Controller) InfoImage(ctx *gin.Context) {
+	image_name := ctx.Param("image_name")
+	dat, err := glue.InfoImage(image_name)
+	if err != nil {
+		httputil.NewError(ctx, http.StatusInternalServerError, err)
+		return
+	}
+	ctx.IndentedJSON(http.StatusOK, dat)
+}
+
+// PoolDelete godoc
 //
 //	@Summary		List Images of Pool
-//	@Description	Glue 스토리지 풀의 이미지 목록을 보여줍니다.
+//	@Description	Glue 스토리지 풀을 삭제합니다.
 //	@Tags			Pool
 //	@param			pool_name	path	string	true	"pool_name"
 //	@Accept			x-www-form-urlencoded

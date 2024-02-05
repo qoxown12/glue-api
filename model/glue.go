@@ -94,3 +94,21 @@ type GlueStatus struct {
 type GluePools interface{} // @name GluePools
 
 type ServiceLs interface{} // @name ServiceLs
+
+type InfoImage struct {
+	Name            string   `json:"name"`
+	ID              string   `json:"id"`
+	Size            int64    `json:"size"`
+	Objects         int      `json:"objects"`
+	Order           int      `json:"order"`
+	ObjectSize      int      `json:"object_size"`
+	SnapshotCount   int      `json:"snapshot_count"`
+	BlockNamePrefix string   `json:"block_name_prefix"`
+	Format          int      `json:"format"`
+	Features        []string `json:"features"`
+	OpFeatures      []any    `json:"op_features"`
+	Flags           []any    `json:"flags"`
+	CreateTimestamp string   `json:"create_timestamp"`
+	AccessTimestamp string   `json:"access_timestamp"`
+	ModifyTimestamp string   `json:"modify_timestamp"`
+} // @name InfoImage

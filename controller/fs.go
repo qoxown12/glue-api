@@ -117,5 +117,6 @@ func (c *Controller) FsGetInfo(ctx *gin.Context) {
 		return
 	}
 	// Print the output
+	ctx.Header("Access-Control-Allow-Origin", "*")
 	ctx.IndentedJSON(http.StatusOK, dat)
 }

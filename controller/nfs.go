@@ -317,6 +317,7 @@ func (c *Controller) NfsExportDetailed(ctx *gin.Context) {
 			httputil.NewError(ctx, http.StatusInternalServerError, err)
 			return
 		}
+		ctx.Header("Access-Control-Allow-Origin", "*")
 		ctx.IndentedJSON(http.StatusOK, dat)
 	} else {
 		var output model.NfsExportDetailed
@@ -335,8 +336,7 @@ func (c *Controller) NfsExportDetailed(ctx *gin.Context) {
 			httputil.NewError(ctx, http.StatusInternalServerError, err)
 			return
 		}
+		ctx.Header("Access-Control-Allow-Origin", "*")
 		ctx.IndentedJSON(http.StatusOK, output)
 	}
-	// Print the output
-	ctx.Header("Access-Control-Allow-Origin", "*")
 }

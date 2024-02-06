@@ -12,13 +12,7 @@ type FsStatus struct {
 		Version string   `json:"version"`
 	} `json:"mds_version"`
 	Mdsmap []struct {
-		Caps  int    `json:"caps,omitempty"`
-		Dirs  int    `json:"dirs,omitempty"`
-		DNS   int    `json:"dns,omitempty"`
-		Inos  int    `json:"inos,omitempty"`
 		Name  string `json:"name"`
-		Rank  int    `json:"rank,omitempty"`
-		Rate  int    `json:"rate,omitempty"`
 		State string `json:"state"`
 	} `json:"mdsmap"`
 	Pools []struct {
@@ -29,6 +23,20 @@ type FsStatus struct {
 		Used  int    `json:"used"`
 	} `json:"pools"`
 } //@name FsStatus
+
+// FsList model info
+// @Description GlueFS 리스트 구조체
+type FsList []struct {
+	Name           string   `json:"name"`
+	MetadataPool   string   `json:"metadata_pool"`
+	MetadataPoolID int      `json:"metadata_pool_id"`
+	DataPoolIds    []int    `json:"data_pool_ids"`
+	DataPools      []string `json:"data_pools"`
+} //@name FsList
+type FsSum struct {
+	FsStatus FsStatus `json:"status"`
+	FsList   FsList   `json:"list"`
+}
 
 // FsGetInfo model info
 // @Description GlueFS의 상세정보 구조체
@@ -56,27 +64,9 @@ type FsGetInfo struct {
 		MaxFileSize         int64 `json:"max_file_size"`
 		LastFailure         int   `json:"last_failure"`
 		LastFailureOsdEpoch int   `json:"last_failure_osd_epoch"`
-		Compat              struct {
-			Compat struct {
-			} `json:"compat"`
-			RoCompat struct {
-			} `json:"ro_compat"`
-			Incompat struct {
-				Feature1  string `json:"feature_1"`
-				Feature2  string `json:"feature_2"`
-				Feature3  string `json:"feature_3"`
-				Feature4  string `json:"feature_4"`
-				Feature5  string `json:"feature_5"`
-				Feature6  string `json:"feature_6"`
-				Feature7  string `json:"feature_7"`
-				Feature8  string `json:"feature_8"`
-				Feature9  string `json:"feature_9"`
-				Feature10 string `json:"feature_10"`
-			} `json:"incompat"`
-		} `json:"compat"`
-		MaxMds int   `json:"max_mds"`
-		In     []int `json:"in"`
-		Up     struct {
+		MaxMds              int   `json:"max_mds"`
+		In                  []int `json:"in"`
+		Up                  struct {
 			Mds0 int `json:"mds_0"`
 		} `json:"up"`
 		Failed  []any `json:"failed"`
@@ -94,13 +84,3 @@ type FsGetInfo struct {
 	} `json:"mdsmap"`
 	ID int `json:"id"`
 } //@name FsGetInfo
-
-// FsList model info
-// @Description GlueFS 리스트 구조체
-type FsList []struct {
-	Name           string   `json:"name"`
-	MetadataPool   string   `json:"metadata_pool"`
-	MetadataPoolID int      `json:"metadata_pool_id"`
-	DataPoolIds    []int    `json:"data_pool_ids"`
-	DataPools      []string `json:"data_pools"`
-} //@name FsList

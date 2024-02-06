@@ -2,22 +2,28 @@ package controller
 
 import (
 	"Glue-API/httputil"
+	"Glue-API/model"
 	"Glue-API/utils"
 	"Glue-API/utils/iscsi"
-	"io"
 	"net/http"
 	"os"
+	"strconv"
 	"strings"
 
 	"github.com/gin-gonic/gin"
-	"sigs.k8s.io/yaml"
+	"gopkg.in/yaml.v2"
 )
 
 // IscsiServiceCreate godoc
 //
 //	@Summary		Create of Iscsi Servcie Daemon
 //	@Description	Iscsi 서비스 데몬을 생성합니다.
-//	@param			json_file 	body	IscsiServiceCreate  true 	"Iscsi Servcie YAML file"
+//	@param			hosts 	formData	string	true	"Host Name"
+//	@param			service_id	formData	string	true	"ISCSI Service Name"
+//	@param			pool 	formData	string	true	"Pool Name"
+//	@param			api_port 	formData	string	true	"ISCSI API Port"
+//	@param			api_user 	formData	string	true	"ISCSI API User"
+//	@param			api_password 	formData	string	true	"ISCSI API Password"
 //	@Tags			Iscsi
 //	@Accept			x-www-form-urlencoded
 //	@Produce		json
@@ -27,16 +33,34 @@ import (
 //	@Failure		500	{object}	httputil.HTTP500InternalServerError
 //	@Router			/api/v1/iscsi [post]
 func (c *Controller) IscsiServiceCreate(ctx *gin.Context) {
-	json_data, _ := io.ReadAll(ctx.Request.Body)
-	yaml_data, _ := yaml.JSONToYAML(json_data)
+	service_id, _ := ctx.GetPostForm("service_id")
+	hosts, _ := ctx.GetPostForm("hosts")
+	pool, _ := ctx.GetPostForm("pool")
+	api_port, _ := ctx.GetPostForm("api_port")
+	api_user, _ := ctx.GetPostForm("api_user")
+	api_password, _ := ctx.GetPostForm("api_password")
+	service_type := "iscsi"
+	port, _ := strconv.Atoi(api_port)
+	value := model.IscsiServiceCreate{
+		Service_Type: service_type,
+		Service_Id:   service_id,
+		Spec: model.Spec{
+			Pool:         pool,
+			Api_Port:     port,
+			Api_User:     api_user,
+			Api_Password: api_password},
+		Placement: model.Placement{
+			Hosts: []string{hosts}},
+	}
+	yaml_data, err := yaml.Marshal(&value)
 	iscsi_yaml := "/etc/ceph/iscsi.yaml"
-	err := os.WriteFile(iscsi_yaml, yaml_data, 0644)
-
+	err = os.WriteFile(iscsi_yaml, yaml_data, 0644)
 	if err != nil {
 		utils.FancyHandleError(err)
 		httputil.NewError(ctx, http.StatusInternalServerError, err)
 		return
 	}
+
 	dat, err := iscsi.IscsiServiceCreate(iscsi_yaml)
 	if err != nil {
 		utils.FancyHandleError(err)
@@ -49,6 +73,7 @@ func (c *Controller) IscsiServiceCreate(ctx *gin.Context) {
 		}
 	}
 	// Print the output
+	ctx.Header("Access-Control-Allow-Origin", "*")
 	ctx.IndentedJSON(http.StatusOK, dat)
 }
 
@@ -78,6 +103,7 @@ func (c *Controller) IscsiTargetList(ctx *gin.Context) {
 			httputil.NewError(ctx, http.StatusInternalServerError, err)
 			return
 		}
+		ctx.Header("Access-Control-Allow-Origin", "*")
 		ctx.IndentedJSON(http.StatusOK, data)
 	}
 }
@@ -123,6 +149,7 @@ func (c *Controller) IscsiTargetCreate(ctx *gin.Context) {
 			httputil.NewError(ctx, http.StatusInternalServerError, err)
 			return
 		}
+		ctx.Header("Access-Control-Allow-Origin", "*")
 		ctx.IndentedJSON(http.StatusOK, data)
 	}
 }
@@ -161,8 +188,13 @@ func (c *Controller) IscsiTargetDelete(ctx *gin.Context) {
 			httputil.NewError(ctx, http.StatusInternalServerError, err)
 			return
 		}
+		ctx.Header("Access-Control-Allow-Origin", "*")
 		ctx.IndentedJSON(http.StatusOK, data)
 	}
+}
+func (c *Controller) IscsiTargetDeleteOptions(ctx *gin.Context) {
+	SetOptionHeader(ctx)
+	ctx.IndentedJSON(http.StatusOK, nil)
 }
 
 // IscsiDiskList godoc
@@ -191,6 +223,7 @@ func (c *Controller) IscsiDiskList(ctx *gin.Context) {
 			httputil.NewError(ctx, http.StatusInternalServerError, err)
 			return
 		}
+		ctx.Header("Access-Control-Allow-Origin", "*")
 		ctx.IndentedJSON(http.StatusOK, data)
 	}
 }
@@ -229,6 +262,7 @@ func (c *Controller) IscsiDiskCreate(ctx *gin.Context) {
 			httputil.NewError(ctx, http.StatusInternalServerError, err)
 			return
 		}
+		ctx.Header("Access-Control-Allow-Origin", "*")
 		ctx.IndentedJSON(http.StatusOK, data)
 	}
 }
@@ -267,6 +301,7 @@ func (c *Controller) IscsiDiskDelete(ctx *gin.Context) {
 			httputil.NewError(ctx, http.StatusInternalServerError, err)
 			return
 		}
+		ctx.Header("Access-Control-Allow-Origin", "*")
 		ctx.IndentedJSON(http.StatusOK, data)
 	}
 }
@@ -301,6 +336,11 @@ func (c *Controller) IscsiDiskResize(ctx *gin.Context) {
 			httputil.NewError(ctx, http.StatusInternalServerError, err)
 			return
 		}
+		ctx.Header("Access-Control-Allow-Origin", "*")
 		ctx.IndentedJSON(http.StatusOK, data)
 	}
+}
+func (c *Controller) IscsiDiskOptions(ctx *gin.Context) {
+	SetOptionHeader(ctx)
+	ctx.IndentedJSON(http.StatusOK, nil)
 }

@@ -3,20 +3,20 @@ package model
 // IscsiServiceCreate model info
 // @Description Iscsi Service daemon 구조체
 type IscsiServiceCreate struct {
-	Service_Type string `json:"service_type"`
-	Service_Id   string `json:"service_id"`
-	Service_Name string `json:"service_name"`
-	Placement    struct {
-		Hosts []string `json:"hosts"`
-	} `json:"placement"`
-	Spec struct {
-		Api_Password    string `json:"api_password"`
-		Api_User        string `json:"api_user"`
-		Api_Port        int16  `json:"api_port"`
-		Pool            string `json:"pool"`
-		Trusted_Ip_List string `json:"trusted_ip_list"`
-	}
+	Service_Type string    `yaml:"service_type"`
+	Service_Id   string    `yaml:"service_id"`
+	Placement    Placement `yaml:"placement"`
+	Spec         Spec      `yaml:"spec"`
 } //@name IscsiServiceCreate
+type Spec struct {
+	Api_Password string `yaml:"api_password"`
+	Api_User     string `yaml:"api_user"`
+	Api_Port     int    `yaml:"api_port"`
+	Pool         string `yaml:"pool"`
+}
+type Placement struct {
+	Hosts []string `yaml:"hosts"`
+}
 
 // IscsiTargetList model info
 // @Description Iscsi Target List 구조체

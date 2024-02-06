@@ -35,6 +35,7 @@ func (c *Controller) NfsClusterList(ctx *gin.Context) {
 		return
 	}
 	// Print the output
+	ctx.Header("Access-Control-Allow-Origin", "*")
 	ctx.IndentedJSON(http.StatusOK, dat)
 }
 
@@ -62,6 +63,7 @@ func (c *Controller) NfsClusterCreate(ctx *gin.Context) {
 		return
 	}
 	// Print the output
+	ctx.Header("Access-Control-Allow-Origin", "*")
 	ctx.IndentedJSON(http.StatusOK, dat)
 }
 
@@ -87,7 +89,12 @@ func (c *Controller) NfsClusterDelete(ctx *gin.Context) {
 		return
 	}
 	// Print the output
+	ctx.Header("Access-Control-Allow-Origin", "*")
 	ctx.IndentedJSON(http.StatusOK, dat)
+}
+func (c *Controller) NfsClusterDeleteOptions(ctx *gin.Context) {
+	SetOptionHeader(ctx)
+	ctx.IndentedJSON(http.StatusOK, nil)
 }
 
 // NfsExportCreate godoc
@@ -156,6 +163,7 @@ func (c *Controller) NfsExportCreate(ctx *gin.Context) {
 				httputil.NewError(ctx, http.StatusInternalServerError, err)
 			}
 		}
+		ctx.Header("Access-Control-Allow-Origin", "*")
 		ctx.IndentedJSON(http.StatusOK, dat)
 	}
 	return
@@ -234,9 +242,14 @@ func (c *Controller) NfsExportUpdate(ctx *gin.Context) {
 				httputil.NewError(ctx, http.StatusInternalServerError, err)
 			}
 		}
+		ctx.Header("Access-Control-Allow-Origin", "*")
 		ctx.IndentedJSON(http.StatusOK, dat)
 	}
 	return
+}
+func (c *Controller) NfsExportUpdateOptions(ctx *gin.Context) {
+	SetOptionHeader(ctx)
+	ctx.IndentedJSON(http.StatusOK, nil)
 }
 
 // NfsExportDelete godoc
@@ -271,10 +284,15 @@ func (c *Controller) NfsExportDelete(ctx *gin.Context) {
 				httputil.NewError(ctx, http.StatusInternalServerError, err)
 				return
 			}
+			ctx.Header("Access-Control-Allow-Origin", "*")
 			ctx.IndentedJSON(http.StatusOK, dat)
 		}
 	}
 	// Print the output
+}
+func (c *Controller) NfsExportDeleteOptions(ctx *gin.Context) {
+	SetOptionHeader(ctx)
+	ctx.IndentedJSON(http.StatusOK, nil)
 }
 
 // NfsExportDetailed godoc
@@ -292,12 +310,33 @@ func (c *Controller) NfsExportDelete(ctx *gin.Context) {
 //	@Router			/api/v1/nfs/export [get]
 func (c *Controller) NfsExportDetailed(ctx *gin.Context) {
 	cluster_id := ctx.Request.URL.Query().Get("cluster_id")
-	dat, err := nfs.NfsExportDetailed(cluster_id)
-	if err != nil {
-		utils.FancyHandleError(err)
-		httputil.NewError(ctx, http.StatusInternalServerError, err)
-		return
+	if cluster_id != "" {
+		dat, err := nfs.NfsExportDetailed(cluster_id)
+		if err != nil {
+			utils.FancyHandleError(err)
+			httputil.NewError(ctx, http.StatusInternalServerError, err)
+			return
+		}
+		ctx.IndentedJSON(http.StatusOK, dat)
+	} else {
+		var output model.NfsExportDetailed
+		dat2, err := nfs.NfsClusterLs()
+		for i := 0; i < len(dat2); i++ {
+			dat3, err := nfs.NfsExportDetailed(dat2[i])
+			if err != nil {
+				utils.FancyHandleError(err)
+				httputil.NewError(ctx, http.StatusInternalServerError, err)
+				return
+			}
+			output = append(dat3, output...)
+		}
+		if err != nil {
+			utils.FancyHandleError(err)
+			httputil.NewError(ctx, http.StatusInternalServerError, err)
+			return
+		}
+		ctx.IndentedJSON(http.StatusOK, output)
 	}
 	// Print the output
-	ctx.IndentedJSON(http.StatusOK, dat)
+	ctx.Header("Access-Control-Allow-Origin", "*")
 }

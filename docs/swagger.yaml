@@ -11,36 +11,6 @@ definitions:
             type: string
           balancer:
             type: string
-          compat:
-            properties:
-              compat:
-                type: object
-              incompat:
-                properties:
-                  feature_1:
-                    type: string
-                  feature_2:
-                    type: string
-                  feature_3:
-                    type: string
-                  feature_4:
-                    type: string
-                  feature_5:
-                    type: string
-                  feature_6:
-                    type: string
-                  feature_7:
-                    type: string
-                  feature_8:
-                    type: string
-                  feature_9:
-                    type: string
-                  feature_10:
-                    type: string
-                type: object
-              ro_compat:
-                type: object
-            type: object
           created:
             type: string
           damaged:
@@ -143,20 +113,8 @@ definitions:
       mdsmap:
         items:
           properties:
-            caps:
-              type: integer
-            dirs:
-              type: integer
-            dns:
-              type: integer
-            inos:
-              type: integer
             name:
               type: string
-            rank:
-              type: integer
-            rate:
-              type: integer
             state:
               type: string
           type: object
@@ -469,36 +427,6 @@ definitions:
     properties:
       disks: {}
     type: object
-  IscsiServiceCreate:
-    description: Iscsi Service daemon 구조체
-    properties:
-      placement:
-        properties:
-          hosts:
-            items:
-              type: string
-            type: array
-        type: object
-      service_id:
-        type: string
-      service_name:
-        type: string
-      service_type:
-        type: string
-      spec:
-        properties:
-          api_password:
-            type: string
-          api_port:
-            type: integer
-          api_user:
-            type: string
-          pool:
-            type: string
-          trusted_ip_list:
-            type: string
-        type: object
-    type: object
   IscsiTargetList:
     description: Iscsi Target List 구조체
     properties:
@@ -666,7 +594,7 @@ paths:
     get:
       consumes:
       - application/x-www-form-urlencoded
-      description: GlueFS의 상태값을 보여줍니다.
+      description: GlueFS의 상태값과 리스트를 보여줍니다.
       produces:
       - application/json
       responses:
@@ -686,7 +614,7 @@ paths:
           description: Internal Server Error
           schema:
             $ref: '#/definitions/HTTP500InternalServerError'
-      summary: Show Status of Glue FS
+      summary: Show Status and List of Glue FS
       tags:
       - GlueFS
   /api/v1/gluefs/{fs_name}:
@@ -787,63 +715,42 @@ paths:
       summary: Detail Info of Glue FS
       tags:
       - GlueFS
-  /api/v1/gluefs/list:
-    get:
-      consumes:
-      - application/x-www-form-urlencoded
-      description: GlueFS의 리스트를 보여줍니다.
-      produces:
-      - application/json
-      responses:
-        "200":
-          description: OK
-          schema:
-            description: GlueFS 리스트 구조체
-            items:
-              properties:
-                data_pool_ids:
-                  items:
-                    type: integer
-                  type: array
-                data_pools:
-                  items:
-                    type: string
-                  type: array
-                metadata_pool:
-                  type: string
-                metadata_pool_id:
-                  type: integer
-                name:
-                  type: string
-              type: object
-            type: array
-        "400":
-          description: Bad Request
-          schema:
-            $ref: '#/definitions/HTTP400BadRequest'
-        "404":
-          description: Not Found
-          schema:
-            $ref: '#/definitions/HTTP404NotFound'
-        "500":
-          description: Internal Server Error
-          schema:
-            $ref: '#/definitions/HTTP500InternalServerError'
-      summary: List of Glue FS
-      tags:
-      - GlueFS
   /api/v1/iscsi:
     post:
       consumes:
       - application/x-www-form-urlencoded
       description: Iscsi 서비스 데몬을 생성합니다.
       parameters:
-      - description: Iscsi Servcie YAML file
-        in: body
-        name: json_file
+      - description: Host Name
+        in: formData
+        name: hosts
         required: true
-        schema:
-          $ref: '#/definitions/IscsiServiceCreate'
+        type: string
+      - description: ISCSI Service Name
+        in: formData
+        name: service_id
+        required: true
+        type: string
+      - description: Pool Name
+        in: formData
+        name: pool
+        required: true
+        type: string
+      - description: ISCSI API Port
+        in: formData
+        name: api_port
+        required: true
+        type: string
+      - description: ISCSI API User
+        in: formData
+        name: api_user
+        required: true
+        type: string
+      - description: ISCSI API Password
+        in: formData
+        name: api_password
+        required: true
+        type: string
       produces:
       - application/json
       responses:

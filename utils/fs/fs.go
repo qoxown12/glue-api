@@ -31,10 +31,26 @@ func FsCreate(fs_name string) (output string, err error) {
 		output = "Fail"
 		return
 	} else {
-		output = "Success"
+		cmd := exec.Command("ceph", "osd", "pool", "rename", "cephfs."+fs_name+".data", fs_name+".data")
+		stdCreate, err = cmd.CombinedOutput()
+		if err != nil {
+			err = errors.New(string(stdCreate))
+			utils.FancyHandleError(err)
+			output = "Fail"
+			return
+		} else {
+			cmd := exec.Command("ceph", "osd", "pool", "rename", "cephfs."+fs_name+".meta", fs_name+".meta")
+			stdCreate, err = cmd.CombinedOutput()
+			if err != nil {
+				err = errors.New(string(stdCreate))
+				utils.FancyHandleError(err)
+				output = "Fail"
+				return
+			}
+			output = "Success"
+			return
+		}
 	}
-	return
-
 }
 func FsDelete(fs_name string) (output string, err error) {
 	var poolGet []byte

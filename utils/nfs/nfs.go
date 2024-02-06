@@ -104,3 +104,17 @@ func NfsExportDetailed(cluster_id string) (dat model.NfsExportDetailed, err erro
 	}
 	return
 }
+func NfsClusterLs() (dat model.NfsClusterInfoList, err error) {
+	var stdout []byte
+
+	cmd := exec.Command("ceph", "nfs", "cluster", "ls")
+	stdout, err = cmd.CombinedOutput()
+	if err != nil {
+		return
+	}
+
+	if err = json.Unmarshal(stdout, &dat); err != nil {
+		return
+	}
+	return
+}

@@ -108,7 +108,7 @@ const docTemplate = `{
         },
         "/api/v1/gluefs": {
             "get": {
-                "description": "GlueFS의 상태값을 보여줍니다.",
+                "description": "GlueFS의 상태값과 리스트를 보여줍니다.",
                 "consumes": [
                     "application/x-www-form-urlencoded"
                 ],
@@ -118,7 +118,7 @@ const docTemplate = `{
                 "tags": [
                     "GlueFS"
                 ],
-                "summary": "Show Status of Glue FS",
+                "summary": "Show Status and List of Glue FS",
                 "responses": {
                     "200": {
                         "description": "OK",
@@ -174,74 +174,6 @@ const docTemplate = `{
                         "description": "OK",
                         "schema": {
                             "$ref": "#/definitions/FsGetInfo"
-                        }
-                    },
-                    "400": {
-                        "description": "Bad Request",
-                        "schema": {
-                            "$ref": "#/definitions/HTTP400BadRequest"
-                        }
-                    },
-                    "404": {
-                        "description": "Not Found",
-                        "schema": {
-                            "$ref": "#/definitions/HTTP404NotFound"
-                        }
-                    },
-                    "500": {
-                        "description": "Internal Server Error",
-                        "schema": {
-                            "$ref": "#/definitions/HTTP500InternalServerError"
-                        }
-                    }
-                }
-            }
-        },
-        "/api/v1/gluefs/list": {
-            "get": {
-                "description": "GlueFS의 리스트를 보여줍니다.",
-                "consumes": [
-                    "application/x-www-form-urlencoded"
-                ],
-                "produces": [
-                    "application/json"
-                ],
-                "tags": [
-                    "GlueFS"
-                ],
-                "summary": "List of Glue FS",
-                "responses": {
-                    "200": {
-                        "description": "OK",
-                        "schema": {
-                            "description": "GlueFS 리스트 구조체",
-                            "type": "array",
-                            "items": {
-                                "type": "object",
-                                "properties": {
-                                    "data_pool_ids": {
-                                        "type": "array",
-                                        "items": {
-                                            "type": "integer"
-                                        }
-                                    },
-                                    "data_pools": {
-                                        "type": "array",
-                                        "items": {
-                                            "type": "string"
-                                        }
-                                    },
-                                    "metadata_pool": {
-                                        "type": "string"
-                                    },
-                                    "metadata_pool_id": {
-                                        "type": "integer"
-                                    },
-                                    "name": {
-                                        "type": "string"
-                                    }
-                                }
-                            }
                         }
                     },
                     "400": {
@@ -378,13 +310,46 @@ const docTemplate = `{
                 "summary": "Create of Iscsi Servcie Daemon",
                 "parameters": [
                     {
-                        "description": "Iscsi Servcie YAML file",
-                        "name": "json_file",
-                        "in": "body",
-                        "required": true,
-                        "schema": {
-                            "$ref": "#/definitions/IscsiServiceCreate"
-                        }
+                        "type": "string",
+                        "description": "Host Name",
+                        "name": "hosts",
+                        "in": "formData",
+                        "required": true
+                    },
+                    {
+                        "type": "string",
+                        "description": "ISCSI Service Name",
+                        "name": "service_id",
+                        "in": "formData",
+                        "required": true
+                    },
+                    {
+                        "type": "string",
+                        "description": "Pool Name",
+                        "name": "pool",
+                        "in": "formData",
+                        "required": true
+                    },
+                    {
+                        "type": "string",
+                        "description": "ISCSI API Port",
+                        "name": "api_port",
+                        "in": "formData",
+                        "required": true
+                    },
+                    {
+                        "type": "string",
+                        "description": "ISCSI API User",
+                        "name": "api_user",
+                        "in": "formData",
+                        "required": true
+                    },
+                    {
+                        "type": "string",
+                        "description": "ISCSI API Password",
+                        "name": "api_password",
+                        "in": "formData",
+                        "required": true
                     }
                 ],
                 "responses": {
@@ -2328,52 +2293,6 @@ const docTemplate = `{
                         "balancer": {
                             "type": "string"
                         },
-                        "compat": {
-                            "type": "object",
-                            "properties": {
-                                "compat": {
-                                    "type": "object"
-                                },
-                                "incompat": {
-                                    "type": "object",
-                                    "properties": {
-                                        "feature_1": {
-                                            "type": "string"
-                                        },
-                                        "feature_10": {
-                                            "type": "string"
-                                        },
-                                        "feature_2": {
-                                            "type": "string"
-                                        },
-                                        "feature_3": {
-                                            "type": "string"
-                                        },
-                                        "feature_4": {
-                                            "type": "string"
-                                        },
-                                        "feature_5": {
-                                            "type": "string"
-                                        },
-                                        "feature_6": {
-                                            "type": "string"
-                                        },
-                                        "feature_7": {
-                                            "type": "string"
-                                        },
-                                        "feature_8": {
-                                            "type": "string"
-                                        },
-                                        "feature_9": {
-                                            "type": "string"
-                                        }
-                                    }
-                                },
-                                "ro_compat": {
-                                    "type": "object"
-                                }
-                            }
-                        },
                         "created": {
                             "type": "string"
                         },
@@ -2528,26 +2447,8 @@ const docTemplate = `{
                     "items": {
                         "type": "object",
                         "properties": {
-                            "caps": {
-                                "type": "integer"
-                            },
-                            "dirs": {
-                                "type": "integer"
-                            },
-                            "dns": {
-                                "type": "integer"
-                            },
-                            "inos": {
-                                "type": "integer"
-                            },
                             "name": {
                                 "type": "string"
-                            },
-                            "rank": {
-                                "type": "integer"
-                            },
-                            "rate": {
-                                "type": "integer"
                             },
                             "state": {
                                 "type": "string"
@@ -3007,52 +2908,6 @@ const docTemplate = `{
             "type": "object",
             "properties": {
                 "disks": {}
-            }
-        },
-        "IscsiServiceCreate": {
-            "description": "Iscsi Service daemon 구조체",
-            "type": "object",
-            "properties": {
-                "placement": {
-                    "type": "object",
-                    "properties": {
-                        "hosts": {
-                            "type": "array",
-                            "items": {
-                                "type": "string"
-                            }
-                        }
-                    }
-                },
-                "service_id": {
-                    "type": "string"
-                },
-                "service_name": {
-                    "type": "string"
-                },
-                "service_type": {
-                    "type": "string"
-                },
-                "spec": {
-                    "type": "object",
-                    "properties": {
-                        "api_password": {
-                            "type": "string"
-                        },
-                        "api_port": {
-                            "type": "integer"
-                        },
-                        "api_user": {
-                            "type": "string"
-                        },
-                        "pool": {
-                            "type": "string"
-                        },
-                        "trusted_ip_list": {
-                            "type": "string"
-                        }
-                    }
-                }
             }
         },
         "IscsiTargetList": {

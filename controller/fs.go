@@ -2,6 +2,7 @@ package controller
 
 import (
 	"Glue-API/httputil"
+	"Glue-API/model"
 	"Glue-API/utils"
 	"Glue-API/utils/fs"
 	"net/http"
@@ -11,8 +12,8 @@ import (
 
 // FsStatus godoc
 //
-//	@Summary		Show Status of Glue FS
-//	@Description	GlueFS의 상태값을 보여줍니다.
+//	@Summary		Show Status and List of Glue FS
+//	@Description	GlueFS의 상태값과 리스트를 보여줍니다.
 //	@Tags			GlueFS
 //	@Accept			x-www-form-urlencoded
 //	@Produce		json
@@ -23,13 +24,19 @@ import (
 //	@Router			/api/v1/gluefs [get]
 func (c *Controller) FsStatus(ctx *gin.Context) {
 	dat, err := fs.FsStatus()
+	dat2, err := fs.FsList()
+	value := model.FsSum{
+		FsStatus: dat,
+		FsList:   dat2,
+	}
 	if err != nil {
 		utils.FancyHandleError(err)
 		httputil.NewError(ctx, http.StatusInternalServerError, err)
 		return
 	}
 	// Print the output
-	ctx.IndentedJSON(http.StatusOK, dat)
+	ctx.Header("Access-Control-Allow-Origin", "*")
+	ctx.IndentedJSON(http.StatusOK, value)
 }
 
 // FsCreate godoc
@@ -54,6 +61,7 @@ func (c *Controller) FsCreate(ctx *gin.Context) {
 		return
 	}
 	// Print the output
+	ctx.Header("Access-Control-Allow-Origin", "*")
 	ctx.IndentedJSON(http.StatusOK, dat)
 }
 
@@ -79,7 +87,12 @@ func (c *Controller) FsDelete(ctx *gin.Context) {
 		return
 	}
 	// Print the output
+	ctx.Header("Access-Control-Allow-Origin", "*")
 	ctx.IndentedJSON(http.StatusOK, dat)
+}
+func (c *Controller) FsDeleteOptions(ctx *gin.Context) {
+	SetOptionHeader(ctx)
+	ctx.IndentedJSON(http.StatusOK, nil)
 }
 
 // FsGetInfo godoc
@@ -103,37 +116,6 @@ func (c *Controller) FsGetInfo(ctx *gin.Context) {
 		httputil.NewError(ctx, http.StatusInternalServerError, err)
 		return
 	}
-	// Print the output
-	ctx.IndentedJSON(http.StatusOK, dat)
-}
-
-// FsList godoc
-//
-//	@Summary		List of Glue FS
-//	@Description	GlueFS의 리스트를 보여줍니다.
-//	@Tags			GlueFS
-//	@Accept			x-www-form-urlencoded
-//	@Produce		json
-//	@Success		200	{object}	FsList
-//	@Failure		400	{object}	httputil.HTTP400BadRequest
-//	@Failure		404	{object}	httputil.HTTP404NotFound
-//	@Failure		500	{object}	httputil.HTTP500InternalServerError
-//	@Router			/api/v1/gluefs/list [get]
-func (c *Controller) FsList(ctx *gin.Context) {
-	dat, err := fs.FsList()
-	if err != nil {
-		utils.FancyHandleError(err)
-		httputil.NewError(ctx, http.StatusInternalServerError, err)
-		return
-	}
-	// var data string
-	// dat2, err := fs.FsStatus()
-	// dat2[0].Clients = data
-	// if err != nil {
-	// 	utils.FancyHandleError(err)
-	// 	httputil.NewError(ctx, http.StatusInternalServerError, err)
-	// 	return
-	// }
 	// Print the output
 	ctx.IndentedJSON(http.StatusOK, dat)
 }

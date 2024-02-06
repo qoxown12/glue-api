@@ -33,6 +33,7 @@ func (c *Controller) GlueStatus(ctx *gin.Context) {
 		return
 	}
 	// Print the output
+	ctx.Header("Access-Control-Allow-Origin", "*")
 	ctx.IndentedJSON(http.StatusOK, dat)
 }
 
@@ -63,7 +64,7 @@ func (c *Controller) GlueVersion(ctx *gin.Context) {
 		httputil.NewError(ctx, http.StatusInternalServerError, err)
 		return
 	}
-
+	ctx.Header("Access-Control-Allow-Origin", "*")
 	ctx.IndentedJSON(http.StatusOK, dat)
 }
 
@@ -86,6 +87,7 @@ func (c *Controller) ListPools(ctx *gin.Context) {
 		httputil.NewError(ctx, http.StatusInternalServerError, err)
 		return
 	}
+	ctx.Header("Access-Control-Allow-Origin", "*")
 	ctx.IndentedJSON(http.StatusOK, dat)
 }
 
@@ -134,6 +136,7 @@ func (c *Controller) InfoImage(ctx *gin.Context) {
 		httputil.NewError(ctx, http.StatusInternalServerError, err)
 		return
 	}
+	ctx.Header("Access-Control-Allow-Origin", "*")
 	ctx.IndentedJSON(http.StatusOK, dat)
 }
 
@@ -161,6 +164,10 @@ func (c *Controller) PoolDelete(ctx *gin.Context) {
 	// Print the output
 	ctx.IndentedJSON(http.StatusOK, dat)
 }
+func (c *Controller) PoolDeleteOptions(ctx *gin.Context) {
+	SetOptionHeader(ctx)
+	ctx.IndentedJSON(http.StatusOK, nil)
+}
 
 // ServiceLs godoc
 //
@@ -184,6 +191,7 @@ func (c *Controller) ServiceLs(ctx *gin.Context) {
 		return
 	}
 	// Print the output
+	ctx.Header("Access-Control-Allow-Origin", "*")
 	ctx.IndentedJSON(http.StatusOK, dat)
 }
 
@@ -211,5 +219,6 @@ func (c *Controller) ServiceControl(ctx *gin.Context) {
 		return
 	}
 	// Print the output
+	ctx.Header("Access-Control-Allow-Origin", "*")
 	ctx.IndentedJSON(http.StatusOK, dat)
 }

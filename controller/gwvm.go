@@ -285,10 +285,3 @@ func (c *Controller) VmMigrateOptions(ctx *gin.Context) {
 	SetOptionHeader(ctx)
 	ctx.IndentedJSON(http.StatusOK, nil)
 }
-
-func SetOptionHeader(ctx *gin.Context) {
-	ctx.Header("Access-Control-Allow-Origin", "*")
-	ctx.Header("Access-Control-Allow-Methods", "*")
-	ctx.Header("Access-Control-Allow-Headers", "*")
-	ctx.Header("Access-Control-Max-Age", "3600")
-}

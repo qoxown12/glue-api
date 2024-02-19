@@ -57,3 +57,26 @@ type NfsExportUpdate struct {
 	Squash        string   `json:"squash"`
 	Transports    []string `json:"transports"`
 } //@name NfsExportUpdate
+
+type NfsClusterCreateCount struct {
+	ServiceType string            `yaml:"service_type"`
+	ServiceID   string            `yaml:"service_id"`
+	Placement   NfsPlacementCount `yaml:"placement"`
+	Spec        NfsSpec           `yaml:"spec"`
+}
+type NfsClusterCreate struct {
+	ServiceType string       `yaml:"service_type"`
+	ServiceID   string       `yaml:"service_id"`
+	Placement   NfsPlacement `yaml:"placement"`
+	Spec        NfsSpec      `yaml:"spec"`
+}
+type NfsPlacementCount struct {
+	Count int      `yaml:"count"`
+	Hosts []string `yaml:"hosts"`
+}
+type NfsPlacement struct {
+	Hosts []string `yaml:"hosts"`
+}
+type NfsSpec struct {
+	Port int `yaml:"port"`
+}

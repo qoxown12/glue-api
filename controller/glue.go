@@ -175,6 +175,7 @@ func (c *Controller) PoolDeleteOptions(ctx *gin.Context) {
 //	@Description	Glue 서비스 목록 또는 정보를 보여줍니다.
 //	@Tags			Service
 //	@param			service_name	query	string	false	"Glue Service Name"
+//	@param			service_type	query	string	false	"Glue Service Type"
 //	@Accept			x-www-form-urlencoded
 //	@Produce		json
 //	@Success		200	{object}	model.ServiceLs
@@ -184,7 +185,8 @@ func (c *Controller) PoolDeleteOptions(ctx *gin.Context) {
 //	@Router			/api/v1/service [get]
 func (c *Controller) ServiceLs(ctx *gin.Context) {
 	service_name := ctx.Request.URL.Query().Get("service_name")
-	dat, err := glue.ServiceLs(service_name)
+	service_type := ctx.Request.URL.Query().Get("service_type")
+	dat, err := glue.ServiceLs(service_name, service_type)
 	if err != nil {
 		utils.FancyHandleError(err)
 		httputil.NewError(ctx, http.StatusInternalServerError, err)
@@ -221,4 +223,35 @@ func (c *Controller) ServiceControl(ctx *gin.Context) {
 	// Print the output
 	ctx.Header("Access-Control-Allow-Origin", "*")
 	ctx.IndentedJSON(http.StatusOK, dat)
+}
+
+// ServiceDelete godoc
+//
+//	@Summary		Delete of Glue Service
+//	@Description	Glue 서비스를 삭제합니다.
+//	@Tags			Service
+//	@param			service_name 	path	string	true	"Glue Service Name"
+//	@Accept			x-www-form-urlencoded
+//	@Produce		json
+//	@Success		200	{string}	string	"Success"
+//	@Failure		400	{object}	httputil.HTTP400BadRequest
+//	@Failure		404	{object}	httputil.HTTP404NotFound
+//	@Failure		500	{object}	httputil.HTTP500InternalServerError
+//	@Router			/api/v1/service/{service_name} [delete]
+func (c *Controller) ServiceDelete(ctx *gin.Context) {
+	service_name := ctx.Param("service_name")
+	dat, err := glue.ServiceDelete(service_name)
+	if err != nil {
+		utils.FancyHandleError(err)
+		httputil.NewError(ctx, http.StatusInternalServerError, err)
+		return
+	}
+	// Print the output
+	ctx.Header("Access-Control-Allow-Origin", "*")
+	ctx.IndentedJSON(http.StatusOK, dat)
+}
+
+func (c *Controller) ServiceDeleteOptions(ctx *gin.Context) {
+	SetOptionHeader(ctx)
+	ctx.IndentedJSON(http.StatusOK, nil)
 }

@@ -310,7 +310,11 @@ const docTemplate = `{
                 "summary": "Create of Iscsi Servcie Daemon",
                 "parameters": [
                     {
-                        "type": "string",
+                        "type": "array",
+                        "items": {
+                            "type": "string"
+                        },
+                        "collectionFormat": "multi",
                         "description": "Host Name",
                         "name": "hosts",
                         "in": "formData",
@@ -331,7 +335,7 @@ const docTemplate = `{
                         "required": true
                     },
                     {
-                        "type": "string",
+                        "type": "integer",
                         "description": "ISCSI API Port",
                         "name": "api_port",
                         "in": "formData",
@@ -350,8 +354,169 @@ const docTemplate = `{
                         "name": "api_password",
                         "in": "formData",
                         "required": true
+                    },
+                    {
+                        "type": "integer",
+                        "description": "Iscsi Service Daemon Count",
+                        "name": "count",
+                        "in": "formData"
                     }
                 ],
+                "responses": {
+                    "200": {
+                        "description": "Success",
+                        "schema": {
+                            "type": "string"
+                        }
+                    },
+                    "400": {
+                        "description": "Bad Request",
+                        "schema": {
+                            "$ref": "#/definitions/HTTP400BadRequest"
+                        }
+                    },
+                    "404": {
+                        "description": "Not Found",
+                        "schema": {
+                            "$ref": "#/definitions/HTTP404NotFound"
+                        }
+                    },
+                    "500": {
+                        "description": "Internal Server Error",
+                        "schema": {
+                            "$ref": "#/definitions/HTTP500InternalServerError"
+                        }
+                    }
+                }
+            }
+        },
+        "/api/v1/iscsi/discovery": {
+            "get": {
+                "description": "Iscsi Discovery Auth 계정 정보를 보여줍니다.",
+                "consumes": [
+                    "application/x-www-form-urlencoded"
+                ],
+                "produces": [
+                    "application/json"
+                ],
+                "tags": [
+                    "IscsiDiscovery"
+                ],
+                "summary": "Info User of Iscsi Discovery Auth",
+                "responses": {
+                    "200": {
+                        "description": "OK",
+                        "schema": {
+                            "$ref": "#/definitions/IscsiDiscoveryInfo"
+                        }
+                    },
+                    "400": {
+                        "description": "Bad Request",
+                        "schema": {
+                            "$ref": "#/definitions/HTTP400BadRequest"
+                        }
+                    },
+                    "404": {
+                        "description": "Not Found",
+                        "schema": {
+                            "$ref": "#/definitions/HTTP404NotFound"
+                        }
+                    },
+                    "500": {
+                        "description": "Internal Server Error",
+                        "schema": {
+                            "$ref": "#/definitions/HTTP500InternalServerError"
+                        }
+                    }
+                }
+            },
+            "post": {
+                "description": "Iscsi Discovery Auth 계정을 생성합니다.",
+                "consumes": [
+                    "application/x-www-form-urlencoded"
+                ],
+                "produces": [
+                    "application/json"
+                ],
+                "tags": [
+                    "IscsiDiscovery"
+                ],
+                "summary": "Create User of Iscsi Discovery Auth",
+                "parameters": [
+                    {
+                        "maxLength": 64,
+                        "minLength": 8,
+                        "type": "string",
+                        "description": "Iscsi Discovery Authentication User",
+                        "name": "username",
+                        "in": "formData",
+                        "required": true
+                    },
+                    {
+                        "maxLength": 16,
+                        "minLength": 12,
+                        "type": "string",
+                        "description": "Iscsi Discovery Authentication Password",
+                        "name": "password",
+                        "in": "formData",
+                        "required": true
+                    },
+                    {
+                        "maxLength": 64,
+                        "minLength": 8,
+                        "type": "string",
+                        "description": "Iscsi Discovery Authentication Mutual User",
+                        "name": "mutual_username",
+                        "in": "formData"
+                    },
+                    {
+                        "maxLength": 16,
+                        "minLength": 12,
+                        "type": "string",
+                        "description": "Iscsi Discovery Authentication Mutual Password",
+                        "name": "mutual_password",
+                        "in": "formData"
+                    }
+                ],
+                "responses": {
+                    "200": {
+                        "description": "Success",
+                        "schema": {
+                            "type": "string"
+                        }
+                    },
+                    "400": {
+                        "description": "Bad Request",
+                        "schema": {
+                            "$ref": "#/definitions/HTTP400BadRequest"
+                        }
+                    },
+                    "404": {
+                        "description": "Not Found",
+                        "schema": {
+                            "$ref": "#/definitions/HTTP404NotFound"
+                        }
+                    },
+                    "500": {
+                        "description": "Internal Server Error",
+                        "schema": {
+                            "$ref": "#/definitions/HTTP500InternalServerError"
+                        }
+                    }
+                }
+            },
+            "delete": {
+                "description": "Iscsi Discovery Auth 계정 정보를 초기화 합니다.",
+                "consumes": [
+                    "application/x-www-form-urlencoded"
+                ],
+                "produces": [
+                    "application/json"
+                ],
+                "tags": [
+                    "IscsiDiscovery"
+                ],
+                "summary": "Reset User of Iscsi Discovery Auth",
                 "responses": {
                     "200": {
                         "description": "Success",
@@ -680,14 +845,22 @@ const docTemplate = `{
                         "required": true
                     },
                     {
-                        "type": "string",
+                        "type": "array",
+                        "items": {
+                            "type": "string"
+                        },
+                        "collectionFormat": "multi",
                         "description": "Gateway Host Name",
                         "name": "hostname",
                         "in": "formData",
                         "required": true
                     },
                     {
-                        "type": "string",
+                        "type": "array",
+                        "items": {
+                            "type": "string"
+                        },
+                        "collectionFormat": "multi",
                         "description": "Gateway Host IP Address",
                         "name": "ip_address",
                         "in": "formData",
@@ -711,6 +884,46 @@ const docTemplate = `{
                         "type": "integer",
                         "description": "Iscsi Disk Image Size(Default GB)",
                         "name": "size",
+                        "in": "formData"
+                    },
+                    {
+                        "type": "boolean",
+                        "default": false,
+                        "description": "Iscsi Authentication",
+                        "name": "auth",
+                        "in": "formData",
+                        "required": true
+                    },
+                    {
+                        "maxLength": 64,
+                        "minLength": 8,
+                        "type": "string",
+                        "description": "Iscsi Auth User",
+                        "name": "username",
+                        "in": "formData"
+                    },
+                    {
+                        "maxLength": 16,
+                        "minLength": 12,
+                        "type": "string",
+                        "description": "Iscsi Auth Password",
+                        "name": "password",
+                        "in": "formData"
+                    },
+                    {
+                        "maxLength": 64,
+                        "minLength": 8,
+                        "type": "string",
+                        "description": "Iscsi Auth Mutual User",
+                        "name": "mutual_username",
+                        "in": "formData"
+                    },
+                    {
+                        "maxLength": 16,
+                        "minLength": 12,
+                        "type": "string",
+                        "description": "Iscsi Auth Mutaul Password",
+                        "name": "mutual_password",
                         "in": "formData"
                     }
                 ],
@@ -1910,6 +2123,23 @@ const docTemplate = `{
                         "name": "port",
                         "in": "path",
                         "required": true
+                    },
+                    {
+                        "type": "array",
+                        "items": {
+                            "type": "string"
+                        },
+                        "collectionFormat": "multi",
+                        "description": "Cluster Daemon Hostname",
+                        "name": "hostname",
+                        "in": "formData",
+                        "required": true
+                    },
+                    {
+                        "type": "integer",
+                        "description": "Cluster Daemon Service Count",
+                        "name": "service_count",
+                        "in": "formData"
                     }
                 ],
                 "responses": {
@@ -2144,6 +2374,12 @@ const docTemplate = `{
                         "description": "Glue Service Name",
                         "name": "service_name",
                         "in": "query"
+                    },
+                    {
+                        "type": "string",
+                        "description": "Glue Service Type",
+                        "name": "service_type",
+                        "in": "query"
                     }
                 ],
                 "responses": {
@@ -2203,6 +2439,54 @@ const docTemplate = `{
                         "description": "Glue Service Control",
                         "name": "control",
                         "in": "query",
+                        "required": true
+                    }
+                ],
+                "responses": {
+                    "200": {
+                        "description": "Success",
+                        "schema": {
+                            "type": "string"
+                        }
+                    },
+                    "400": {
+                        "description": "Bad Request",
+                        "schema": {
+                            "$ref": "#/definitions/HTTP400BadRequest"
+                        }
+                    },
+                    "404": {
+                        "description": "Not Found",
+                        "schema": {
+                            "$ref": "#/definitions/HTTP404NotFound"
+                        }
+                    },
+                    "500": {
+                        "description": "Internal Server Error",
+                        "schema": {
+                            "$ref": "#/definitions/HTTP500InternalServerError"
+                        }
+                    }
+                }
+            },
+            "delete": {
+                "description": "Glue 서비스를 삭제합니다.",
+                "consumes": [
+                    "application/x-www-form-urlencoded"
+                ],
+                "produces": [
+                    "application/json"
+                ],
+                "tags": [
+                    "Service"
+                ],
+                "summary": "Delete of Glue Service",
+                "parameters": [
+                    {
+                        "type": "string",
+                        "description": "Glue Service Name",
+                        "name": "service_name",
+                        "in": "path",
                         "required": true
                     }
                 ],
@@ -2900,6 +3184,29 @@ const docTemplate = `{
                 },
                 "snapshot_count": {
                     "type": "integer"
+                }
+            }
+        },
+        "IscsiDiscoveryInfo": {
+            "description": "Iscsi Discovery 정보 구조체",
+            "type": "object",
+            "properties": {
+                "discovery_auth": {
+                    "type": "object",
+                    "properties": {
+                        "mutual_password": {
+                            "type": "string"
+                        },
+                        "mutual_username": {
+                            "type": "string"
+                        },
+                        "password": {
+                            "type": "string"
+                        },
+                        "username": {
+                            "type": "string"
+                        }
+                    }
                 }
             }
         },

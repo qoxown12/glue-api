@@ -525,6 +525,19 @@ definitions:
       states:
         description: 이미지 상세
     type: object
+  SmbStatus:
+    properties:
+      description:
+        type: string
+      names:
+        type: string
+      state:
+        type: string
+      status:
+        type: string
+      users:
+        $ref: '#/definitions/model.Users'
+    type: object
   Version:
     description: API의 버전
     properties:
@@ -537,6 +550,13 @@ definitions:
         example: "1.0"
         format: string
         type: string
+    type: object
+  model.Users:
+    properties:
+      users:
+        items:
+          type: string
+        type: array
     type: object
 info:
   contact:
@@ -2238,6 +2258,213 @@ paths:
       summary: Control of Glue Service
       tags:
       - Service
+  /api/v1/smb:
+    delete:
+      consumes:
+      - application/x-www-form-urlencoded
+      description: SMB 서비스 전체를 삭제합니다.
+      produces:
+      - application/json
+      responses:
+        "200":
+          description: Success
+          schema:
+            type: string
+        "400":
+          description: Bad Request
+          schema:
+            $ref: '#/definitions/HTTP400BadRequest'
+        "404":
+          description: Not Found
+          schema:
+            $ref: '#/definitions/HTTP404NotFound'
+        "500":
+          description: Internal Server Error
+          schema:
+            $ref: '#/definitions/HTTP500InternalServerError'
+      summary: Delete of Smb Service
+      tags:
+      - SMB
+    get:
+      consumes:
+      - application/x-www-form-urlencoded
+      description: SMB 서비스 데몬 상태를 조회합니다.
+      produces:
+      - application/json
+      responses:
+        "200":
+          description: OK
+          schema:
+            $ref: '#/definitions/SmbStatus'
+        "400":
+          description: Bad Request
+          schema:
+            $ref: '#/definitions/HTTP400BadRequest'
+        "404":
+          description: Not Found
+          schema:
+            $ref: '#/definitions/HTTP404NotFound'
+        "500":
+          description: Internal Server Error
+          schema:
+            $ref: '#/definitions/HTTP500InternalServerError'
+      summary: Show Status of Smb Servcie Daemon
+      tags:
+      - SMB
+    post:
+      consumes:
+      - application/x-www-form-urlencoded
+      description: SMB 서비스 전체를 생성합니다.
+      parameters:
+      - description: SMB Username
+        in: formData
+        name: username
+        required: true
+        type: string
+      - description: SMB Password
+        in: formData
+        name: password
+        required: true
+        type: string
+      - description: SMB Share Folder Name
+        in: formData
+        name: folder_name
+        required: true
+        type: string
+      - description: SMB Server Actual Shared Path
+        in: formData
+        name: path
+        required: true
+        type: string
+      produces:
+      - application/json
+      responses:
+        "200":
+          description: Success
+          schema:
+            type: string
+        "400":
+          description: Bad Request
+          schema:
+            $ref: '#/definitions/HTTP400BadRequest'
+        "404":
+          description: Not Found
+          schema:
+            $ref: '#/definitions/HTTP404NotFound'
+        "500":
+          description: Internal Server Error
+          schema:
+            $ref: '#/definitions/HTTP500InternalServerError'
+      summary: Create of Smb Service
+      tags:
+      - SMB
+  /api/v1/smb/user:
+    delete:
+      consumes:
+      - application/x-www-form-urlencoded
+      description: SMB 서비스 사용자를 삭제합니다.
+      parameters:
+      - description: SMB Username
+        in: query
+        name: username
+        required: true
+        type: string
+      produces:
+      - application/json
+      responses:
+        "200":
+          description: Success
+          schema:
+            type: string
+        "400":
+          description: Bad Request
+          schema:
+            $ref: '#/definitions/HTTP400BadRequest'
+        "404":
+          description: Not Found
+          schema:
+            $ref: '#/definitions/HTTP404NotFound'
+        "500":
+          description: Internal Server Error
+          schema:
+            $ref: '#/definitions/HTTP500InternalServerError'
+      summary: Delete User of Smb Service
+      tags:
+      - SMB
+    post:
+      consumes:
+      - application/x-www-form-urlencoded
+      description: SMB 서비스 사용자를 생성합니다.
+      parameters:
+      - description: SMB Username
+        in: formData
+        name: username
+        required: true
+        type: string
+      - description: SMB Password
+        in: formData
+        name: password
+        required: true
+        type: string
+      produces:
+      - application/json
+      responses:
+        "200":
+          description: Success
+          schema:
+            type: string
+        "400":
+          description: Bad Request
+          schema:
+            $ref: '#/definitions/HTTP400BadRequest'
+        "404":
+          description: Not Found
+          schema:
+            $ref: '#/definitions/HTTP404NotFound'
+        "500":
+          description: Internal Server Error
+          schema:
+            $ref: '#/definitions/HTTP500InternalServerError'
+      summary: Create User of Smb Service
+      tags:
+      - SMB
+    put:
+      consumes:
+      - application/x-www-form-urlencoded
+      description: SMB 서비스 사용자의 패스워드를 변경합니다.
+      parameters:
+      - description: SMB Username
+        in: formData
+        name: username
+        required: true
+        type: string
+      - description: SMB Password
+        in: formData
+        name: password
+        required: true
+        type: string
+      produces:
+      - application/json
+      responses:
+        "200":
+          description: Success
+          schema:
+            type: string
+        "400":
+          description: Bad Request
+          schema:
+            $ref: '#/definitions/HTTP400BadRequest'
+        "404":
+          description: Not Found
+          schema:
+            $ref: '#/definitions/HTTP404NotFound'
+        "500":
+          description: Internal Server Error
+          schema:
+            $ref: '#/definitions/HTTP500InternalServerError'
+      summary: Update User of Smb Service
+      tags:
+      - SMB
   /version:
     get:
       consumes:

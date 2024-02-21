@@ -208,6 +208,11 @@ func (c *Controller) NfsExportCreate(ctx *gin.Context) {
 		Transports:    transports}
 	//value := []byte("EXPORT {\n \tFSAL {\n\t\tname = \"" + storage_name + "\";\n\t\tfilesystem = \"" + fs_name + "\";\n\t}\n\texport_id = 1;\n\tpath = \"" + path + "\";\n\tpseudo = \"" + pseudo + "\";\n\taccess_type = \"" + access_type + "\";\n\tsquash = \"" + squash + "\";\n\tprotocols = 4;\n\ttrasnports = \"" + transports + "\";\n}")
 	json_data, err := json.MarshalIndent(value, "", " ")
+	if err != nil {
+		utils.FancyHandleError(err)
+		httputil.NewError(ctx, http.StatusInternalServerError, err)
+		return
+	}
 	nfs_export_create_conf := "/root/nfs_export_create.conf"
 	err = os.WriteFile(nfs_export_create_conf, json_data, 0644)
 

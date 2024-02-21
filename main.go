@@ -119,6 +119,20 @@ func main() {
 				iscsi_discovery.OPTIONS("", c.IscsiDiscoveryOptions)
 			}
 		}
+		smb := v1.Group("/smb")
+		{
+			smb.GET("", c.SmbStatus)
+			smb.POST("", c.SmbCreate)
+			smb.DELETE("", c.SmbDelete)
+			smb.OPTIONS("", c.SmbOptions)
+			smb_user := smb.Group("/user")
+			{
+				smb_user.POST("", c.SmbUserCreate)
+				smb_user.PUT("", c.SmbUserUpdate)
+				smb_user.DELETE("", c.SmbUserDelete)
+				smb_user.OPTIONS("", c.SmbUserOptions)
+			}
+		}
 		mirror := v1.Group("/mirror")
 		{
 			mirror.GET("", c.MirrorStatus) //Get Mirroring Status

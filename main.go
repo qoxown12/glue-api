@@ -65,6 +65,8 @@ func main() {
 		{
 			service.GET("", c.ServiceLs)
 			service.POST("/:service_name", c.ServiceControl)
+			service.DELETE("/:service_name", c.ServiceDelete)
+			service.OPTIONS("/:service_name", c.ServiceDeleteOptions)
 		}
 		fs := v1.Group("/gluefs")
 		{
@@ -107,6 +109,27 @@ func main() {
 				iscsi_disk.DELETE("", c.IscsiDiskDelete)
 				iscsi_disk.OPTIONS("", c.IscsiDiskOptions)
 				iscsi_disk.PUT("", c.IscsiDiskResize)
+			}
+			iscsi_discovery := iscsi.Group("/discovery")
+			{
+				iscsi_discovery.POST("", c.IscsiDiscoveryCreate)
+				iscsi_discovery.GET("", c.IscsiDiscoveryInfo)
+				iscsi_discovery.DELETE("", c.IscsiDiscoveryReset)
+				iscsi_discovery.OPTIONS("", c.IscsiDiscoveryOptions)
+			}
+		}
+		smb := v1.Group("/smb")
+		{
+			smb.GET("", c.SmbStatus)
+			smb.POST("", c.SmbCreate)
+			smb.DELETE("", c.SmbDelete)
+			smb.OPTIONS("", c.SmbOptions)
+			smb_user := smb.Group("/user")
+			{
+				smb_user.POST("", c.SmbUserCreate)
+				smb_user.PUT("", c.SmbUserUpdate)
+				smb_user.DELETE("", c.SmbUserDelete)
+				smb_user.OPTIONS("", c.SmbUserOptions)
 			}
 		}
 		mirror := v1.Group("/mirror")

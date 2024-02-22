@@ -99,339 +99,6 @@
                 }
             }
         },
-        "/api/v1/gwvm/delete/{hypervisorType}": {
-            "delete": {
-                "description": "Gateway VM을 삭제합니다.",
-                "consumes": [
-                    "multipart/form-data"
-                ],
-                "produces": [
-                    "application/json"
-                ],
-                "tags": [
-                    "Gwvm"
-                ],
-                "summary": "Delete to Gateway VM",
-                "parameters": [
-                    {
-                        "type": "string",
-                        "description": "Hypervisor Type",
-                        "name": "hypervisorType",
-                        "in": "path",
-                        "required": true
-                    }
-                ],
-                "responses": {
-                    "200": {
-                        "description": "OK",
-                        "schema": {
-                            "$ref": "#/definitions/model.GwvmMgmt"
-                        }
-                    },
-                    "400": {
-                        "description": "Bad Request",
-                        "schema": {
-                            "$ref": "#/definitions/HTTP400BadRequest"
-                        }
-                    },
-                    "404": {
-                        "description": "Not Found",
-                        "schema": {
-                            "$ref": "#/definitions/HTTP404NotFound"
-                        }
-                    },
-                    "500": {
-                        "description": "Internal Server Error",
-                        "schema": {
-                            "$ref": "#/definitions/HTTP500InternalServerError"
-                        }
-                    }
-                }
-            }
-        },
-        "/api/v1/gwvm/migrate/{hypervisorType}": {
-            "put": {
-                "description": "Gateway VM을 Pcs cluster내 다른 호스트로 마이그레이션 합니다.",
-                "consumes": [
-                    "multipart/form-data"
-                ],
-                "produces": [
-                    "application/json"
-                ],
-                "tags": [
-                    "Gwvm"
-                ],
-                "summary": "VmMigrate to Gateway VM",
-                "parameters": [
-                    {
-                        "type": "string",
-                        "description": "Hypervisor Type",
-                        "name": "hypervisorType",
-                        "in": "path",
-                        "required": true
-                    },
-                    {
-                        "type": "string",
-                        "description": "Migration Target Host",
-                        "name": "target",
-                        "in": "formData",
-                        "required": true
-                    }
-                ],
-                "responses": {
-                    "200": {
-                        "description": "OK",
-                        "schema": {
-                            "$ref": "#/definitions/model.GwvmMgmt"
-                        }
-                    },
-                    "400": {
-                        "description": "Bad Request",
-                        "schema": {
-                            "$ref": "#/definitions/HTTP400BadRequest"
-                        }
-                    },
-                    "404": {
-                        "description": "Not Found",
-                        "schema": {
-                            "$ref": "#/definitions/HTTP404NotFound"
-                        }
-                    },
-                    "500": {
-                        "description": "Internal Server Error",
-                        "schema": {
-                            "$ref": "#/definitions/HTTP500InternalServerError"
-                        }
-                    }
-                }
-            }
-        },
-        "/api/v1/gwvm/start/{hypervisorType}": {
-            "put": {
-                "description": "Gateway VM을 실행합니다.",
-                "consumes": [
-                    "multipart/form-data"
-                ],
-                "produces": [
-                    "application/json"
-                ],
-                "tags": [
-                    "Gwvm"
-                ],
-                "summary": "Start to Gateway VM",
-                "parameters": [
-                    {
-                        "type": "string",
-                        "description": "Hypervisor Type",
-                        "name": "hypervisorType",
-                        "in": "path",
-                        "required": true
-                    }
-                ],
-                "responses": {
-                    "200": {
-                        "description": "OK",
-                        "schema": {
-                            "$ref": "#/definitions/model.GwvmMgmt"
-                        }
-                    },
-                    "400": {
-                        "description": "Bad Request",
-                        "schema": {
-                            "$ref": "#/definitions/HTTP400BadRequest"
-                        }
-                    },
-                    "404": {
-                        "description": "Not Found",
-                        "schema": {
-                            "$ref": "#/definitions/HTTP404NotFound"
-                        }
-                    },
-                    "500": {
-                        "description": "Internal Server Error",
-                        "schema": {
-                            "$ref": "#/definitions/HTTP500InternalServerError"
-                        }
-                    }
-                }
-            }
-        },
-        "/api/v1/gwvm/stop/{hypervisorType}": {
-            "put": {
-                "description": "Gateway VM Pcs cluster를 Cleanup 합니다.",
-                "consumes": [
-                    "multipart/form-data"
-                ],
-                "produces": [
-                    "application/json"
-                ],
-                "tags": [
-                    "Gwvm"
-                ],
-                "summary": "Cleanup to Gateway VM",
-                "parameters": [
-                    {
-                        "type": "string",
-                        "description": "Hypervisor Type",
-                        "name": "hypervisorType",
-                        "in": "path",
-                        "required": true
-                    }
-                ],
-                "responses": {
-                    "200": {
-                        "description": "OK",
-                        "schema": {
-                            "$ref": "#/definitions/model.GwvmMgmt"
-                        }
-                    },
-                    "400": {
-                        "description": "Bad Request",
-                        "schema": {
-                            "$ref": "#/definitions/HTTP400BadRequest"
-                        }
-                    },
-                    "404": {
-                        "description": "Not Found",
-                        "schema": {
-                            "$ref": "#/definitions/HTTP404NotFound"
-                        }
-                    },
-                    "500": {
-                        "description": "Internal Server Error",
-                        "schema": {
-                            "$ref": "#/definitions/HTTP500InternalServerError"
-                        }
-                    }
-                }
-            }
-        },
-        "/api/v1/gwvm/{hypervisorType}": {
-            "get": {
-                "description": "gwvm의 상태를 보여줍니다.",
-                "consumes": [
-                    "application/x-www-form-urlencoded"
-                ],
-                "produces": [
-                    "application/json"
-                ],
-                "tags": [
-                    "Gwvm"
-                ],
-                "summary": "State of Gateway VM",
-                "parameters": [
-                    {
-                        "type": "string",
-                        "description": "Hypervisor Type",
-                        "name": "hypervisorType",
-                        "in": "path",
-                        "required": true
-                    }
-                ],
-                "responses": {
-                    "200": {
-                        "description": "OK",
-                        "schema": {
-                            "$ref": "#/definitions/model.GwvmMgmt"
-                        }
-                    },
-                    "400": {
-                        "description": "Bad Request",
-                        "schema": {
-                            "$ref": "#/definitions/HTTP400BadRequest"
-                        }
-                    },
-                    "404": {
-                        "description": "Not Found",
-                        "schema": {
-                            "$ref": "#/definitions/HTTP404NotFound"
-                        }
-                    },
-                    "500": {
-                        "description": "Internal Server Error",
-                        "schema": {
-                            "$ref": "#/definitions/HTTP500InternalServerError"
-                        }
-                    }
-                }
-            },
-            "post": {
-                "description": "gwvm을 생성합니다.",
-                "consumes": [
-                    "multipart/form-data"
-                ],
-                "produces": [
-                    "application/json"
-                ],
-                "tags": [
-                    "Gwvm"
-                ],
-                "summary": "Setup Gateway Vm",
-                "parameters": [
-                    {
-                        "type": "string",
-                        "description": "Hypervisor Type",
-                        "name": "hypervisorType",
-                        "in": "path",
-                        "required": true
-                    },
-                    {
-                        "type": "string",
-                        "description": "Gwvm Management Nic Paren",
-                        "name": "gwvmMngtNicParen",
-                        "in": "formData",
-                        "required": true
-                    },
-                    {
-                        "type": "string",
-                        "description": "Gwvm Management Nic Ip",
-                        "name": "gwvmMngtNicIp",
-                        "in": "formData",
-                        "required": true
-                    },
-                    {
-                        "type": "string",
-                        "description": "Gwvm Storage Nic Parent",
-                        "name": "gwvmStorageNicParent",
-                        "in": "formData",
-                        "required": true
-                    },
-                    {
-                        "type": "string",
-                        "description": "Gwvm Storage Nic Ip",
-                        "name": "gwvmStorageNicIp",
-                        "in": "formData",
-                        "required": true
-                    }
-                ],
-                "responses": {
-                    "200": {
-                        "description": "OK",
-                        "schema": {
-                            "$ref": "#/definitions/model.GwvmMgmt"
-                        }
-                    },
-                    "400": {
-                        "description": "Bad Request",
-                        "schema": {
-                            "$ref": "#/definitions/HTTP400BadRequest"
-                        }
-                    },
-                    "404": {
-                        "description": "Not Found",
-                        "schema": {
-                            "$ref": "#/definitions/HTTP404NotFound"
-                        }
-                    },
-                    "500": {
-                        "description": "Internal Server Error",
-                        "schema": {
-                            "$ref": "#/definitions/HTTP500InternalServerError"
-                        }
-                    }
-                }
-            }
-        },
         "/api/v1/gluefs": {
             "get": {
                 "description": "GlueFS의 상태값과 리스트를 보여줍니다.",
@@ -636,7 +303,11 @@
                 "summary": "Create of Iscsi Servcie Daemon",
                 "parameters": [
                     {
-                        "type": "string",
+                        "type": "array",
+                        "items": {
+                            "type": "string"
+                        },
+                        "collectionFormat": "multi",
                         "description": "Host Name",
                         "name": "hosts",
                         "in": "formData",
@@ -657,7 +328,7 @@
                         "required": true
                     },
                     {
-                        "type": "string",
+                        "type": "integer",
                         "description": "ISCSI API Port",
                         "name": "api_port",
                         "in": "formData",
@@ -676,8 +347,169 @@
                         "name": "api_password",
                         "in": "formData",
                         "required": true
+                    },
+                    {
+                        "type": "integer",
+                        "description": "Iscsi Service Daemon Count",
+                        "name": "count",
+                        "in": "formData"
                     }
                 ],
+                "responses": {
+                    "200": {
+                        "description": "Success",
+                        "schema": {
+                            "type": "string"
+                        }
+                    },
+                    "400": {
+                        "description": "Bad Request",
+                        "schema": {
+                            "$ref": "#/definitions/HTTP400BadRequest"
+                        }
+                    },
+                    "404": {
+                        "description": "Not Found",
+                        "schema": {
+                            "$ref": "#/definitions/HTTP404NotFound"
+                        }
+                    },
+                    "500": {
+                        "description": "Internal Server Error",
+                        "schema": {
+                            "$ref": "#/definitions/HTTP500InternalServerError"
+                        }
+                    }
+                }
+            }
+        },
+        "/api/v1/iscsi/discovery": {
+            "get": {
+                "description": "Iscsi Discovery Auth 계정 정보를 보여줍니다.",
+                "consumes": [
+                    "application/x-www-form-urlencoded"
+                ],
+                "produces": [
+                    "application/json"
+                ],
+                "tags": [
+                    "IscsiDiscovery"
+                ],
+                "summary": "Info User of Iscsi Discovery Auth",
+                "responses": {
+                    "200": {
+                        "description": "OK",
+                        "schema": {
+                            "$ref": "#/definitions/IscsiDiscoveryInfo"
+                        }
+                    },
+                    "400": {
+                        "description": "Bad Request",
+                        "schema": {
+                            "$ref": "#/definitions/HTTP400BadRequest"
+                        }
+                    },
+                    "404": {
+                        "description": "Not Found",
+                        "schema": {
+                            "$ref": "#/definitions/HTTP404NotFound"
+                        }
+                    },
+                    "500": {
+                        "description": "Internal Server Error",
+                        "schema": {
+                            "$ref": "#/definitions/HTTP500InternalServerError"
+                        }
+                    }
+                }
+            },
+            "post": {
+                "description": "Iscsi Discovery Auth 계정을 생성합니다.",
+                "consumes": [
+                    "application/x-www-form-urlencoded"
+                ],
+                "produces": [
+                    "application/json"
+                ],
+                "tags": [
+                    "IscsiDiscovery"
+                ],
+                "summary": "Create User of Iscsi Discovery Auth",
+                "parameters": [
+                    {
+                        "maxLength": 64,
+                        "minLength": 8,
+                        "type": "string",
+                        "description": "Iscsi Discovery Authentication User",
+                        "name": "username",
+                        "in": "formData",
+                        "required": true
+                    },
+                    {
+                        "maxLength": 16,
+                        "minLength": 12,
+                        "type": "string",
+                        "description": "Iscsi Discovery Authentication Password",
+                        "name": "password",
+                        "in": "formData",
+                        "required": true
+                    },
+                    {
+                        "maxLength": 64,
+                        "minLength": 8,
+                        "type": "string",
+                        "description": "Iscsi Discovery Authentication Mutual User",
+                        "name": "mutual_username",
+                        "in": "formData"
+                    },
+                    {
+                        "maxLength": 16,
+                        "minLength": 12,
+                        "type": "string",
+                        "description": "Iscsi Discovery Authentication Mutual Password",
+                        "name": "mutual_password",
+                        "in": "formData"
+                    }
+                ],
+                "responses": {
+                    "200": {
+                        "description": "Success",
+                        "schema": {
+                            "type": "string"
+                        }
+                    },
+                    "400": {
+                        "description": "Bad Request",
+                        "schema": {
+                            "$ref": "#/definitions/HTTP400BadRequest"
+                        }
+                    },
+                    "404": {
+                        "description": "Not Found",
+                        "schema": {
+                            "$ref": "#/definitions/HTTP404NotFound"
+                        }
+                    },
+                    "500": {
+                        "description": "Internal Server Error",
+                        "schema": {
+                            "$ref": "#/definitions/HTTP500InternalServerError"
+                        }
+                    }
+                }
+            },
+            "delete": {
+                "description": "Iscsi Discovery Auth 계정 정보를 초기화 합니다.",
+                "consumes": [
+                    "application/x-www-form-urlencoded"
+                ],
+                "produces": [
+                    "application/json"
+                ],
+                "tags": [
+                    "IscsiDiscovery"
+                ],
+                "summary": "Reset User of Iscsi Discovery Auth",
                 "responses": {
                     "200": {
                         "description": "Success",
@@ -1006,14 +838,22 @@
                         "required": true
                     },
                     {
-                        "type": "string",
+                        "type": "array",
+                        "items": {
+                            "type": "string"
+                        },
+                        "collectionFormat": "multi",
                         "description": "Gateway Host Name",
                         "name": "hostname",
                         "in": "formData",
                         "required": true
                     },
                     {
-                        "type": "string",
+                        "type": "array",
+                        "items": {
+                            "type": "string"
+                        },
+                        "collectionFormat": "multi",
                         "description": "Gateway Host IP Address",
                         "name": "ip_address",
                         "in": "formData",
@@ -1037,6 +877,46 @@
                         "type": "integer",
                         "description": "Iscsi Disk Image Size(Default GB)",
                         "name": "size",
+                        "in": "formData"
+                    },
+                    {
+                        "type": "boolean",
+                        "default": false,
+                        "description": "Iscsi Authentication",
+                        "name": "auth",
+                        "in": "formData",
+                        "required": true
+                    },
+                    {
+                        "maxLength": 64,
+                        "minLength": 8,
+                        "type": "string",
+                        "description": "Iscsi Auth User",
+                        "name": "username",
+                        "in": "formData"
+                    },
+                    {
+                        "maxLength": 16,
+                        "minLength": 12,
+                        "type": "string",
+                        "description": "Iscsi Auth Password",
+                        "name": "password",
+                        "in": "formData"
+                    },
+                    {
+                        "maxLength": 64,
+                        "minLength": 8,
+                        "type": "string",
+                        "description": "Iscsi Auth Mutual User",
+                        "name": "mutual_username",
+                        "in": "formData"
+                    },
+                    {
+                        "maxLength": 16,
+                        "minLength": 12,
+                        "type": "string",
+                        "description": "Iscsi Auth Mutaul Password",
+                        "name": "mutual_password",
                         "in": "formData"
                     }
                 ],
@@ -2236,6 +2116,23 @@
                         "name": "port",
                         "in": "path",
                         "required": true
+                    },
+                    {
+                        "type": "array",
+                        "items": {
+                            "type": "string"
+                        },
+                        "collectionFormat": "multi",
+                        "description": "Cluster Daemon Hostname",
+                        "name": "hostname",
+                        "in": "formData",
+                        "required": true
+                    },
+                    {
+                        "type": "integer",
+                        "description": "Cluster Daemon Service Count",
+                        "name": "service_count",
+                        "in": "formData"
                     }
                 ],
                 "responses": {
@@ -2470,6 +2367,12 @@
                         "description": "Glue Service Name",
                         "name": "service_name",
                         "in": "query"
+                    },
+                    {
+                        "type": "string",
+                        "description": "Glue Service Type",
+                        "name": "service_type",
+                        "in": "query"
                     }
                 ],
                 "responses": {
@@ -2528,6 +2431,363 @@
                         "type": "string",
                         "description": "Glue Service Control",
                         "name": "control",
+                        "in": "query",
+                        "required": true
+                    }
+                ],
+                "responses": {
+                    "200": {
+                        "description": "Success",
+                        "schema": {
+                            "type": "string"
+                        }
+                    },
+                    "400": {
+                        "description": "Bad Request",
+                        "schema": {
+                            "$ref": "#/definitions/HTTP400BadRequest"
+                        }
+                    },
+                    "404": {
+                        "description": "Not Found",
+                        "schema": {
+                            "$ref": "#/definitions/HTTP404NotFound"
+                        }
+                    },
+                    "500": {
+                        "description": "Internal Server Error",
+                        "schema": {
+                            "$ref": "#/definitions/HTTP500InternalServerError"
+                        }
+                    }
+                }
+            },
+            "delete": {
+                "description": "Glue 서비스를 삭제합니다.",
+                "consumes": [
+                    "application/x-www-form-urlencoded"
+                ],
+                "produces": [
+                    "application/json"
+                ],
+                "tags": [
+                    "Service"
+                ],
+                "summary": "Delete of Glue Service",
+                "parameters": [
+                    {
+                        "type": "string",
+                        "description": "Glue Service Name",
+                        "name": "service_name",
+                        "in": "path",
+                        "required": true
+                    }
+                ],
+                "responses": {
+                    "200": {
+                        "description": "Success",
+                        "schema": {
+                            "type": "string"
+                        }
+                    },
+                    "400": {
+                        "description": "Bad Request",
+                        "schema": {
+                            "$ref": "#/definitions/HTTP400BadRequest"
+                        }
+                    },
+                    "404": {
+                        "description": "Not Found",
+                        "schema": {
+                            "$ref": "#/definitions/HTTP404NotFound"
+                        }
+                    },
+                    "500": {
+                        "description": "Internal Server Error",
+                        "schema": {
+                            "$ref": "#/definitions/HTTP500InternalServerError"
+                        }
+                    }
+                }
+            }
+        },
+        "/api/v1/smb": {
+            "get": {
+                "description": "SMB 서비스 데몬 상태를 조회합니다.",
+                "consumes": [
+                    "application/x-www-form-urlencoded"
+                ],
+                "produces": [
+                    "application/json"
+                ],
+                "tags": [
+                    "SMB"
+                ],
+                "summary": "Show Status of Smb Servcie Daemon",
+                "responses": {
+                    "200": {
+                        "description": "OK",
+                        "schema": {
+                            "$ref": "#/definitions/SmbStatus"
+                        }
+                    },
+                    "400": {
+                        "description": "Bad Request",
+                        "schema": {
+                            "$ref": "#/definitions/HTTP400BadRequest"
+                        }
+                    },
+                    "404": {
+                        "description": "Not Found",
+                        "schema": {
+                            "$ref": "#/definitions/HTTP404NotFound"
+                        }
+                    },
+                    "500": {
+                        "description": "Internal Server Error",
+                        "schema": {
+                            "$ref": "#/definitions/HTTP500InternalServerError"
+                        }
+                    }
+                }
+            },
+            "post": {
+                "description": "SMB 서비스 전체를 생성합니다.",
+                "consumes": [
+                    "application/x-www-form-urlencoded"
+                ],
+                "produces": [
+                    "application/json"
+                ],
+                "tags": [
+                    "SMB"
+                ],
+                "summary": "Create of Smb Service",
+                "parameters": [
+                    {
+                        "type": "string",
+                        "description": "SMB Username",
+                        "name": "username",
+                        "in": "formData",
+                        "required": true
+                    },
+                    {
+                        "type": "string",
+                        "description": "SMB Password",
+                        "name": "password",
+                        "in": "formData",
+                        "required": true
+                    },
+                    {
+                        "type": "string",
+                        "description": "SMB Share Folder Name",
+                        "name": "folder_name",
+                        "in": "formData",
+                        "required": true
+                    },
+                    {
+                        "type": "string",
+                        "description": "SMB Server Actual Shared Path",
+                        "name": "path",
+                        "in": "formData",
+                        "required": true
+                    }
+                ],
+                "responses": {
+                    "200": {
+                        "description": "Success",
+                        "schema": {
+                            "type": "string"
+                        }
+                    },
+                    "400": {
+                        "description": "Bad Request",
+                        "schema": {
+                            "$ref": "#/definitions/HTTP400BadRequest"
+                        }
+                    },
+                    "404": {
+                        "description": "Not Found",
+                        "schema": {
+                            "$ref": "#/definitions/HTTP404NotFound"
+                        }
+                    },
+                    "500": {
+                        "description": "Internal Server Error",
+                        "schema": {
+                            "$ref": "#/definitions/HTTP500InternalServerError"
+                        }
+                    }
+                }
+            },
+            "delete": {
+                "description": "SMB 서비스 전체를 삭제합니다.",
+                "consumes": [
+                    "application/x-www-form-urlencoded"
+                ],
+                "produces": [
+                    "application/json"
+                ],
+                "tags": [
+                    "SMB"
+                ],
+                "summary": "Delete of Smb Service",
+                "responses": {
+                    "200": {
+                        "description": "Success",
+                        "schema": {
+                            "type": "string"
+                        }
+                    },
+                    "400": {
+                        "description": "Bad Request",
+                        "schema": {
+                            "$ref": "#/definitions/HTTP400BadRequest"
+                        }
+                    },
+                    "404": {
+                        "description": "Not Found",
+                        "schema": {
+                            "$ref": "#/definitions/HTTP404NotFound"
+                        }
+                    },
+                    "500": {
+                        "description": "Internal Server Error",
+                        "schema": {
+                            "$ref": "#/definitions/HTTP500InternalServerError"
+                        }
+                    }
+                }
+            }
+        },
+        "/api/v1/smb/user": {
+            "put": {
+                "description": "SMB 서비스 사용자의 패스워드를 변경합니다.",
+                "consumes": [
+                    "application/x-www-form-urlencoded"
+                ],
+                "produces": [
+                    "application/json"
+                ],
+                "tags": [
+                    "SMB"
+                ],
+                "summary": "Update User of Smb Service",
+                "parameters": [
+                    {
+                        "type": "string",
+                        "description": "SMB Username",
+                        "name": "username",
+                        "in": "formData",
+                        "required": true
+                    },
+                    {
+                        "type": "string",
+                        "description": "SMB Password",
+                        "name": "password",
+                        "in": "formData",
+                        "required": true
+                    }
+                ],
+                "responses": {
+                    "200": {
+                        "description": "Success",
+                        "schema": {
+                            "type": "string"
+                        }
+                    },
+                    "400": {
+                        "description": "Bad Request",
+                        "schema": {
+                            "$ref": "#/definitions/HTTP400BadRequest"
+                        }
+                    },
+                    "404": {
+                        "description": "Not Found",
+                        "schema": {
+                            "$ref": "#/definitions/HTTP404NotFound"
+                        }
+                    },
+                    "500": {
+                        "description": "Internal Server Error",
+                        "schema": {
+                            "$ref": "#/definitions/HTTP500InternalServerError"
+                        }
+                    }
+                }
+            },
+            "post": {
+                "description": "SMB 서비스 사용자를 생성합니다.",
+                "consumes": [
+                    "application/x-www-form-urlencoded"
+                ],
+                "produces": [
+                    "application/json"
+                ],
+                "tags": [
+                    "SMB"
+                ],
+                "summary": "Create User of Smb Service",
+                "parameters": [
+                    {
+                        "type": "string",
+                        "description": "SMB Username",
+                        "name": "username",
+                        "in": "formData",
+                        "required": true
+                    },
+                    {
+                        "type": "string",
+                        "description": "SMB Password",
+                        "name": "password",
+                        "in": "formData",
+                        "required": true
+                    }
+                ],
+                "responses": {
+                    "200": {
+                        "description": "Success",
+                        "schema": {
+                            "type": "string"
+                        }
+                    },
+                    "400": {
+                        "description": "Bad Request",
+                        "schema": {
+                            "$ref": "#/definitions/HTTP400BadRequest"
+                        }
+                    },
+                    "404": {
+                        "description": "Not Found",
+                        "schema": {
+                            "$ref": "#/definitions/HTTP404NotFound"
+                        }
+                    },
+                    "500": {
+                        "description": "Internal Server Error",
+                        "schema": {
+                            "$ref": "#/definitions/HTTP500InternalServerError"
+                        }
+                    }
+                }
+            },
+            "delete": {
+                "description": "SMB 서비스 사용자를 삭제합니다.",
+                "consumes": [
+                    "application/x-www-form-urlencoded"
+                ],
+                "produces": [
+                    "application/json"
+                ],
+                "tags": [
+                    "SMB"
+                ],
+                "summary": "Delete User of Smb Service",
+                "parameters": [
+                    {
+                        "type": "string",
+                        "description": "SMB Username",
+                        "name": "username",
                         "in": "query",
                         "required": true
                     }
@@ -3229,6 +3489,29 @@
                 }
             }
         },
+        "IscsiDiscoveryInfo": {
+            "description": "Iscsi Discovery 정보 구조체",
+            "type": "object",
+            "properties": {
+                "discovery_auth": {
+                    "type": "object",
+                    "properties": {
+                        "mutual_password": {
+                            "type": "string"
+                        },
+                        "mutual_username": {
+                            "type": "string"
+                        },
+                        "password": {
+                            "type": "string"
+                        },
+                        "username": {
+                            "type": "string"
+                        }
+                    }
+                }
+            }
+        },
         "IscsiDiskList": {
             "description": "Iscsi Disk List 구조체",
             "type": "object",
@@ -3348,6 +3631,26 @@
                 }
             }
         },
+        "SmbStatus": {
+            "type": "object",
+            "properties": {
+                "description": {
+                    "type": "string"
+                },
+                "names": {
+                    "type": "string"
+                },
+                "state": {
+                    "type": "string"
+                },
+                "status": {
+                    "type": "string"
+                },
+                "users": {
+                    "$ref": "#/definitions/model.Users"
+                }
+            }
+        },
         "Version": {
             "description": "API의 버전",
             "type": "object",
@@ -3365,17 +3668,14 @@
                 }
             }
         },
-        "model.GwvmMgmt": {
+        "model.Users": {
             "type": "object",
             "properties": {
-                "debug": {
-                    "description": "Debug info",
-                    "type": "boolean",
-                    "format": "bool",
-                    "example": true
-                },
-                "message": {
-                    "type": "string"
+                "users": {
+                    "type": "array",
+                    "items": {
+                        "type": "string"
+                    }
                 }
             }
         }

@@ -8,10 +8,10 @@ import (
 	"os/exec"
 )
 
-func NfsClusterCreate(cluster_id string, port string) (output string, err error) {
+func NfsClusterCreate(yaml_file string) (output string, err error) {
 	var stdCreate []byte
-	cluster_create_cmd := exec.Command("ceph", "nfs", "cluster", "create", cluster_id, "gwvm", "--port", port)
-	stdCreate, err = cluster_create_cmd.CombinedOutput()
+	cmd := exec.Command("ceph", "orch", "apply", "-i", yaml_file)
+	stdCreate, err = cmd.CombinedOutput()
 	if err != nil {
 		err = errors.New(string(stdCreate))
 		utils.FancyHandleError(err)
@@ -21,6 +21,7 @@ func NfsClusterCreate(cluster_id string, port string) (output string, err error)
 		output = "Success"
 	}
 	return
+
 }
 func NfsClusterDelete(cluster_id string) (output string, err error) {
 	var stdDelete []byte

@@ -11,6 +11,7 @@ import (
 	"strconv"
 
 	"github.com/gin-gonic/gin"
+	"gopkg.in/yaml.v2"
 )
 
 // NfsClusterList godoc
@@ -45,6 +46,8 @@ func (c *Controller) NfsClusterList(ctx *gin.Context) {
 //	@Description	Glue NFS Cluster를 생성합니다.
 //	@param			cluster_id 	path	string	true	"NFS Cluster Identifier"
 //	@param			port 	path	string	true	"Cluster Port"
+//	@param			hostname 		formData	[]string	true	"Cluster Daemon Hostname" collectionFormat(multi)
+//	@param			service_count 	formData	int		false	"Cluster Daemon Service Count"
 //	@Tags			NFS
 //	@Accept			x-www-form-urlencoded
 //	@Produce		json
@@ -55,16 +58,78 @@ func (c *Controller) NfsClusterList(ctx *gin.Context) {
 //	@Router			/api/v1/nfs/{cluster_id}/{port} [post]
 func (c *Controller) NfsClusterCreate(ctx *gin.Context) {
 	cluster_id := ctx.Param("cluster_id")
-	port := ctx.Param("port")
-	dat, err := nfs.NfsClusterCreate(cluster_id, port)
-	if err != nil {
-		utils.FancyHandleError(err)
-		httputil.NewError(ctx, http.StatusInternalServerError, err)
-		return
+	hostname, _ := ctx.GetPostFormArray("hostname")
+	service_count, _ := ctx.GetPostForm("service_count")
+	port_swag := ctx.Param("port")
+	port, _ := strconv.Atoi(port_swag)
+	count, _ := strconv.Atoi(service_count)
+	if service_count == "" {
+		value := model.NfsClusterCreate{
+			ServiceType: "nfs",
+			ServiceID:   cluster_id,
+			Placement: model.NfsPlacement{
+				Hosts: hostname,
+			},
+			Spec: model.NfsSpec{
+				Port: port,
+			},
+		}
+		yaml_data, err := yaml.Marshal(&value)
+		nfs_yaml := "/etc/ceph/nfs.yaml"
+		err = os.WriteFile(nfs_yaml, yaml_data, 0644)
+		if err != nil {
+			utils.FancyHandleError(err)
+			httputil.NewError(ctx, http.StatusInternalServerError, err)
+			return
+		}
+		dat, err := nfs.NfsClusterCreate(nfs_yaml)
+		if err != nil {
+			utils.FancyHandleError(err)
+			httputil.NewError(ctx, http.StatusInternalServerError, err)
+			return
+		} else {
+			if err := os.Remove(nfs_yaml); err != nil {
+				utils.FancyHandleError(err)
+				httputil.NewError(ctx, http.StatusInternalServerError, err)
+			}
+		}
+		ctx.Header("Access-Control-Allow-Origin", "*")
+		ctx.IndentedJSON(http.StatusOK, dat)
+	} else {
+		value := model.NfsClusterCreateCount{
+			ServiceType: "nfs",
+			ServiceID:   cluster_id,
+			Placement: model.NfsPlacementCount{
+				Count: count,
+				Hosts: hostname,
+			},
+			Spec: model.NfsSpec{
+				Port: port,
+			},
+		}
+		yaml_data, err := yaml.Marshal(&value)
+		nfs_yaml := "/etc/ceph/nfs.yaml"
+		err = os.WriteFile(nfs_yaml, yaml_data, 0644)
+		if err != nil {
+			utils.FancyHandleError(err)
+			httputil.NewError(ctx, http.StatusInternalServerError, err)
+			return
+		}
+		dat, err := nfs.NfsClusterCreate(nfs_yaml)
+		if err != nil {
+			utils.FancyHandleError(err)
+			httputil.NewError(ctx, http.StatusInternalServerError, err)
+			return
+		} else {
+			if err := os.Remove(nfs_yaml); err != nil {
+				utils.FancyHandleError(err)
+				httputil.NewError(ctx, http.StatusInternalServerError, err)
+			}
+		}
+		ctx.Header("Access-Control-Allow-Origin", "*")
+		ctx.IndentedJSON(http.StatusOK, dat)
 	}
-	// Print the output
-	ctx.Header("Access-Control-Allow-Origin", "*")
-	ctx.IndentedJSON(http.StatusOK, dat)
+
 }
 
 // NfsClusterDelete godoc
@@ -143,6 +208,11 @@ func (c *Controller) NfsExportCreate(ctx *gin.Context) {
 		Transports:    transports}
 	//value := []byte("EXPORT {\n \tFSAL {\n\t\tname = \"" + storage_name + "\";\n\t\tfilesystem = \"" + fs_name + "\";\n\t}\n\texport_id = 1;\n\tpath = \"" + path + "\";\n\tpseudo = \"" + pseudo + "\";\n\taccess_type = \"" + access_type + "\";\n\tsquash = \"" + squash + "\";\n\tprotocols = 4;\n\ttrasnports = \"" + transports + "\";\n}")
 	json_data, err := json.MarshalIndent(value, "", " ")
+	if err != nil {
+		utils.FancyHandleError(err)
+		httputil.NewError(ctx, http.StatusInternalServerError, err)
+		return
+	}
 	nfs_export_create_conf := "/root/nfs_export_create.conf"
 	err = os.WriteFile(nfs_export_create_conf, json_data, 0644)
 
@@ -317,6 +387,7 @@ func (c *Controller) NfsExportDetailed(ctx *gin.Context) {
 			httputil.NewError(ctx, http.StatusInternalServerError, err)
 			return
 		}
+		ctx.Header("Access-Control-Allow-Origin", "*")
 		ctx.IndentedJSON(http.StatusOK, dat)
 	} else {
 		var output model.NfsExportDetailed
@@ -335,8 +406,7 @@ func (c *Controller) NfsExportDetailed(ctx *gin.Context) {
 			httputil.NewError(ctx, http.StatusInternalServerError, err)
 			return
 		}
+		ctx.Header("Access-Control-Allow-Origin", "*")
 		ctx.IndentedJSON(http.StatusOK, output)
 	}
-	// Print the output
-	ctx.Header("Access-Control-Allow-Origin", "*")
 }

@@ -422,6 +422,21 @@ definitions:
       snapshot_count:
         type: integer
     type: object
+  IscsiDiscoveryInfo:
+    description: Iscsi Discovery 정보 구조체
+    properties:
+      discovery_auth:
+        properties:
+          mutual_password:
+            type: string
+          mutual_username:
+            type: string
+          password:
+            type: string
+          username:
+            type: string
+        type: object
+    type: object
   IscsiDiskList:
     description: Iscsi Disk List 구조체
     properties:
@@ -510,6 +525,19 @@ definitions:
       states:
         description: 이미지 상세
     type: object
+  SmbStatus:
+    properties:
+      description:
+        type: string
+      names:
+        type: string
+      state:
+        type: string
+      status:
+        type: string
+      users:
+        $ref: '#/definitions/model.Users'
+    type: object
   Version:
     description: API의 버전
     properties:
@@ -522,6 +550,13 @@ definitions:
         example: "1.0"
         format: string
         type: string
+    type: object
+  model.Users:
+    properties:
+      users:
+        items:
+          type: string
+        type: array
     type: object
 info:
   contact:
@@ -721,11 +756,14 @@ paths:
       - application/x-www-form-urlencoded
       description: Iscsi 서비스 데몬을 생성합니다.
       parameters:
-      - description: Host Name
+      - collectionFormat: multi
+        description: Host Name
         in: formData
+        items:
+          type: string
         name: hosts
         required: true
-        type: string
+        type: array
       - description: ISCSI Service Name
         in: formData
         name: service_id
@@ -740,7 +778,7 @@ paths:
         in: formData
         name: api_port
         required: true
-        type: string
+        type: integer
       - description: ISCSI API User
         in: formData
         name: api_user
@@ -751,6 +789,10 @@ paths:
         name: api_password
         required: true
         type: string
+      - description: Iscsi Service Daemon Count
+        in: formData
+        name: count
+        type: integer
       produces:
       - application/json
       responses:
@@ -773,6 +815,112 @@ paths:
       summary: Create of Iscsi Servcie Daemon
       tags:
       - Iscsi
+  /api/v1/iscsi/discovery:
+    delete:
+      consumes:
+      - application/x-www-form-urlencoded
+      description: Iscsi Discovery Auth 계정 정보를 초기화 합니다.
+      produces:
+      - application/json
+      responses:
+        "200":
+          description: Success
+          schema:
+            type: string
+        "400":
+          description: Bad Request
+          schema:
+            $ref: '#/definitions/HTTP400BadRequest'
+        "404":
+          description: Not Found
+          schema:
+            $ref: '#/definitions/HTTP404NotFound'
+        "500":
+          description: Internal Server Error
+          schema:
+            $ref: '#/definitions/HTTP500InternalServerError'
+      summary: Reset User of Iscsi Discovery Auth
+      tags:
+      - IscsiDiscovery
+    get:
+      consumes:
+      - application/x-www-form-urlencoded
+      description: Iscsi Discovery Auth 계정 정보를 보여줍니다.
+      produces:
+      - application/json
+      responses:
+        "200":
+          description: OK
+          schema:
+            $ref: '#/definitions/IscsiDiscoveryInfo'
+        "400":
+          description: Bad Request
+          schema:
+            $ref: '#/definitions/HTTP400BadRequest'
+        "404":
+          description: Not Found
+          schema:
+            $ref: '#/definitions/HTTP404NotFound'
+        "500":
+          description: Internal Server Error
+          schema:
+            $ref: '#/definitions/HTTP500InternalServerError'
+      summary: Info User of Iscsi Discovery Auth
+      tags:
+      - IscsiDiscovery
+    post:
+      consumes:
+      - application/x-www-form-urlencoded
+      description: Iscsi Discovery Auth 계정을 생성합니다.
+      parameters:
+      - description: Iscsi Discovery Authentication User
+        in: formData
+        maxLength: 64
+        minLength: 8
+        name: username
+        required: true
+        type: string
+      - description: Iscsi Discovery Authentication Password
+        in: formData
+        maxLength: 16
+        minLength: 12
+        name: password
+        required: true
+        type: string
+      - description: Iscsi Discovery Authentication Mutual User
+        in: formData
+        maxLength: 64
+        minLength: 8
+        name: mutual_username
+        type: string
+      - description: Iscsi Discovery Authentication Mutual Password
+        in: formData
+        maxLength: 16
+        minLength: 12
+        name: mutual_password
+        type: string
+      produces:
+      - application/json
+      responses:
+        "200":
+          description: Success
+          schema:
+            type: string
+        "400":
+          description: Bad Request
+          schema:
+            $ref: '#/definitions/HTTP400BadRequest'
+        "404":
+          description: Not Found
+          schema:
+            $ref: '#/definitions/HTTP404NotFound'
+        "500":
+          description: Internal Server Error
+          schema:
+            $ref: '#/definitions/HTTP500InternalServerError'
+      summary: Create User of Iscsi Discovery Auth
+      tags:
+      - IscsiDiscovery
   /api/v1/iscsi/disk:
     delete:
       consumes:
@@ -1022,16 +1170,22 @@ paths:
         name: iqn_id
         required: true
         type: string
-      - description: Gateway Host Name
+      - collectionFormat: multi
+        description: Gateway Host Name
         in: formData
+        items:
+          type: string
         name: hostname
         required: true
-        type: string
-      - description: Gateway Host IP Address
+        type: array
+      - collectionFormat: multi
+        description: Gateway Host IP Address
         in: formData
+        items:
+          type: string
         name: ip_address
         required: true
-        type: string
+        type: array
       - description: Glue Pool Name
         in: formData
         name: pool_name
@@ -1046,6 +1200,36 @@ paths:
         in: formData
         name: size
         type: integer
+      - default: false
+        description: Iscsi Authentication
+        in: formData
+        name: auth
+        required: true
+        type: boolean
+      - description: Iscsi Auth User
+        in: formData
+        maxLength: 64
+        minLength: 8
+        name: username
+        type: string
+      - description: Iscsi Auth Password
+        in: formData
+        maxLength: 16
+        minLength: 12
+        name: password
+        type: string
+      - description: Iscsi Auth Mutual User
+        in: formData
+        maxLength: 64
+        minLength: 8
+        name: mutual_username
+        type: string
+      - description: Iscsi Auth Mutaul Password
+        in: formData
+        maxLength: 16
+        minLength: 12
+        name: mutual_password
+        type: string
       produces:
       - application/json
       responses:
@@ -1523,6 +1707,18 @@ paths:
         name: port
         required: true
         type: string
+      - collectionFormat: multi
+        description: Cluster Daemon Hostname
+        in: formData
+        items:
+          type: string
+        name: hostname
+        required: true
+        type: array
+      - description: Cluster Daemon Service Count
+        in: formData
+        name: service_count
+        type: integer
       produces:
       - application/json
       responses:
@@ -1963,6 +2159,10 @@ paths:
         in: query
         name: service_name
         type: string
+      - description: Glue Service Type
+        in: query
+        name: service_type
+        type: string
       produces:
       - application/json
       responses:
@@ -1985,6 +2185,38 @@ paths:
       tags:
       - Service
   /api/v1/service/{service_name}:
+    delete:
+      consumes:
+      - application/x-www-form-urlencoded
+      description: Glue 서비스를 삭제합니다.
+      parameters:
+      - description: Glue Service Name
+        in: path
+        name: service_name
+        required: true
+        type: string
+      produces:
+      - application/json
+      responses:
+        "200":
+          description: Success
+          schema:
+            type: string
+        "400":
+          description: Bad Request
+          schema:
+            $ref: '#/definitions/HTTP400BadRequest'
+        "404":
+          description: Not Found
+          schema:
+            $ref: '#/definitions/HTTP404NotFound'
+        "500":
+          description: Internal Server Error
+          schema:
+            $ref: '#/definitions/HTTP500InternalServerError'
+      summary: Delete of Glue Service
+      tags:
+      - Service
     post:
       consumes:
       - application/x-www-form-urlencoded
@@ -2026,6 +2258,213 @@ paths:
       summary: Control of Glue Service
       tags:
       - Service
+  /api/v1/smb:
+    delete:
+      consumes:
+      - application/x-www-form-urlencoded
+      description: SMB 서비스 전체를 삭제합니다.
+      produces:
+      - application/json
+      responses:
+        "200":
+          description: Success
+          schema:
+            type: string
+        "400":
+          description: Bad Request
+          schema:
+            $ref: '#/definitions/HTTP400BadRequest'
+        "404":
+          description: Not Found
+          schema:
+            $ref: '#/definitions/HTTP404NotFound'
+        "500":
+          description: Internal Server Error
+          schema:
+            $ref: '#/definitions/HTTP500InternalServerError'
+      summary: Delete of Smb Service
+      tags:
+      - SMB
+    get:
+      consumes:
+      - application/x-www-form-urlencoded
+      description: SMB 서비스 데몬 상태를 조회합니다.
+      produces:
+      - application/json
+      responses:
+        "200":
+          description: OK
+          schema:
+            $ref: '#/definitions/SmbStatus'
+        "400":
+          description: Bad Request
+          schema:
+            $ref: '#/definitions/HTTP400BadRequest'
+        "404":
+          description: Not Found
+          schema:
+            $ref: '#/definitions/HTTP404NotFound'
+        "500":
+          description: Internal Server Error
+          schema:
+            $ref: '#/definitions/HTTP500InternalServerError'
+      summary: Show Status of Smb Servcie Daemon
+      tags:
+      - SMB
+    post:
+      consumes:
+      - application/x-www-form-urlencoded
+      description: SMB 서비스 전체를 생성합니다.
+      parameters:
+      - description: SMB Username
+        in: formData
+        name: username
+        required: true
+        type: string
+      - description: SMB Password
+        in: formData
+        name: password
+        required: true
+        type: string
+      - description: SMB Share Folder Name
+        in: formData
+        name: folder_name
+        required: true
+        type: string
+      - description: SMB Server Actual Shared Path
+        in: formData
+        name: path
+        required: true
+        type: string
+      produces:
+      - application/json
+      responses:
+        "200":
+          description: Success
+          schema:
+            type: string
+        "400":
+          description: Bad Request
+          schema:
+            $ref: '#/definitions/HTTP400BadRequest'
+        "404":
+          description: Not Found
+          schema:
+            $ref: '#/definitions/HTTP404NotFound'
+        "500":
+          description: Internal Server Error
+          schema:
+            $ref: '#/definitions/HTTP500InternalServerError'
+      summary: Create of Smb Service
+      tags:
+      - SMB
+  /api/v1/smb/user:
+    delete:
+      consumes:
+      - application/x-www-form-urlencoded
+      description: SMB 서비스 사용자를 삭제합니다.
+      parameters:
+      - description: SMB Username
+        in: query
+        name: username
+        required: true
+        type: string
+      produces:
+      - application/json
+      responses:
+        "200":
+          description: Success
+          schema:
+            type: string
+        "400":
+          description: Bad Request
+          schema:
+            $ref: '#/definitions/HTTP400BadRequest'
+        "404":
+          description: Not Found
+          schema:
+            $ref: '#/definitions/HTTP404NotFound'
+        "500":
+          description: Internal Server Error
+          schema:
+            $ref: '#/definitions/HTTP500InternalServerError'
+      summary: Delete User of Smb Service
+      tags:
+      - SMB
+    post:
+      consumes:
+      - application/x-www-form-urlencoded
+      description: SMB 서비스 사용자를 생성합니다.
+      parameters:
+      - description: SMB Username
+        in: formData
+        name: username
+        required: true
+        type: string
+      - description: SMB Password
+        in: formData
+        name: password
+        required: true
+        type: string
+      produces:
+      - application/json
+      responses:
+        "200":
+          description: Success
+          schema:
+            type: string
+        "400":
+          description: Bad Request
+          schema:
+            $ref: '#/definitions/HTTP400BadRequest'
+        "404":
+          description: Not Found
+          schema:
+            $ref: '#/definitions/HTTP404NotFound'
+        "500":
+          description: Internal Server Error
+          schema:
+            $ref: '#/definitions/HTTP500InternalServerError'
+      summary: Create User of Smb Service
+      tags:
+      - SMB
+    put:
+      consumes:
+      - application/x-www-form-urlencoded
+      description: SMB 서비스 사용자의 패스워드를 변경합니다.
+      parameters:
+      - description: SMB Username
+        in: formData
+        name: username
+        required: true
+        type: string
+      - description: SMB Password
+        in: formData
+        name: password
+        required: true
+        type: string
+      produces:
+      - application/json
+      responses:
+        "200":
+          description: Success
+          schema:
+            type: string
+        "400":
+          description: Bad Request
+          schema:
+            $ref: '#/definitions/HTTP400BadRequest'
+        "404":
+          description: Not Found
+          schema:
+            $ref: '#/definitions/HTTP404NotFound'
+        "500":
+          description: Internal Server Error
+          schema:
+            $ref: '#/definitions/HTTP500InternalServerError'
+      summary: Update User of Smb Service
+      tags:
+      - SMB
   /version:
     get:
       consumes:

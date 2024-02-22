@@ -4,6 +4,7 @@ import (
 	"Glue-API/model"
 	"Glue-API/utils"
 	"encoding/json"
+	"errors"
 	"os/exec"
 )
 
@@ -53,8 +54,14 @@ func Status() (dat model.GlueStatus, err error) {
 	var stdout []byte
 	cmd := exec.Command("ceph", "-s", "-f", "json")
 	stdout, err = cmd.CombinedOutput()
+	if err != nil {
+		err = errors.New(string(stdout))
+		utils.FancyHandleError(err)
+		return
+	}
 
 	if err = json.Unmarshal(stdout, &dat); err != nil {
+		err = errors.New(string(stdout))
 		utils.FancyHandleError(err)
 		return
 	}
@@ -63,43 +70,117 @@ func Status() (dat model.GlueStatus, err error) {
 }
 
 func PoolDelete(pool_name string) (output string, err error) {
-	var stdDelete []byte
+	var stdout []byte
 	cmd := exec.Command("ceph", "osd", "pool", "rm", pool_name, pool_name, "--yes-i-really-really-mean-it")
-	stdDelete, err = cmd.CombinedOutput()
-	if err = json.Unmarshal(stdDelete, &output); err != nil {
+	stdout, err = cmd.CombinedOutput()
+	if err != nil {
+		err = errors.New(string(stdout))
+		utils.FancyHandleError(err)
+		return
+	}
+	if err = json.Unmarshal(stdout, &output); err != nil {
+		err = errors.New(string(stdout))
 		utils.FancyHandleError(err)
 		return
 	}
 
 	return
 }
-func ServiceLs(service_name string) (dat model.ServiceLs, err error) {
+func ServiceLs(service_name string, service_type string) (dat model.ServiceLs, err error) {
 	var stdout []byte
-	if service_name == "" {
+	if service_name == "" && service_type == "" {
 		cmd := exec.Command("ceph", "orch", "ls", "-f", "json")
 		stdout, err = cmd.CombinedOutput()
-		if err = json.Unmarshal(stdout, &dat); err != nil {
+		if err != nil {
+			err = errors.New(string(stdout))
 			utils.FancyHandleError(err)
 			return
 		}
-	} else {
+		if err = json.Unmarshal(stdout, &dat); err != nil {
+			err = errors.New(string(stdout))
+			utils.FancyHandleError(err)
+			return
+		}
+		return
+	} else if service_name == "" && service_type != "" {
+		cmd := exec.Command("ceph", "orch", "ls", "--service_type", service_type, "-f", "json")
+		stdout, err = cmd.CombinedOutput()
+		if err != nil {
+			err = errors.New(string(stdout))
+			utils.FancyHandleError(err)
+			return
+		}
+		if err = json.Unmarshal(stdout, &dat); err != nil {
+			err = errors.New(string(stdout))
+			utils.FancyHandleError(err)
+			return
+		}
+		return
+	} else if service_name != "" && service_type == "" {
 		cmd := exec.Command("ceph", "orch", "ls", "--service_name", service_name, "-f", "json")
 		stdout, err = cmd.CombinedOutput()
+		if err != nil {
+			err = errors.New(string(stdout))
+			utils.FancyHandleError(err)
+			return
+		}
 		if err = json.Unmarshal(stdout, &dat); err != nil {
 			utils.FancyHandleError(err)
 			return
 		}
+		return
+	} else {
+		cmd := exec.Command("ceph", "orch", "ls", "--service_type", service_type, "--service_name", service_name, "-f", "json")
+		stdout, err = cmd.CombinedOutput()
+		if err != nil {
+			err = errors.New(string(stdout))
+			utils.FancyHandleError(err)
+			return
+		}
+		if err = json.Unmarshal(stdout, &dat); err != nil {
+			err = errors.New(string(stdout))
+			utils.FancyHandleError(err)
+			return
+		}
+		return
 	}
-	return
 }
 
 func ServiceControl(control string, service_name string) (output string, err error) {
 	var stdout []byte
-	cmd := exec.Command("ceph", "orch", control, service_name)
-	stdout, err = cmd.CombinedOutput()
-	if err != nil {
+	if service_name == "smb" {
+		cmd := exec.Command("systemctl", control, service_name)
+		stdout, err = cmd.CombinedOutput()
+		if err != nil {
+			err = errors.New(string(stdout))
+			utils.FancyHandleError(err)
+			return
+		}
+		output = "Success"
+		return
+	} else {
+		cmd := exec.Command("ceph", "orch", control, service_name)
+		stdout, err = cmd.CombinedOutput()
+		if err != nil {
+			err = errors.New(string(stdout))
+			utils.FancyHandleError(err)
+			return
+		}
+		output = string(stdout)
 		return
 	}
-	output = string(stdout)
+}
+
+func ServiceDelete(service_name string) (output string, err error) {
+	var stdout []byte
+	cmd := exec.Command("ceph", "orch", "rm", service_name)
+	stdout, err = cmd.CombinedOutput()
+	if err != nil {
+		err = errors.New(string(stdout))
+		utils.FancyHandleError(err)
+		output = "Fail"
+		return
+	}
+	output = "Success"
 	return
 }

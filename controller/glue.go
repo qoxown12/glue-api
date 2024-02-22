@@ -8,6 +8,7 @@ import (
 	"encoding/json"
 	"net/http"
 	"os/exec"
+	"strings"
 
 	"github.com/gin-gonic/gin"
 )
@@ -254,4 +255,46 @@ func (c *Controller) ServiceDelete(ctx *gin.Context) {
 func (c *Controller) ServiceDeleteOptions(ctx *gin.Context) {
 	SetOptionHeader(ctx)
 	ctx.IndentedJSON(http.StatusOK, nil)
+}
+
+// HostList godoc
+//
+//	@Summary		Show List of Glue Hosts
+//	@Description	Glue 호스트 리스트를 보여줍니다.
+//	@Tags			Hosts
+//	@Accept			x-www-form-urlencoded
+//	@Produce		json
+//	@Success		200	{object}	HostList
+//	@Failure		400	{object}	httputil.HTTP400BadRequest
+//	@Failure		404	{object}	httputil.HTTP404NotFound
+//	@Failure		500	{object}	httputil.HTTP500InternalServerError
+//	@Router			/api/v1/glue/hosts [get]
+func (c *Controller) HostList(ctx *gin.Context) {
+	dat, err := glue.HostList()
+	if err != nil {
+		utils.FancyHandleError(err)
+		httputil.NewError(ctx, http.StatusInternalServerError, err)
+		return
+	}
+	ip_address, err := glue.HostIp()
+	if err != nil {
+		utils.FancyHandleError(err)
+		httputil.NewError(ctx, http.StatusInternalServerError, err)
+		return
+	}
+	var str []string
+	str_data := strings.Split(string(ip_address), "\n")
+	for i := 0; i < len(str_data); i++ {
+		strs := str_data[i]
+		str = append(str, strs)
+		if i == len(str_data)-1 {
+			str = str[:len(str_data)-1]
+		}
+	}
+	for i := 0; i < len(dat); i++ {
+		dat[i].MainAddr = str[i]
+	}
+	// Print the output
+	ctx.Header("Access-Control-Allow-Origin", "*")
+	ctx.IndentedJSON(http.StatusOK, dat)
 }

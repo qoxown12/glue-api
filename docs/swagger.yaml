@@ -598,6 +598,44 @@ paths:
       summary: Show Status of Glue
       tags:
       - Glue
+  /api/v1/glue/hosts:
+    get:
+      consumes:
+      - application/x-www-form-urlencoded
+      description: Glue 호스트 리스트를 보여줍니다.
+      produces:
+      - application/json
+      responses:
+        "200":
+          description: OK
+          schema:
+            items:
+              properties:
+                addr:
+                  type: string
+                hostname:
+                  type: string
+                main_addr:
+                  type: string
+                status:
+                  type: string
+              type: object
+            type: array
+        "400":
+          description: Bad Request
+          schema:
+            $ref: '#/definitions/HTTP400BadRequest'
+        "404":
+          description: Not Found
+          schema:
+            $ref: '#/definitions/HTTP404NotFound'
+        "500":
+          description: Internal Server Error
+          schema:
+            $ref: '#/definitions/HTTP500InternalServerError'
+      summary: Show List of Glue Hosts
+      tags:
+      - Hosts
   /api/v1/glue/version:
     get:
       consumes:

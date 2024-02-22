@@ -184,3 +184,32 @@ func ServiceDelete(service_name string) (output string, err error) {
 	output = "Success"
 	return
 }
+
+func HostList() (dat model.HostList, err error) {
+	var stdout []byte
+	cmd := exec.Command("ceph", "orch", "host", "ls", "-f", "json")
+	stdout, err = cmd.CombinedOutput()
+	if err != nil {
+		err = errors.New(string(stdout))
+		utils.FancyHandleError(err)
+		return
+	}
+	if err = json.Unmarshal(stdout, &dat); err != nil {
+		err = errors.New(string(stdout))
+		utils.FancyHandleError(err)
+		return
+	}
+	return
+}
+func HostIp() (output []byte, err error) {
+	var stdout []byte
+	cmd := exec.Command("bash", "-c", "cat /etc/hosts | grep -E '*mngt' | grep -v 'ccvm' | awk '{print $1}'")
+	stdout, err = cmd.CombinedOutput()
+	if err != nil {
+		err = errors.New(string(stdout))
+		utils.FancyHandleError(err)
+		return
+	}
+	output = stdout
+	return
+}

@@ -90,3 +90,39 @@ func SmbDelete() (output string, err error) {
 	output = "Success"
 	return
 }
+func Hostname() (output string, err error) {
+	var stdout []byte
+	cmd := exec.Command("ssh", "-o", "StrictHostKeyChecking=no", "gwvm", "hostname -I | awk '{print $1}'")
+	stdout, err = cmd.CombinedOutput()
+	if err != nil {
+		err = errors.New(string(stdout))
+		utils.FancyHandleError(err)
+		return
+	}
+	output = string(stdout)
+	return
+}
+func IpAddress() (output string, err error) {
+	var stdout []byte
+	cmd := exec.Command("ssh", "-o", "StrictHostKeyChecking=no", "gwvm", "hostname")
+	stdout, err = cmd.CombinedOutput()
+	if err != nil {
+		err = errors.New(string(stdout))
+		utils.FancyHandleError(err)
+		return
+	}
+	output = string(stdout)
+	return
+}
+func Port() (output string, err error) {
+	var stdout []byte
+	cmd := exec.Command("ssh", "-o", "StrictHostKeyChecking=no", "gwvm", "netstat -ltnp | grep  smb | grep -v tcp6 | awk '{print $4}'")
+	stdout, err = cmd.CombinedOutput()
+	if err != nil {
+		err = errors.New(string(stdout))
+		utils.FancyHandleError(err)
+		return
+	}
+	output = string(stdout)
+	return
+}

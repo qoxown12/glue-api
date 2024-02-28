@@ -113,8 +113,10 @@ type InfoImage struct {
 	ModifyTimestamp string   `json:"modify_timestamp"`
 } // @name InfoImage
 type HostList []struct {
-	MainAddr string `json:"main_addr"`
-	SubAddr  string `json:"addr"`
-	Hostname string `json:"hostname"`
-	Status   string `json:"status"`
+	Ip_Address string `json:"ip_address"`
+	Addr       string `json:"addr"`
+	Hostname   string `json:"hostname"`
+	Status     string `json:"status"`
 } // @name HostList
+
+type Images interface{} // @name Images

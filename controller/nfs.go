@@ -14,6 +14,11 @@ import (
 	"gopkg.in/yaml.v2"
 )
 
+func (c *Controller) NfsOption(ctx *gin.Context) {
+	SetOptionHeader(ctx)
+	ctx.IndentedJSON(http.StatusOK, nil)
+}
+
 // NfsClusterList godoc
 //
 //	@Summary		Show List of Info of Glue NFS Cluster
@@ -156,10 +161,6 @@ func (c *Controller) NfsClusterDelete(ctx *gin.Context) {
 	// Print the output
 	ctx.Header("Access-Control-Allow-Origin", "*")
 	ctx.IndentedJSON(http.StatusOK, dat)
-}
-func (c *Controller) NfsClusterDeleteOptions(ctx *gin.Context) {
-	SetOptionHeader(ctx)
-	ctx.IndentedJSON(http.StatusOK, nil)
 }
 
 // NfsExportCreate godoc
@@ -317,10 +318,6 @@ func (c *Controller) NfsExportUpdate(ctx *gin.Context) {
 	}
 	return
 }
-func (c *Controller) NfsExportUpdateOptions(ctx *gin.Context) {
-	SetOptionHeader(ctx)
-	ctx.IndentedJSON(http.StatusOK, nil)
-}
 
 // NfsExportDelete godoc
 //
@@ -359,10 +356,6 @@ func (c *Controller) NfsExportDelete(ctx *gin.Context) {
 		}
 	}
 	// Print the output
-}
-func (c *Controller) NfsExportDeleteOptions(ctx *gin.Context) {
-	SetOptionHeader(ctx)
-	ctx.IndentedJSON(http.StatusOK, nil)
 }
 
 // NfsExportDetailed godoc

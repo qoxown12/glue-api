@@ -6,12 +6,16 @@ import (
 	"Glue-API/utils"
 	"Glue-API/utils/smb"
 	"encoding/json"
-	"fmt"
 	"net/http"
 	"strings"
 
 	"github.com/gin-gonic/gin"
 )
+
+func (c *Controller) SmbOption(ctx *gin.Context) {
+	SetOptionHeader(ctx)
+	ctx.IndentedJSON(http.StatusOK, nil)
+}
 
 // SmbStatus godoc
 //
@@ -66,38 +70,8 @@ func (c *Controller) SmbStatus(ctx *gin.Context) {
 			state = data[i+1]
 		}
 	}
-	dat_hostname, err := smb.Hostname()
-	if err != nil {
-		utils.FancyHandleError(err)
-		httputil.NewError(ctx, http.StatusInternalServerError, err)
-		return
-	}
-	hostname := strings.Replace(dat_hostname, "\n", "", -1)
-	dat_ip, err := smb.IpAddress()
-	if err != nil {
-		utils.FancyHandleError(err)
-		httputil.NewError(ctx, http.StatusInternalServerError, err)
-		return
-	}
-	ip := strings.Replace(dat_ip, "\n", "", -1)
-	dat_port, err := smb.Port()
-	if err != nil {
-		utils.FancyHandleError(err)
-		httputil.NewError(ctx, http.StatusInternalServerError, err)
-		return
-	}
-	port := strings.Split(dat_port, "\n")
-	for i := 0; i < len(port); i++ {
-		if i == len(port)-1 {
-			port = port[:len(port)-1]
-		}
-	}
-	fmt.Print(port)
 	value := model.SmbStatus{
-		Hostname:    hostname,
-		IpAddress:   ip,
 		Names:       names,
-		Port:        port,
 		Description: description,
 		Status:      status,
 		State:       state,
@@ -202,10 +176,6 @@ func (c *Controller) SmbUserUpdate(ctx *gin.Context) {
 	ctx.Header("Access-Control-Allow-Origin", "*")
 	ctx.IndentedJSON(http.StatusOK, dat)
 }
-func (c *Controller) SmbUserOptions(ctx *gin.Context) {
-	SetOptionHeader(ctx)
-	ctx.IndentedJSON(http.StatusOK, nil)
-}
 
 // SmbDelete godoc
 //
@@ -229,10 +199,6 @@ func (c *Controller) SmbDelete(ctx *gin.Context) {
 	}
 	ctx.Header("Access-Control-Allow-Origin", "*")
 	ctx.IndentedJSON(http.StatusOK, dat)
-}
-func (c *Controller) SmbOptions(ctx *gin.Context) {
-	SetOptionHeader(ctx)
-	ctx.IndentedJSON(http.StatusOK, nil)
 }
 
 // SmbUserDelete godoc

@@ -1,5 +1,16 @@
 basePath: /api/v1
 definitions:
+  Auth:
+    properties:
+      mutual_password:
+        type: string
+      mutual_user:
+        type: string
+      password:
+        type: string
+      user:
+        type: string
+    type: object
   FsGetInfo:
     description: GlueFS의 상세정보 구조체
     properties:
@@ -385,77 +396,6 @@ definitions:
       state:
         type: string
     type: object
-  InfoImage:
-    properties:
-      access_timestamp:
-        type: string
-      block_name_prefix:
-        type: string
-      create_timestamp:
-        type: string
-      features:
-        items:
-          type: string
-        type: array
-      flags:
-        items: {}
-        type: array
-      format:
-        type: integer
-      id:
-        type: string
-      modify_timestamp:
-        type: string
-      name:
-        type: string
-      object_size:
-        type: integer
-      objects:
-        type: integer
-      op_features:
-        items: {}
-        type: array
-      order:
-        type: integer
-      size:
-        type: integer
-      snapshot_count:
-        type: integer
-    type: object
-  IscsiDiscoveryInfo:
-    description: Iscsi Discovery 정보 구조체
-    properties:
-      discovery_auth:
-        properties:
-          mutual_password:
-            type: string
-          mutual_username:
-            type: string
-          password:
-            type: string
-          username:
-            type: string
-        type: object
-    type: object
-  IscsiDiskList:
-    description: Iscsi Disk List 구조체
-    properties:
-      disks: {}
-    type: object
-  IscsiTargetList:
-    description: Iscsi Target List 구조체
-    properties:
-      targets:
-        description: "Created       string `json:\"created\"`\nDiscoveryAuth struct
-          {\n\tMutualPassword                  string `json:\"mutual_password\"`\n\tMutualPasswordEncryptionEnabled
-          bool   `json:\"mutual_password_encryption_enabled\"`\n\tMutualUsername                  string
-          `json:\"mutual_username\"`\n\tPassword                        string `json:\"password\"`\n\tPasswordEncryptionEnabled
-          \      bool   `json:\"password_encryption_enabled\"`\n\tUsername                        string
-          `json:\"username\"`\n} `json:\"discovery_auth\"`\nDisks struct {\n} `json:\"disks\"`\nEpoch
-          \   int `json:\"epoch\"`\nGateways struct {\n\tGwvm struct {\n\t\tActiveLuns
-          int    `json:\"active_luns\"`\n\t\tCreated    string `json:\"created\"`\n\t\tUpdated
-          \   string `json:\"updated\"`\n\t} `json:\"gwvm\"`\n} `json:\"gateways\"`"
-    type: object
   Message:
     properties:
       message:
@@ -529,8 +469,16 @@ definitions:
     properties:
       description:
         type: string
+      hostname:
+        type: string
+      ip_address:
+        type: string
       names:
         type: string
+      port:
+        items:
+          type: string
+        type: array
       state:
         type: string
       status:
@@ -615,7 +563,7 @@ paths:
                   type: string
                 hostname:
                   type: string
-                main_addr:
+                ip_address:
                   type: string
                 status:
                   type: string
@@ -788,6 +736,120 @@ paths:
       summary: Detail Info of Glue FS
       tags:
       - GlueFS
+  /api/v1/image:
+    delete:
+      consumes:
+      - application/x-www-form-urlencoded
+      description: Glue 스토리지 풀의 이미지를 삭제합니다.
+      parameters:
+      - description: Glue Image Name
+        in: query
+        name: image_name
+        required: true
+        type: string
+      - description: Glue Pool Name
+        in: query
+        name: pool_name
+        required: true
+        type: string
+      produces:
+      - application/json
+      responses:
+        "200":
+          description: Success
+          schema:
+            type: string
+        "400":
+          description: Bad Request
+          schema:
+            $ref: '#/definitions/HTTP400BadRequest'
+        "404":
+          description: Not Found
+          schema:
+            $ref: '#/definitions/HTTP404NotFound'
+        "500":
+          description: Internal Server Error
+          schema:
+            $ref: '#/definitions/HTTP500InternalServerError'
+      summary: Delete Images of Pool
+      tags:
+      - Image
+    get:
+      consumes:
+      - application/x-www-form-urlencoded
+      description: Glue 스토리지 풀의 이미지 목록을 보여줍니다.
+      parameters:
+      - description: Glue Pool Name
+        in: query
+        name: pool_name
+        type: string
+      - description: Glue Image Name
+        in: query
+        name: image_name
+        type: string
+      produces:
+      - application/json
+      responses:
+        "200":
+          description: OK
+          schema: {}
+        "400":
+          description: Bad Request
+          schema:
+            $ref: '#/definitions/HTTP400BadRequest'
+        "404":
+          description: Not Found
+          schema:
+            $ref: '#/definitions/HTTP404NotFound'
+        "500":
+          description: Internal Server Error
+          schema:
+            $ref: '#/definitions/HTTP500InternalServerError'
+      summary: Show List or Info Images of Pool
+      tags:
+      - Image
+    post:
+      consumes:
+      - application/x-www-form-urlencoded
+      description: Glue 스토리지 풀의 이미지를 생성합니다.
+      parameters:
+      - description: Glue Image Name
+        in: formData
+        name: image_name
+        required: true
+        type: string
+      - description: Glue Pool Name
+        in: formData
+        name: pool_name
+        required: true
+        type: string
+      - description: Image Size(default:GB)
+        in: formData
+        name: size
+        required: true
+        type: integer
+      produces:
+      - application/json
+      responses:
+        "200":
+          description: Success
+          schema:
+            type: string
+        "400":
+          description: Bad Request
+          schema:
+            $ref: '#/definitions/HTTP400BadRequest'
+        "404":
+          description: Not Found
+          schema:
+            $ref: '#/definitions/HTTP404NotFound'
+        "500":
+          description: Internal Server Error
+          schema:
+            $ref: '#/definitions/HTTP500InternalServerError'
+      summary: Create Images of Pool
+      tags:
+      - Image
   /api/v1/iscsi:
     post:
       consumes:
@@ -854,43 +916,17 @@ paths:
       tags:
       - Iscsi
   /api/v1/iscsi/discovery:
-    delete:
-      consumes:
-      - application/x-www-form-urlencoded
-      description: Iscsi Discovery Auth 계정 정보를 초기화 합니다.
-      produces:
-      - application/json
-      responses:
-        "200":
-          description: Success
-          schema:
-            type: string
-        "400":
-          description: Bad Request
-          schema:
-            $ref: '#/definitions/HTTP400BadRequest'
-        "404":
-          description: Not Found
-          schema:
-            $ref: '#/definitions/HTTP404NotFound'
-        "500":
-          description: Internal Server Error
-          schema:
-            $ref: '#/definitions/HTTP500InternalServerError'
-      summary: Reset User of Iscsi Discovery Auth
-      tags:
-      - IscsiDiscovery
     get:
       consumes:
       - application/x-www-form-urlencoded
-      description: Iscsi Discovery Auth 계정 정보를 보여줍니다.
+      description: Iscsi 계정 정보를 가져옵니다.
       produces:
       - application/json
       responses:
         "200":
           description: OK
           schema:
-            $ref: '#/definitions/IscsiDiscoveryInfo'
+            $ref: '#/definitions/Auth'
         "400":
           description: Bad Request
           schema:
@@ -903,35 +939,33 @@ paths:
           description: Internal Server Error
           schema:
             $ref: '#/definitions/HTTP500InternalServerError'
-      summary: Info User of Iscsi Discovery Auth
+      summary: Show of Iscsi Discovery Auth Details
       tags:
-      - IscsiDiscovery
-    post:
+      - Iscsi
+    put:
       consumes:
       - application/x-www-form-urlencoded
-      description: Iscsi Discovery Auth 계정을 생성합니다.
+      description: Iscsi 계정 정보를 수정합니다.
       parameters:
-      - description: Iscsi Discovery Authentication User
+      - description: Iscsi Discovery Authorization Username
         in: formData
         maxLength: 64
         minLength: 8
-        name: username
-        required: true
+        name: user
         type: string
-      - description: Iscsi Discovery Authentication Password
+      - description: Iscsi Discovery Authorization Password
         in: formData
         maxLength: 16
         minLength: 12
         name: password
-        required: true
         type: string
-      - description: Iscsi Discovery Authentication Mutual User
+      - description: Iscsi Discovery Authorization Mutual Username
         in: formData
         maxLength: 64
         minLength: 8
-        name: mutual_username
+        name: mutual_user
         type: string
-      - description: Iscsi Discovery Authentication Mutual Password
+      - description: Iscsi Discovery Authorization Mutual Password
         in: formData
         maxLength: 16
         minLength: 12
@@ -941,86 +975,9 @@ paths:
       - application/json
       responses:
         "200":
-          description: Success
-          schema:
-            type: string
-        "400":
-          description: Bad Request
-          schema:
-            $ref: '#/definitions/HTTP400BadRequest'
-        "404":
-          description: Not Found
-          schema:
-            $ref: '#/definitions/HTTP404NotFound'
-        "500":
-          description: Internal Server Error
-          schema:
-            $ref: '#/definitions/HTTP500InternalServerError'
-      summary: Create User of Iscsi Discovery Auth
-      tags:
-      - IscsiDiscovery
-  /api/v1/iscsi/disk:
-    delete:
-      consumes:
-      - application/x-www-form-urlencoded
-      description: Iscsi 디스크를 삭제합니다.
-      parameters:
-      - description: Iscsi Disk Pool Name
-        in: query
-        name: pool_name
-        required: true
-        type: string
-      - description: Iscsi Disk Name
-        in: query
-        name: disk_name
-        required: true
-        type: string
-      - description: Iscsi IQN ID
-        in: query
-        name: iqn_id
-        type: string
-      - default: "false"
-        description: Whether to Delete RBD Image
-        enum:
-        - "true"
-        - "false"
-        in: query
-        name: image
-        required: true
-        type: string
-      produces:
-      - application/json
-      responses:
-        "200":
-          description: Success
-          schema:
-            type: string
-        "400":
-          description: Bad Request
-          schema:
-            $ref: '#/definitions/HTTP400BadRequest'
-        "404":
-          description: Not Found
-          schema:
-            $ref: '#/definitions/HTTP404NotFound'
-        "500":
-          description: Internal Server Error
-          schema:
-            $ref: '#/definitions/HTTP500InternalServerError'
-      summary: Delete of Iscsi Disk
-      tags:
-      - IscsiDisk
-    get:
-      consumes:
-      - application/x-www-form-urlencoded
-      description: Iscsi 디스크 리스트를 보여줍니다.
-      produces:
-      - application/json
-      responses:
-        "200":
           description: OK
           schema:
-            $ref: '#/definitions/IscsiDiskList'
+            $ref: '#/definitions/Auth'
         "400":
           description: Bad Request
           schema:
@@ -1033,146 +990,18 @@ paths:
           description: Internal Server Error
           schema:
             $ref: '#/definitions/HTTP500InternalServerError'
-      summary: Show List of Iscsi Disk
+      summary: Update of Iscsi Discovery Auth Details
       tags:
-      - IscsiDisk
-    post:
-      consumes:
-      - application/x-www-form-urlencoded
-      description: Iscsi 디스크를 생성 또는 부착합니다.
-      parameters:
-      - description: Iscsi Disk Pool Name
-        in: formData
-        name: pool_name
-        required: true
-        type: string
-      - description: Iscsi Disk Name
-        in: formData
-        name: disk_name
-        required: true
-        type: string
-      - description: Iscsi Disk Image Size(Default GB)
-        in: formData
-        name: size
-        type: integer
-      - description: Iscsi IQN ID
-        in: formData
-        name: iqn_id
-        type: string
-      produces:
-      - application/json
-      responses:
-        "200":
-          description: Success
-          schema:
-            type: string
-        "400":
-          description: Bad Request
-          schema:
-            $ref: '#/definitions/HTTP400BadRequest'
-        "404":
-          description: Not Found
-          schema:
-            $ref: '#/definitions/HTTP404NotFound'
-        "500":
-          description: Internal Server Error
-          schema:
-            $ref: '#/definitions/HTTP500InternalServerError'
-      summary: Create Or Attach of Iscsi Disk
-      tags:
-      - IscsiDisk
-    put:
-      consumes:
-      - application/x-www-form-urlencoded
-      description: Iscsi 디스크 용량을 변경합니다.
-      parameters:
-      - description: Iscsi Disk Name
-        in: query
-        name: disk_name
-        required: true
-        type: string
-      - description: Iscsi Disk New Size(default GB)
-        in: query
-        name: new_size
-        required: true
-        type: integer
-      produces:
-      - application/json
-      responses:
-        "200":
-          description: Success
-          schema:
-            type: string
-        "400":
-          description: Bad Request
-          schema:
-            $ref: '#/definitions/HTTP400BadRequest'
-        "404":
-          description: Not Found
-          schema:
-            $ref: '#/definitions/HTTP404NotFound'
-        "500":
-          description: Internal Server Error
-          schema:
-            $ref: '#/definitions/HTTP500InternalServerError'
-      summary: Change Size of Iscsi Disk
-      tags:
-      - IscsiDisk
+      - Iscsi
   /api/v1/iscsi/target:
-    get:
-      consumes:
-      - application/x-www-form-urlencoded
-      description: Iscsi 타겟 리스트를 가져옵니다.
-      produces:
-      - application/json
-      responses:
-        "200":
-          description: OK
-          schema:
-            $ref: '#/definitions/IscsiTargetList'
-        "400":
-          description: Bad Request
-          schema:
-            $ref: '#/definitions/HTTP400BadRequest'
-        "404":
-          description: Not Found
-          schema:
-            $ref: '#/definitions/HTTP404NotFound'
-        "500":
-          description: Internal Server Error
-          schema:
-            $ref: '#/definitions/HTTP500InternalServerError'
-      summary: Show List of Iscsi Target
-      tags:
-      - IscsiTarget
-  /api/v1/iscsi/target/{iqn_id}:
     delete:
       consumes:
       - application/x-www-form-urlencoded
       description: Iscsi 타겟을 삭제합니다.
       parameters:
-      - description: Iscsi IQN ID
-        in: path
+      - description: Iscsi Target IQN Name
+        in: query
         name: iqn_id
-        required: true
-        type: string
-      - description: Glue Pool Name
-        in: query
-        name: pool_name
-        required: true
-        type: string
-      - description: Iscsi Disk Name
-        in: query
-        name: disk_name
-        required: true
-        type: string
-      - default: "false"
-        description: Whether to Delete RBD Image
-        enum:
-        - "true"
-        - "false"
-        in: query
-        name: image
         required: true
         type: string
       produces:
@@ -1197,14 +1026,43 @@ paths:
       summary: Delete of Iscsi Target
       tags:
       - IscsiTarget
+    get:
+      consumes:
+      - application/x-www-form-urlencoded
+      description: Iscsi 타겟 리스트를 가져옵니다.
+      parameters:
+      - description: Iscsi Target IQN Name
+        in: query
+        name: iqn_id
+        type: string
+      produces:
+      - application/json
+      responses:
+        "200":
+          description: OK
+          schema: {}
+        "400":
+          description: Bad Request
+          schema:
+            $ref: '#/definitions/HTTP400BadRequest'
+        "404":
+          description: Not Found
+          schema:
+            $ref: '#/definitions/HTTP404NotFound'
+        "500":
+          description: Internal Server Error
+          schema:
+            $ref: '#/definitions/HTTP500InternalServerError'
+      summary: Show List of Iscsi Target
+      tags:
+      - IscsiTarget
     post:
       consumes:
       - application/x-www-form-urlencoded
       description: Iscsi 타겟을 생성합니다.
       parameters:
-      - description: Iscsi IQN ID
-        example: '"iqn.{yyyy-mm}.{naming-authority}:{unique-name}"'
-        in: path
+      - description: Iscsi Target IQN Name
+        in: formData
         name: iqn_id
         required: true
         type: string
@@ -1224,24 +1082,24 @@ paths:
         name: ip_address
         required: true
         type: array
-      - description: Glue Pool Name
+      - collectionFormat: multi
+        description: Glue Pool Name
         in: formData
+        items:
+          type: string
         name: pool_name
-        required: true
-        type: string
-      - description: Iscsi Disk Name
+        type: array
+      - collectionFormat: multi
+        description: Glue Image Name
         in: formData
-        name: disk_name
-        required: true
-        type: string
-      - description: Iscsi Disk Image Size(Default GB)
-        in: formData
-        name: size
-        type: integer
+        items:
+          type: string
+        name: image_name
+        type: array
       - default: false
         description: Iscsi Authentication
         in: formData
-        name: auth
+        name: acl_enabled
         required: true
         type: boolean
       - description: Iscsi Auth User
@@ -1288,6 +1146,102 @@ paths:
           schema:
             $ref: '#/definitions/HTTP500InternalServerError'
       summary: Create of Iscsi Target
+      tags:
+      - IscsiTarget
+    put:
+      consumes:
+      - application/x-www-form-urlencoded
+      description: Iscsi 타겟을 수정합니다.
+      parameters:
+      - description: Iscsi Target Old IQN Name
+        in: formData
+        name: iqn_id
+        required: true
+        type: string
+      - description: Iscsi Target New IQN Name
+        in: formData
+        name: new_iqn_id
+        required: true
+        type: string
+      - collectionFormat: multi
+        description: Gateway Host Name
+        in: formData
+        items:
+          type: string
+        name: hostname
+        required: true
+        type: array
+      - collectionFormat: multi
+        description: Gateway Host IP Address
+        in: formData
+        items:
+          type: string
+        name: ip_address
+        required: true
+        type: array
+      - collectionFormat: multi
+        description: Glue Pool Name
+        in: formData
+        items:
+          type: string
+        name: pool_name
+        type: array
+      - collectionFormat: multi
+        description: Glue Image Name
+        in: formData
+        items:
+          type: string
+        name: image_name
+        type: array
+      - default: false
+        description: Iscsi Authentication
+        in: formData
+        name: acl_enabled
+        required: true
+        type: boolean
+      - description: Iscsi Auth User
+        in: formData
+        maxLength: 64
+        minLength: 8
+        name: username
+        type: string
+      - description: Iscsi Auth Password
+        in: formData
+        maxLength: 16
+        minLength: 12
+        name: password
+        type: string
+      - description: Iscsi Auth Mutual User
+        in: formData
+        maxLength: 64
+        minLength: 8
+        name: mutual_username
+        type: string
+      - description: Iscsi Auth Mutaul Password
+        in: formData
+        maxLength: 16
+        minLength: 12
+        name: mutual_password
+        type: string
+      produces:
+      - application/json
+      responses:
+        "200":
+          description: OK
+          schema: {}
+        "400":
+          description: Bad Request
+          schema:
+            $ref: '#/definitions/HTTP400BadRequest'
+        "404":
+          description: Not Found
+          schema:
+            $ref: '#/definitions/HTTP404NotFound'
+        "500":
+          description: Internal Server Error
+          schema:
+            $ref: '#/definitions/HTTP500InternalServerError'
+      summary: Update of Iscsi Target
       tags:
       - IscsiTarget
   /api/v1/mirror:
@@ -2120,71 +2074,7 @@ paths:
           description: Internal Server Error
           schema:
             $ref: '#/definitions/HTTP500InternalServerError'
-      summary: List Images of Pool
-      tags:
-      - Pool
-    get:
-      consumes:
-      - application/x-www-form-urlencoded
-      description: Glue 스토리지 풀의 이미지 목록을 보여줍니다.
-      parameters:
-      - description: Glue Pool Name
-        in: path
-        name: pool_name
-        required: true
-        type: string
-      produces:
-      - application/json
-      responses:
-        "200":
-          description: OK
-          schema: {}
-        "400":
-          description: Bad Request
-          schema:
-            $ref: '#/definitions/HTTP400BadRequest'
-        "404":
-          description: Not Found
-          schema:
-            $ref: '#/definitions/HTTP404NotFound'
-        "500":
-          description: Internal Server Error
-          schema:
-            $ref: '#/definitions/HTTP500InternalServerError'
-      summary: List RBD Images of Pool
-      tags:
-      - Pool
-  /api/v1/pool/info/{image_name}:
-    get:
-      consumes:
-      - application/x-www-form-urlencoded
-      description: Glue 스토리지 풀의 이미지 상세정보를 보여줍니다.
-      parameters:
-      - description: Glue Image Name
-        in: path
-        name: image_name
-        required: true
-        type: string
-      produces:
-      - application/json
-      responses:
-        "200":
-          description: OK
-          schema:
-            $ref: '#/definitions/InfoImage'
-        "400":
-          description: Bad Request
-          schema:
-            $ref: '#/definitions/HTTP400BadRequest'
-        "404":
-          description: Not Found
-          schema:
-            $ref: '#/definitions/HTTP404NotFound'
-        "500":
-          description: Internal Server Error
-          schema:
-            $ref: '#/definitions/HTTP500InternalServerError'
-      summary: Info Images of Pool
+      summary: Delete of Pool
       tags:
       - Pool
   /api/v1/service:

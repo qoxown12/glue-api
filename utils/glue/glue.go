@@ -23,30 +23,74 @@ func ListPool() (pools []string, err error) {
 	return
 }
 
-func ListImage(pool_name string) (images []model.Snapshot, err error) {
+func ListAndInfoImage(image_name string, pool_name string) (dat model.Images, err error) {
 	var stdout []byte
-	cmd := exec.Command("rbd", "ls", "-l", "-p", pool_name, "--format", "json")
-	stdout, err = cmd.CombinedOutput()
+	if image_name == "" && pool_name == "" {
+		cmd := exec.Command("rbd", "ls", "--format", "json")
+		stdout, err = cmd.CombinedOutput()
+		if err != nil {
+			return
+		}
 
-	if err != nil {
-		return
-	}
+		if err = json.Unmarshal(stdout, &dat); err != nil {
+			return
+		}
+	} else if image_name != "" && pool_name == "" {
+		cmd := exec.Command("rbd", "info", image_name, "--format", "json")
+		stdout, err = cmd.CombinedOutput()
+		if err != nil {
+			return
+		}
+		if err = json.Unmarshal(stdout, &dat); err != nil {
+			return
+		}
+	} else if image_name == "" && pool_name != "" {
+		cmd := exec.Command("rbd", "ls", "-l", "-p", pool_name, "--format", "json")
+		stdout, err = cmd.CombinedOutput()
 
-	if err = json.Unmarshal(stdout, &images); err != nil {
-		return
+		if err != nil {
+			return
+		}
+
+		if err = json.Unmarshal(stdout, &dat); err != nil {
+			return
+		}
+	} else {
+		cmd := exec.Command("rbd", "info", pool_name+"/"+image_name, "--format", "json")
+		stdout, err = cmd.CombinedOutput()
+		if err != nil {
+			return
+		}
+		if err = json.Unmarshal(stdout, &dat); err != nil {
+			return
+		}
 	}
 	return
 }
-func InfoImage(image_name string) (dat model.InfoImage, err error) {
+func CreateImage(image_name string, pool_name string, size string) (output string, err error) {
 	var stdout []byte
-	cmd := exec.Command("rbd", "info", image_name, "--format", "json")
+	cmd := exec.Command("rbd", "create", "--size", size, pool_name+"/"+image_name)
 	stdout, err = cmd.CombinedOutput()
 	if err != nil {
+		err = errors.New(string(stdout))
+		utils.FancyHandleError(err)
+		output = "Fail"
 		return
 	}
-	if err = json.Unmarshal(stdout, &dat); err != nil {
+	output = "Success"
+	return
+}
+func DeleteImage(image_name string, pool_name string) (output string, err error) {
+	var stdout []byte
+	cmd := exec.Command("rbd", "rm", pool_name+"/"+image_name)
+	stdout, err = cmd.CombinedOutput()
+	if err != nil {
+		err = errors.New(string(stdout))
+		utils.FancyHandleError(err)
+		output = "Fail"
 		return
 	}
+	output = "Success"
 	return
 }
 func Status() (dat model.GlueStatus, err error) {

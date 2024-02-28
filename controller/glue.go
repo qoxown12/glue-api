@@ -8,10 +8,16 @@ import (
 	"encoding/json"
 	"net/http"
 	"os/exec"
+	"strconv"
 	"strings"
 
 	"github.com/gin-gonic/gin"
 )
+
+func (c *Controller) GlueOption(ctx *gin.Context) {
+	SetOptionHeader(ctx)
+	ctx.IndentedJSON(http.StatusOK, nil)
+}
 
 // GlueStatus godoc
 //
@@ -92,58 +98,9 @@ func (c *Controller) ListPools(ctx *gin.Context) {
 	ctx.IndentedJSON(http.StatusOK, dat)
 }
 
-// ListImages godoc
-//
-//	@Summary		List RBD Images of Pool
-//	@Description	Glue 스토리지 풀의 이미지 목록을 보여줍니다.
-//	@Tags			Pool
-//	@param			pool_name	path	string	true	"Glue Pool Name"
-//	@Accept			x-www-form-urlencoded
-//	@Produce		json
-//	@Success		200	{object}	model.GluePools
-//	@Failure		400	{object}	httputil.HTTP400BadRequest
-//	@Failure		404	{object}	httputil.HTTP404NotFound
-//	@Failure		500	{object}	httputil.HTTP500InternalServerError
-//	@Router			/api/v1/pool/{pool_name} [get]
-func (c *Controller) ListImages(ctx *gin.Context) {
-	var dat model.SnapshotList
-	pool_name := ctx.Param("pool_name")
-	images, err := glue.ListImage(pool_name)
-	if err != nil {
-		httputil.NewError(ctx, http.StatusInternalServerError, err)
-		return
-	}
-	dat.Images = images
-	ctx.IndentedJSON(http.StatusOK, dat)
-}
-
-// InfoImage godoc
-//
-//	@Summary		Info Images of Pool
-//	@Description	Glue 스토리지 풀의 이미지 상세정보를 보여줍니다.
-//	@Tags			Pool
-//	@param			image_name	path	string	true	"Glue Image Name"
-//	@Accept			x-www-form-urlencoded
-//	@Produce		json
-//	@Success		200	{object}	model.InfoImage
-//	@Failure		400	{object}	httputil.HTTP400BadRequest
-//	@Failure		404	{object}	httputil.HTTP404NotFound
-//	@Failure		500	{object}	httputil.HTTP500InternalServerError
-//	@Router			/api/v1/pool/info/{image_name} [get]
-func (c *Controller) InfoImage(ctx *gin.Context) {
-	image_name := ctx.Param("image_name")
-	dat, err := glue.InfoImage(image_name)
-	if err != nil {
-		httputil.NewError(ctx, http.StatusInternalServerError, err)
-		return
-	}
-	ctx.Header("Access-Control-Allow-Origin", "*")
-	ctx.IndentedJSON(http.StatusOK, dat)
-}
-
 // PoolDelete godoc
 //
-//	@Summary		List Images of Pool
+//	@Summary		Delete of Pool
 //	@Description	Glue 스토리지 풀을 삭제합니다.
 //	@Tags			Pool
 //	@param			pool_name	path	string	true	"pool_name"
@@ -163,11 +120,95 @@ func (c *Controller) PoolDelete(ctx *gin.Context) {
 		return
 	}
 	// Print the output
+	ctx.Header("Access-Control-Allow-Origin", "*")
 	ctx.IndentedJSON(http.StatusOK, dat)
 }
-func (c *Controller) PoolDeleteOptions(ctx *gin.Context) {
-	SetOptionHeader(ctx)
-	ctx.IndentedJSON(http.StatusOK, nil)
+
+// ListAndInfoImage godoc
+//
+//	@Summary		Show List or Info Images of Pool
+//	@Description	Glue 스토리지 풀의 이미지 목록을 보여줍니다.
+//	@Tags			Image
+//	@param			pool_name	query	string	false	"Glue Pool Name"
+//	@param			image_name	query	string	false	"Glue Image Name"
+//	@Accept			x-www-form-urlencoded
+//	@Produce		json
+//	@Success		200	{object}	Images
+//	@Failure		400	{object}	httputil.HTTP400BadRequest
+//	@Failure		404	{object}	httputil.HTTP404NotFound
+//	@Failure		500	{object}	httputil.HTTP500InternalServerError
+//	@Router			/api/v1/image [get]
+func (c *Controller) ListAndInfoImage(ctx *gin.Context) {
+	pool_name := ctx.Request.URL.Query().Get("pool_name")
+	image_name := ctx.Request.URL.Query().Get("image_name")
+	dat, err := glue.ListAndInfoImage(image_name, pool_name)
+	if err != nil {
+		httputil.NewError(ctx, http.StatusInternalServerError, err)
+		return
+	}
+	ctx.Header("Access-Control-Allow-Origin", "*")
+	ctx.IndentedJSON(http.StatusOK, dat)
+}
+
+// CreateImage godoc
+//
+//	@Summary		Create Images of Pool
+//	@Description	Glue 스토리지 풀의 이미지를 생성합니다.
+//	@Tags			Image
+//	@param			image_name	formData	string	true	"Glue Image Name"
+//	@param			pool_name	formData	string	true	"Glue Pool Name"
+//	@param			size	formData	int 	true	"Image Size(default:GB)"
+//	@Accept			x-www-form-urlencoded
+//	@Produce		json
+//	@Success		200	{string}	string "Success"
+//	@Failure		400	{object}	httputil.HTTP400BadRequest
+//	@Failure		404	{object}	httputil.HTTP404NotFound
+//	@Failure		500	{object}	httputil.HTTP500InternalServerError
+//	@Router			/api/v1/image [post]
+func (c *Controller) CreateImage(ctx *gin.Context) {
+	image_name, _ := ctx.GetPostForm("image_name")
+	pool_name, _ := ctx.GetPostForm("pool_name")
+	size, _ := ctx.GetPostForm("size")
+	size_int, err := strconv.Atoi(size)
+	if err != nil {
+		httputil.NewError(ctx, http.StatusInternalServerError, err)
+		return
+	}
+	size_int = size_int * 1024
+	size_st := strconv.Itoa(size_int)
+	dat, err := glue.CreateImage(image_name, pool_name, size_st)
+	if err != nil {
+		httputil.NewError(ctx, http.StatusInternalServerError, err)
+		return
+	}
+	ctx.Header("Access-Control-Allow-Origin", "*")
+	ctx.IndentedJSON(http.StatusOK, dat)
+}
+
+// DeleteImage godoc
+//
+//	@Summary		Delete Images of Pool
+//	@Description	Glue 스토리지 풀의 이미지를 삭제합니다.
+//	@Tags			Image
+//	@param			image_name	query	string	true	"Glue Image Name"
+//	@param			pool_name	query	string	true	"Glue Pool Name"
+//	@Accept			x-www-form-urlencoded
+//	@Produce		json
+//	@Success		200	{string}	string "Success"
+//	@Failure		400	{object}	httputil.HTTP400BadRequest
+//	@Failure		404	{object}	httputil.HTTP404NotFound
+//	@Failure		500	{object}	httputil.HTTP500InternalServerError
+//	@Router			/api/v1/image [delete]
+func (c *Controller) DeleteImage(ctx *gin.Context) {
+	image_name := ctx.Request.URL.Query().Get("image_name")
+	pool_name := ctx.Request.URL.Query().Get("pool_name")
+	dat, err := glue.DeleteImage(image_name, pool_name)
+	if err != nil {
+		httputil.NewError(ctx, http.StatusInternalServerError, err)
+		return
+	}
+	ctx.Header("Access-Control-Allow-Origin", "*")
+	ctx.IndentedJSON(http.StatusOK, dat)
 }
 
 // ServiceLs godoc
@@ -252,11 +293,6 @@ func (c *Controller) ServiceDelete(ctx *gin.Context) {
 	ctx.IndentedJSON(http.StatusOK, dat)
 }
 
-func (c *Controller) ServiceDeleteOptions(ctx *gin.Context) {
-	SetOptionHeader(ctx)
-	ctx.IndentedJSON(http.StatusOK, nil)
-}
-
 // HostList godoc
 //
 //	@Summary		Show List of Glue Hosts
@@ -292,7 +328,7 @@ func (c *Controller) HostList(ctx *gin.Context) {
 		}
 	}
 	for i := 0; i < len(dat); i++ {
-		dat[i].MainAddr = str[i]
+		dat[i].Ip_Address = str[i]
 	}
 	// Print the output
 	ctx.Header("Access-Control-Allow-Origin", "*")

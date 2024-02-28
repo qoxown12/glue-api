@@ -51,40 +51,6 @@ type IscsiService []struct {
 	} `json:"status"`
 } //@name IscsiService
 
-// IscsiTargetList model info
-// @Description Iscsi Target List 구조체
-type IscsiTargetList struct {
-	// Created       string `json:"created"`
-	// DiscoveryAuth struct {
-	// 	MutualPassword                  string `json:"mutual_password"`
-	// 	MutualPasswordEncryptionEnabled bool   `json:"mutual_password_encryption_enabled"`
-	// 	MutualUsername                  string `json:"mutual_username"`
-	// 	Password                        string `json:"password"`
-	// 	PasswordEncryptionEnabled       bool   `json:"password_encryption_enabled"`
-	// 	Username                        string `json:"username"`
-	// } `json:"discovery_auth"`
-	// Disks struct {
-	// } `json:"disks"`
-	// Epoch    int `json:"epoch"`
-	// Gateways struct {
-	// 	Gwvm struct {
-	// 		ActiveLuns int    `json:"active_luns"`
-	// 		Created    string `json:"created"`
-	// 		Updated    string `json:"updated"`
-	// 	} `json:"gwvm"`
-	// } `json:"gateways"`
-	Targets interface {
-	} `json:"targets"`
-	// Updated string `json:"updated"`
-	// Version int    `json:"version"`
-} //@name IscsiTargetList
-
-// IscsiDiskList model info
-// @Description Iscsi Disk List 구조체
-type IscsiDiskList struct {
-	Disks interface{} `json:"disks"`
-} //@name IscsiDiskList
-
 // IscsiDiscoveryInfo model info
 // @Description Iscsi Discovery 정보 구조체
 type IscsiDiscoveryInfo struct {
@@ -95,3 +61,57 @@ type IscsiDiscoveryInfo struct {
 		Mutual_password string `json:"mutual_password"`
 	} `json:"discovery_auth"`
 } // @name IscsiDiscoveryInfo
+
+type IscsiCommon interface{} // @name IscsiCommon
+
+type GlueUrl struct {
+	ActiveName string `json:"active_name"`
+}
+type UserInfo struct {
+	Username string `json:"username"`
+	Password string `json:"password"`
+}
+
+type Token struct {
+	Token string `json:"token"`
+}
+
+type IscsiTargetCreate struct {
+	Target_Iqn  string    `json:"target_iqn"`
+	Portals     []Portals `json:"portals"`
+	Disks       []Disks   `json:"disks"`
+	Clients     []Clients `json:"clients"`
+	Groups      []Groups  `json:"groups"`
+	Acl_Enabled bool      `json:"acl_enabled"`
+	Auth        Auth      `json:"auth"`
+} //@name IscsiTargetCreate
+type IscsiTargetUpdate struct {
+	New_Target_Iqn string    `json:"new_target_iqn"`
+	Portals        []Portals `json:"portals"`
+	Disks          []Disks   `json:"disks"`
+	Clients        []Clients `json:"clients"`
+	Groups         []Groups  `json:"groups"`
+	Acl_Enabled    bool      `json:"acl_enabled"`
+	Auth           Auth      `json:"auth"`
+} //@name IscsiTargetUpdate
+type Portals struct {
+	Host string `json:"host"`
+	Ip   string `json:"ip"`
+}
+type Disks struct {
+	Pool      string   `json:"pool"`
+	Image     string   `json:"image"`
+	Controls  struct{} `json:"controls"`
+	Backstore string   `json:"backstore"`
+	Lun       int      `json:"lun"`
+}
+type Clients struct {
+}
+type Groups struct {
+}
+type Auth struct {
+	User            string `json:"user"`
+	Password        string `json:"password"`
+	Mutual_User     string `json:"mutual_user"`
+	Mutual_Password string `json:"mutual_password"`
+} //@name Auth

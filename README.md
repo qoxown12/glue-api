@@ -12,14 +12,13 @@ Glue의 기능을 제어하기 위한 REST API 입니다.
 | GET    | [api/v1/glue](#apiv1glue)                                              | :white_check_mark: | GlueStatus                  |
 | GET    | [api/v1/glue/version](#apiv1glueversion)                               | :white_check_mark: | GlueVersion                 |
 | GET    | [api/v1/glue/pool](#apiv1gluepool)                                     | :white_check_mark: | ListPools                   |
-| DELETE | [api/v1/glue/pool/:poolname](#apiv1gluepoolpoolname)                   | :white_check_mark: | PoolDelete                  |
-| GET    | [api/v1/glue/rbd/:poolname](#apiv1gluerbdpoolname)                     | :white_check_mark: | ListImages                  |
-| DELETE | [api/v1/glue/pool/:poolname](#apiv1gluepool)                           | :white_check_mark: | PoolDelete                  |
+| DELETE | [api/v1/glue/pool/:poolname](#apiv1gluepool-)                          | :white_check_mark: | PoolDelete                  |
+| GET    | [api/v1/glue/rbd/:poolname](#apiv1gluerbd-)                            | :white_check_mark: | ListImages                  |
 | GET    | [api/v1/gluefs](#apiv1gluefs)                                          | :white_check_mark: | FsStatus                    |
-| GET    | [api/v1/gluefs/info/:fs_name](#apiv1gluefsinfo)                        | :white_check_mark: | FsGetInfo                   |
+| GET    | [api/v1/gluefs/info/:fs_name](#apiv1gluefsinfo-)                       | :white_check_mark: | FsGetInfo                   |
 | GET    | [api/v1/gluefs/list](#apiv1gluefslist)                                 | :white_check_mark: | FsList                      |
-| POST   | [api/v1/gluefs/:fs_name](#apiv1gluefsname)                             | :white_check_mark: | FsCreate                    |
-| DELETE | [api/v1/gluefs/:fs_name](#apiv1gluefsname)                             | :white_check_mark: | FsDelete                    |
+| POST   | [api/v1/gluefs/:fs_name](#apiv1gluefs-)                                | :white_check_mark: | FsCreate                    |
+| DELETE | [api/v1/gluefs/:fs_name](#apiv1gluefs-)                                | :white_check_mark: | FsDelete                    |
 | GET    | [api/v1/mirror](#apiv1mirror)                                          | :white_check_mark: | MirrorStatus                |
 | POST   | [api/v1/mirror](#apiv1mirror)                                          | :white_check_mark: | MirrorSetup                 |
 | PATCH  | [api/v1/mirror]()                                                      |                    |                             |
@@ -33,23 +32,19 @@ Glue의 기능을 제어하기 위한 REST API 입니다.
 | DELETE | [api/v1/mirror/image/prymary/:pool/:image]()                           |                    |                             |
 | GET    | [api/v1/mirror/image/prymary/:pool/:image]()                           |                    |                             |
 | GET    | [api/v1/nfs](#apiv1nfs)                                                | :white_check_mark: | NfsClusterLs,NfsClusterInfo |
-| DELETE | [api/v1/nfs/:cluster_id](#apiv1nfsclusterdel)                          | :white_check_mark: | NfsClusterDelete            |
-| POST   | [api/v1/nfs/:cluster_id/:port]()                                       | :white_check_mark: | NfsClusterCreate            |
-| GET    | [api/v1/nfs/export](#apiv1nfsexportget)                                | :white_check_mark: | NfsExportDetailed           |
-| PUT    | [api/v1/nfs/export/:cluster_id](#apiv1nfsexportput)                    | :white_check_mark: | NfsExportUpdate             |
-| POST   | [api/v1/nfs/export/:cluster_id](#apiv1nfsexportporst)                  | :white_check_mark: | NfsExportCreate             |
-| DELETE | [api/v1/nfs/export/:cluster_id/:export_id](#apiv1nfsexportdel)         | :white_check_mark: | NfsExportDelete             |
+| DELETE | [api/v1/nfs/:cluster_id](#apiv1nfscluster)                             | :white_check_mark: | NfsClusterDelete            |
+| POST   | [api/v1/nfs/:cluster_id/:port](#apiv1nfscluster-)                      | :white_check_mark: | NfsClusterCreate            |
+| GET    | [api/v1/nfs/export](#apiv1nfsexport)                                   | :white_check_mark: | NfsExportDetailed           |
+| PUT    | [api/v1/nfs/export/:cluster_id](#apiv1nfsexport-)                      | :white_check_mark: | NfsExportUpdate             |
+| POST   | [api/v1/nfs/export/:cluster_id](#apiv1nfsexport-)                      | :white_check_mark: | NfsExportCreate             |
+| DELETE | [api/v1/nfs/export/:cluster_id/:export_id](#apiv1nfsexport--)          | :white_check_mark: | NfsExportDelete             |
 | POST   | [api/v1/iscsi](#apiv1iscsi)                                            | :white_check_mark: | IscsiServiceCreate          |
+| PUT    | [api/v1/iscsi/discovery](#apiv1iscsidiscovery)                         | :white_check_mark: | IscsiUpdateDiscoveryAuth    |
+| GET    | [api/v1/iscsi/discovery](#apiv1iscsidiscovery)                         | :white_check_mark: | IscsiGetDiscoveryAuth       |
 | GET    | [api/v1/iscsi/target](#apiv1iscsitarget)                               | :white_check_mark: | IscsiTargetList             |
-| POST   | [api/v1/iscsi/target/:iqn_id](#apiv1iscsitargetiqn)                    | :white_check_mark: | IscsiTargetList             |
-| DELETE | [api/v1/iscsi/target/:iqn_id](#apiv1iscsitargetiqn)                    | :white_check_mark: | IscsiTargetDelete           |
-| GET    | [api/v1/iscsi/disk](#apiv1iscsidisk)                                   | :white_check_mark: | IscsiDiskList               |
-| POST   | [api/v1/iscsi/disk](#apiv1iscsidisk)                                   | :white_check_mark: | IscsiDiskCreate             |
-| DELETE | [api/v1/iscsi/disk](#apiv1iscsidisk)                                   | :white_check_mark: | IscsiDiskDelete             |
-| PUT    | [api/v1/iscsi/disk](#apiv1iscsidisk)                                   | :white_check_mark: | IscsiDiskResize             |
-| POST   | [api/v1/iscsi/discovery](#apiv1iscsidiscovery)                         | :white_check_mark: | IscsiDiscoveryCreate        |
-| GET    | [api/v1/iscsi/discovery](#apiv1iscsidiscovery)                         | :white_check_mark: | IscsiDiscoveryInfo          |
-| DELETE | [api/v1/iscsi/discovery](#apiv1iscsidiscovery)                         | :white_check_mark: | IscsiDiscoveryReset         |
+| POST   | [api/v1/iscsi/target](#apiv1iscsitarget)                               | :white_check_mark: | IscsiTargetCreate           |
+| DELETE | [api/v1/iscsi/target](#apiv1iscsitarget)                               | :white_check_mark: | IscsiTargetDelete           |
+| PUT    | [api/v1/iscsi/target](#apiv1iscsitarget)                               | :white_check_mark: | IscsiTargetUpdate           |
 | GET    | [api/v1/smb](#apiv1smb)                                                | :white_check_mark: | SmbStatus                   |
 | POST   | [api/v1/smb](#apiv1smb)                                                | :white_check_mark: | SmbCreate                   |
 | DELETE | [api/v1/smb](#apiv1smb)                                                | :white_check_mark: | SmbDelete                   |
@@ -659,7 +654,289 @@ Iscsi 서비스 데몬을 생성합니다.
 
 | Code | Description           | Schema                                                    |
 | ---- | --------------------- | --------------------------------------------------------- |
-| 200  | OK                    | [NfsExportDetailed](#NfsExportDetailed)                   |
+| 200  | OK                    | [IscsiServiceCreate](#IscsiServiceCreate)                 |
+| 400  | Bad Request           | [HTTP400BadRequest](#HTTP400BadRequest)                   |
+| 404  | Not Found             | [HTTP404NotFound](#HTTP404NotFound)                       |
+| 500  | Internal Server Error | [HTTP500InternalServerError](#HTTP500InternalServerError) |
+
+### /api/v1/iscsi/discovery
+
+#### GET
+
+##### Summary:
+
+Show of Iscsi Discovery Auth Details
+
+##### Description:
+
+Iscsi 계정 정보를 가져옵니다.
+
+##### Responses
+
+| Code | Description           | Schema                                                    |
+| ---- | --------------------- | --------------------------------------------------------- |
+| 200  | OK                    | [IscsiGetDiscoveryAuth](#IscsiGetDiscoveryAuth)           |
+| 400  | Bad Request           | [HTTP400BadRequest](#HTTP400BadRequest)                   |
+| 404  | Not Found             | [HTTP404NotFound](#HTTP404NotFound)                       |
+| 500  | Internal Server Error | [HTTP500InternalServerError](#HTTP500InternalServerError) |
+
+#### PUT
+
+##### Summary:
+
+Update of Iscsi Discovery Auth Details
+
+##### Description:
+
+Iscsi 계정 정보를 수정합니다.
+
+##### Parameters
+
+| Name            | Located in | Description                                   | Required | Schema |
+| --------------- | ---------- | --------------------------------------------- | -------- | ------ |
+| user            | formData   | Iscsi Discovery Authorization Username        | No       | string |
+| password        | formData   | Iscsi Discovery Authorization Password        | No       | string |
+| mutual_user     | formData   | Iscsi Discovery Authorization Mutual Username | No       | string |
+| mutual_password | formData   | Iscsi Discovery Authorization Mutual Password | No       | string |
+
+##### Responses
+
+| Code | Description           | Schema                                                    |
+| ---- | --------------------- | --------------------------------------------------------- |
+| 200  | OK                    | [IscsiUpdateDiscoveryAuth](#IscsiUpdateDiscoveryAuth)     |
+| 400  | Bad Request           | [HTTP400BadRequest](#HTTP400BadRequest)                   |
+| 404  | Not Found             | [HTTP404NotFound](#HTTP404NotFound)                       |
+| 500  | Internal Server Error | [HTTP500InternalServerError](#HTTP500InternalServerError) |
+
+### /api/v1/iscsi/target
+
+#### GET
+
+##### Summary:
+
+Show List of Iscsi Target
+
+##### Description:
+
+Iscsi 타겟 리스트를 가져옵니다.
+
+##### Parameters
+
+| Name   | Located in | Description           | Required | Schema |
+| ------ | ---------- | --------------------- | -------- | ------ |
+| iqn_id | query      | Iscsi Target IQN Name | No       | string |
+
+##### Responses
+
+| Code | Description           | Schema                                                    |
+| ---- | --------------------- | --------------------------------------------------------- |
+| 200  | OK                    | [IscsiCommon](#IscsiCommon)                               |
+| 400  | Bad Request           | [HTTP400BadRequest](#HTTP400BadRequest)                   |
+| 404  | Not Found             | [HTTP404NotFound](#HTTP404NotFound)                       |
+| 500  | Internal Server Error | [HTTP500InternalServerError](#HTTP500InternalServerError) |
+
+#### DELETE
+
+##### Summary:
+
+Delete of Iscsi Target
+
+##### Description:
+
+Iscsi 타겟을 삭제합니다.
+
+##### Parameters
+
+| Name   | Located in | Description           | Required | Schema |
+| ------ | ---------- | --------------------- | -------- | ------ |
+| iqn_id | query      | Iscsi Target IQN Name | No       | string |
+
+##### Responses
+
+| Code | Description           | Schema                                                    |
+| ---- | --------------------- | --------------------------------------------------------- |
+| 200  | OK                    | [IscsiCommon](#IscsiCommon)                               |
+| 400  | Bad Request           | [HTTP400BadRequest](#HTTP400BadRequest)                   |
+| 404  | Not Found             | [HTTP404NotFound](#HTTP404NotFound)                       |
+| 500  | Internal Server Error | [HTTP500InternalServerError](#HTTP500InternalServerError) |
+
+#### POST
+
+##### Summary:
+
+Create of Iscsi Target
+
+##### Description:
+
+Iscsi 타겟을 생성합니다.
+
+##### Parameters
+
+| Name            | Located in | Description                | Required | Schema   |
+| --------------- | ---------- | -------------------------- | -------- | -------- |
+| iqn_id          | formData   | Iscsi Target IQN Name      | Yes      | string   |
+| hostname        | formData   | Gateway Host Name          | Yes      | []string |
+| ip_address      | formData   | Gateway Host IP Address    | Yes      | []string |
+| pool_name       | formData   | Glue Pool Name             | No       | []string |
+| image_name      | formData   | Glue Image Name            | No       | []string |
+| acl_enabled     | formData   | scsi Authentication        | Yes      | boolean  |
+| username        | formData   | Iscsi Auth User            | No       | string   |
+| password        | formData   | Iscsi Auth Password        | No       | string   |
+| mutual_username | formData   | Iscsi Auth Mutual User     | No       | string   |
+| mutual_password | formData   | Iscsi Auth Mutaul Password | No       | string   |
+
+##### Responses
+
+| Code | Description           | Schema                                                    |
+| ---- | --------------------- | --------------------------------------------------------- |
+| 200  | OK                    | [IscsiCommon](#IscsiCommon)                               |
+| 400  | Bad Request           | [HTTP400BadRequest](#HTTP400BadRequest)                   |
+| 404  | Not Found             | [HTTP404NotFound](#HTTP404NotFound)                       |
+| 500  | Internal Server Error | [HTTP500InternalServerError](#HTTP500InternalServerError) |
+
+### /api/v1/smb
+
+#### GET
+
+##### Summary:
+
+Show Status of Smb Servcie Daemon
+
+##### Description:
+
+SMB 서비스 데몬 상태를 조회합니다.
+
+##### Responses
+
+| Code | Description           | Schema                                                    |
+| ---- | --------------------- | --------------------------------------------------------- |
+| 200  | OK                    | [SmbStatus](#SmbStatus)                                   |
+| 400  | Bad Request           | [HTTP400BadRequest](#HTTP400BadRequest)                   |
+| 404  | Not Found             | [HTTP404NotFound](#HTTP404NotFound)                       |
+| 500  | Internal Server Error | [HTTP500InternalServerError](#HTTP500InternalServerError) |
+
+#### DELETE
+
+##### Summary:
+
+Delete of Smb Service
+
+##### Description:
+
+SMB 서비스 전체를 삭제합니다.
+
+##### Responses
+
+| Code | Description           | Schema                                                    |
+| ---- | --------------------- | --------------------------------------------------------- |
+| 200  | OK                    | ["Success"]                                               |
+| 400  | Bad Request           | [HTTP400BadRequest](#HTTP400BadRequest)                   |
+| 404  | Not Found             | [HTTP404NotFound](#HTTP404NotFound)                       |
+| 500  | Internal Server Error | [HTTP500InternalServerError](#HTTP500InternalServerError) |
+
+#### POST
+
+##### Summary:
+
+Create of Smb Service
+
+##### Description:
+
+SMB 서비스 전체를 생성합니다.
+
+##### Parameters
+
+| Name        | Located in | Description                   | Required | Schema |
+| ----------- | ---------- | ----------------------------- | -------- | ------ |
+| username    | formData   | SMB Username                  | Yes      | string |
+| password    | formData   | SMB Password                  | Yes      | string |
+| folder_name | formData   | SMB Share Folder Name         | Yes      | string |
+| path        | formData   | SMB Server Actual Shared Path | Yes      | string |
+
+##### Responses
+
+| Code | Description           | Schema                                                    |
+| ---- | --------------------- | --------------------------------------------------------- |
+| 200  | OK                    | ["Success"]                                               |
+| 400  | Bad Request           | [HTTP400BadRequest](#HTTP400BadRequest)                   |
+| 404  | Not Found             | [HTTP404NotFound](#HTTP404NotFound)                       |
+| 500  | Internal Server Error | [HTTP500InternalServerError](#HTTP500InternalServerError) |
+
+### /api/v1/smb/user
+
+#### PUT
+
+##### Summary:
+
+Update User of Smb Service
+
+##### Description:
+
+SMB 서비스 사용자의 패스워드를 변경합니다.
+
+##### Parameters
+
+| Name     | Located in | Description  | Required | Schema |
+| -------- | ---------- | ------------ | -------- | ------ |
+| username | formData   | SMB Username | Yes      | string |
+| password | formData   | SMB Password | Yes      | string |
+
+##### Responses
+
+| Code | Description           | Schema                                                    |
+| ---- | --------------------- | --------------------------------------------------------- |
+| 200  | OK                    | ["Success"]                                               |
+| 400  | Bad Request           | [HTTP400BadRequest](#HTTP400BadRequest)                   |
+| 404  | Not Found             | [HTTP404NotFound](#HTTP404NotFound)                       |
+| 500  | Internal Server Error | [HTTP500InternalServerError](#HTTP500InternalServerError) |
+
+#### DELETE
+
+##### Summary:
+
+Delete User of Smb Service
+
+##### Description:
+
+SMB 서비스 사용자를 삭제합니다.
+
+##### Parameters
+
+| Name     | Located in | Description  | Required | Schema |
+| -------- | ---------- | ------------ | -------- | ------ |
+| username | formData   | SMB Username | Yes      | string |
+
+##### Responses
+
+| Code | Description           | Schema                                                    |
+| ---- | --------------------- | --------------------------------------------------------- |
+| 200  | OK                    | ["Success"]                                               |
+| 400  | Bad Request           | [HTTP400BadRequest](#HTTP400BadRequest)                   |
+| 404  | Not Found             | [HTTP404NotFound](#HTTP404NotFound)                       |
+| 500  | Internal Server Error | [HTTP500InternalServerError](#HTTP500InternalServerError) |
+
+#### POST
+
+##### Summary:
+
+Create User of Smb Service
+
+##### Description:
+
+SMB 서비스 사용자를 생성합니다.
+
+##### Parameters
+
+| Name     | Located in | Description  | Required | Schema |
+| -------- | ---------- | ------------ | -------- | ------ |
+| username | formData   | SMB Username | Yes      | string |
+| password | formData   | SMB Password | Yes      | string |
+
+##### Responses
+
+| Code | Description           | Schema                                                    |
+| ---- | --------------------- | --------------------------------------------------------- |
+| 200  | OK                    | ["Success"]                                               |
 | 400  | Bad Request           | [HTTP400BadRequest](#HTTP400BadRequest)                   |
 | 404  | Not Found             | [HTTP404NotFound](#HTTP404NotFound)                       |
 | 500  | Internal Server Error | [HTTP500InternalServerError](#HTTP500InternalServerError) |
@@ -857,20 +1134,14 @@ API 의 버전을 보여줍니다.
 | ------- | ------ | ----------- | -------- |
 | targets | object |             | No       |
 
-#### IscsiDiskList
-
-| Name  | Type   | Description | Required |
-| ----- | ------ | ----------- | -------- |
-| disks | object |             | No       |
-
-#### IscsiDiscoveryInfo
+#### IscsiDiscoveryAuth
 
 | Name            | Type   | Description | Required |
 | --------------- | ------ | ----------- | -------- |
 | username        | string |             | No       |
 | password        | string |             | No       |
-| mutual_username | object |             | No       |
-| mutual_password | object |             | No       |
+| mutual_username | string |             | No       |
+| mutual_password | string |             | No       |
 
 #### SmbStatus
 
@@ -881,6 +1152,12 @@ API 의 버전을 보여줍니다.
 | status      | string |             | No       |
 | state       | string |             | No       |
 | users       | object |             | No       |
+
+#### IscsiCommon
+
+| Name | Type   | Description | Required |
+| ---- | ------ | ----------- | -------- |
+|      | object |             | No       |
 
 #### Version
 

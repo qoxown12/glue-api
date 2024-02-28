@@ -12,6 +12,11 @@ import (
 	"github.com/gin-gonic/gin"
 )
 
+func (c *Controller) SmbOption(ctx *gin.Context) {
+	SetOptionHeader(ctx)
+	ctx.IndentedJSON(http.StatusOK, nil)
+}
+
 // SmbStatus godoc
 //
 //	@Summary		Show Status of Smb Servcie Daemon
@@ -171,10 +176,6 @@ func (c *Controller) SmbUserUpdate(ctx *gin.Context) {
 	ctx.Header("Access-Control-Allow-Origin", "*")
 	ctx.IndentedJSON(http.StatusOK, dat)
 }
-func (c *Controller) SmbUserOptions(ctx *gin.Context) {
-	SetOptionHeader(ctx)
-	ctx.IndentedJSON(http.StatusOK, nil)
-}
 
 // SmbDelete godoc
 //
@@ -198,10 +199,6 @@ func (c *Controller) SmbDelete(ctx *gin.Context) {
 	}
 	ctx.Header("Access-Control-Allow-Origin", "*")
 	ctx.IndentedJSON(http.StatusOK, dat)
-}
-func (c *Controller) SmbOptions(ctx *gin.Context) {
-	SetOptionHeader(ctx)
-	ctx.IndentedJSON(http.StatusOK, nil)
 }
 
 // SmbUserDelete godoc

@@ -92,7 +92,7 @@ const docTemplate = `{
                                     "hostname": {
                                         "type": "string"
                                     },
-                                    "main_addr": {
+                                    "ip_address": {
                                         "type": "string"
                                     },
                                     "status": {
@@ -353,6 +353,176 @@ const docTemplate = `{
                 }
             }
         },
+        "/api/v1/image": {
+            "get": {
+                "description": "Glue 스토리지 풀의 이미지 목록을 보여줍니다.",
+                "consumes": [
+                    "application/x-www-form-urlencoded"
+                ],
+                "produces": [
+                    "application/json"
+                ],
+                "tags": [
+                    "Image"
+                ],
+                "summary": "Show List or Info Images of Pool",
+                "parameters": [
+                    {
+                        "type": "string",
+                        "description": "Glue Pool Name",
+                        "name": "pool_name",
+                        "in": "query"
+                    },
+                    {
+                        "type": "string",
+                        "description": "Glue Image Name",
+                        "name": "image_name",
+                        "in": "query"
+                    }
+                ],
+                "responses": {
+                    "200": {
+                        "description": "OK",
+                        "schema": {}
+                    },
+                    "400": {
+                        "description": "Bad Request",
+                        "schema": {
+                            "$ref": "#/definitions/HTTP400BadRequest"
+                        }
+                    },
+                    "404": {
+                        "description": "Not Found",
+                        "schema": {
+                            "$ref": "#/definitions/HTTP404NotFound"
+                        }
+                    },
+                    "500": {
+                        "description": "Internal Server Error",
+                        "schema": {
+                            "$ref": "#/definitions/HTTP500InternalServerError"
+                        }
+                    }
+                }
+            },
+            "post": {
+                "description": "Glue 스토리지 풀의 이미지를 생성합니다.",
+                "consumes": [
+                    "application/x-www-form-urlencoded"
+                ],
+                "produces": [
+                    "application/json"
+                ],
+                "tags": [
+                    "Image"
+                ],
+                "summary": "Create Images of Pool",
+                "parameters": [
+                    {
+                        "type": "string",
+                        "description": "Glue Image Name",
+                        "name": "image_name",
+                        "in": "formData",
+                        "required": true
+                    },
+                    {
+                        "type": "string",
+                        "description": "Glue Pool Name",
+                        "name": "pool_name",
+                        "in": "formData",
+                        "required": true
+                    },
+                    {
+                        "type": "integer",
+                        "description": "Image Size(default:GB)",
+                        "name": "size",
+                        "in": "formData",
+                        "required": true
+                    }
+                ],
+                "responses": {
+                    "200": {
+                        "description": "Success",
+                        "schema": {
+                            "type": "string"
+                        }
+                    },
+                    "400": {
+                        "description": "Bad Request",
+                        "schema": {
+                            "$ref": "#/definitions/HTTP400BadRequest"
+                        }
+                    },
+                    "404": {
+                        "description": "Not Found",
+                        "schema": {
+                            "$ref": "#/definitions/HTTP404NotFound"
+                        }
+                    },
+                    "500": {
+                        "description": "Internal Server Error",
+                        "schema": {
+                            "$ref": "#/definitions/HTTP500InternalServerError"
+                        }
+                    }
+                }
+            },
+            "delete": {
+                "description": "Glue 스토리지 풀의 이미지를 삭제합니다.",
+                "consumes": [
+                    "application/x-www-form-urlencoded"
+                ],
+                "produces": [
+                    "application/json"
+                ],
+                "tags": [
+                    "Image"
+                ],
+                "summary": "Delete Images of Pool",
+                "parameters": [
+                    {
+                        "type": "string",
+                        "description": "Glue Image Name",
+                        "name": "image_name",
+                        "in": "query",
+                        "required": true
+                    },
+                    {
+                        "type": "string",
+                        "description": "Glue Pool Name",
+                        "name": "pool_name",
+                        "in": "query",
+                        "required": true
+                    }
+                ],
+                "responses": {
+                    "200": {
+                        "description": "Success",
+                        "schema": {
+                            "type": "string"
+                        }
+                    },
+                    "400": {
+                        "description": "Bad Request",
+                        "schema": {
+                            "$ref": "#/definitions/HTTP400BadRequest"
+                        }
+                    },
+                    "404": {
+                        "description": "Not Found",
+                        "schema": {
+                            "$ref": "#/definitions/HTTP404NotFound"
+                        }
+                    },
+                    "500": {
+                        "description": "Internal Server Error",
+                        "schema": {
+                            "$ref": "#/definitions/HTTP500InternalServerError"
+                        }
+                    }
+                }
+            }
+        },
         "/api/v1/iscsi": {
             "post": {
                 "description": "Iscsi 서비스 데몬을 생성합니다.",
@@ -450,7 +620,7 @@ const docTemplate = `{
         },
         "/api/v1/iscsi/discovery": {
             "get": {
-                "description": "Iscsi Discovery Auth 계정 정보를 보여줍니다.",
+                "description": "Iscsi 계정 정보를 가져옵니다.",
                 "consumes": [
                     "application/x-www-form-urlencoded"
                 ],
@@ -458,169 +628,14 @@ const docTemplate = `{
                     "application/json"
                 ],
                 "tags": [
-                    "IscsiDiscovery"
+                    "Iscsi"
                 ],
-                "summary": "Info User of Iscsi Discovery Auth",
+                "summary": "Show of Iscsi Discovery Auth Details",
                 "responses": {
                     "200": {
                         "description": "OK",
                         "schema": {
-                            "$ref": "#/definitions/IscsiDiscoveryInfo"
-                        }
-                    },
-                    "400": {
-                        "description": "Bad Request",
-                        "schema": {
-                            "$ref": "#/definitions/HTTP400BadRequest"
-                        }
-                    },
-                    "404": {
-                        "description": "Not Found",
-                        "schema": {
-                            "$ref": "#/definitions/HTTP404NotFound"
-                        }
-                    },
-                    "500": {
-                        "description": "Internal Server Error",
-                        "schema": {
-                            "$ref": "#/definitions/HTTP500InternalServerError"
-                        }
-                    }
-                }
-            },
-            "post": {
-                "description": "Iscsi Discovery Auth 계정을 생성합니다.",
-                "consumes": [
-                    "application/x-www-form-urlencoded"
-                ],
-                "produces": [
-                    "application/json"
-                ],
-                "tags": [
-                    "IscsiDiscovery"
-                ],
-                "summary": "Create User of Iscsi Discovery Auth",
-                "parameters": [
-                    {
-                        "maxLength": 64,
-                        "minLength": 8,
-                        "type": "string",
-                        "description": "Iscsi Discovery Authentication User",
-                        "name": "username",
-                        "in": "formData",
-                        "required": true
-                    },
-                    {
-                        "maxLength": 16,
-                        "minLength": 12,
-                        "type": "string",
-                        "description": "Iscsi Discovery Authentication Password",
-                        "name": "password",
-                        "in": "formData",
-                        "required": true
-                    },
-                    {
-                        "maxLength": 64,
-                        "minLength": 8,
-                        "type": "string",
-                        "description": "Iscsi Discovery Authentication Mutual User",
-                        "name": "mutual_username",
-                        "in": "formData"
-                    },
-                    {
-                        "maxLength": 16,
-                        "minLength": 12,
-                        "type": "string",
-                        "description": "Iscsi Discovery Authentication Mutual Password",
-                        "name": "mutual_password",
-                        "in": "formData"
-                    }
-                ],
-                "responses": {
-                    "200": {
-                        "description": "Success",
-                        "schema": {
-                            "type": "string"
-                        }
-                    },
-                    "400": {
-                        "description": "Bad Request",
-                        "schema": {
-                            "$ref": "#/definitions/HTTP400BadRequest"
-                        }
-                    },
-                    "404": {
-                        "description": "Not Found",
-                        "schema": {
-                            "$ref": "#/definitions/HTTP404NotFound"
-                        }
-                    },
-                    "500": {
-                        "description": "Internal Server Error",
-                        "schema": {
-                            "$ref": "#/definitions/HTTP500InternalServerError"
-                        }
-                    }
-                }
-            },
-            "delete": {
-                "description": "Iscsi Discovery Auth 계정 정보를 초기화 합니다.",
-                "consumes": [
-                    "application/x-www-form-urlencoded"
-                ],
-                "produces": [
-                    "application/json"
-                ],
-                "tags": [
-                    "IscsiDiscovery"
-                ],
-                "summary": "Reset User of Iscsi Discovery Auth",
-                "responses": {
-                    "200": {
-                        "description": "Success",
-                        "schema": {
-                            "type": "string"
-                        }
-                    },
-                    "400": {
-                        "description": "Bad Request",
-                        "schema": {
-                            "$ref": "#/definitions/HTTP400BadRequest"
-                        }
-                    },
-                    "404": {
-                        "description": "Not Found",
-                        "schema": {
-                            "$ref": "#/definitions/HTTP404NotFound"
-                        }
-                    },
-                    "500": {
-                        "description": "Internal Server Error",
-                        "schema": {
-                            "$ref": "#/definitions/HTTP500InternalServerError"
-                        }
-                    }
-                }
-            }
-        },
-        "/api/v1/iscsi/disk": {
-            "get": {
-                "description": "Iscsi 디스크 리스트를 보여줍니다.",
-                "consumes": [
-                    "application/x-www-form-urlencoded"
-                ],
-                "produces": [
-                    "application/json"
-                ],
-                "tags": [
-                    "IscsiDisk"
-                ],
-                "summary": "Show List of Iscsi Disk",
-                "responses": {
-                    "200": {
-                        "description": "OK",
-                        "schema": {
-                            "$ref": "#/definitions/IscsiDiskList"
+                            "$ref": "#/definitions/Auth"
                         }
                     },
                     "400": {
@@ -644,7 +659,7 @@ const docTemplate = `{
                 }
             },
             "put": {
-                "description": "Iscsi 디스크 용량을 변경합니다.",
+                "description": "Iscsi 계정 정보를 수정합니다.",
                 "consumes": [
                     "application/x-www-form-urlencoded"
                 ],
@@ -652,170 +667,48 @@ const docTemplate = `{
                     "application/json"
                 ],
                 "tags": [
-                    "IscsiDisk"
+                    "Iscsi"
                 ],
-                "summary": "Change Size of Iscsi Disk",
+                "summary": "Update of Iscsi Discovery Auth Details",
                 "parameters": [
                     {
+                        "maxLength": 64,
+                        "minLength": 8,
                         "type": "string",
-                        "description": "Iscsi Disk Name",
-                        "name": "disk_name",
-                        "in": "query",
-                        "required": true
-                    },
-                    {
-                        "type": "integer",
-                        "description": "Iscsi Disk New Size(default GB)",
-                        "name": "new_size",
-                        "in": "query",
-                        "required": true
-                    }
-                ],
-                "responses": {
-                    "200": {
-                        "description": "Success",
-                        "schema": {
-                            "type": "string"
-                        }
-                    },
-                    "400": {
-                        "description": "Bad Request",
-                        "schema": {
-                            "$ref": "#/definitions/HTTP400BadRequest"
-                        }
-                    },
-                    "404": {
-                        "description": "Not Found",
-                        "schema": {
-                            "$ref": "#/definitions/HTTP404NotFound"
-                        }
-                    },
-                    "500": {
-                        "description": "Internal Server Error",
-                        "schema": {
-                            "$ref": "#/definitions/HTTP500InternalServerError"
-                        }
-                    }
-                }
-            },
-            "post": {
-                "description": "Iscsi 디스크를 생성 또는 부착합니다.",
-                "consumes": [
-                    "application/x-www-form-urlencoded"
-                ],
-                "produces": [
-                    "application/json"
-                ],
-                "tags": [
-                    "IscsiDisk"
-                ],
-                "summary": "Create Or Attach of Iscsi Disk",
-                "parameters": [
-                    {
-                        "type": "string",
-                        "description": "Iscsi Disk Pool Name",
-                        "name": "pool_name",
-                        "in": "formData",
-                        "required": true
-                    },
-                    {
-                        "type": "string",
-                        "description": "Iscsi Disk Name",
-                        "name": "disk_name",
-                        "in": "formData",
-                        "required": true
-                    },
-                    {
-                        "type": "integer",
-                        "description": "Iscsi Disk Image Size(Default GB)",
-                        "name": "size",
+                        "description": "Iscsi Discovery Authorization Username",
+                        "name": "user",
                         "in": "formData"
                     },
                     {
+                        "maxLength": 16,
+                        "minLength": 12,
                         "type": "string",
-                        "description": "Iscsi IQN ID",
-                        "name": "iqn_id",
+                        "description": "Iscsi Discovery Authorization Password",
+                        "name": "password",
+                        "in": "formData"
+                    },
+                    {
+                        "maxLength": 64,
+                        "minLength": 8,
+                        "type": "string",
+                        "description": "Iscsi Discovery Authorization Mutual Username",
+                        "name": "mutual_user",
+                        "in": "formData"
+                    },
+                    {
+                        "maxLength": 16,
+                        "minLength": 12,
+                        "type": "string",
+                        "description": "Iscsi Discovery Authorization Mutual Password",
+                        "name": "mutual_password",
                         "in": "formData"
                     }
                 ],
                 "responses": {
                     "200": {
-                        "description": "Success",
+                        "description": "OK",
                         "schema": {
-                            "type": "string"
-                        }
-                    },
-                    "400": {
-                        "description": "Bad Request",
-                        "schema": {
-                            "$ref": "#/definitions/HTTP400BadRequest"
-                        }
-                    },
-                    "404": {
-                        "description": "Not Found",
-                        "schema": {
-                            "$ref": "#/definitions/HTTP404NotFound"
-                        }
-                    },
-                    "500": {
-                        "description": "Internal Server Error",
-                        "schema": {
-                            "$ref": "#/definitions/HTTP500InternalServerError"
-                        }
-                    }
-                }
-            },
-            "delete": {
-                "description": "Iscsi 디스크를 삭제합니다.",
-                "consumes": [
-                    "application/x-www-form-urlencoded"
-                ],
-                "produces": [
-                    "application/json"
-                ],
-                "tags": [
-                    "IscsiDisk"
-                ],
-                "summary": "Delete of Iscsi Disk",
-                "parameters": [
-                    {
-                        "type": "string",
-                        "description": "Iscsi Disk Pool Name",
-                        "name": "pool_name",
-                        "in": "query",
-                        "required": true
-                    },
-                    {
-                        "type": "string",
-                        "description": "Iscsi Disk Name",
-                        "name": "disk_name",
-                        "in": "query",
-                        "required": true
-                    },
-                    {
-                        "type": "string",
-                        "description": "Iscsi IQN ID",
-                        "name": "iqn_id",
-                        "in": "query"
-                    },
-                    {
-                        "enum": [
-                            "true",
-                            "false"
-                        ],
-                        "type": "string",
-                        "default": "false",
-                        "description": "Whether to Delete RBD Image",
-                        "name": "image",
-                        "in": "query",
-                        "required": true
-                    }
-                ],
-                "responses": {
-                    "200": {
-                        "description": "Success",
-                        "schema": {
-                            "type": "string"
+                            "$ref": "#/definitions/Auth"
                         }
                     },
                     "400": {
@@ -852,12 +745,18 @@ const docTemplate = `{
                     "IscsiTarget"
                 ],
                 "summary": "Show List of Iscsi Target",
+                "parameters": [
+                    {
+                        "type": "string",
+                        "description": "Iscsi Target IQN Name",
+                        "name": "iqn_id",
+                        "in": "query"
+                    }
+                ],
                 "responses": {
                     "200": {
                         "description": "OK",
-                        "schema": {
-                            "$ref": "#/definitions/IscsiTargetList"
-                        }
+                        "schema": {}
                     },
                     "400": {
                         "description": "Bad Request",
@@ -878,11 +777,9 @@ const docTemplate = `{
                         }
                     }
                 }
-            }
-        },
-        "/api/v1/iscsi/target/{iqn_id}": {
-            "post": {
-                "description": "Iscsi 타겟을 생성합니다.",
+            },
+            "put": {
+                "description": "Iscsi 타겟을 수정합니다.",
                 "consumes": [
                     "application/x-www-form-urlencoded"
                 ],
@@ -892,14 +789,20 @@ const docTemplate = `{
                 "tags": [
                     "IscsiTarget"
                 ],
-                "summary": "Create of Iscsi Target",
+                "summary": "Update of Iscsi Target",
                 "parameters": [
                     {
                         "type": "string",
-                        "example": "\"iqn.{yyyy-mm}.{naming-authority}:{unique-name}\"",
-                        "description": "Iscsi IQN ID",
+                        "description": "Iscsi Target Old IQN Name",
                         "name": "iqn_id",
-                        "in": "path",
+                        "in": "formData",
+                        "required": true
+                    },
+                    {
+                        "type": "string",
+                        "description": "Iscsi Target New IQN Name",
+                        "name": "new_iqn_id",
+                        "in": "formData",
                         "required": true
                     },
                     {
@@ -925,30 +828,158 @@ const docTemplate = `{
                         "required": true
                     },
                     {
-                        "type": "string",
+                        "type": "array",
+                        "items": {
+                            "type": "string"
+                        },
+                        "collectionFormat": "multi",
                         "description": "Glue Pool Name",
                         "name": "pool_name",
-                        "in": "formData",
-                        "required": true
+                        "in": "formData"
                     },
                     {
-                        "type": "string",
-                        "description": "Iscsi Disk Name",
-                        "name": "disk_name",
-                        "in": "formData",
-                        "required": true
-                    },
-                    {
-                        "type": "integer",
-                        "description": "Iscsi Disk Image Size(Default GB)",
-                        "name": "size",
+                        "type": "array",
+                        "items": {
+                            "type": "string"
+                        },
+                        "collectionFormat": "multi",
+                        "description": "Glue Image Name",
+                        "name": "image_name",
                         "in": "formData"
                     },
                     {
                         "type": "boolean",
                         "default": false,
                         "description": "Iscsi Authentication",
-                        "name": "auth",
+                        "name": "acl_enabled",
+                        "in": "formData",
+                        "required": true
+                    },
+                    {
+                        "maxLength": 64,
+                        "minLength": 8,
+                        "type": "string",
+                        "description": "Iscsi Auth User",
+                        "name": "username",
+                        "in": "formData"
+                    },
+                    {
+                        "maxLength": 16,
+                        "minLength": 12,
+                        "type": "string",
+                        "description": "Iscsi Auth Password",
+                        "name": "password",
+                        "in": "formData"
+                    },
+                    {
+                        "maxLength": 64,
+                        "minLength": 8,
+                        "type": "string",
+                        "description": "Iscsi Auth Mutual User",
+                        "name": "mutual_username",
+                        "in": "formData"
+                    },
+                    {
+                        "maxLength": 16,
+                        "minLength": 12,
+                        "type": "string",
+                        "description": "Iscsi Auth Mutaul Password",
+                        "name": "mutual_password",
+                        "in": "formData"
+                    }
+                ],
+                "responses": {
+                    "200": {
+                        "description": "OK",
+                        "schema": {}
+                    },
+                    "400": {
+                        "description": "Bad Request",
+                        "schema": {
+                            "$ref": "#/definitions/HTTP400BadRequest"
+                        }
+                    },
+                    "404": {
+                        "description": "Not Found",
+                        "schema": {
+                            "$ref": "#/definitions/HTTP404NotFound"
+                        }
+                    },
+                    "500": {
+                        "description": "Internal Server Error",
+                        "schema": {
+                            "$ref": "#/definitions/HTTP500InternalServerError"
+                        }
+                    }
+                }
+            },
+            "post": {
+                "description": "Iscsi 타겟을 생성합니다.",
+                "consumes": [
+                    "application/x-www-form-urlencoded"
+                ],
+                "produces": [
+                    "application/json"
+                ],
+                "tags": [
+                    "IscsiTarget"
+                ],
+                "summary": "Create of Iscsi Target",
+                "parameters": [
+                    {
+                        "type": "string",
+                        "description": "Iscsi Target IQN Name",
+                        "name": "iqn_id",
+                        "in": "formData",
+                        "required": true
+                    },
+                    {
+                        "type": "array",
+                        "items": {
+                            "type": "string"
+                        },
+                        "collectionFormat": "multi",
+                        "description": "Gateway Host Name",
+                        "name": "hostname",
+                        "in": "formData",
+                        "required": true
+                    },
+                    {
+                        "type": "array",
+                        "items": {
+                            "type": "string"
+                        },
+                        "collectionFormat": "multi",
+                        "description": "Gateway Host IP Address",
+                        "name": "ip_address",
+                        "in": "formData",
+                        "required": true
+                    },
+                    {
+                        "type": "array",
+                        "items": {
+                            "type": "string"
+                        },
+                        "collectionFormat": "multi",
+                        "description": "Glue Pool Name",
+                        "name": "pool_name",
+                        "in": "formData"
+                    },
+                    {
+                        "type": "array",
+                        "items": {
+                            "type": "string"
+                        },
+                        "collectionFormat": "multi",
+                        "description": "Glue Image Name",
+                        "name": "image_name",
+                        "in": "formData"
+                    },
+                    {
+                        "type": "boolean",
+                        "default": false,
+                        "description": "Iscsi Authentication",
+                        "name": "acl_enabled",
                         "in": "formData",
                         "required": true
                     },
@@ -1027,34 +1058,8 @@ const docTemplate = `{
                 "parameters": [
                     {
                         "type": "string",
-                        "description": "Iscsi IQN ID",
+                        "description": "Iscsi Target IQN Name",
                         "name": "iqn_id",
-                        "in": "path",
-                        "required": true
-                    },
-                    {
-                        "type": "string",
-                        "description": "Glue Pool Name",
-                        "name": "pool_name",
-                        "in": "query",
-                        "required": true
-                    },
-                    {
-                        "type": "string",
-                        "description": "Iscsi Disk Name",
-                        "name": "disk_name",
-                        "in": "query",
-                        "required": true
-                    },
-                    {
-                        "enum": [
-                            "true",
-                            "false"
-                        ],
-                        "type": "string",
-                        "default": "false",
-                        "description": "Whether to Delete RBD Image",
-                        "name": "image",
                         "in": "query",
                         "required": true
                     }
@@ -2267,103 +2272,7 @@ const docTemplate = `{
                 }
             }
         },
-        "/api/v1/pool/info/{image_name}": {
-            "get": {
-                "description": "Glue 스토리지 풀의 이미지 상세정보를 보여줍니다.",
-                "consumes": [
-                    "application/x-www-form-urlencoded"
-                ],
-                "produces": [
-                    "application/json"
-                ],
-                "tags": [
-                    "Pool"
-                ],
-                "summary": "Info Images of Pool",
-                "parameters": [
-                    {
-                        "type": "string",
-                        "description": "Glue Image Name",
-                        "name": "image_name",
-                        "in": "path",
-                        "required": true
-                    }
-                ],
-                "responses": {
-                    "200": {
-                        "description": "OK",
-                        "schema": {
-                            "$ref": "#/definitions/InfoImage"
-                        }
-                    },
-                    "400": {
-                        "description": "Bad Request",
-                        "schema": {
-                            "$ref": "#/definitions/HTTP400BadRequest"
-                        }
-                    },
-                    "404": {
-                        "description": "Not Found",
-                        "schema": {
-                            "$ref": "#/definitions/HTTP404NotFound"
-                        }
-                    },
-                    "500": {
-                        "description": "Internal Server Error",
-                        "schema": {
-                            "$ref": "#/definitions/HTTP500InternalServerError"
-                        }
-                    }
-                }
-            }
-        },
         "/api/v1/pool/{pool_name}": {
-            "get": {
-                "description": "Glue 스토리지 풀의 이미지 목록을 보여줍니다.",
-                "consumes": [
-                    "application/x-www-form-urlencoded"
-                ],
-                "produces": [
-                    "application/json"
-                ],
-                "tags": [
-                    "Pool"
-                ],
-                "summary": "List RBD Images of Pool",
-                "parameters": [
-                    {
-                        "type": "string",
-                        "description": "Glue Pool Name",
-                        "name": "pool_name",
-                        "in": "path",
-                        "required": true
-                    }
-                ],
-                "responses": {
-                    "200": {
-                        "description": "OK",
-                        "schema": {}
-                    },
-                    "400": {
-                        "description": "Bad Request",
-                        "schema": {
-                            "$ref": "#/definitions/HTTP400BadRequest"
-                        }
-                    },
-                    "404": {
-                        "description": "Not Found",
-                        "schema": {
-                            "$ref": "#/definitions/HTTP404NotFound"
-                        }
-                    },
-                    "500": {
-                        "description": "Internal Server Error",
-                        "schema": {
-                            "$ref": "#/definitions/HTTP500InternalServerError"
-                        }
-                    }
-                }
-            },
             "delete": {
                 "description": "Glue 스토리지 풀을 삭제합니다.",
                 "consumes": [
@@ -2375,7 +2284,7 @@ const docTemplate = `{
                 "tags": [
                     "Pool"
                 ],
-                "summary": "List Images of Pool",
+                "summary": "Delete of Pool",
                 "parameters": [
                     {
                         "type": "string",
@@ -2928,6 +2837,23 @@ const docTemplate = `{
         }
     },
     "definitions": {
+        "Auth": {
+            "type": "object",
+            "properties": {
+                "mutual_password": {
+                    "type": "string"
+                },
+                "mutual_user": {
+                    "type": "string"
+                },
+                "password": {
+                    "type": "string"
+                },
+                "user": {
+                    "type": "string"
+                }
+            }
+        },
         "FsGetInfo": {
             "description": "GlueFS의 상세정보 구조체",
             "type": "object",
@@ -3499,100 +3425,6 @@ const docTemplate = `{
                 }
             }
         },
-        "InfoImage": {
-            "type": "object",
-            "properties": {
-                "access_timestamp": {
-                    "type": "string"
-                },
-                "block_name_prefix": {
-                    "type": "string"
-                },
-                "create_timestamp": {
-                    "type": "string"
-                },
-                "features": {
-                    "type": "array",
-                    "items": {
-                        "type": "string"
-                    }
-                },
-                "flags": {
-                    "type": "array",
-                    "items": {}
-                },
-                "format": {
-                    "type": "integer"
-                },
-                "id": {
-                    "type": "string"
-                },
-                "modify_timestamp": {
-                    "type": "string"
-                },
-                "name": {
-                    "type": "string"
-                },
-                "object_size": {
-                    "type": "integer"
-                },
-                "objects": {
-                    "type": "integer"
-                },
-                "op_features": {
-                    "type": "array",
-                    "items": {}
-                },
-                "order": {
-                    "type": "integer"
-                },
-                "size": {
-                    "type": "integer"
-                },
-                "snapshot_count": {
-                    "type": "integer"
-                }
-            }
-        },
-        "IscsiDiscoveryInfo": {
-            "description": "Iscsi Discovery 정보 구조체",
-            "type": "object",
-            "properties": {
-                "discovery_auth": {
-                    "type": "object",
-                    "properties": {
-                        "mutual_password": {
-                            "type": "string"
-                        },
-                        "mutual_username": {
-                            "type": "string"
-                        },
-                        "password": {
-                            "type": "string"
-                        },
-                        "username": {
-                            "type": "string"
-                        }
-                    }
-                }
-            }
-        },
-        "IscsiDiskList": {
-            "description": "Iscsi Disk List 구조체",
-            "type": "object",
-            "properties": {
-                "disks": {}
-            }
-        },
-        "IscsiTargetList": {
-            "description": "Iscsi Target List 구조체",
-            "type": "object",
-            "properties": {
-                "targets": {
-                    "description": "Created       string ` + "`" + `json:\"created\"` + "`" + `\nDiscoveryAuth struct {\n\tMutualPassword                  string ` + "`" + `json:\"mutual_password\"` + "`" + `\n\tMutualPasswordEncryptionEnabled bool   ` + "`" + `json:\"mutual_password_encryption_enabled\"` + "`" + `\n\tMutualUsername                  string ` + "`" + `json:\"mutual_username\"` + "`" + `\n\tPassword                        string ` + "`" + `json:\"password\"` + "`" + `\n\tPasswordEncryptionEnabled       bool   ` + "`" + `json:\"password_encryption_enabled\"` + "`" + `\n\tUsername                        string ` + "`" + `json:\"username\"` + "`" + `\n} ` + "`" + `json:\"discovery_auth\"` + "`" + `\nDisks struct {\n} ` + "`" + `json:\"disks\"` + "`" + `\nEpoch    int ` + "`" + `json:\"epoch\"` + "`" + `\nGateways struct {\n\tGwvm struct {\n\t\tActiveLuns int    ` + "`" + `json:\"active_luns\"` + "`" + `\n\t\tCreated    string ` + "`" + `json:\"created\"` + "`" + `\n\t\tUpdated    string ` + "`" + `json:\"updated\"` + "`" + `\n\t} ` + "`" + `json:\"gwvm\"` + "`" + `\n} ` + "`" + `json:\"gateways\"` + "`" + `"
-                }
-            }
-        },
         "Message": {
             "type": "object",
             "properties": {
@@ -3702,8 +3534,20 @@ const docTemplate = `{
                 "description": {
                     "type": "string"
                 },
+                "hostname": {
+                    "type": "string"
+                },
+                "ip_address": {
+                    "type": "string"
+                },
                 "names": {
                     "type": "string"
+                },
+                "port": {
+                    "type": "array",
+                    "items": {
+                        "type": "string"
+                    }
                 },
                 "state": {
                     "type": "string"

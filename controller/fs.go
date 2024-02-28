@@ -10,6 +10,11 @@ import (
 	"github.com/gin-gonic/gin"
 )
 
+func (c *Controller) FsOption(ctx *gin.Context) {
+	SetOptionHeader(ctx)
+	ctx.IndentedJSON(http.StatusOK, nil)
+}
+
 // FsStatus godoc
 //
 //	@Summary		Show Status and List of Glue FS
@@ -89,10 +94,6 @@ func (c *Controller) FsDelete(ctx *gin.Context) {
 	// Print the output
 	ctx.Header("Access-Control-Allow-Origin", "*")
 	ctx.IndentedJSON(http.StatusOK, dat)
-}
-func (c *Controller) FsDeleteOptions(ctx *gin.Context) {
-	SetOptionHeader(ctx)
-	ctx.IndentedJSON(http.StatusOK, nil)
 }
 
 // FsGetInfo godoc

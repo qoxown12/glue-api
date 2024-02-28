@@ -57,24 +57,29 @@ func main() {
 		pool := v1.Group("/pool")
 		{
 			pool.GET("", c.ListPools)
-			pool.GET("/:pool_name", c.ListImages)
 			pool.DELETE("/:pool_name", c.PoolDelete)
-			pool.OPTIONS("/:pool_name", c.PoolDeleteOptions)
-			pool.GET("/info/:image_name", c.InfoImage)
+			pool.OPTIONS("/:pool_name", c.GlueOption)
+		}
+		image := v1.Group("/image")
+		{
+			image.GET("", c.ListAndInfoImage)
+			image.POST("", c.CreateImage)
+			image.DELETE("", c.DeleteImage)
+			image.OPTIONS("", c.GlueOption)
 		}
 		service := v1.Group("/service")
 		{
 			service.GET("", c.ServiceLs)
 			service.POST("/:service_name", c.ServiceControl)
 			service.DELETE("/:service_name", c.ServiceDelete)
-			service.OPTIONS("/:service_name", c.ServiceDeleteOptions)
+			service.OPTIONS("/:service_name", c.GlueOption)
 		}
 		fs := v1.Group("/gluefs")
 		{
 			fs.GET("", c.FsStatus)
 			fs.POST("/:fs_name", c.FsCreate)
 			fs.DELETE("/:fs_name", c.FsDelete)
-			fs.OPTIONS("/:fs_name", c.FsDeleteOptions)
+			fs.OPTIONS("/:fs_name", c.FsOption)
 			fs.GET("/info/:fs_name", c.FsGetInfo)
 		}
 		nfs := v1.Group("/nfs")
@@ -82,55 +87,47 @@ func main() {
 			nfs.GET("", c.NfsClusterList)
 			nfs.POST("/:cluster_id/:port", c.NfsClusterCreate)
 			nfs.DELETE("/:cluster_id", c.NfsClusterDelete)
-			nfs.OPTIONS("/:cluster_id", c.NfsClusterDeleteOptions)
+			nfs.OPTIONS("/:cluster_id", c.NfsOption)
 			nfs_export := nfs.Group("/export")
 			{
 				nfs_export.GET("", c.NfsExportDetailed)
 				nfs_export.POST("/:cluster_id", c.NfsExportCreate)
 				nfs_export.PUT("/:cluster_id", c.NfsExportUpdate)
-				nfs_export.OPTIONS("/:cluster_id", c.NfsExportUpdateOptions)
+				nfs_export.OPTIONS("/:cluster_id", c.NfsOption)
 				nfs_export.DELETE("/:cluster_id/:export_id", c.NfsExportDelete)
-				nfs_export.OPTIONS("/:cluster_id/:export_id", c.NfsExportDeleteOptions)
+				nfs_export.OPTIONS("/:cluster_id/:export_id", c.NfsOption)
 			}
 		}
 		iscsi := v1.Group("/iscsi")
 		{
 			iscsi.POST("", c.IscsiServiceCreate)
+
+			iscsi.GET("/discovery", c.IscsiGetDiscoveryAuth)
+			iscsi.PUT("/discovery", c.IscsiUpdateDiscoveryAuth)
+			iscsi.OPTIONS("/discovery", c.IscsiOption)
+
 			iscsi_target := iscsi.Group("/target")
 			{
 				iscsi_target.GET("", c.IscsiTargetList)
-				iscsi_target.POST("/:iqn_id", c.IscsiTargetCreate)
-				iscsi_target.DELETE("/:iqn_id", c.IscsiTargetDelete)
-				iscsi_target.OPTIONS("/:iqn_id", c.IscsiTargetDeleteOptions)
+				iscsi_target.DELETE("", c.IscsiTargetDelete)
+				iscsi_target.POST("", c.IscsiTargetCreate)
+				iscsi_target.PUT("", c.IscsiTargetUpdate)
+				iscsi_target.OPTIONS("", c.IscsiOption)
 			}
-			iscsi_disk := iscsi.Group("/disk")
-			{
-				iscsi_disk.GET("", c.IscsiDiskList)
-				iscsi_disk.POST("", c.IscsiDiskCreate)
-				iscsi_disk.DELETE("", c.IscsiDiskDelete)
-				iscsi_disk.OPTIONS("", c.IscsiDiskOptions)
-				iscsi_disk.PUT("", c.IscsiDiskResize)
-			}
-			iscsi_discovery := iscsi.Group("/discovery")
-			{
-				iscsi_discovery.POST("", c.IscsiDiscoveryCreate)
-				iscsi_discovery.GET("", c.IscsiDiscoveryInfo)
-				iscsi_discovery.DELETE("", c.IscsiDiscoveryReset)
-				iscsi_discovery.OPTIONS("", c.IscsiDiscoveryOptions)
-			}
+
 		}
 		smb := v1.Group("/smb")
 		{
 			smb.GET("", c.SmbStatus)
 			smb.POST("", c.SmbCreate)
 			smb.DELETE("", c.SmbDelete)
-			smb.OPTIONS("", c.SmbOptions)
+			smb.OPTIONS("", c.SmbOption)
 			smb_user := smb.Group("/user")
 			{
 				smb_user.POST("", c.SmbUserCreate)
 				smb_user.PUT("", c.SmbUserUpdate)
 				smb_user.DELETE("", c.SmbUserDelete)
-				smb_user.OPTIONS("", c.SmbUserOptions)
+				smb_user.OPTIONS("", c.SmbOption)
 			}
 		}
 		mirror := v1.Group("/mirror")

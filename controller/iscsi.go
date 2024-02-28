@@ -5,47 +5,89 @@ import (
 	"Glue-API/model"
 	"Glue-API/utils"
 	"Glue-API/utils/iscsi"
+	"bytes"
+	"crypto/tls"
+	"encoding/json"
+	"fmt"
+	"io"
 	"net/http"
 	"os"
+	"os/exec"
 	"strconv"
 	"strings"
+	"time"
 
 	"github.com/gin-gonic/gin"
 	"gopkg.in/yaml.v2"
 )
 
-// IscsiTargetName 불러 오기
-func IscsiName() (ceph_container_name string, hostname string) {
-	dat, err := iscsi.IscsiService()
-	if err != nil {
-		utils.FancyHandleError(err)
-		return
-	}
-	var data []string
-	for i := 0; i < len(dat); i++ {
-		arr_data := dat[i].Placement.Hosts
-		data = append(arr_data, data...)
-	}
+func (c *Controller) IscsiOption(ctx *gin.Context) {
+	SetOptionHeader(ctx)
+	ctx.IndentedJSON(http.StatusOK, nil)
+}
 
-	for i := 0; i < len(data); i++ {
-		if data[i] == "gwvm" {
-			gwvm_data, err := iscsi.IscsiTargetName("gwvm")
-			if err != nil {
-				utils.FancyHandleError(err)
-				return
-			}
-			ceph_container_name = gwvm_data
-			hostname = "gwvm"
-			return
-		}
-	}
-	scvm_data, err := iscsi.IscsiTargetName("scvm")
+func GlueUrl() (output string) {
+	dat, err := iscsi.GlueUrl()
 	if err != nil {
 		utils.FancyHandleError(err)
 		return
 	}
-	ceph_container_name = scvm_data
-	hostname = "scvm"
+	url := strings.Split(dat.ActiveName, ".")
+
+	var stdout []byte
+	cmd := exec.Command("sh", "-c", "cat /etc/hosts | grep '"+url[0]+"-mngt' | awk '{print $1}'")
+	stdout, err = cmd.CombinedOutput()
+	if err != nil {
+		return
+	}
+	result := strings.Replace(string(stdout), "\n", "", -1)
+
+	output = string("https://") + result + string(":8443/")
+	return
+}
+func GetToken() (output string, err error) {
+	client := &http.Client{
+		Transport: &http.Transport{
+			TLSClientConfig: &tls.Config{InsecureSkipVerify: true},
+		},
+	}
+	user_json := model.UserInfo{
+		Username: "ablecloud",
+		Password: "Ablecloud1!",
+	}
+	user, err := json.Marshal(user_json)
+	if err != nil {
+		utils.FancyHandleError(err)
+		return
+	}
+	url := GlueUrl() + "api/auth"
+	var jsonStr = bytes.NewBuffer(user)
+	request, err := http.NewRequest(http.MethodPost, url, jsonStr)
+	if err != nil {
+		utils.FancyHandleError(err)
+		return
+	}
+	request.Header.Set("Content-Type", "application/json")
+	request.Header.Set("accept", "application/vnd.ceph.api.v1.0+json")
+
+	result, err := client.Do(request)
+	if err != nil {
+		utils.FancyHandleError(err)
+		return
+	}
+	defer result.Body.Close()
+
+	body, err := io.ReadAll(result.Body)
+	if err != nil {
+		utils.FancyHandleError(err)
+		return
+	}
+	var dat model.Token
+	if err = json.Unmarshal(body, &dat); err != nil {
+		utils.FancyHandleError(err)
+		return
+	}
+	output = dat.Token
 	return
 }
 
@@ -168,87 +210,69 @@ func (c *Controller) IscsiServiceCreate(ctx *gin.Context) {
 //	@Summary		Show List of Iscsi Target
 //	@Description	Iscsi 타겟 리스트를 가져옵니다.
 //	@Tags			IscsiTarget
+//	@param			iqn_id	query	string	false	"Iscsi Target IQN Name"
 //	@Accept			x-www-form-urlencoded
 //	@Produce		json
-//	@Success		200	{object}	IscsiTargetList
+//	@Success		200	{object}	IscsiCommon
 //	@Failure		400	{object}	httputil.HTTP400BadRequest
 //	@Failure		404	{object}	httputil.HTTP404NotFound
 //	@Failure		500	{object}	httputil.HTTP500InternalServerError
 //	@Router			/api/v1/iscsi/target [get]
 func (c *Controller) IscsiTargetList(ctx *gin.Context) {
-	dat, hostname := IscsiName()
-	dat = strings.Replace(dat, "\n", "", -1)
-	data, err := iscsi.IscsiTargetList(dat, hostname)
+	var request *http.Request
+	var responseBody []byte
+	var err error
+	var requestUrl string
+	iqn_id := ctx.Request.URL.Query().Get("iqn_id")
+	if iqn_id == "" {
+		requestUrl = GlueUrl() + "api/iscsi/target"
+	} else {
+		requestUrl = GlueUrl() + "api/iscsi/target/" + iqn_id
+	}
+
+	if request, err = http.NewRequest(http.MethodGet, requestUrl, nil); err != nil {
+		utils.FancyHandleError(err)
+		httputil.NewError(ctx, http.StatusInternalServerError, err)
+	}
+	token, err := GetToken()
 	if err != nil {
 		utils.FancyHandleError(err)
 		httputil.NewError(ctx, http.StatusInternalServerError, err)
 		return
 	}
+	request.Header.Add("accept", "application/vnd.ceph.api.v1.0+json")
+	request.Header.Add("Authorization", "Bearer "+token)
+
+	client := &http.Client{
+		Timeout: 30 * time.Second,
+		Transport: &http.Transport{
+			TLSClientConfig: &tls.Config{InsecureSkipVerify: true},
+		},
+	}
+	response, err := client.Do(request)
+	if err != nil {
+		utils.FancyHandleError(err)
+		httputil.NewError(ctx, http.StatusInternalServerError, err)
+		return
+	}
+	defer response.Body.Close()
+
+	responseBody, err = io.ReadAll(response.Body)
+	if err != nil {
+		utils.FancyHandleError(err)
+		httputil.NewError(ctx, http.StatusInternalServerError, err)
+		return
+	}
+	var dat model.IscsiCommon
+	if err = json.Unmarshal(responseBody, &dat); err != nil {
+		utils.FancyHandleError(err)
+		httputil.NewError(ctx, http.StatusInternalServerError, err)
+		return
+	}
+
+	// Print the output
 	ctx.Header("Access-Control-Allow-Origin", "*")
-	ctx.IndentedJSON(http.StatusOK, data)
-
-}
-
-// IscsiTargetCreate godoc
-//
-//	@Summary		Create of Iscsi Target
-//	@Description	Iscsi 타겟을 생성합니다.
-//	@param			iqn_id 	path	string	true	"Iscsi IQN ID" example("iqn.{yyyy-mm}.{naming-authority}:{unique-name}")
-//	@param			hostname 	formData	[]string	true	"Gateway Host Name" collectionFormat(multi)
-//	@param			ip_address 	formData	[]string	true	"Gateway Host IP Address" collectionFormat(multi)
-//	@param			pool_name 	formData	string	true	"Glue Pool Name"
-//	@param			disk_name 	formData	string	true	"Iscsi Disk Name"
-//	@param			size 	formData	int	false	"Iscsi Disk Image Size(Default GB)"
-//	@param			auth    	formData	boolean	true	"Iscsi Authentication" default(false)
-//	@param			username 	formData	string	false	"Iscsi Auth User" 	minlength(8) maxlength(64)
-//	@param			password 	formData	string	false	"Iscsi Auth Password"  minlength(12) maxlength(16)
-//	@param			mutual_username 	formData	string	false	"Iscsi Auth Mutual User" minlength(8) maxlength(64)
-//	@param			mutual_password 	formData	string	false	"Iscsi Auth Mutaul Password" minlength(12) maxlength(16)
-//	@Tags			IscsiTarget
-//	@Accept			x-www-form-urlencoded
-//	@Produce		json
-//	@Success		200	{string}	string "Success"
-//	@Failure		400	{object}	httputil.HTTP400BadRequest
-//	@Failure		404	{object}	httputil.HTTP404NotFound
-//	@Failure		500	{object}	httputil.HTTP500InternalServerError
-//	@Router			/api/v1/iscsi/target/{iqn_id} [post]
-func (c *Controller) IscsiTargetCreate(ctx *gin.Context) {
-	iqn_id := ctx.Param("iqn_id")
-	portal, _ := ctx.GetPostFormArray("hostname")
-	ip_address, _ := ctx.GetPostFormArray("ip_address")
-	disk_name, _ := ctx.GetPostForm("disk_name")
-	pool_name, _ := ctx.GetPostForm("pool_name")
-	size, _ := ctx.GetPostForm("size")
-	auth, _ := ctx.GetPostForm("auth")
-	username, _ := ctx.GetPostForm("username")
-	password, _ := ctx.GetPostForm("password")
-	mutual_username, _ := ctx.GetPostForm("mutual_username")
-	mutual_password, _ := ctx.GetPostForm("mutual_password")
-	// cmd := exec.Command("sh", "-c", "cat /etc/hosts | sort | grep -w -m 1 'gwvm' | awk '{print $1}'")
-	// ip_address, err := cmd.CombinedOutput()
-	ceph_container_name, hostname := IscsiName()
-	ceph_container_name = strings.Replace(ceph_container_name, "\n", "", -1)
-
-	data, err := iscsi.IscsiTargetCreate(ceph_container_name, hostname, iqn_id, pool_name, disk_name, size, auth, username, password, mutual_username, mutual_password)
-	if err != nil {
-		utils.FancyHandleError(err)
-		httputil.NewError(ctx, http.StatusInternalServerError, err)
-		return
-	}
-	if data == "Success" {
-		for i := 0; i < len(portal); i++ {
-			gateway, err := iscsi.IscsiGatewayAttach(ceph_container_name, hostname, iqn_id, portal[i], ip_address[i])
-			if err != nil {
-				utils.FancyHandleError(err)
-				httputil.NewError(ctx, http.StatusInternalServerError, err)
-				return
-			}
-			if i == len(portal)-1 {
-				ctx.Header("Access-Control-Allow-Origin", "*")
-				ctx.IndentedJSON(http.StatusOK, gateway)
-			}
-		}
-	}
+	ctx.IndentedJSON(http.StatusOK, dat)
 
 }
 
@@ -256,255 +280,474 @@ func (c *Controller) IscsiTargetCreate(ctx *gin.Context) {
 //
 //	@Summary		Delete of Iscsi Target
 //	@Description	Iscsi 타겟을 삭제합니다.
-//	@param			iqn_id 	path	string	true	"Iscsi IQN ID"
-//	@param			pool_name 	query	string	true	"Glue Pool Name"
-//	@param			disk_name 	query	string	true	"Iscsi Disk Name"
-//	@param			image 	query	string	true	"Whether to Delete RBD Image" default(false) Enums(true,false)
 //	@Tags			IscsiTarget
+//	@param			iqn_id	query	string	true	"Iscsi Target IQN Name"
 //	@Accept			x-www-form-urlencoded
 //	@Produce		json
 //	@Success		200	{string}	string "Success"
 //	@Failure		400	{object}	httputil.HTTP400BadRequest
 //	@Failure		404	{object}	httputil.HTTP404NotFound
 //	@Failure		500	{object}	httputil.HTTP500InternalServerError
-//	@Router			/api/v1/iscsi/target/{iqn_id} [delete]
+//	@Router			/api/v1/iscsi/target [delete]
 func (c *Controller) IscsiTargetDelete(ctx *gin.Context) {
-	iqn_id := ctx.Param("iqn_id")
-	pool_name := ctx.Request.URL.Query().Get("pool_name")
-	disk_name := ctx.Request.URL.Query().Get("disk_name")
-	image := ctx.Request.URL.Query().Get("image")
-	ceph_container_name, hostname := IscsiName()
-	ceph_container_name = strings.Replace(ceph_container_name, "\n", "", -1)
-	data, err := iscsi.IscsiTargetDelete(ceph_container_name, hostname, pool_name, disk_name, iqn_id, image)
-	if err != nil {
-		utils.FancyHandleError(err)
-		httputil.NewError(ctx, http.StatusInternalServerError, err)
-		return
-	}
-	ctx.Header("Access-Control-Allow-Origin", "*")
-	ctx.IndentedJSON(http.StatusOK, data)
+	var request *http.Request
+	var responseBody []byte
+	var err error
 
-}
-func (c *Controller) IscsiTargetDeleteOptions(ctx *gin.Context) {
-	SetOptionHeader(ctx)
-	ctx.IndentedJSON(http.StatusOK, nil)
-}
-
-// IscsiDiskList godoc
-//
-//	@Summary		Show List of Iscsi Disk
-//	@Description	Iscsi 디스크 리스트를 보여줍니다.
-//	@Tags			IscsiDisk
-//	@Accept			x-www-form-urlencoded
-//	@Produce		json
-//	@Success		200	{object}	IscsiDiskList
-//	@Failure		400	{object}	httputil.HTTP400BadRequest
-//	@Failure		404	{object}	httputil.HTTP404NotFound
-//	@Failure		500	{object}	httputil.HTTP500InternalServerError
-//	@Router			/api/v1/iscsi/disk [get]
-func (c *Controller) IscsiDiskList(ctx *gin.Context) {
-	ceph_container_name, hostname := IscsiName()
-	ceph_container_name = strings.Replace(ceph_container_name, "\n", "", -1)
-	data, err := iscsi.IscsiDiskList(ceph_container_name, hostname)
-	if err != nil {
-		utils.FancyHandleError(err)
-		httputil.NewError(ctx, http.StatusInternalServerError, err)
-		return
-	}
-	ctx.Header("Access-Control-Allow-Origin", "*")
-	ctx.IndentedJSON(http.StatusOK, data)
-
-}
-
-// IscsiDiskCreate godoc
-//
-//	@Summary		Create Or Attach of Iscsi Disk
-//	@Description	Iscsi 디스크를 생성 또는 부착합니다.
-//	@param			pool_name	formData	string	true	"Iscsi Disk Pool Name"
-//	@param			disk_name 	formData	string	true	"Iscsi Disk Name"
-//	@param			size	formData	int	false	"Iscsi Disk Image Size(Default GB)"
-//	@param			iqn_id  formData	string	false	"Iscsi IQN ID"
-//	@Tags			IscsiDisk
-//	@Accept			x-www-form-urlencoded
-//	@Produce		json
-//	@Success		200	{string}	string "Success"
-//	@Failure		400	{object}	httputil.HTTP400BadRequest
-//	@Failure		404	{object}	httputil.HTTP404NotFound
-//	@Failure		500	{object}	httputil.HTTP500InternalServerError
-//	@Router			/api/v1/iscsi/disk [post]
-func (c *Controller) IscsiDiskCreate(ctx *gin.Context) {
-	disk_name, _ := ctx.GetPostForm("disk_name")
-	pool_name, _ := ctx.GetPostForm("pool_name")
-	size, _ := ctx.GetPostForm("size")
-	iqn_id, _ := ctx.GetPostForm("iqn_id")
-	ceph_container_name, hostname := IscsiName()
-	ceph_container_name = strings.Replace(ceph_container_name, "\n", "", -1)
-	data, err := iscsi.IscsiDiskCreate(ceph_container_name, hostname, pool_name, disk_name, size, iqn_id)
-	if err != nil {
-		utils.FancyHandleError(err)
-		httputil.NewError(ctx, http.StatusInternalServerError, err)
-		return
-	}
-	ctx.Header("Access-Control-Allow-Origin", "*")
-	ctx.IndentedJSON(http.StatusOK, data)
-
-}
-
-// IscsiDiskDelete godoc
-//
-//	@Summary		Delete of Iscsi Disk
-//	@Description	Iscsi 디스크를 삭제합니다.
-//	@param			pool_name 	query	string	true	"Iscsi Disk Pool Name"
-//	@param			disk_name 	query	string	true	"Iscsi Disk Name"
-//	@param			iqn_id  query	string	false	"Iscsi IQN ID"
-//	@param			image 	query	string	true	"Whether to Delete RBD Image" default(false) Enums(true,false)
-//	@Tags			IscsiDisk
-//	@Accept			x-www-form-urlencoded
-//	@Produce		json
-//	@Success		200	{string}	string "Success"
-//	@Failure		400	{object}	httputil.HTTP400BadRequest``
-//	@Failure		404	{object}	httputil.HTTP404NotFound
-//	@Failure		500	{object}	httputil.HTTP500InternalServerError
-//	@Router			/api/v1/iscsi/disk [delete]
-func (c *Controller) IscsiDiskDelete(ctx *gin.Context) {
-	disk_name := ctx.Request.URL.Query().Get("disk_name")
-	pool_name := ctx.Request.URL.Query().Get("pool_name")
-	image := ctx.Request.URL.Query().Get("image")
 	iqn_id := ctx.Request.URL.Query().Get("iqn_id")
-	ceph_container_name, hostname := IscsiName()
-	ceph_container_name = strings.Replace(ceph_container_name, "\n", "", -1)
 
-	data, err := iscsi.IscsiDiskDelete(ceph_container_name, hostname, pool_name, disk_name, image, iqn_id)
+	requestUrl := GlueUrl() + "api/iscsi/target/" + iqn_id
+
+	if request, err = http.NewRequest(http.MethodDelete, requestUrl, nil); err != nil {
+		utils.FancyHandleError(err)
+		httputil.NewError(ctx, http.StatusInternalServerError, err)
+	}
+	token, err := GetToken()
 	if err != nil {
 		utils.FancyHandleError(err)
 		httputil.NewError(ctx, http.StatusInternalServerError, err)
 		return
 	}
-	ctx.Header("Access-Control-Allow-Origin", "*")
-	ctx.IndentedJSON(http.StatusOK, data)
+	request.Header.Add("accept", "application/vnd.ceph.api.v1.0+json")
+	request.Header.Add("Authorization", "Bearer "+token)
 
+	client := &http.Client{
+		Timeout: 30 * time.Second,
+		Transport: &http.Transport{
+			TLSClientConfig: &tls.Config{InsecureSkipVerify: true},
+		},
+	}
+	response, err := client.Do(request)
+	if err != nil {
+		utils.FancyHandleError(err)
+		httputil.NewError(ctx, http.StatusInternalServerError, err)
+		return
+	}
+	defer response.Body.Close()
+
+	responseBody, err = io.ReadAll(response.Body)
+	if err != nil {
+		utils.FancyHandleError(err)
+		httputil.NewError(ctx, http.StatusInternalServerError, err)
+		return
+	}
+	var dat model.IscsiCommon
+	if response.StatusCode == 204 {
+		dat = "Success"
+	} else {
+		if err = json.Unmarshal(responseBody, &dat); err != nil {
+			utils.FancyHandleError(err)
+			httputil.NewError(ctx, http.StatusInternalServerError, err)
+			return
+		}
+	}
+	// Print the output
+	ctx.Header("Access-Control-Allow-Origin", "*")
+	ctx.IndentedJSON(http.StatusOK, dat)
 }
 
-// IscsiDiskResize godoc
+// IscsiTargetCreate godoc
 //
-//	@Summary		Change Size of Iscsi Disk
-//	@Description	Iscsi 디스크 용량을 변경합니다.
-//	@param			disk_name 	query	string	true	"Iscsi Disk Name"
-//	@param			new_size 	query	int	true	"Iscsi Disk New Size(default GB)"
-//	@Tags			IscsiDisk
+//	@Summary		Create of Iscsi Target
+//	@Description	Iscsi 타겟을 생성합니다.
+//	@Tags			IscsiTarget
+//	@param			iqn_id	formData	string	true	"Iscsi Target IQN Name"
+//	@param			hostname 	formData	[]string	true	"Gateway Host Name" collectionFormat(multi)
+//	@param			ip_address 	formData	[]string	true	"Gateway Host IP Address" collectionFormat(multi)
+//	@param			pool_name 	formData	[]string	false	"Glue Pool Name" collectionFormat(multi)
+//	@param			image_name 	formData	[]string	false	"Glue Image Name" collectionFormat(multi)
+//	@param			acl_enabled    	formData	boolean	true	"Iscsi Authentication" default(false)
+//	@param			username 	formData	string	false	"Iscsi Auth User" 	minlength(8) maxlength(64)
+//	@param			password 	formData	string	false	"Iscsi Auth Password"  minlength(12) maxlength(16)
+//	@param			mutual_username 	formData	string	false	"Iscsi Auth Mutual User" minlength(8) maxlength(64)
+//	@param			mutual_password 	formData	string	false	"Iscsi Auth Mutaul Password" minlength(12) maxlength(16)
 //	@Accept			x-www-form-urlencoded
 //	@Produce		json
 //	@Success		200	{string}	string "Success"
 //	@Failure		400	{object}	httputil.HTTP400BadRequest
 //	@Failure		404	{object}	httputil.HTTP404NotFound
 //	@Failure		500	{object}	httputil.HTTP500InternalServerError
-//	@Router			/api/v1/iscsi/disk [put]
-func (c *Controller) IscsiDiskResize(ctx *gin.Context) {
-	disk_name := ctx.Request.URL.Query().Get("disk_name")
-	new_size := ctx.Request.URL.Query().Get("new_size")
-	ceph_container_name, hostname := IscsiName()
-	ceph_container_name = strings.Replace(ceph_container_name, "\n", "", -1)
-
-	data, err := iscsi.IscsiDiskResize(ceph_container_name, hostname, disk_name, new_size)
-	if err != nil {
-		utils.FancyHandleError(err)
-		httputil.NewError(ctx, http.StatusInternalServerError, err)
-		return
-	}
-	ctx.Header("Access-Control-Allow-Origin", "*")
-	ctx.IndentedJSON(http.StatusOK, data)
-
-}
-func (c *Controller) IscsiDiskOptions(ctx *gin.Context) {
-	SetOptionHeader(ctx)
-	ctx.IndentedJSON(http.StatusOK, nil)
-}
-
-// IscsiDiscoveryCreate godoc
-//
-//	@Summary		Create User of Iscsi Discovery Auth
-//	@Description	Iscsi Discovery Auth 계정을 생성합니다.
-//	@param			username 	formData	string	true	"Iscsi Discovery Authentication User"  minlength(8) maxlength(64)
-//	@param			password 	formData	string	true	"Iscsi Discovery Authentication Password" minlength(12) maxlength(16)
-//	@param			mutual_username 	formData	string	false	"Iscsi Discovery Authentication Mutual User" minlength(8) maxlength(64)
-//	@param			mutual_password 	formData	string	false	"Iscsi Discovery Authentication Mutual Password" minlength(12) maxlength(16)
-//	@Tags			IscsiDiscovery
-//	@Accept			x-www-form-urlencoded
-//	@Produce		json
-//	@Success		200	{string}	string "Success"
-//	@Failure		400	{object}	httputil.HTTP400BadRequest
-//	@Failure		404	{object}	httputil.HTTP404NotFound
-//	@Failure		500	{object}	httputil.HTTP500InternalServerError
-//	@Router			/api/v1/iscsi/discovery [post]
-func (c *Controller) IscsiDiscoveryCreate(ctx *gin.Context) {
+//	@Router			/api/v1/iscsi/target [post]
+func (c *Controller) IscsiTargetCreate(ctx *gin.Context) {
+	iqn_id, _ := ctx.GetPostForm("iqn_id")
+	hostname, _ := ctx.GetPostFormArray("hostname")
+	ip_address, _ := ctx.GetPostFormArray("ip_address")
+	image_name, _ := ctx.GetPostFormArray("image_name")
+	pool_name, _ := ctx.GetPostFormArray("pool_name")
+	acl_enabled, _ := ctx.GetPostForm("acl_enabled")
 	username, _ := ctx.GetPostForm("username")
 	password, _ := ctx.GetPostForm("password")
 	mutual_username, _ := ctx.GetPostForm("mutual_username")
 	mutual_password, _ := ctx.GetPostForm("mutual_password")
 
-	ceph_container_name, hostname := IscsiName()
-	ceph_container_name = strings.Replace(ceph_container_name, "\n", "", -1)
-	dat, err := iscsi.IscsiDiscoveryCreate(ceph_container_name, hostname, username, password, mutual_username, mutual_password)
+	var portal model.Portals
+	portals := make([]model.Portals, 0)
+	for i := 0; i < len(hostname); i++ {
+		portal = model.Portals{
+			Host: hostname[i],
+			Ip:   ip_address[i],
+		}
+		portals = append(portals, portal)
+	}
+	var disk model.Disks
+	disks := make([]model.Disks, 0)
+	for i := 0; i < len(image_name); i++ {
+		disk = model.Disks{
+			Pool:      pool_name[i],
+			Image:     image_name[i],
+			Backstore: "user:rbd",
+			Lun:       i,
+		}
+		disks = append(disks, disk)
+	}
+	acl, errs := strconv.ParseBool(acl_enabled)
+	if errs != nil {
+		utils.FancyHandleError(errs)
+		httputil.NewError(ctx, http.StatusInternalServerError, errs)
+		return
+	}
+	value := model.IscsiTargetCreate{
+		Target_Iqn:  iqn_id,
+		Portals:     portals,
+		Disks:       disks,
+		Acl_Enabled: acl,
+		Auth: model.Auth{
+			User:            username,
+			Password:        password,
+			Mutual_User:     mutual_username,
+			Mutual_Password: mutual_password,
+		},
+	}
+	json_data, errs := json.Marshal(value)
+	if errs != nil {
+		utils.FancyHandleError(errs)
+		httputil.NewError(ctx, http.StatusInternalServerError, errs)
+		return
+	}
+	var jsonStr = bytes.NewBuffer(json_data)
+	var request *http.Request
+	var responseBody []byte
+	var err error
+	requestUrl := GlueUrl() + "api/iscsi/target"
+	if request, err = http.NewRequest(http.MethodPost, requestUrl, jsonStr); err != nil {
+		utils.FancyHandleError(err)
+		httputil.NewError(ctx, http.StatusInternalServerError, err)
+	}
+	token, err := GetToken()
 	if err != nil {
 		utils.FancyHandleError(err)
 		httputil.NewError(ctx, http.StatusInternalServerError, err)
 		return
 	}
+	request.Header.Add("accept", "application/vnd.ceph.api.v1.0+json")
+	request.Header.Set("Content-Type", "application/json")
+	request.Header.Add("Authorization", "Bearer "+token)
+
+	client := &http.Client{
+		Timeout: 30 * time.Second,
+		Transport: &http.Transport{
+			TLSClientConfig: &tls.Config{InsecureSkipVerify: true},
+		},
+	}
+	response, err := client.Do(request)
+	if err != nil {
+		utils.FancyHandleError(err)
+		httputil.NewError(ctx, http.StatusInternalServerError, err)
+		return
+	}
+	defer response.Body.Close()
+
+	responseBody, err = io.ReadAll(response.Body)
+	if err != nil {
+		utils.FancyHandleError(err)
+		httputil.NewError(ctx, http.StatusInternalServerError, err)
+		return
+	}
+	var dat model.IscsiCommon
+	if response.StatusCode == 201 {
+		dat = "Success"
+	} else {
+		if err = json.Unmarshal(responseBody, &dat); err != nil {
+			utils.FancyHandleError(err)
+			httputil.NewError(ctx, http.StatusInternalServerError, err)
+			return
+		}
+	}
+	// Print the output
 	ctx.Header("Access-Control-Allow-Origin", "*")
 	ctx.IndentedJSON(http.StatusOK, dat)
 }
 
-// IscsiDiscoveryInfo godoc
+// IscsiTargetUpdate godoc
 //
-//	@Summary		Info User of Iscsi Discovery Auth
-//	@Description	Iscsi Discovery Auth 계정 정보를 보여줍니다.
-//	@Tags			IscsiDiscovery
+//	@Summary		Update of Iscsi Target
+//	@Description	Iscsi 타겟을 수정합니다.
+//	@Tags			IscsiTarget
+//	@param			iqn_id	formData	string	true	"Iscsi Target Old IQN Name"
+//	@param			new_iqn_id	formData	string	true	"Iscsi Target New IQN Name"
+//	@param			hostname 	formData	[]string	true	"Gateway Host Name" collectionFormat(multi)
+//	@param			ip_address 	formData	[]string	true	"Gateway Host IP Address" collectionFormat(multi)
+//	@param			pool_name 	formData	[]string	false	"Glue Pool Name" collectionFormat(multi)
+//	@param			image_name 	formData	[]string	false	"Glue Image Name" collectionFormat(multi)
+//	@param			acl_enabled    	formData	boolean	true	"Iscsi Authentication" default(false)
+//	@param			username 	formData	string	false	"Iscsi Auth User" 	minlength(8) maxlength(64)
+//	@param			password 	formData	string	false	"Iscsi Auth Password"  minlength(12) maxlength(16)
+//	@param			mutual_username 	formData	string	false	"Iscsi Auth Mutual User" minlength(8) maxlength(64)
+//	@param			mutual_password 	formData	string	false	"Iscsi Auth Mutaul Password" minlength(12) maxlength(16)
 //	@Accept			x-www-form-urlencoded
 //	@Produce		json
-//	@Success		200	{object}	IscsiDiscoveryInfo
+//	@Success		200	{object}	IscsiCommon
+//	@Failure		400	{object}	httputil.HTTP400BadRequest
+//	@Failure		404	{object}	httputil.HTTP404NotFound
+//	@Failure		500	{object}	httputil.HTTP500InternalServerError
+//	@Router			/api/v1/iscsi/target [put]
+func (c *Controller) IscsiTargetUpdate(ctx *gin.Context) {
+	iqn_id, _ := ctx.GetPostForm("iqn_id")
+	new_iqn_id, _ := ctx.GetPostForm("new_iqn_id")
+	hostname, _ := ctx.GetPostFormArray("hostname")
+	ip_address, _ := ctx.GetPostFormArray("ip_address")
+	image_name, _ := ctx.GetPostFormArray("image_name")
+	pool_name, _ := ctx.GetPostFormArray("pool_name")
+	acl_enabled, _ := ctx.GetPostForm("acl_enabled")
+	username, _ := ctx.GetPostForm("username")
+	password, _ := ctx.GetPostForm("password")
+	mutual_username, _ := ctx.GetPostForm("mutual_username")
+	mutual_password, _ := ctx.GetPostForm("mutual_password")
+
+	var portal model.Portals
+	portals := make([]model.Portals, 0)
+	for i := 0; i < len(hostname); i++ {
+		portal = model.Portals{
+			Host: hostname[i],
+			Ip:   ip_address[i],
+		}
+		portals = append(portals, portal)
+	}
+	var disk model.Disks
+	disks := make([]model.Disks, 0)
+	for i := 0; i < len(image_name); i++ {
+		disk = model.Disks{
+			Pool:      pool_name[i],
+			Image:     image_name[i],
+			Backstore: "user:rbd",
+			Lun:       i,
+		}
+		disks = append(disks, disk)
+	}
+	acl, errs := strconv.ParseBool(acl_enabled)
+	if errs != nil {
+		utils.FancyHandleError(errs)
+		httputil.NewError(ctx, http.StatusInternalServerError, errs)
+		return
+	}
+	value := model.IscsiTargetUpdate{
+		New_Target_Iqn: new_iqn_id,
+		Portals:        portals,
+		Disks:          disks,
+		Acl_Enabled:    acl,
+		Auth: model.Auth{
+			User:            username,
+			Password:        password,
+			Mutual_User:     mutual_username,
+			Mutual_Password: mutual_password,
+		},
+	}
+	json_data, errs := json.Marshal(value)
+	if errs != nil {
+		utils.FancyHandleError(errs)
+		httputil.NewError(ctx, http.StatusInternalServerError, errs)
+		return
+	}
+	var jsonStr = bytes.NewBuffer(json_data)
+	var request *http.Request
+	var responseBody []byte
+	var err error
+	requestUrl := GlueUrl() + "api/iscsi/target/" + iqn_id
+	if request, err = http.NewRequest(http.MethodPut, requestUrl, jsonStr); err != nil {
+		utils.FancyHandleError(err)
+		httputil.NewError(ctx, http.StatusInternalServerError, err)
+	}
+	token, err := GetToken()
+	if err != nil {
+		utils.FancyHandleError(err)
+		httputil.NewError(ctx, http.StatusInternalServerError, err)
+		return
+	}
+	request.Header.Add("accept", "application/vnd.ceph.api.v1.0+json")
+	request.Header.Set("Content-Type", "application/json")
+	request.Header.Add("Authorization", "Bearer "+token)
+	fmt.Print(requestUrl)
+	client := &http.Client{
+		Timeout: 30 * time.Second,
+		Transport: &http.Transport{
+			TLSClientConfig: &tls.Config{InsecureSkipVerify: true},
+		},
+	}
+	response, err := client.Do(request)
+	if err != nil {
+		utils.FancyHandleError(err)
+		httputil.NewError(ctx, http.StatusInternalServerError, err)
+		return
+	}
+	defer response.Body.Close()
+
+	responseBody, err = io.ReadAll(response.Body)
+	if err != nil {
+		utils.FancyHandleError(err)
+		httputil.NewError(ctx, http.StatusInternalServerError, err)
+		return
+	}
+	var dat model.IscsiCommon
+	if err = json.Unmarshal(responseBody, &dat); err != nil {
+		utils.FancyHandleError(err)
+		httputil.NewError(ctx, http.StatusInternalServerError, err)
+		return
+	}
+
+	// Print the output
+	ctx.Header("Access-Control-Allow-Origin", "*")
+	ctx.IndentedJSON(http.StatusOK, dat)
+}
+
+// IscsiGetDiscoveryAuth godoc
+//
+//	@Summary		Show of Iscsi Discovery Auth Details
+//	@Description	Iscsi 계정 정보를 가져옵니다.
+//	@Tags			Iscsi
+//	@Accept			x-www-form-urlencoded
+//	@Produce		json
+//	@Success		200	{object}	Auth
 //	@Failure		400	{object}	httputil.HTTP400BadRequest
 //	@Failure		404	{object}	httputil.HTTP404NotFound
 //	@Failure		500	{object}	httputil.HTTP500InternalServerError
 //	@Router			/api/v1/iscsi/discovery [get]
-func (c *Controller) IscsiDiscoveryInfo(ctx *gin.Context) {
+func (c *Controller) IscsiGetDiscoveryAuth(ctx *gin.Context) {
+	var request *http.Request
+	var responseBody []byte
+	var err error
 
-	ceph_container_name, hostname := IscsiName()
-	ceph_container_name = strings.Replace(ceph_container_name, "\n", "", -1)
-	dat, err := iscsi.IscsiDiscoveryInfo(ceph_container_name, hostname)
+	requestUrl := GlueUrl() + "api/iscsi/discoveryauth"
+	if request, err = http.NewRequest(http.MethodGet, requestUrl, nil); err != nil {
+		utils.FancyHandleError(err)
+		httputil.NewError(ctx, http.StatusInternalServerError, err)
+	}
+	token, err := GetToken()
 	if err != nil {
 		utils.FancyHandleError(err)
 		httputil.NewError(ctx, http.StatusInternalServerError, err)
 		return
 	}
+	request.Header.Add("accept", "application/vnd.ceph.api.v1.0+json")
+	request.Header.Add("Authorization", "Bearer "+token)
+
+	client := &http.Client{
+		Timeout: 30 * time.Second,
+		Transport: &http.Transport{
+			TLSClientConfig: &tls.Config{InsecureSkipVerify: true},
+		},
+	}
+	response, err := client.Do(request)
+	if err != nil {
+		utils.FancyHandleError(err)
+		httputil.NewError(ctx, http.StatusInternalServerError, err)
+		return
+	}
+	defer response.Body.Close()
+
+	responseBody, err = io.ReadAll(response.Body)
+	if err != nil {
+		utils.FancyHandleError(err)
+		httputil.NewError(ctx, http.StatusInternalServerError, err)
+		return
+	}
+	var dat model.IscsiCommon
+	if err = json.Unmarshal(responseBody, &dat); err != nil {
+		utils.FancyHandleError(err)
+		httputil.NewError(ctx, http.StatusInternalServerError, err)
+		return
+	}
+	// Print the output
 	ctx.Header("Access-Control-Allow-Origin", "*")
 	ctx.IndentedJSON(http.StatusOK, dat)
 }
 
-// IscsiDiscoveryReset godoc
+// IscsiUpdateDiscoveryAuth godoc
 //
-//	@Summary		Reset User of Iscsi Discovery Auth
-//	@Description	Iscsi Discovery Auth 계정 정보를 초기화 합니다.
-//	@Tags			IscsiDiscovery
+//	@Summary		Update of Iscsi Discovery Auth Details
+//	@Description	Iscsi 계정 정보를 수정합니다.
+//	@Tags			Iscsi
+//	@param			user	formData	string	false	"Iscsi Discovery Authorization Username" minlength(8) maxlength(64)
+//	@param			password	formData	string	false	"Iscsi Discovery Authorization Password" minlength(12) maxlength(16)
+//	@param			mutual_user	formData	string	false	"Iscsi Discovery Authorization Mutual Username" minlength(8) maxlength(64)
+//	@param			mutual_password	formData	string	false	"Iscsi Discovery Authorization Mutual Password" minlength(12) maxlength(16)
 //	@Accept			x-www-form-urlencoded
 //	@Produce		json
-//	@Success		200	{string}	string "Success"
+//	@Success		200	{object}	Auth
 //	@Failure		400	{object}	httputil.HTTP400BadRequest
 //	@Failure		404	{object}	httputil.HTTP404NotFound
 //	@Failure		500	{object}	httputil.HTTP500InternalServerError
-//	@Router			/api/v1/iscsi/discovery [delete]
-func (c *Controller) IscsiDiscoveryReset(ctx *gin.Context) {
-	ceph_container_name, hostname := IscsiName()
-	ceph_container_name = strings.Replace(ceph_container_name, "\n", "", -1)
-	dat, err := iscsi.IscsiDiscoveryReset(ceph_container_name, hostname)
+//	@Router			/api/v1/iscsi/discovery [put]
+func (c *Controller) IscsiUpdateDiscoveryAuth(ctx *gin.Context) {
+	user, _ := ctx.GetPostForm("user")
+	password, _ := ctx.GetPostForm("password")
+	mutual_user, _ := ctx.GetPostForm("mutual_user")
+	mutual_password, _ := ctx.GetPostForm("mutual_password")
+
+	var request *http.Request
+	var responseBody []byte
+	var err error
+
+	requestUrl := GlueUrl() + "api/iscsi/discoveryauth?user=%20&password=%20&mutual_user=%20&mutual_password=%20"
+
+	value := model.Auth{
+		User:            user,
+		Password:        password,
+		Mutual_User:     mutual_user,
+		Mutual_Password: mutual_password,
+	}
+	json_data, _ := json.Marshal(value)
+	var jsonStr = bytes.NewBuffer(json_data)
+	if request, err = http.NewRequest(http.MethodPut, requestUrl, jsonStr); err != nil {
+		utils.FancyHandleError(err)
+		httputil.NewError(ctx, http.StatusInternalServerError, err)
+	}
+	token, err := GetToken()
 	if err != nil {
 		utils.FancyHandleError(err)
 		httputil.NewError(ctx, http.StatusInternalServerError, err)
 		return
 	}
+	request.Header.Add("accept", "application/vnd.ceph.api.v1.0+json")
+	request.Header.Add("Content-Type", "application/json")
+	request.Header.Add("Authorization", "Bearer "+token)
+
+	client := &http.Client{
+		Timeout: 30 * time.Second,
+		Transport: &http.Transport{
+			TLSClientConfig: &tls.Config{InsecureSkipVerify: true},
+		},
+	}
+	response, err := client.Do(request)
+	if err != nil {
+		utils.FancyHandleError(err)
+		httputil.NewError(ctx, http.StatusInternalServerError, err)
+		return
+	}
+	defer response.Body.Close()
+
+	responseBody, err = io.ReadAll(response.Body)
+	if err != nil {
+		utils.FancyHandleError(err)
+		httputil.NewError(ctx, http.StatusInternalServerError, err)
+		return
+	}
+	var dat model.IscsiCommon
+	if err = json.Unmarshal(responseBody, &dat); err != nil {
+		utils.FancyHandleError(err)
+		httputil.NewError(ctx, http.StatusInternalServerError, err)
+		return
+	}
+	// Print the output
 	ctx.Header("Access-Control-Allow-Origin", "*")
 	ctx.IndentedJSON(http.StatusOK, dat)
-}
-func (c *Controller) IscsiDiscoveryOptions(ctx *gin.Context) {
-	SetOptionHeader(ctx)
-	ctx.IndentedJSON(http.StatusOK, nil)
 }

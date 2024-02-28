@@ -14,7 +14,7 @@ Glue의 기능을 제어하기 위한 REST API 입니다.
 | GET    | [api/v1/glue/pool](#apiv1gluepool)                                     | :white_check_mark: | ListPools                   |
 | DELETE | [api/v1/glue/pool/:poolname](#apiv1gluepoolpoolname)                   | :white_check_mark: | PoolDelete                  |
 | GET    | [api/v1/glue/rbd/:poolname](#apiv1gluerbdpoolname)                     | :white_check_mark: | ListImages                  |
-| DELETE | [api/v1/glue/pool/:poolname](#apiv1gluepool)                           | :white_check_mark: | PoolDelete                  |
+| DELETE | [api/v1/glue/pool/:poolname](#apiv1glue{pool})                         | :white_check_mark: | PoolDelete                  |
 | GET    | [api/v1/gluefs](#apiv1gluefs)                                          | :white_check_mark: | FsStatus                    |
 | GET    | [api/v1/gluefs/info/:fs_name](#apiv1gluefsinfo)                        | :white_check_mark: | FsGetInfo                   |
 | GET    | [api/v1/gluefs/list](#apiv1gluefslist)                                 | :white_check_mark: | FsList                      |
@@ -33,19 +33,19 @@ Glue의 기능을 제어하기 위한 REST API 입니다.
 | DELETE | [api/v1/mirror/image/prymary/:pool/:image]()                           |                    |                             |
 | GET    | [api/v1/mirror/image/prymary/:pool/:image]()                           |                    |                             |
 | GET    | [api/v1/nfs](#apiv1nfs)                                                | :white_check_mark: | NfsClusterLs,NfsClusterInfo |
-| DELETE | [api/v1/nfs/:cluster_id](#apiv1nfsclusterdel)                          | :white_check_mark: | NfsClusterDelete            |
+| DELETE | [api/v1/nfs/:cluster_id](#apiv1nfscluster)                             | :white_check_mark: | NfsClusterDelete            |
 | POST   | [api/v1/nfs/:cluster_id/:port]()                                       | :white_check_mark: | NfsClusterCreate            |
-| GET    | [api/v1/nfs/export](#apiv1nfsexportget)                                | :white_check_mark: | NfsExportDetailed           |
-| PUT    | [api/v1/nfs/export/:cluster_id](#apiv1nfsexportput)                    | :white_check_mark: | NfsExportUpdate             |
-| POST   | [api/v1/nfs/export/:cluster_id](#apiv1nfsexportporst)                  | :white_check_mark: | NfsExportCreate             |
-| DELETE | [api/v1/nfs/export/:cluster_id/:export_id](#apiv1nfsexportdel)         | :white_check_mark: | NfsExportDelete             |
+| GET    | [api/v1/nfs/export](#apiv1nfsexport)                                   | :white_check_mark: | NfsExportDetailed           |
+| PUT    | [api/v1/nfs/export/:cluster_id](#apiv1nfsexport)                       | :white_check_mark: | NfsExportUpdate             |
+| POST   | [api/v1/nfs/export/:cluster_id](#apiv1nfsexport)                       | :white_check_mark: | NfsExportCreate             |
+| DELETE | [api/v1/nfs/export/:cluster_id/:export_id](#apiv1nfsexport)            | :white_check_mark: | NfsExportDelete             |
 | POST   | [api/v1/iscsi](#apiv1iscsi)                                            | :white_check_mark: | IscsiServiceCreate          |
-| POST   | [api/v1/iscsi/discovery](#apiv1iscsidiscovery)                         | :white_check_mark: | IscsiUpdateDiscoveryAuth    |
+| PUT    | [api/v1/iscsi/discovery](#apiv1iscsidiscovery)                         | :white_check_mark: | IscsiUpdateDiscoveryAuth    |
 | GET    | [api/v1/iscsi/discovery](#apiv1iscsidiscovery)                         | :white_check_mark: | IscsiGetDiscoveryAuth       |
 | GET    | [api/v1/iscsi/target](#apiv1iscsitarget)                               | :white_check_mark: | IscsiTargetList             |
-| POST   | [api/v1/iscsi/target](#apiv1iscsitargetiqn)                            | :white_check_mark: | IscsiTargetCreate           |
-| DELETE | [api/v1/iscsi/target](#apiv1iscsitargetiqn)                            | :white_check_mark: | IscsiTargetDelete           |
-| DELETE | [api/v1/iscsi/target](#apiv1iscsitargetiqn)                            | :white_check_mark: | IscsiTargetUpdate           |
+| POST   | [api/v1/iscsi/target](#apiv1iscsitarget)                               | :white_check_mark: | IscsiTargetCreate           |
+| DELETE | [api/v1/iscsi/target](#apiv1iscsitarget)                               | :white_check_mark: | IscsiTargetDelete           |
+| UPDATE | [api/v1/iscsi/target](#apiv1iscsitarget)                               | :white_check_mark: | IscsiTargetUpdate           |
 | GET    | [api/v1/smb](#apiv1smb)                                                | :white_check_mark: | SmbStatus                   |
 | POST   | [api/v1/smb](#apiv1smb)                                                | :white_check_mark: | SmbCreate                   |
 | DELETE | [api/v1/smb](#apiv1smb)                                                | :white_check_mark: | SmbDelete                   |
@@ -970,7 +970,7 @@ API 의 버전을 보여줍니다.
 | Name            | Type             | Description                | Required |
 | --------------- | ---------------- | -------------------------- | -------- |
 | election_epoch  | integer (uint32) |                            | No       |
-| fsid            | string (uuid)    | Glue클러스터를 구분하는 ID      | No       |
+| fsid            | string (uuid)    | Glue클러스터를 구분하는 ID | No       |
 | fsmap           | object           |                            | No       |
 | health          | object           |                            | No       |
 | mgrmap          | object           |                            | No       |
@@ -1050,18 +1050,18 @@ API 의 버전을 보여줍니다.
 | Name              | Type   | Description | Required |
 | ----------------- | ------ | ----------- | -------- |
 | host              | string |             | No       |
-| localClusterName  | string | 미러링 상태    | No       |
+| localClusterName  | string | 미러링 상태 | No       |
 | localToken        | string |             | No       |
 | mirrorPool        | string |             | No       |
 | privateKeyFile    | object |             | No       |
-| remoteClusterName | string | 미러링 상태    | No       |
+| remoteClusterName | string | 미러링 상태 | No       |
 | remoteToken       | string |             | No       |
 
 #### MirrorStatus
 
 | Name          | Type   | Description      | Required |
 | ------------- | ------ | ---------------- | -------- |
-| daemon_health | string | 미러링 데몬 상태  | No       |
+| daemon_health | string | 미러링 데몬 상태 | No       |
 | health        | string | 미러링 상태      | No       |
 | image_health  | string | 이미지 상태      | No       |
 | states        | object | 이미지 상세      | No       |

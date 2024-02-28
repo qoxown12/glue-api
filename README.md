@@ -12,14 +12,13 @@ Glue의 기능을 제어하기 위한 REST API 입니다.
 | GET    | [api/v1/glue](#apiv1glue)                                              | :white_check_mark: | GlueStatus                  |
 | GET    | [api/v1/glue/version](#apiv1glueversion)                               | :white_check_mark: | GlueVersion                 |
 | GET    | [api/v1/glue/pool](#apiv1gluepool)                                     | :white_check_mark: | ListPools                   |
-| DELETE | [api/v1/glue/pool/:poolname](#apiv1gluepoolpoolname)                   | :white_check_mark: | PoolDelete                  |
-| GET    | [api/v1/glue/rbd/:poolname](#apiv1gluerbdpoolname)                     | :white_check_mark: | ListImages                  |
-| DELETE | [api/v1/glue/pool/:poolname](#apiv1glue{pool})                         | :white_check_mark: | PoolDelete                  |
+| DELETE | [api/v1/glue/pool/:poolname](#apiv1gluepool-)                          | :white_check_mark: | PoolDelete                  |
+| GET    | [api/v1/glue/rbd/:poolname](#apiv1gluerbd-)                            | :white_check_mark: | ListImages                  |
 | GET    | [api/v1/gluefs](#apiv1gluefs)                                          | :white_check_mark: | FsStatus                    |
-| GET    | [api/v1/gluefs/info/:fs_name](#apiv1gluefsinfo)                        | :white_check_mark: | FsGetInfo                   |
+| GET    | [api/v1/gluefs/info/:fs_name](#apiv1gluefsinfo-)                       | :white_check_mark: | FsGetInfo                   |
 | GET    | [api/v1/gluefs/list](#apiv1gluefslist)                                 | :white_check_mark: | FsList                      |
-| POST   | [api/v1/gluefs/:fs_name](#apiv1gluefsname)                             | :white_check_mark: | FsCreate                    |
-| DELETE | [api/v1/gluefs/:fs_name](#apiv1gluefsname)                             | :white_check_mark: | FsDelete                    |
+| POST   | [api/v1/gluefs/:fs_name](#apiv1gluefs-)                                | :white_check_mark: | FsCreate                    |
+| DELETE | [api/v1/gluefs/:fs_name](#apiv1gluefs-)                                | :white_check_mark: | FsDelete                    |
 | GET    | [api/v1/mirror](#apiv1mirror)                                          | :white_check_mark: | MirrorStatus                |
 | POST   | [api/v1/mirror](#apiv1mirror)                                          | :white_check_mark: | MirrorSetup                 |
 | PATCH  | [api/v1/mirror]()                                                      |                    |                             |
@@ -34,18 +33,18 @@ Glue의 기능을 제어하기 위한 REST API 입니다.
 | GET    | [api/v1/mirror/image/prymary/:pool/:image]()                           |                    |                             |
 | GET    | [api/v1/nfs](#apiv1nfs)                                                | :white_check_mark: | NfsClusterLs,NfsClusterInfo |
 | DELETE | [api/v1/nfs/:cluster_id](#apiv1nfscluster)                             | :white_check_mark: | NfsClusterDelete            |
-| POST   | [api/v1/nfs/:cluster_id/:port]()                                       | :white_check_mark: | NfsClusterCreate            |
+| POST   | [api/v1/nfs/:cluster_id/:port](#apiv1nfscluster-)                      | :white_check_mark: | NfsClusterCreate            |
 | GET    | [api/v1/nfs/export](#apiv1nfsexport)                                   | :white_check_mark: | NfsExportDetailed           |
-| PUT    | [api/v1/nfs/export/:cluster_id](#apiv1nfsexport)                       | :white_check_mark: | NfsExportUpdate             |
-| POST   | [api/v1/nfs/export/:cluster_id](#apiv1nfsexport)                       | :white_check_mark: | NfsExportCreate             |
-| DELETE | [api/v1/nfs/export/:cluster_id/:export_id](#apiv1nfsexport)            | :white_check_mark: | NfsExportDelete             |
+| PUT    | [api/v1/nfs/export/:cluster_id](#apiv1nfsexport-)                      | :white_check_mark: | NfsExportUpdate             |
+| POST   | [api/v1/nfs/export/:cluster_id](#apiv1nfsexport-)                      | :white_check_mark: | NfsExportCreate             |
+| DELETE | [api/v1/nfs/export/:cluster_id/:export_id](#apiv1nfsexport--)          | :white_check_mark: | NfsExportDelete             |
 | POST   | [api/v1/iscsi](#apiv1iscsi)                                            | :white_check_mark: | IscsiServiceCreate          |
 | PUT    | [api/v1/iscsi/discovery](#apiv1iscsidiscovery)                         | :white_check_mark: | IscsiUpdateDiscoveryAuth    |
 | GET    | [api/v1/iscsi/discovery](#apiv1iscsidiscovery)                         | :white_check_mark: | IscsiGetDiscoveryAuth       |
 | GET    | [api/v1/iscsi/target](#apiv1iscsitarget)                               | :white_check_mark: | IscsiTargetList             |
 | POST   | [api/v1/iscsi/target](#apiv1iscsitarget)                               | :white_check_mark: | IscsiTargetCreate           |
 | DELETE | [api/v1/iscsi/target](#apiv1iscsitarget)                               | :white_check_mark: | IscsiTargetDelete           |
-| UPDATE | [api/v1/iscsi/target](#apiv1iscsitarget)                               | :white_check_mark: | IscsiTargetUpdate           |
+| PUT    | [api/v1/iscsi/target](#apiv1iscsitarget)                               | :white_check_mark: | IscsiTargetUpdate           |
 | GET    | [api/v1/smb](#apiv1smb)                                                | :white_check_mark: | SmbStatus                   |
 | POST   | [api/v1/smb](#apiv1smb)                                                | :white_check_mark: | SmbCreate                   |
 | DELETE | [api/v1/smb](#apiv1smb)                                                | :white_check_mark: | SmbDelete                   |

@@ -116,7 +116,31 @@ func IpAddress() (output string, err error) {
 }
 func Port() (output string, err error) {
 	var stdout []byte
-	cmd := exec.Command("ssh", "-o", "StrictHostKeyChecking=no", "gwvm", "netstat -ltnp | grep  smb | grep -v tcp6 | awk '{print $4}'")
+	cmd := exec.Command("ssh", "-o", "StrictHostKeyChecking=no", "gwvm", "netstat -ltnp | grep  smb | grep -v tcp6 | awk '{print $4}' | cut -d ':' -f2")
+	stdout, err = cmd.CombinedOutput()
+	if err != nil {
+		err = errors.New(string(stdout))
+		utils.FancyHandleError(err)
+		return
+	}
+	output = string(stdout)
+	return
+}
+func SharePath() (output string, err error) {
+	var stdout []byte
+	cmd := exec.Command("ssh", "-o", "StrictHostKeyChecking=no", "gwvm", "cat /usr/local/samba/etc/smb.conf | grep path | awk '{print $3}'")
+	stdout, err = cmd.CombinedOutput()
+	if err != nil {
+		err = errors.New(string(stdout))
+		utils.FancyHandleError(err)
+		return
+	}
+	output = string(stdout)
+	return
+}
+func ShareFolder() (output string, err error) {
+	var stdout []byte
+	cmd := exec.Command("ssh", "-o", "StrictHostKeyChecking=no", "gwvm", "grep -F '[' /usr/local/samba/etc/smb.conf | grep -v 'global' | tr -d '[]'")
 	stdout, err = cmd.CombinedOutput()
 	if err != nil {
 		err = errors.New(string(stdout))

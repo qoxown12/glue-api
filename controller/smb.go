@@ -70,11 +70,59 @@ func (c *Controller) SmbStatus(ctx *gin.Context) {
 			state = data[i+1]
 		}
 	}
+	hostname_data, err := smb.Hostname()
+	hostname := strings.Split(hostname_data, "\n")
+	if err != nil {
+		utils.FancyHandleError(err)
+		httputil.NewError(ctx, http.StatusInternalServerError, err)
+		return
+	}
+	ip_address_data, err := smb.IpAddress()
+	ip_address := strings.Split(ip_address_data, "\n")
+	if err != nil {
+		utils.FancyHandleError(err)
+		httputil.NewError(ctx, http.StatusInternalServerError, err)
+		return
+	}
+	var port_arr []string
+	port, err := smb.Port()
+	if err != nil {
+		utils.FancyHandleError(err)
+		httputil.NewError(ctx, http.StatusInternalServerError, err)
+		return
+	}
+	port_data := strings.Split(port, "\n")
+	for i := 0; i < len(port_data); i++ {
+		ports := port_data[i]
+		port_arr = append(port_arr, ports)
+		if i == len(port_data)-1 {
+			port_arr = port_arr[:len(port_data)-1]
+		}
+	}
+	share_path_data, err := smb.SharePath()
+	if err != nil {
+		utils.FancyHandleError(err)
+		httputil.NewError(ctx, http.StatusInternalServerError, err)
+		return
+	}
+	share_path := strings.Split(share_path_data, "\n")
+	share_folder_data, err := smb.ShareFolder()
+	if err != nil {
+		utils.FancyHandleError(err)
+		httputil.NewError(ctx, http.StatusInternalServerError, err)
+		return
+	}
+	share_folder := strings.Split(share_folder_data, "\n")
 	value := model.SmbStatus{
 		Names:       names,
 		Description: description,
 		Status:      status,
 		State:       state,
+		Hostname:    hostname[0],
+		IpAddress:   ip_address[0],
+		Port:        port_arr,
+		ShareFolder: share_folder[0],
+		SharePath:   share_path[0],
 		Users: model.Users{
 			Users: user,
 		},

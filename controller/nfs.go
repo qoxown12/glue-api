@@ -80,6 +80,11 @@ func (c *Controller) NfsClusterCreate(ctx *gin.Context) {
 			},
 		}
 		yaml_data, err := yaml.Marshal(&value)
+		if err != nil {
+			utils.FancyHandleError(err)
+			httputil.NewError(ctx, http.StatusInternalServerError, err)
+			return
+		}
 		nfs_yaml := "/etc/ceph/nfs.yaml"
 		err = os.WriteFile(nfs_yaml, yaml_data, 0644)
 		if err != nil {
@@ -87,7 +92,7 @@ func (c *Controller) NfsClusterCreate(ctx *gin.Context) {
 			httputil.NewError(ctx, http.StatusInternalServerError, err)
 			return
 		}
-		dat, err := nfs.NfsClusterCreate(nfs_yaml)
+		dat, err := nfs.NfsServiceCreate(nfs_yaml)
 		if err != nil {
 			utils.FancyHandleError(err)
 			httputil.NewError(ctx, http.StatusInternalServerError, err)
@@ -110,9 +115,13 @@ func (c *Controller) NfsClusterCreate(ctx *gin.Context) {
 			},
 			Spec: model.NfsSpec{
 				Port: port,
-			},
-		}
+			}}
 		yaml_data, err := yaml.Marshal(&value)
+		if err != nil {
+			utils.FancyHandleError(err)
+			httputil.NewError(ctx, http.StatusInternalServerError, err)
+			return
+		}
 		nfs_yaml := "/etc/ceph/nfs.yaml"
 		err = os.WriteFile(nfs_yaml, yaml_data, 0644)
 		if err != nil {
@@ -120,7 +129,7 @@ func (c *Controller) NfsClusterCreate(ctx *gin.Context) {
 			httputil.NewError(ctx, http.StatusInternalServerError, err)
 			return
 		}
-		dat, err := nfs.NfsClusterCreate(nfs_yaml)
+		dat, err := nfs.NfsServiceCreate(nfs_yaml)
 		if err != nil {
 			utils.FancyHandleError(err)
 			httputil.NewError(ctx, http.StatusInternalServerError, err)
@@ -207,7 +216,6 @@ func (c *Controller) NfsExportCreate(ctx *gin.Context) {
 		Squash:        squash,
 		SecurityLabel: security_label,
 		Transports:    transports}
-	//value := []byte("EXPORT {\n \tFSAL {\n\t\tname = \"" + storage_name + "\";\n\t\tfilesystem = \"" + fs_name + "\";\n\t}\n\texport_id = 1;\n\tpath = \"" + path + "\";\n\tpseudo = \"" + pseudo + "\";\n\taccess_type = \"" + access_type + "\";\n\tsquash = \"" + squash + "\";\n\tprotocols = 4;\n\ttrasnports = \"" + transports + "\";\n}")
 	json_data, err := json.MarshalIndent(value, "", " ")
 	if err != nil {
 		utils.FancyHandleError(err)
@@ -232,12 +240,12 @@ func (c *Controller) NfsExportCreate(ctx *gin.Context) {
 			if err := os.Remove(nfs_export_create_conf); err != nil {
 				utils.FancyHandleError(err)
 				httputil.NewError(ctx, http.StatusInternalServerError, err)
+				return
 			}
 		}
 		ctx.Header("Access-Control-Allow-Origin", "*")
 		ctx.IndentedJSON(http.StatusOK, dat)
 	}
-	return
 }
 
 // NfsExportUpdate godoc
@@ -274,7 +282,11 @@ func (c *Controller) NfsExportUpdate(ctx *gin.Context) {
 
 	var export_id int
 	dat, err := nfs.NfsExportDetailed(cluster_id)
-
+	if err != nil {
+		utils.FancyHandleError(err)
+		httputil.NewError(ctx, http.StatusInternalServerError, err)
+		return
+	}
 	for i := 0; i < len(dat); i++ {
 		if dat[i].Pseudo == pseudo {
 			export_id = dat[i].ExportID
@@ -294,6 +306,11 @@ func (c *Controller) NfsExportUpdate(ctx *gin.Context) {
 		ExportID:      export_id,
 		Transports:    transports}
 	json_data, err := json.MarshalIndent(value, "", " ")
+	if err != nil {
+		utils.FancyHandleError(err)
+		httputil.NewError(ctx, http.StatusInternalServerError, err)
+		return
+	}
 	nfs_export_update_conf := "/root/nfs_export_update.conf"
 	err = os.WriteFile(nfs_export_update_conf, json_data, 0644)
 
@@ -311,12 +328,12 @@ func (c *Controller) NfsExportUpdate(ctx *gin.Context) {
 			if err := os.Remove(nfs_export_update_conf); err != nil {
 				utils.FancyHandleError(err)
 				httputil.NewError(ctx, http.StatusInternalServerError, err)
+				return
 			}
 		}
 		ctx.Header("Access-Control-Allow-Origin", "*")
 		ctx.IndentedJSON(http.StatusOK, dat)
 	}
-	return
 }
 
 // NfsExportDelete godoc
@@ -342,7 +359,11 @@ func (c *Controller) NfsExportDelete(ctx *gin.Context) {
 		return
 	}
 	detail, err := nfs.NfsExportDetailed(cluster_id)
-
+	if err != nil {
+		utils.FancyHandleError(err)
+		httputil.NewError(ctx, http.StatusInternalServerError, err)
+		return
+	}
 	for i := 0; i < len(detail); i++ {
 		if detail[i].ExportID == export_id {
 			dat, err := nfs.NfsExportDelete(cluster_id, detail[i].Pseudo)
@@ -401,5 +422,82 @@ func (c *Controller) NfsExportDetailed(ctx *gin.Context) {
 		}
 		ctx.Header("Access-Control-Allow-Origin", "*")
 		ctx.IndentedJSON(http.StatusOK, output)
+	}
+}
+
+// NfsIngressCreate godoc
+//
+//	@Summary		Create of Glue NFS Ingress Service
+//	@Description	Glue NFS Ingress Service를 생성합니다.
+//	@param			service_id 	formData	string	true	"NFS Ingress Service Name"
+//	@param			hostname     formData   []string	true    "NFS Ingress Host Name" collectionFormat(multi)
+//	@param			backend_service formData   string	true    "NFS Cluster Type"
+//	@param			virtual_ip     formData   string	true    "NFS Ingress Virtual Ip"
+//	@param			frontend_port     formData   int	true    "NFS Ingress Access Port"
+//	@param			monitor_port     formData   int	true    "NFS Ingress HA Proxy for Load Balancer Port"
+//	@param			virtual_interface_networks     formData   []string	false    "NFS Ingress Vitual IP of CIDR Networks" collectionFormat(multi)
+//	@Tags			NFS-Ingress
+//	@Accept			x-www-form-urlencoded
+//	@Produce		json
+//	@Success		200	{string}	string	"Success"
+//	@Failure		400	{object}	httputil.HTTP400BadRequest
+//	@Failure		404	{object}	httputil.HTTP404NotFound
+//	@Failure		500	{object}	httputil.HTTP500InternalServerError
+//	@Router			/api/v1/nfs/ingress [post]
+func (c *Controller) NfsIngressCreate(ctx *gin.Context) {
+
+	service_id, _ := ctx.GetPostForm("service_id")
+	hostname, _ := ctx.GetPostFormArray("hostname")
+	backend_service, _ := ctx.GetPostForm("backend_service")
+	virtual_ip, _ := ctx.GetPostForm("virtual_ip")
+	frontend_port_data, _ := ctx.GetPostForm("frontend_port")
+	monitor_port_data, _ := ctx.GetPostForm("monitor_port")
+	virtual_interface_networks, _ := ctx.GetPostFormArray("virtual_interface_networks")
+	frontend_port, _ := strconv.Atoi(frontend_port_data)
+	monitor_port, _ := strconv.Atoi(monitor_port_data)
+
+	value := model.NfsIngress{
+		ServiceType: "ingress",
+		ServiceID:   service_id,
+		Placement: model.NfsPlacement{
+			Hosts: hostname,
+		},
+		Spec: model.NfsIngressSpec{
+			BackendService:           backend_service,
+			VirtualIp:                virtual_ip,
+			FrontendPort:             frontend_port,
+			MonitorPort:              monitor_port,
+			VirtualInterfaceNetworks: virtual_interface_networks,
+			UseKeepalivedMulticast:   false,
+		},
+	}
+	yaml_data, err := yaml.Marshal(value)
+	if err != nil {
+		utils.FancyHandleError(err)
+		httputil.NewError(ctx, http.StatusInternalServerError, err)
+		return
+	}
+	nfs_ingress_conf := "/root/nfs_ingress.conf"
+	err = os.WriteFile(nfs_ingress_conf, yaml_data, 0644)
+
+	if err != nil {
+		utils.FancyHandleError(err)
+		httputil.NewError(ctx, http.StatusInternalServerError, err)
+		return
+	} else {
+		dat, err := nfs.NfsServiceCreate(nfs_ingress_conf)
+		if err != nil {
+			utils.FancyHandleError(err)
+			httputil.NewError(ctx, http.StatusInternalServerError, err)
+			return
+		} else {
+			if err := os.Remove(nfs_ingress_conf); err != nil {
+				utils.FancyHandleError(err)
+				httputil.NewError(ctx, http.StatusInternalServerError, err)
+				return
+			}
+		}
+		ctx.Header("Access-Control-Allow-Origin", "*")
+		ctx.IndentedJSON(http.StatusOK, dat)
 	}
 }

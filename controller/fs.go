@@ -49,6 +49,8 @@ func (c *Controller) FsStatus(ctx *gin.Context) {
 //	@Summary		Create of Glue FS
 //	@Description	GlueFS를 생성합니다.
 //	@param			fs_name 	path	string	true	"Glue FS Name"
+//	@param			data_pool_size	formData	int	false	"Glue Data Pool Replicated Size" minimum(2) maximum(3)
+//	@param			meta_pool_size 	formData	int	false	"Glue Meta Pool Replicated Size" minimum(2) maximum(3)
 //	@Tags			GlueFS
 //	@Accept			x-www-form-urlencoded
 //	@Produce		json
@@ -59,7 +61,9 @@ func (c *Controller) FsStatus(ctx *gin.Context) {
 //	@Router			/api/v1/gluefs/{fs_name} [post]
 func (c *Controller) FsCreate(ctx *gin.Context) {
 	fs_name := ctx.Param("fs_name")
-	dat, err := fs.FsCreate(fs_name)
+	data_pool_size, _ := ctx.GetPostForm("data_pool_size")
+	meta_pool_size, _ := ctx.GetPostForm("meta_pool_size")
+	dat, err := fs.FsCreate(fs_name, data_pool_size, meta_pool_size)
 	if err != nil {
 		utils.FancyHandleError(err)
 		httputil.NewError(ctx, http.StatusInternalServerError, err)

@@ -80,3 +80,17 @@ type NfsPlacement struct {
 type NfsSpec struct {
 	Port int `yaml:"port"`
 }
+type NfsIngress struct {
+	ServiceType string         `yaml:"service_type"`
+	ServiceID   string         `yaml:"service_id"`
+	Placement   NfsPlacement   `yaml:"placement"`
+	Spec        NfsIngressSpec `yaml:"spec"`
+}
+type NfsIngressSpec struct {
+	BackendService           string   `yaml:"backend_service"`
+	VirtualIp                string   `yaml:"virtual_ip"`
+	FrontendPort             int      `yaml:"frontend_port"`
+	MonitorPort              int      `yaml:"monitor_port"`
+	VirtualInterfaceNetworks []string `yaml:"virtual_interface_networks"`
+	UseKeepalivedMulticast   bool     `yaml:"use_keepalived_multicast"`
+}

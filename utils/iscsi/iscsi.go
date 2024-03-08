@@ -47,3 +47,13 @@ func GlueUrl() (dat model.GlueUrl, err error) {
 	}
 	return
 }
+func Ip(hostname string) (output string, err error) {
+	var stdout []byte
+	cmd := exec.Command("ssh", "-o", "StrictHostKeyChecking=no", hostname, "hostname -i | awk '{print $1}'")
+	stdout, err = cmd.CombinedOutput()
+	if err != nil {
+		return
+	}
+	output = string(stdout)
+	return
+}

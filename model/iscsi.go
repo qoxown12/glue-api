@@ -9,10 +9,11 @@ type IscsiServiceCreate struct {
 	Spec         Spec      `yaml:"spec"`
 } //@name IscsiServiceCreate
 type Spec struct {
-	Api_Password string `yaml:"api_password"`
-	Api_User     string `yaml:"api_user"`
-	Api_Port     int    `yaml:"api_port"`
-	Pool         string `yaml:"pool"`
+	Api_Password  string `yaml:"api_password"`
+	Api_User      string `yaml:"api_user"`
+	Api_Port      int    `yaml:"api_port"`
+	Pool          string `yaml:"pool"`
+	TrustedIpList string `yaml:"trusted_ip_list"`
 }
 type Placement struct {
 	Hosts []string `yaml:"hosts"`

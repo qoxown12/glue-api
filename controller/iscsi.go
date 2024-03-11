@@ -120,15 +120,29 @@ func (c *Controller) IscsiServiceCreate(ctx *gin.Context) {
 	service_count, _ := ctx.GetPostForm("count")
 	port, _ := strconv.Atoi(api_port)
 	count, _ := strconv.Atoi(service_count)
+
+	var ip_data []string
+	for i := 0; i < len(hosts); i++ {
+		dat, err := iscsi.Ip(hosts[i])
+		if err != nil {
+			utils.FancyHandleError(err)
+			httputil.NewError(ctx, http.StatusInternalServerError, err)
+			return
+		}
+		ip := strings.Split(dat, "\n")
+		ip_data = append(ip_data, ip[0])
+	}
+	ip_address := strings.Join(ip_data, ",")
 	if service_count == "" {
 		value := model.IscsiServiceCreate{
 			Service_Type: "iscsi",
 			Service_Id:   service_id,
 			Spec: model.Spec{
-				Pool:         pool,
-				Api_Port:     port,
-				Api_User:     api_user,
-				Api_Password: api_password},
+				Pool:          pool,
+				Api_Port:      port,
+				Api_User:      api_user,
+				Api_Password:  api_password,
+				TrustedIpList: ip_address},
 			Placement: model.Placement{
 				Hosts: hosts},
 		}
@@ -165,10 +179,11 @@ func (c *Controller) IscsiServiceCreate(ctx *gin.Context) {
 			Service_Type: "iscsi",
 			Service_Id:   service_id,
 			Spec: model.Spec{
-				Pool:         pool,
-				Api_Port:     port,
-				Api_User:     api_user,
-				Api_Password: api_password},
+				Pool:          pool,
+				Api_Port:      port,
+				Api_User:      api_user,
+				Api_Password:  api_password,
+				TrustedIpList: ip_address},
 			Placement: model.PlacementCount{
 				Count: count,
 				Hosts: hosts},

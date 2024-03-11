@@ -255,6 +255,783 @@ const docTemplate = `{
                 }
             }
         },
+        "/api/v1/gluefs/subvolume": {
+            "get": {
+                "description": "GlueFS의 하위 볼륨에 대한 상세 정보 및 리스트를 보여줍니다.",
+                "consumes": [
+                    "application/x-www-form-urlencoded"
+                ],
+                "produces": [
+                    "application/json"
+                ],
+                "tags": [
+                    "GlueFS-SubVolume"
+                ],
+                "summary": "Detail Info and List of Glue FS Sub Volumes",
+                "parameters": [
+                    {
+                        "type": "string",
+                        "description": "Glue FS Sub Volume Name",
+                        "name": "vol_name",
+                        "in": "query",
+                        "required": true
+                    },
+                    {
+                        "type": "string",
+                        "description": "Glue FS Sub Volume Group Name",
+                        "name": "group_name",
+                        "in": "query",
+                        "required": true
+                    }
+                ],
+                "responses": {
+                    "200": {
+                        "description": "OK",
+                        "schema": {
+                            "$ref": "#/definitions/SubVolumeList"
+                        }
+                    },
+                    "400": {
+                        "description": "Bad Request",
+                        "schema": {
+                            "$ref": "#/definitions/HTTP400BadRequest"
+                        }
+                    },
+                    "404": {
+                        "description": "Not Found",
+                        "schema": {
+                            "$ref": "#/definitions/HTTP404NotFound"
+                        }
+                    },
+                    "500": {
+                        "description": "Internal Server Error",
+                        "schema": {
+                            "$ref": "#/definitions/HTTP500InternalServerError"
+                        }
+                    }
+                }
+            },
+            "put": {
+                "description": "GlueFS 볼륨의 할당된 사이즈를 수정합니다.",
+                "consumes": [
+                    "application/x-www-form-urlencoded"
+                ],
+                "produces": [
+                    "application/json"
+                ],
+                "tags": [
+                    "GlueFS-SubVolume"
+                ],
+                "summary": "Update Size of Glue FS Volume",
+                "parameters": [
+                    {
+                        "type": "string",
+                        "description": "Glue FS Volume Name",
+                        "name": "vol_name",
+                        "in": "formData",
+                        "required": true
+                    },
+                    {
+                        "type": "string",
+                        "description": "Glue FS Sub Volume Name",
+                        "name": "subvol_name",
+                        "in": "formData",
+                        "required": true
+                    },
+                    {
+                        "type": "string",
+                        "description": "Glue FS Volume Group Name",
+                        "name": "group_name",
+                        "in": "formData",
+                        "required": true
+                    },
+                    {
+                        "type": "string",
+                        "description": "Glue FS Sub Volume New Size(default GB)",
+                        "name": "new_size",
+                        "in": "formData",
+                        "required": true
+                    }
+                ],
+                "responses": {
+                    "200": {
+                        "description": "Success",
+                        "schema": {
+                            "type": "string"
+                        }
+                    },
+                    "400": {
+                        "description": "Bad Request",
+                        "schema": {
+                            "$ref": "#/definitions/HTTP400BadRequest"
+                        }
+                    },
+                    "404": {
+                        "description": "Not Found",
+                        "schema": {
+                            "$ref": "#/definitions/HTTP404NotFound"
+                        }
+                    },
+                    "500": {
+                        "description": "Internal Server Error",
+                        "schema": {
+                            "$ref": "#/definitions/HTTP500InternalServerError"
+                        }
+                    }
+                }
+            },
+            "post": {
+                "description": "GlueFS의 하위 볼륨을 생성합니다.",
+                "consumes": [
+                    "application/x-www-form-urlencoded"
+                ],
+                "produces": [
+                    "application/json"
+                ],
+                "tags": [
+                    "GlueFS-SubVolume"
+                ],
+                "summary": "Create of Glue FS Sub Volume",
+                "parameters": [
+                    {
+                        "type": "string",
+                        "description": "Glue FS Volume Name",
+                        "name": "vol_name",
+                        "in": "formData",
+                        "required": true
+                    },
+                    {
+                        "type": "string",
+                        "description": "Glue FS Sub Volume Name",
+                        "name": "subvol_name",
+                        "in": "formData",
+                        "required": true
+                    },
+                    {
+                        "type": "string",
+                        "description": "Glue FS Sub Volume Group Name",
+                        "name": "group_name",
+                        "in": "formData",
+                        "required": true
+                    },
+                    {
+                        "type": "integer",
+                        "description": "Glue FS Sub Volume Size(default GB)",
+                        "name": "size",
+                        "in": "formData",
+                        "required": true
+                    },
+                    {
+                        "type": "string",
+                        "description": "Glue FS Sub Volume Data Pool Name",
+                        "name": "data_pool_name",
+                        "in": "formData",
+                        "required": true
+                    },
+                    {
+                        "type": "integer",
+                        "description": "Glue FS Sub Volume Permissions",
+                        "name": "mode",
+                        "in": "formData",
+                        "required": true
+                    }
+                ],
+                "responses": {
+                    "200": {
+                        "description": "Success",
+                        "schema": {
+                            "type": "string"
+                        }
+                    },
+                    "400": {
+                        "description": "Bad Request",
+                        "schema": {
+                            "$ref": "#/definitions/HTTP400BadRequest"
+                        }
+                    },
+                    "404": {
+                        "description": "Not Found",
+                        "schema": {
+                            "$ref": "#/definitions/HTTP404NotFound"
+                        }
+                    },
+                    "500": {
+                        "description": "Internal Server Error",
+                        "schema": {
+                            "$ref": "#/definitions/HTTP500InternalServerError"
+                        }
+                    }
+                }
+            },
+            "delete": {
+                "description": "GlueFS 하위 볼륨을 삭제합니다.",
+                "consumes": [
+                    "application/x-www-form-urlencoded"
+                ],
+                "produces": [
+                    "application/json"
+                ],
+                "tags": [
+                    "GlueFS-SubVolume"
+                ],
+                "summary": "Delete of Glue FS Volume",
+                "parameters": [
+                    {
+                        "type": "string",
+                        "description": "Glue FS Volume Name",
+                        "name": "vol_name",
+                        "in": "query",
+                        "required": true
+                    },
+                    {
+                        "type": "string",
+                        "description": "Glue FS Sub Volume Name",
+                        "name": "subvol_name",
+                        "in": "query",
+                        "required": true
+                    },
+                    {
+                        "type": "string",
+                        "description": "Glue FS Volume Group Name",
+                        "name": "group_name",
+                        "in": "query",
+                        "required": true
+                    }
+                ],
+                "responses": {
+                    "200": {
+                        "description": "Success",
+                        "schema": {
+                            "type": "string"
+                        }
+                    },
+                    "400": {
+                        "description": "Bad Request",
+                        "schema": {
+                            "$ref": "#/definitions/HTTP400BadRequest"
+                        }
+                    },
+                    "404": {
+                        "description": "Not Found",
+                        "schema": {
+                            "$ref": "#/definitions/HTTP404NotFound"
+                        }
+                    },
+                    "500": {
+                        "description": "Internal Server Error",
+                        "schema": {
+                            "$ref": "#/definitions/HTTP500InternalServerError"
+                        }
+                    }
+                }
+            }
+        },
+        "/api/v1/gluefs/subvolume/group": {
+            "get": {
+                "description": "GlueFS볼륨의 그룹에 대한 상세 정보 및 리스트를 보여줍니다.",
+                "consumes": [
+                    "application/x-www-form-urlencoded"
+                ],
+                "produces": [
+                    "application/json"
+                ],
+                "tags": [
+                    "GlueFS-SubVolume-Group"
+                ],
+                "summary": "Detail Info and List of Glue FS Volume Groups",
+                "parameters": [
+                    {
+                        "type": "string",
+                        "description": "Glue FS Volume Name",
+                        "name": "vol_name",
+                        "in": "query",
+                        "required": true
+                    }
+                ],
+                "responses": {
+                    "200": {
+                        "description": "OK",
+                        "schema": {
+                            "$ref": "#/definitions/SubVolumeGroupList"
+                        }
+                    },
+                    "400": {
+                        "description": "Bad Request",
+                        "schema": {
+                            "$ref": "#/definitions/HTTP400BadRequest"
+                        }
+                    },
+                    "404": {
+                        "description": "Not Found",
+                        "schema": {
+                            "$ref": "#/definitions/HTTP404NotFound"
+                        }
+                    },
+                    "500": {
+                        "description": "Internal Server Error",
+                        "schema": {
+                            "$ref": "#/definitions/HTTP500InternalServerError"
+                        }
+                    }
+                }
+            },
+            "put": {
+                "description": "GlueFS 볼륨의 그룹의 할당된 사이즈를 수정합니다.",
+                "consumes": [
+                    "application/x-www-form-urlencoded"
+                ],
+                "produces": [
+                    "application/json"
+                ],
+                "tags": [
+                    "GlueFS-SubVolume-Group"
+                ],
+                "summary": "Update Size of Glue FS Volume Group",
+                "parameters": [
+                    {
+                        "type": "string",
+                        "description": "Glue FS Volume Name",
+                        "name": "vol_name",
+                        "in": "formData",
+                        "required": true
+                    },
+                    {
+                        "type": "string",
+                        "description": "Glue FS Volume Group Name",
+                        "name": "group_name",
+                        "in": "formData",
+                        "required": true
+                    },
+                    {
+                        "type": "string",
+                        "description": "Glue FS Volume Group New Size(default GB)",
+                        "name": "new_size",
+                        "in": "formData",
+                        "required": true
+                    }
+                ],
+                "responses": {
+                    "200": {
+                        "description": "Success",
+                        "schema": {
+                            "type": "string"
+                        }
+                    },
+                    "400": {
+                        "description": "Bad Request",
+                        "schema": {
+                            "$ref": "#/definitions/HTTP400BadRequest"
+                        }
+                    },
+                    "404": {
+                        "description": "Not Found",
+                        "schema": {
+                            "$ref": "#/definitions/HTTP404NotFound"
+                        }
+                    },
+                    "500": {
+                        "description": "Internal Server Error",
+                        "schema": {
+                            "$ref": "#/definitions/HTTP500InternalServerError"
+                        }
+                    }
+                }
+            },
+            "post": {
+                "description": "GlueFS 볼륨의 그룹을 생성합니다.",
+                "consumes": [
+                    "application/x-www-form-urlencoded"
+                ],
+                "produces": [
+                    "application/json"
+                ],
+                "tags": [
+                    "GlueFS-SubVolume-Group"
+                ],
+                "summary": "Create of Glue FS Volume Group",
+                "parameters": [
+                    {
+                        "type": "string",
+                        "description": "Glue FS Volume Name",
+                        "name": "vol_name",
+                        "in": "formData",
+                        "required": true
+                    },
+                    {
+                        "type": "string",
+                        "description": "Glue FS Volume Group Name",
+                        "name": "group_name",
+                        "in": "formData",
+                        "required": true
+                    },
+                    {
+                        "type": "integer",
+                        "description": "Glue FS Volume Group Size(default GB)",
+                        "name": "size",
+                        "in": "formData",
+                        "required": true
+                    },
+                    {
+                        "type": "string",
+                        "description": "Glue FS Volume Group Data Pool Name",
+                        "name": "data_pool_name",
+                        "in": "formData",
+                        "required": true
+                    },
+                    {
+                        "type": "integer",
+                        "description": "Glue FS Volume Group Permissions",
+                        "name": "mode",
+                        "in": "formData",
+                        "required": true
+                    }
+                ],
+                "responses": {
+                    "200": {
+                        "description": "Success",
+                        "schema": {
+                            "type": "string"
+                        }
+                    },
+                    "400": {
+                        "description": "Bad Request",
+                        "schema": {
+                            "$ref": "#/definitions/HTTP400BadRequest"
+                        }
+                    },
+                    "404": {
+                        "description": "Not Found",
+                        "schema": {
+                            "$ref": "#/definitions/HTTP404NotFound"
+                        }
+                    },
+                    "500": {
+                        "description": "Internal Server Error",
+                        "schema": {
+                            "$ref": "#/definitions/HTTP500InternalServerError"
+                        }
+                    }
+                }
+            },
+            "delete": {
+                "description": "GlueFS 볼륨의 그룹을 삭제합니다.",
+                "consumes": [
+                    "application/x-www-form-urlencoded"
+                ],
+                "produces": [
+                    "application/json"
+                ],
+                "tags": [
+                    "GlueFS-SubVolume-Group"
+                ],
+                "summary": "Delete of Glue FS Volume Group",
+                "parameters": [
+                    {
+                        "type": "string",
+                        "description": "Glue FS Volume Name",
+                        "name": "vol_name",
+                        "in": "query",
+                        "required": true
+                    },
+                    {
+                        "type": "string",
+                        "description": "Glue FS Volume Group Name",
+                        "name": "group_name",
+                        "in": "query",
+                        "required": true
+                    }
+                ],
+                "responses": {
+                    "200": {
+                        "description": "Success",
+                        "schema": {
+                            "type": "string"
+                        }
+                    },
+                    "400": {
+                        "description": "Bad Request",
+                        "schema": {
+                            "$ref": "#/definitions/HTTP400BadRequest"
+                        }
+                    },
+                    "404": {
+                        "description": "Not Found",
+                        "schema": {
+                            "$ref": "#/definitions/HTTP404NotFound"
+                        }
+                    },
+                    "500": {
+                        "description": "Internal Server Error",
+                        "schema": {
+                            "$ref": "#/definitions/HTTP500InternalServerError"
+                        }
+                    }
+                }
+            }
+        },
+        "/api/v1/gluefs/subvolume/group/snapshot": {
+            "delete": {
+                "description": "GlueFS 볼륨의 그룹의 스냅샷을 삭제합니다.",
+                "consumes": [
+                    "application/x-www-form-urlencoded"
+                ],
+                "produces": [
+                    "application/json"
+                ],
+                "tags": [
+                    "GlueFS-SubVolume-Group"
+                ],
+                "summary": "Delete of Glue FS Volume Group Snapshot",
+                "parameters": [
+                    {
+                        "type": "string",
+                        "description": "Glue FS Volume Name",
+                        "name": "vol_name",
+                        "in": "query",
+                        "required": true
+                    },
+                    {
+                        "type": "string",
+                        "description": "Glue FS Volume Group Name",
+                        "name": "group_name",
+                        "in": "query",
+                        "required": true
+                    },
+                    {
+                        "type": "string",
+                        "description": "Glue FS Volume Group SnapShot Name",
+                        "name": "snap_name",
+                        "in": "query",
+                        "required": true
+                    }
+                ],
+                "responses": {
+                    "200": {
+                        "description": "Success",
+                        "schema": {
+                            "type": "string"
+                        }
+                    },
+                    "400": {
+                        "description": "Bad Request",
+                        "schema": {
+                            "$ref": "#/definitions/HTTP400BadRequest"
+                        }
+                    },
+                    "404": {
+                        "description": "Not Found",
+                        "schema": {
+                            "$ref": "#/definitions/HTTP404NotFound"
+                        }
+                    },
+                    "500": {
+                        "description": "Internal Server Error",
+                        "schema": {
+                            "$ref": "#/definitions/HTTP500InternalServerError"
+                        }
+                    }
+                }
+            }
+        },
+        "/api/v1/gluefs/subvolume/snapshot": {
+            "get": {
+                "description": "GlueFS의 하위 볼륨 스냅샷의 리스트 및 상세 정보를 보여줍니다.",
+                "consumes": [
+                    "application/x-www-form-urlencoded"
+                ],
+                "produces": [
+                    "application/json"
+                ],
+                "tags": [
+                    "GlueFS-SubVolume-Snapshot"
+                ],
+                "summary": "Show List or Info of Glue FS Sub Volume Snapshot",
+                "parameters": [
+                    {
+                        "type": "string",
+                        "description": "Glue FS Sub Volume Name",
+                        "name": "vol_name",
+                        "in": "query",
+                        "required": true
+                    },
+                    {
+                        "type": "string",
+                        "description": "Glue FS Volume Sub Volume Name",
+                        "name": "subvol_name",
+                        "in": "query",
+                        "required": true
+                    },
+                    {
+                        "type": "string",
+                        "description": "Glue FS Volume Group Name",
+                        "name": "group_name",
+                        "in": "query",
+                        "required": true
+                    },
+                    {
+                        "type": "string",
+                        "description": "Glue FS Volume SnapShot Name",
+                        "name": "snap_name",
+                        "in": "query"
+                    }
+                ],
+                "responses": {
+                    "200": {
+                        "description": "OK",
+                        "schema": {}
+                    },
+                    "400": {
+                        "description": "Bad Request",
+                        "schema": {
+                            "$ref": "#/definitions/HTTP400BadRequest"
+                        }
+                    },
+                    "404": {
+                        "description": "Not Found",
+                        "schema": {
+                            "$ref": "#/definitions/HTTP404NotFound"
+                        }
+                    },
+                    "500": {
+                        "description": "Internal Server Error",
+                        "schema": {
+                            "$ref": "#/definitions/HTTP500InternalServerError"
+                        }
+                    }
+                }
+            },
+            "post": {
+                "description": "GlueFS의 하위 볼륨의 그룹의 스냅샷을 생성합니다.",
+                "consumes": [
+                    "application/x-www-form-urlencoded"
+                ],
+                "produces": [
+                    "application/json"
+                ],
+                "tags": [
+                    "GlueFS-SubVolume-Snapshot"
+                ],
+                "summary": "Create of Glue FS Sub Volume Group Snapshot",
+                "parameters": [
+                    {
+                        "type": "string",
+                        "description": "Glue FS Sub Volume Name",
+                        "name": "vol_name",
+                        "in": "formData",
+                        "required": true
+                    },
+                    {
+                        "type": "string",
+                        "description": "Glue FS Volume Sub Volume Name",
+                        "name": "subvol_name",
+                        "in": "formData",
+                        "required": true
+                    },
+                    {
+                        "type": "string",
+                        "description": "Glue FS Volume Group Name",
+                        "name": "group_name",
+                        "in": "formData",
+                        "required": true
+                    }
+                ],
+                "responses": {
+                    "200": {
+                        "description": "Success",
+                        "schema": {
+                            "type": "string"
+                        }
+                    },
+                    "400": {
+                        "description": "Bad Request",
+                        "schema": {
+                            "$ref": "#/definitions/HTTP400BadRequest"
+                        }
+                    },
+                    "404": {
+                        "description": "Not Found",
+                        "schema": {
+                            "$ref": "#/definitions/HTTP404NotFound"
+                        }
+                    },
+                    "500": {
+                        "description": "Internal Server Error",
+                        "schema": {
+                            "$ref": "#/definitions/HTTP500InternalServerError"
+                        }
+                    }
+                }
+            },
+            "delete": {
+                "description": "GlueFS 볼륨의 스냅샷을 삭제합니다.",
+                "consumes": [
+                    "application/x-www-form-urlencoded"
+                ],
+                "produces": [
+                    "application/json"
+                ],
+                "tags": [
+                    "GlueFS-SubVolume-Snapshot"
+                ],
+                "summary": "Delete of Glue FS Volume Snapshot",
+                "parameters": [
+                    {
+                        "type": "string",
+                        "description": "Glue FS Volume Name",
+                        "name": "vol_name",
+                        "in": "query",
+                        "required": true
+                    },
+                    {
+                        "type": "string",
+                        "description": "Glue FS Volume Sub Volume Name",
+                        "name": "subvol_name",
+                        "in": "query",
+                        "required": true
+                    },
+                    {
+                        "type": "string",
+                        "description": "Glue FS Volume Group Name",
+                        "name": "group_name",
+                        "in": "query",
+                        "required": true
+                    },
+                    {
+                        "type": "string",
+                        "description": "Glue FS Volume Group SnapShot Name",
+                        "name": "snap_name",
+                        "in": "query",
+                        "required": true
+                    }
+                ],
+                "responses": {
+                    "200": {
+                        "description": "Success",
+                        "schema": {
+                            "type": "string"
+                        }
+                    },
+                    "400": {
+                        "description": "Bad Request",
+                        "schema": {
+                            "$ref": "#/definitions/HTTP400BadRequest"
+                        }
+                    },
+                    "404": {
+                        "description": "Not Found",
+                        "schema": {
+                            "$ref": "#/definitions/HTTP404NotFound"
+                        }
+                    },
+                    "500": {
+                        "description": "Internal Server Error",
+                        "schema": {
+                            "$ref": "#/definitions/HTTP500InternalServerError"
+                        }
+                    }
+                }
+            }
+        },
         "/api/v1/gluefs/{fs_name}": {
             "post": {
                 "description": "GlueFS를 생성합니다.",
@@ -275,6 +1052,22 @@ const docTemplate = `{
                         "name": "fs_name",
                         "in": "path",
                         "required": true
+                    },
+                    {
+                        "maximum": 3,
+                        "minimum": 2,
+                        "type": "integer",
+                        "description": "Glue Data Pool Replicated Size",
+                        "name": "data_pool_size",
+                        "in": "formData"
+                    },
+                    {
+                        "maximum": 3,
+                        "minimum": 2,
+                        "type": "integer",
+                        "description": "Glue Meta Pool Replicated Size",
+                        "name": "meta_pool_size",
+                        "in": "formData"
                     }
                 ],
                 "responses": {
@@ -2109,6 +2902,105 @@ const docTemplate = `{
                 }
             }
         },
+        "/api/v1/nfs/ingress": {
+            "post": {
+                "description": "Glue NFS Ingress Service를 생성합니다.",
+                "consumes": [
+                    "application/x-www-form-urlencoded"
+                ],
+                "produces": [
+                    "application/json"
+                ],
+                "tags": [
+                    "NFS-Ingress"
+                ],
+                "summary": "Create of Glue NFS Ingress Service",
+                "parameters": [
+                    {
+                        "type": "string",
+                        "description": "NFS Ingress Service Name",
+                        "name": "service_id",
+                        "in": "formData",
+                        "required": true
+                    },
+                    {
+                        "type": "array",
+                        "items": {
+                            "type": "string"
+                        },
+                        "collectionFormat": "multi",
+                        "description": "NFS Ingress Host Name",
+                        "name": "hostname",
+                        "in": "formData",
+                        "required": true
+                    },
+                    {
+                        "type": "string",
+                        "description": "NFS Cluster Type",
+                        "name": "backend_service",
+                        "in": "formData",
+                        "required": true
+                    },
+                    {
+                        "type": "string",
+                        "description": "NFS Ingress Virtual Ip",
+                        "name": "virtual_ip",
+                        "in": "formData",
+                        "required": true
+                    },
+                    {
+                        "type": "integer",
+                        "description": "NFS Ingress Access Port",
+                        "name": "frontend_port",
+                        "in": "formData",
+                        "required": true
+                    },
+                    {
+                        "type": "integer",
+                        "description": "NFS Ingress HA Proxy for Load Balancer Port",
+                        "name": "monitor_port",
+                        "in": "formData",
+                        "required": true
+                    },
+                    {
+                        "type": "array",
+                        "items": {
+                            "type": "string"
+                        },
+                        "collectionFormat": "multi",
+                        "description": "NFS Ingress Vitual IP of CIDR Networks",
+                        "name": "virtual_interface_networks",
+                        "in": "formData"
+                    }
+                ],
+                "responses": {
+                    "200": {
+                        "description": "Success",
+                        "schema": {
+                            "type": "string"
+                        }
+                    },
+                    "400": {
+                        "description": "Bad Request",
+                        "schema": {
+                            "$ref": "#/definitions/HTTP400BadRequest"
+                        }
+                    },
+                    "404": {
+                        "description": "Not Found",
+                        "schema": {
+                            "$ref": "#/definitions/HTTP404NotFound"
+                        }
+                    },
+                    "500": {
+                        "description": "Internal Server Error",
+                        "schema": {
+                            "$ref": "#/definitions/HTTP500InternalServerError"
+                        }
+                    }
+                }
+            }
+        },
         "/api/v1/nfs/{cluster_id}": {
             "delete": {
                 "description": "Glue NFS Cluster를 삭제합니다.",
@@ -3534,6 +4426,9 @@ const docTemplate = `{
                 "description": {
                     "type": "string"
                 },
+                "folder_name": {
+                    "type": "string"
+                },
                 "hostname": {
                     "type": "string"
                 },
@@ -3541,6 +4436,9 @@ const docTemplate = `{
                     "type": "string"
                 },
                 "names": {
+                    "type": "string"
+                },
+                "path": {
                     "type": "string"
                 },
                 "port": {
@@ -3557,6 +4455,149 @@ const docTemplate = `{
                 },
                 "users": {
                     "$ref": "#/definitions/model.Users"
+                }
+            }
+        },
+        "SubVolumeGroupInfo": {
+            "type": "object",
+            "properties": {
+                "atime": {
+                    "type": "string"
+                },
+                "bytes_pcent": {
+                    "type": "string"
+                },
+                "bytes_quota": {
+                    "type": "integer"
+                },
+                "bytes_used": {
+                    "type": "integer"
+                },
+                "created_at": {
+                    "type": "string"
+                },
+                "ctime": {
+                    "type": "string"
+                },
+                "data_pool": {
+                    "type": "string"
+                },
+                "gid": {
+                    "type": "integer"
+                },
+                "mode": {
+                    "type": "integer"
+                },
+                "mon_addrs": {
+                    "type": "array",
+                    "items": {
+                        "type": "string"
+                    }
+                },
+                "mtime": {
+                    "type": "string"
+                },
+                "uid": {
+                    "type": "integer"
+                }
+            }
+        },
+        "SubVolumeGroupList": {
+            "type": "object",
+            "properties": {
+                "info": {
+                    "$ref": "#/definitions/SubVolumeGroupInfo"
+                },
+                "name": {
+                    "type": "string"
+                },
+                "path": {
+                    "type": "string"
+                },
+                "snapshot": {
+                    "type": "array",
+                    "items": {
+                        "type": "string"
+                    }
+                }
+            }
+        },
+        "SubVolumeInfo": {
+            "type": "object",
+            "properties": {
+                "atime": {
+                    "type": "string"
+                },
+                "bytes_pcent": {
+                    "type": "string"
+                },
+                "bytes_quota": {
+                    "type": "integer"
+                },
+                "bytes_used": {
+                    "type": "integer"
+                },
+                "created_at": {
+                    "type": "string"
+                },
+                "ctime": {
+                    "type": "string"
+                },
+                "data_pool": {
+                    "type": "string"
+                },
+                "features": {
+                    "type": "array",
+                    "items": {
+                        "type": "string"
+                    }
+                },
+                "gid": {
+                    "type": "integer"
+                },
+                "mode": {
+                    "type": "integer"
+                },
+                "mon_addrs": {
+                    "type": "array",
+                    "items": {
+                        "type": "string"
+                    }
+                },
+                "mtime": {
+                    "type": "string"
+                },
+                "path": {
+                    "type": "string"
+                },
+                "pool_namespace": {
+                    "type": "string"
+                },
+                "state": {
+                    "type": "string"
+                },
+                "type": {
+                    "type": "string"
+                },
+                "uid": {
+                    "type": "integer"
+                }
+            }
+        },
+        "SubVolumeList": {
+            "type": "object",
+            "properties": {
+                "info": {
+                    "$ref": "#/definitions/SubVolumeInfo"
+                },
+                "name": {
+                    "type": "string"
+                },
+                "snapshot": {
+                    "type": "array",
+                    "items": {
+                        "type": "string"
+                    }
                 }
             }
         },

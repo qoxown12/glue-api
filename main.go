@@ -81,6 +81,33 @@ func main() {
 			fs.DELETE("/:fs_name", c.FsDelete)
 			fs.OPTIONS("/:fs_name", c.FsOption)
 			fs.GET("/info/:fs_name", c.FsGetInfo)
+
+			subvolume := fs.Group("/subvolume")
+			{
+				subvolume.GET("", c.SubVolumeList)
+				subvolume.POST("", c.SubVolumeCreate)
+				subvolume.DELETE("", c.SubVolumeDelete)
+				subvolume.PUT("", c.SubVolumeResize)
+				subvolume.OPTIONS("", c.SubVolumeOption)
+
+				group := subvolume.Group("/group")
+				{
+					group.GET("", c.SubVolumeGroupList)
+					group.POST("", c.SubVolumeGroupCreate)
+					group.DELETE("", c.SubVolumeGroupDelete)
+					group.PUT("", c.SubVolumeGroupResize)
+
+					group.DELETE("/snapshot", c.SubVolumeGroupSnapDelete)
+					group.OPTIONS("", c.SubVolumeOption)
+				}
+				snapshot := subvolume.Group("/snapshot")
+				{
+					snapshot.GET("", c.SubVolumeSnapList)
+					snapshot.POST("", c.SubVolumeSnapCreate)
+					snapshot.DELETE("", c.SubVolumeSnapDelete)
+					snapshot.OPTIONS("", c.SubVolumeOption)
+				}
+			}
 		}
 		nfs := v1.Group("/nfs")
 		{
@@ -88,6 +115,7 @@ func main() {
 			nfs.POST("/:cluster_id/:port", c.NfsClusterCreate)
 			nfs.DELETE("/:cluster_id", c.NfsClusterDelete)
 			nfs.OPTIONS("/:cluster_id", c.NfsOption)
+			nfs.POST("/ingress", c.NfsIngressCreate)
 			nfs_export := nfs.Group("/export")
 			{
 				nfs_export.GET("", c.NfsExportDetailed)

@@ -8,7 +8,7 @@ import (
 	"os/exec"
 )
 
-func NfsClusterCreate(yaml_file string) (output string, err error) {
+func NfsServiceCreate(yaml_file string) (output string, err error) {
 	var stdCreate []byte
 	cmd := exec.Command("ceph", "orch", "apply", "-i", yaml_file)
 	stdCreate, err = cmd.CombinedOutput()

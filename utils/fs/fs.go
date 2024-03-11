@@ -13,7 +13,11 @@ func FsStatus() (dat model.FsStatus, err error) {
 	var stdout []byte
 	cmd := exec.Command("ceph", "fs", "status", "-f", "json")
 	stdout, err = cmd.CombinedOutput()
-
+	if err != nil {
+		err = errors.New(string(stdout))
+		utils.FancyHandleError(err)
+		return
+	}
 	if err = json.Unmarshal(stdout, &dat); err != nil {
 		utils.FancyHandleError(err)
 		return
@@ -21,7 +25,7 @@ func FsStatus() (dat model.FsStatus, err error) {
 
 	return
 }
-func FsCreate(fs_name string) (output string, err error) {
+func FsCreate(fs_name string, data_pool_size string, meta_pool_size string) (output string, err error) {
 	var stdCreate []byte
 	cmd := exec.Command("ceph", "fs", "volume", "create", fs_name, "--placement=label:scvm")
 	stdCreate, err = cmd.CombinedOutput()
@@ -46,9 +50,58 @@ func FsCreate(fs_name string) (output string, err error) {
 				utils.FancyHandleError(err)
 				output = "Fail"
 				return
+			} else {
+				if data_pool_size == "" && meta_pool_size == "" {
+					cmd := exec.Command("ceph", "osd", "pool", "set", fs_name+".data", "size", "2")
+					stdCreate, err = cmd.CombinedOutput()
+					if err != nil {
+						err = errors.New(string(stdCreate))
+						utils.FancyHandleError(err)
+						output = "Fail"
+						return
+					}
+					return
+				} else if data_pool_size != "" && meta_pool_size == "" {
+					cmd := exec.Command("ceph", "osd", "pool", "set", fs_name+".data", "size", data_pool_size)
+					stdCreate, err = cmd.CombinedOutput()
+					if err != nil {
+						err = errors.New(string(stdCreate))
+						utils.FancyHandleError(err)
+						output = "Fail"
+						return
+					}
+					return
+				} else if data_pool_size == "" && meta_pool_size != "" {
+					cmd := exec.Command("ceph", "osd", "pool", "set", fs_name+".meta", "size", meta_pool_size)
+					stdCreate, err = cmd.CombinedOutput()
+					if err != nil {
+						err = errors.New(string(stdCreate))
+						utils.FancyHandleError(err)
+						output = "Fail"
+						return
+					}
+					return
+				} else {
+					cmd := exec.Command("ceph", "osd", "pool", "set", fs_name+".data", "size", data_pool_size)
+					stdCreate, err = cmd.CombinedOutput()
+					if err != nil {
+						err = errors.New(string(stdCreate))
+						utils.FancyHandleError(err)
+						output = "Fail"
+						return
+					} else {
+						cmd := exec.Command("ceph", "osd", "pool", "set", fs_name+".meta", "size", meta_pool_size)
+						stdCreate, err = cmd.CombinedOutput()
+						if err != nil {
+							err = errors.New(string(stdCreate))
+							utils.FancyHandleError(err)
+							output = "Fail"
+							return
+						}
+					}
+					return
+				}
 			}
-			output = "Success"
-			return
 		}
 	}
 }
@@ -103,7 +156,11 @@ func FsGetInfo(fs_name string) (dat model.FsGetInfo, err error) {
 	var stdout []byte
 	cmd := exec.Command("ceph", "fs", "get", fs_name, "-f", "json")
 	stdout, err = cmd.CombinedOutput()
-
+	if err != nil {
+		err = errors.New(string(stdout))
+		utils.FancyHandleError(err)
+		return
+	}
 	if err = json.Unmarshal(stdout, &dat); err != nil {
 		utils.FancyHandleError(err)
 		return
@@ -115,7 +172,11 @@ func FsList() (dat model.FsList, err error) {
 	var stdout []byte
 	cmd := exec.Command("ceph", "fs", "ls", "-f", "json")
 	stdout, err = cmd.CombinedOutput()
-
+	if err != nil {
+		err = errors.New(string(stdout))
+		utils.FancyHandleError(err)
+		return
+	}
 	if err = json.Unmarshal(stdout, &dat); err != nil {
 		utils.FancyHandleError(err)
 		return

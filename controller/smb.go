@@ -5,6 +5,7 @@ import (
 	"Glue-API/model"
 	"Glue-API/utils"
 	"Glue-API/utils/smb"
+	"fmt"
 	"net/http"
 
 	"github.com/gin-gonic/gin"
@@ -69,6 +70,8 @@ func (c *Controller) SmbStatus(ctx *gin.Context) {
 //	@param			password     formData   string	true    "SMB Password"
 //	@param			folder_name     formData   string	true    "SMB Share Folder Name"
 //	@param			path    formData   string	true    "SMB Server Actual Shared Path"
+//	@param			fs_name     formData   string	true    "Glue File System Name"
+//	@param			volume_path    formData   string	true    "Glue File System Volume Path"
 //	@Accept			x-www-form-urlencoded
 //	@Produce		json
 //	@Success		200	{string}	string "Success"
@@ -82,8 +85,11 @@ func (c *Controller) SmbCreate(ctx *gin.Context) {
 	password, _ := ctx.GetPostForm("password")
 	folder, _ := ctx.GetPostForm("folder_name")
 	path, _ := ctx.GetPostForm("path")
+	fs_name, _ := ctx.GetPostForm("fs_name")
+	volume_path, _ := ctx.GetPostForm("volume_path")
+	fmt.Print(fs_name, volume_path)
 	for i := 0; i < len(hostname); i++ {
-		dat, err := smb.SmbCreate(hostname[i], username, password, folder, path)
+		dat, err := smb.SmbCreate(hostname[i], username, password, folder, path, fs_name, volume_path)
 		if err != nil {
 			utils.FancyHandleError(err)
 			httputil.NewError(ctx, http.StatusInternalServerError, err)

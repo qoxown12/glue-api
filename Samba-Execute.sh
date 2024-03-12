@@ -1,4 +1,4 @@
-#!/usr/bin/env bash
+#!/bin/bash
 #########################################
 #Copyright (c) 2024 ABLECLOUD Co. Ltd.
 #
@@ -15,13 +15,25 @@ user_id=$3
 user_pw=$5
 folder=$7
 path=$9
+fs_name=${11}
+volume_path=${13}
+
 if [ -n $action ]
 then
         if [ $action == "create" ]
         then
-                sed -i "s/$before_host/$host_ip/g" /usr/local/samba/etc/smb.conf
+                if [ ! -d $path ]
+                then
+                        mkdir -p $path
+                        chmod 777 $path
+                fi
+                        mount -t ceph admin@.$fs_name=$volume_path $path
+                        sed -i "$ a mount -t ceph admin@.$fs_name=$volume_path $path" /etc/fstab
+
                 if [ ${#user_id} -ne 0 ] && [ ${#user_pw} -ne 0 ] && [ ${#folder} -ne 0 ] && [ ${#path} -ne 0 ]
                 then
+                        sed -i "s/$before_host/$host_ip/g" /usr/local/samba/etc/smb.conf
+
                         echo -e "\n[$folder]" >> /usr/local/samba/etc/smb.conf
                         echo -e "\tpath = $path" >> /usr/local/samba/etc/smb.conf
                         echo -e "\twritable = yes" >> /usr/local/samba/etc/smb.conf
@@ -106,6 +118,10 @@ then
                 done
         elif [ $action == "delete" ]
         then
+                path=$(/usr/bin/cat /usr/local/samba/etc/smb.conf | grep path | awk '{print $3}')
+                umount $path
+                sed '$ d' -i /etc/fstab
+
                 user=$(/usr/local/samba/bin/pdbedit -L | grep -v 'root' | cut -d ':' -f1)
                 for list in $user
                 do
@@ -133,6 +149,8 @@ then
                 status=$(/usr/bin/systemctl show --no-pager smb | grep -w 'ActiveState' | cut -d "=" -f2)
                 state=$(/usr/bin/systemctl show --no-pager smb | grep -w 'UnitFileState' | cut -d "=" -f2)
                 users_data=$(/usr/local/samba/bin/pdbedit -L | grep -v 'root' | cut -d ':' -f1)
+                fs_name=$(/usr/bin/mount | grep admin | cut -d "." -f2 | cut -d "=" -f1)
+                volume_path=$(/usr/bin/mount | grep admin | cut -d "=" -f2 | cut -d " " -f1)
                 user=()
                 for list in $users_data
                 do
@@ -141,10 +159,10 @@ then
                 users=${user:0:${#user}-1}
                 if [ -z "$port_data" ]
                 then
-                        printf '{"Names":"%s","Status":"%s","State":"%s","hostname":"%s","ip_address":"%s","folder_name":"%s","path":"%s","port":[%s], "users":[%s]}' "$names" "$status" "$state" "$hostname" "$ip_address" "$folder_name" "$path" "$port_data" "$users"
+                        printf '{"Names":"%s","Status":"%s","State":"%s","hostname":"%s","ip_address":"%s","folder_name":"%s","path":"%s","port":[%s],"fs_name":"%s","volume_path":"%s","users":[%s]}' "$names" "$status" "$state" "$hostname" "$ip_address" "$folder_name" "$path" "$port_data" "$fs_name" "$volume_path" "$users"
                 else
                         port=${port_data:0:${#port_data}-1}
-                        printf '{"Names":"%s","Status":"%s","State":"%s","hostname":"%s","ip_address":"%s","folder_name":"%s","path":"%s","port":[%s], "users":[%s]}' "$names" "$status" "$state" "$hostname" "$ip_address" "$folder_name" "$path" "$port" "$users"
+                        printf '{"Names":"%s","Status":"%s","State":"%s","hostname":"%s","ip_address":"%s","folder_name":"%s","path":"%s","port":[%s],"fs_name":"%s","volume_path":"%s","users":[%s]}' "$names" "$status" "$state" "$hostname" "$ip_address" "$folder_name" "$path" "$port" "$fs_name" "$volume_path" "$users"
                 fi
         fi
 fi

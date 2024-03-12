@@ -3468,6 +3468,20 @@ const docTemplate = `{
                         "name": "path",
                         "in": "formData",
                         "required": true
+                    },
+                    {
+                        "type": "string",
+                        "description": "Glue File System Name",
+                        "name": "fs_name",
+                        "in": "formData",
+                        "required": true
+                    },
+                    {
+                        "type": "string",
+                        "description": "Glue File System Volume Path",
+                        "name": "volume_path",
+                        "in": "formData",
+                        "required": true
                     }
                 ],
                 "responses": {
@@ -4483,6 +4497,9 @@ const docTemplate = `{
                 "folder_name": {
                     "type": "string"
                 },
+                "fs_name": {
+                    "type": "string"
+                },
                 "hostname": {
                     "type": "string"
                 },
@@ -4512,6 +4529,9 @@ const docTemplate = `{
                     "items": {
                         "type": "string"
                     }
+                },
+                "volume_path": {
+                    "type": "string"
                 }
             }
         },

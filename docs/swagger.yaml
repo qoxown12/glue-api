@@ -469,6 +469,8 @@ definitions:
     properties:
       folder_name:
         type: string
+      fs_name:
+        type: string
       hostname:
         type: string
       ip_address:
@@ -489,6 +491,8 @@ definitions:
         items:
           type: string
         type: array
+      volume_path:
+        type: string
     type: object
   SubVolumeGroupInfo:
     properties:
@@ -2976,6 +2980,16 @@ paths:
       - description: SMB Server Actual Shared Path
         in: formData
         name: path
+        required: true
+        type: string
+      - description: Glue File System Name
+        in: formData
+        name: fs_name
+        required: true
+        type: string
+      - description: Glue File System Volume Path
+        in: formData
+        name: volume_path
         required: true
         type: string
       produces:

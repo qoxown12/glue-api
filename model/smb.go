@@ -9,5 +9,7 @@ type SmbStatus struct {
 	Status      string   `json:"status"`
 	State       string   `json:"state"`
 	Port        []int    `json:"port"`
+	FsName      string   `json:"fs_name"`
+	VolumePath  string   `json:"volume_path"`
 	Users       []string `json:"users"`
 } //@name SmbStatus

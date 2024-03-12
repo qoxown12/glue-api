@@ -3461,6 +3461,20 @@
                         "name": "path",
                         "in": "formData",
                         "required": true
+                    },
+                    {
+                        "type": "string",
+                        "description": "Glue File System Name",
+                        "name": "fs_name",
+                        "in": "formData",
+                        "required": true
+                    },
+                    {
+                        "type": "string",
+                        "description": "Glue File System Volume Path",
+                        "name": "volume_path",
+                        "in": "formData",
+                        "required": true
                     }
                 ],
                 "responses": {
@@ -4476,6 +4490,9 @@
                 "folder_name": {
                     "type": "string"
                 },
+                "fs_name": {
+                    "type": "string"
+                },
                 "hostname": {
                     "type": "string"
                 },
@@ -4505,6 +4522,9 @@
                     "items": {
                         "type": "string"
                     }
+                },
+                "volume_path": {
+                    "type": "string"
                 }
             }
         },

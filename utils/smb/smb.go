@@ -23,9 +23,9 @@ func SmbStatus(hostname string) (dat model.SmbStatus, err error) {
 	}
 	return
 }
-func SmbCreate(hostname string, username string, password string, folder string, path string) (output string, err error) {
+func SmbCreate(hostname string, username string, password string, folder string, path string, fs_name string, volume_path string) (output string, err error) {
 	var stdout []byte
-	cmd := exec.Command("ssh", "-o", "StrictHostKeyChecking=no", hostname, "sh", "/usr/local/samba/sbin/Samba-Execute.sh", "create", "--username", username, "--password", password, "--folder", folder, "--path", path)
+	cmd := exec.Command("ssh", "-o", "StrictHostKeyChecking=no", hostname, "sh", "/usr/local/samba/sbin/Samba-Execute.sh", "create", "--username", username, "--password", password, "--folder", folder, "--path", path, "--fs_name", fs_name, "--volume_path", volume_path)
 	stdout, err = cmd.CombinedOutput()
 	if err != nil {
 		err = errors.New(string(stdout))

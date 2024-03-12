@@ -3006,11 +3006,14 @@ paths:
       - application/x-www-form-urlencoded
       description: SMB 서비스 사용자를 삭제합니다.
       parameters:
-      - description: SMB Server Host Name
+      - collectionFormat: multi
+        description: SMB Server Host Name
         in: query
+        items:
+          type: string
         name: hostname
         required: true
-        type: string
+        type: array
       - description: SMB Username
         in: query
         name: username

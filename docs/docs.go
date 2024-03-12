@@ -3697,7 +3697,11 @@ const docTemplate = `{
                 "summary": "Delete User of Smb Service",
                 "parameters": [
                     {
-                        "type": "string",
+                        "type": "array",
+                        "items": {
+                            "type": "string"
+                        },
+                        "collectionFormat": "multi",
                         "description": "SMB Server Host Name",
                         "name": "hostname",
                         "in": "query",

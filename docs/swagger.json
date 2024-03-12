@@ -3424,6 +3424,17 @@
                 "summary": "Create of Smb Service",
                 "parameters": [
                     {
+                        "type": "array",
+                        "items": {
+                            "type": "string"
+                        },
+                        "collectionFormat": "multi",
+                        "description": "SMB Server Host Name",
+                        "name": "hostname",
+                        "in": "formData",
+                        "required": true
+                    },
+                    {
                         "type": "string",
                         "description": "SMB Username",
                         "name": "username",
@@ -3491,6 +3502,19 @@
                     "SMB"
                 ],
                 "summary": "Delete of Smb Service",
+                "parameters": [
+                    {
+                        "type": "array",
+                        "items": {
+                            "type": "string"
+                        },
+                        "collectionFormat": "multi",
+                        "description": "SMB Server Host Name",
+                        "name": "hostname",
+                        "in": "query",
+                        "required": true
+                    }
+                ],
                 "responses": {
                     "200": {
                         "description": "Success",
@@ -3533,6 +3557,17 @@
                 ],
                 "summary": "Update User of Smb Service",
                 "parameters": [
+                    {
+                        "type": "array",
+                        "items": {
+                            "type": "string"
+                        },
+                        "collectionFormat": "multi",
+                        "description": "SMB Server Host Name",
+                        "name": "hostname",
+                        "in": "formData",
+                        "required": true
+                    },
                     {
                         "type": "string",
                         "description": "SMB Username",
@@ -3589,6 +3624,17 @@
                 "summary": "Create User of Smb Service",
                 "parameters": [
                     {
+                        "type": "array",
+                        "items": {
+                            "type": "string"
+                        },
+                        "collectionFormat": "multi",
+                        "description": "SMB Server Host Name",
+                        "name": "hostname",
+                        "in": "formData",
+                        "required": true
+                    },
+                    {
                         "type": "string",
                         "description": "SMB Username",
                         "name": "username",
@@ -3643,6 +3689,13 @@
                 ],
                 "summary": "Delete User of Smb Service",
                 "parameters": [
+                    {
+                        "type": "string",
+                        "description": "SMB Server Host Name",
+                        "name": "hostname",
+                        "in": "query",
+                        "required": true
+                    },
                     {
                         "type": "string",
                         "description": "SMB Username",
@@ -4416,9 +4469,6 @@
         "SmbStatus": {
             "type": "object",
             "properties": {
-                "description": {
-                    "type": "string"
-                },
                 "folder_name": {
                     "type": "string"
                 },
@@ -4437,7 +4487,7 @@
                 "port": {
                     "type": "array",
                     "items": {
-                        "type": "string"
+                        "type": "integer"
                     }
                 },
                 "state": {
@@ -4447,7 +4497,10 @@
                     "type": "string"
                 },
                 "users": {
-                    "$ref": "#/definitions/model.Users"
+                    "type": "array",
+                    "items": {
+                        "type": "string"
+                    }
                 }
             }
         },
@@ -4608,17 +4661,6 @@
                     "type": "string",
                     "format": "string",
                     "example": "1.0"
-                }
-            }
-        },
-        "model.Users": {
-            "type": "object",
-            "properties": {
-                "users": {
-                    "type": "array",
-                    "items": {
-                        "type": "string"
-                    }
                 }
             }
         }

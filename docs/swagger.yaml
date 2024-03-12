@@ -467,8 +467,6 @@ definitions:
     type: object
   SmbStatus:
     properties:
-      description:
-        type: string
       folder_name:
         type: string
       hostname:
@@ -481,14 +479,16 @@ definitions:
         type: string
       port:
         items:
-          type: string
+          type: integer
         type: array
       state:
         type: string
       status:
         type: string
       users:
-        $ref: '#/definitions/model.Users'
+        items:
+          type: string
+        type: array
     type: object
   SubVolumeGroupInfo:
     properties:
@@ -596,13 +596,6 @@ definitions:
         example: "1.0"
         format: string
         type: string
-    type: object
-  model.Users:
-    properties:
-      users:
-        items:
-          type: string
-        type: array
     type: object
 info:
   contact:
@@ -2895,6 +2888,15 @@ paths:
       consumes:
       - application/x-www-form-urlencoded
       description: SMB 서비스 전체를 삭제합니다.
+      parameters:
+      - collectionFormat: multi
+        description: SMB Server Host Name
+        in: query
+        items:
+          type: string
+        name: hostname
+        required: true
+        type: array
       produces:
       - application/json
       responses:
@@ -2948,6 +2950,14 @@ paths:
       - application/x-www-form-urlencoded
       description: SMB 서비스 전체를 생성합니다.
       parameters:
+      - collectionFormat: multi
+        description: SMB Server Host Name
+        in: formData
+        items:
+          type: string
+        name: hostname
+        required: true
+        type: array
       - description: SMB Username
         in: formData
         name: username
@@ -2996,6 +3006,11 @@ paths:
       - application/x-www-form-urlencoded
       description: SMB 서비스 사용자를 삭제합니다.
       parameters:
+      - description: SMB Server Host Name
+        in: query
+        name: hostname
+        required: true
+        type: string
       - description: SMB Username
         in: query
         name: username
@@ -3028,6 +3043,14 @@ paths:
       - application/x-www-form-urlencoded
       description: SMB 서비스 사용자를 생성합니다.
       parameters:
+      - collectionFormat: multi
+        description: SMB Server Host Name
+        in: formData
+        items:
+          type: string
+        name: hostname
+        required: true
+        type: array
       - description: SMB Username
         in: formData
         name: username
@@ -3065,6 +3088,14 @@ paths:
       - application/x-www-form-urlencoded
       description: SMB 서비스 사용자의 패스워드를 변경합니다.
       parameters:
+      - collectionFormat: multi
+        description: SMB Server Host Name
+        in: formData
+        items:
+          type: string
+        name: hostname
+        required: true
+        type: array
       - description: SMB Username
         in: formData
         name: username

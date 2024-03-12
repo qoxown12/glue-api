@@ -30,7 +30,7 @@ then
                         echo -e "\tdirectory mask = 0777" >> /usr/local/samba/etc/smb.conf
 
                         # 사용자 추가를 위한 expect 스크립트
-                        user_add=$(useradd -M $user_id > /dev/null 2>&1; echo $?)
+                        user_add=$(useradd $user_id > /dev/null 2>&1; echo $?)
 
                         if [ $user_add -ne 9 ]
                         then
@@ -42,6 +42,7 @@ then
                                                 send \"$user_pw\\r\"
                                 expect eof
                                 " > /dev/null
+
                                 state=$(systemctl is-enabled smb)
 
                                 if [ $state == "disabled" ]
@@ -65,7 +66,7 @@ then
                         then
                                 echo "The same USER_ID exists."
                         else
-                                useradd -M $user_id > /dev/null 2>&1
+                                useradd $user_id > /dev/null 2>&1
 
                                 expect -c "
                                 spawn /usr/local/samba/bin/smbpasswd -a $user_id
@@ -82,7 +83,7 @@ then
                 user_del=$(/usr/local/samba/bin/smbpasswd -x $user_id > /dev/null 2>&1; echo $?)
                 if [ $user_del -eq 0 ]
                 then
-                        /usr/sbin/userdel $user_id > /dev/null 2>&1
+                        /usr/sbin/userdel -r $user_id > /dev/null 2>&1
                 fi
         elif [ $action == "update" ]
         then
@@ -105,14 +106,14 @@ then
                 done
         elif [ $action == "delete" ]
         then
-                user=$(/usr/local/samba/bin/pdbedit -L | grep -v 'root' | cut -d ':' -f1 )
+                user=$(/usr/local/samba/bin/pdbedit -L | grep -v 'root' | cut -d ':' -f1)
                 for list in $user
                 do
                         /usr/local/samba/bin/smbpasswd -x $list > /dev/null 2>&1
-                        /usr/sbin/userdel $list > /dev/null 2>&1
+                        /usr/sbin/userdel -r $list > /dev/null 2>&1
                 done
                         cat /dev/null > /usr/local/samba/etc/smb.conf
-                        echo -e "\n[global]" >> /usr/local/samba/etc/smb.conf
+                        echo -e "[global]" >> /usr/local/samba/etc/smb.conf
                         echo -e "\tworkgroup = WORKGROUP" >> /usr/local/samba/etc/smb.conf
                         echo -e "\tsecurity = user" >> /usr/local/samba/etc/smb.conf
                         echo -e "\thosts allow = 100.100." >> /usr/local/samba/etc/smb.conf
@@ -121,5 +122,29 @@ then
                         systemctl disable smb > /dev/null 2>&1
                         firewall-cmd --permanent --remove-service=samba > /dev/null 2>&1
                         firewall-cmd --reload > /dev/null 2>&1
+        elif [ $action == "select" ]
+        then
+                hostname=$(/usr/bin/hostname)
+                ip_address=$(/usr/bin/cat /etc/hosts | grep $hostname-mngt | awk '{print $1}')
+                folder_name=$(/usr/bin/grep -F '[' /usr/local/samba/etc/smb.conf | grep -v 'global' | tr -d '[]')
+                path=$(/usr/bin/cat /usr/local/samba/etc/smb.conf | grep path | awk '{print $3}')
+                port_data=$(/usr/bin/netstat -ltnp | grep  smb | grep -v tcp6 | awk '{print $4}' | cut -d ':' -f2 | tr "\n" ",")
+                names=$(/usr/bin/systemctl show --no-pager smb | grep -w 'Names' | cut -d "=" -f2)
+                status=$(/usr/bin/systemctl show --no-pager smb | grep -w 'ActiveState' | cut -d "=" -f2)
+                state=$(/usr/bin/systemctl show --no-pager smb | grep -w 'UnitFileState' | cut -d "=" -f2)
+                users_data=$(/usr/local/samba/bin/pdbedit -L | grep -v 'root' | cut -d ':' -f1)
+                user=()
+                for list in $users_data
+                do
+                       user+=\"$list\"\,
+                done
+                users=${user:0:${#user}-1}
+                if [ -z "$port_data" ]
+                then
+                        printf '{"Names":"%s","Status":"%s","State":"%s","hostname":"%s","ip_address":"%s","folder_name":"%s","path":"%s","port":[%s], "users":[%s]}' "$names" "$status" "$state" "$hostname" "$ip_address" "$folder_name" "$path" "$port_data" "$users"
+                else
+                        port=${port_data:0:${#port_data}-1}
+                        printf '{"Names":"%s","Status":"%s","State":"%s","hostname":"%s","ip_address":"%s","folder_name":"%s","path":"%s","port":[%s], "users":[%s]}' "$names" "$status" "$state" "$hostname" "$ip_address" "$folder_name" "$path" "$port" "$users"
+                fi
         fi
 fi

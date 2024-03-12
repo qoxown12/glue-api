@@ -8,7 +8,6 @@ import (
 	"bytes"
 	"crypto/tls"
 	"encoding/json"
-	"fmt"
 	"io"
 	"net/http"
 	"os"
@@ -591,7 +590,6 @@ func (c *Controller) IscsiTargetUpdate(ctx *gin.Context) {
 	request.Header.Add("accept", "application/vnd.ceph.api.v1.0+json")
 	request.Header.Set("Content-Type", "application/json")
 	request.Header.Add("Authorization", "Bearer "+token)
-	fmt.Print(requestUrl)
 	client := &http.Client{
 		Timeout: 30 * time.Second,
 		Transport: &http.Transport{

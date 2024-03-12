@@ -3431,6 +3431,17 @@ const docTemplate = `{
                 "summary": "Create of Smb Service",
                 "parameters": [
                     {
+                        "type": "array",
+                        "items": {
+                            "type": "string"
+                        },
+                        "collectionFormat": "multi",
+                        "description": "SMB Server Host Name",
+                        "name": "hostname",
+                        "in": "formData",
+                        "required": true
+                    },
+                    {
                         "type": "string",
                         "description": "SMB Username",
                         "name": "username",
@@ -3455,6 +3466,20 @@ const docTemplate = `{
                         "type": "string",
                         "description": "SMB Server Actual Shared Path",
                         "name": "path",
+                        "in": "formData",
+                        "required": true
+                    },
+                    {
+                        "type": "string",
+                        "description": "Glue File System Name",
+                        "name": "fs_name",
+                        "in": "formData",
+                        "required": true
+                    },
+                    {
+                        "type": "string",
+                        "description": "Glue File System Volume Path",
+                        "name": "volume_path",
                         "in": "formData",
                         "required": true
                     }
@@ -3498,6 +3523,19 @@ const docTemplate = `{
                     "SMB"
                 ],
                 "summary": "Delete of Smb Service",
+                "parameters": [
+                    {
+                        "type": "array",
+                        "items": {
+                            "type": "string"
+                        },
+                        "collectionFormat": "multi",
+                        "description": "SMB Server Host Name",
+                        "name": "hostname",
+                        "in": "query",
+                        "required": true
+                    }
+                ],
                 "responses": {
                     "200": {
                         "description": "Success",
@@ -3540,6 +3578,17 @@ const docTemplate = `{
                 ],
                 "summary": "Update User of Smb Service",
                 "parameters": [
+                    {
+                        "type": "array",
+                        "items": {
+                            "type": "string"
+                        },
+                        "collectionFormat": "multi",
+                        "description": "SMB Server Host Name",
+                        "name": "hostname",
+                        "in": "formData",
+                        "required": true
+                    },
                     {
                         "type": "string",
                         "description": "SMB Username",
@@ -3596,6 +3645,17 @@ const docTemplate = `{
                 "summary": "Create User of Smb Service",
                 "parameters": [
                     {
+                        "type": "array",
+                        "items": {
+                            "type": "string"
+                        },
+                        "collectionFormat": "multi",
+                        "description": "SMB Server Host Name",
+                        "name": "hostname",
+                        "in": "formData",
+                        "required": true
+                    },
+                    {
                         "type": "string",
                         "description": "SMB Username",
                         "name": "username",
@@ -3650,6 +3710,17 @@ const docTemplate = `{
                 ],
                 "summary": "Delete User of Smb Service",
                 "parameters": [
+                    {
+                        "type": "array",
+                        "items": {
+                            "type": "string"
+                        },
+                        "collectionFormat": "multi",
+                        "description": "SMB Server Host Name",
+                        "name": "hostname",
+                        "in": "query",
+                        "required": true
+                    },
                     {
                         "type": "string",
                         "description": "SMB Username",
@@ -4423,10 +4494,10 @@ const docTemplate = `{
         "SmbStatus": {
             "type": "object",
             "properties": {
-                "description": {
+                "folder_name": {
                     "type": "string"
                 },
-                "folder_name": {
+                "fs_name": {
                     "type": "string"
                 },
                 "hostname": {
@@ -4444,7 +4515,7 @@ const docTemplate = `{
                 "port": {
                     "type": "array",
                     "items": {
-                        "type": "string"
+                        "type": "integer"
                     }
                 },
                 "state": {
@@ -4454,7 +4525,13 @@ const docTemplate = `{
                     "type": "string"
                 },
                 "users": {
-                    "$ref": "#/definitions/model.Users"
+                    "type": "array",
+                    "items": {
+                        "type": "string"
+                    }
+                },
+                "volume_path": {
+                    "type": "string"
                 }
             }
         },
@@ -4615,17 +4692,6 @@ const docTemplate = `{
                     "type": "string",
                     "format": "string",
                     "example": "1.0"
-                }
-            }
-        },
-        "model.Users": {
-            "type": "object",
-            "properties": {
-                "users": {
-                    "type": "array",
-                    "items": {
-                        "type": "string"
-                    }
                 }
             }
         }

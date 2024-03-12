@@ -5,7 +5,6 @@ import (
 	"Glue-API/utils"
 	"encoding/json"
 	"errors"
-	"fmt"
 	"os/exec"
 	"strings"
 )
@@ -69,7 +68,6 @@ func SubVolumeGroupDelete(vol_name string, group_name string) (output string, er
 	var stdout []byte
 	cmd := exec.Command("ceph", "fs", "subvolumegroup", "rm", vol_name, group_name)
 	stdout, err = cmd.CombinedOutput()
-	fmt.Print(cmd)
 	if err != nil {
 		err = errors.New(string(stdout))
 		utils.FancyHandleError(err)

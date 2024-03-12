@@ -5,9 +5,8 @@ import (
 	"Glue-API/model"
 	"Glue-API/utils"
 	"Glue-API/utils/smb"
-	"encoding/json"
+	"fmt"
 	"net/http"
-	"strings"
 
 	"github.com/gin-gonic/gin"
 )
@@ -30,111 +29,35 @@ func (c *Controller) SmbOption(ctx *gin.Context) {
 //	@Failure		500	{object}	httputil.HTTP500InternalServerError
 //	@Router			/api/v1/smb [get]
 func (c *Controller) SmbStatus(ctx *gin.Context) {
-	status_dat, err := smb.SmbStatus()
+
+	hosts_data, err := smb.Hosts()
 	if err != nil {
 		utils.FancyHandleError(err)
 		httputil.NewError(ctx, http.StatusInternalServerError, err)
 		return
 	}
-	user_dat, err := smb.SmbUserMngt()
-	if err != nil {
-		utils.FancyHandleError(err)
-		httputil.NewError(ctx, http.StatusInternalServerError, err)
-		return
-	}
-	var user []string
-	user_data := strings.Split(string(user_dat), "\n")
-	for i := 0; i < len(user_data); i++ {
-		users := user_data[i]
-		user = append(user, users)
-		if i == len(user_data)-1 {
-			user = user[:len(user_data)-1]
+	var hosts []string
+	for i := 0; i < len(hosts_data); i++ {
+		hosts = append(hosts, hosts_data[i])
+		if i == len(hosts_data)-1 {
+			hosts = hosts[:len(hosts_data)-1]
 		}
 	}
-	var names string
-	var description string
-	var status string
-	var state string
-	data := strings.FieldsFunc(status_dat, Split)
-	for i := 0; i < len(data); i++ {
-		if data[i] == "Names" {
-			names = data[i+1]
+	var smb_status []model.SmbStatus
+	for i := 0; i < len(hosts); i++ {
+		status, err := smb.SmbStatus(hosts[i])
+		if err != nil {
+			utils.FancyHandleError(err)
+			httputil.NewError(ctx, http.StatusInternalServerError, err)
+			return
 		}
-		if data[i] == "Description" {
-			description = data[i+1]
+		smb_status = append(smb_status, status)
+		if i == len(hosts)-1 {
+			ctx.Header("Access-Control-Allow-Origin", "*")
+			ctx.IndentedJSON(http.StatusOK, smb_status)
 		}
-		if data[i] == "ActiveState" {
-			status = data[i+1]
-		}
-		if data[i] == "UnitFileState" {
-			state = data[i+1]
-		}
+
 	}
-	hostname_data, err := smb.Hostname()
-	hostname := strings.Split(hostname_data, "\n")
-	if err != nil {
-		utils.FancyHandleError(err)
-		httputil.NewError(ctx, http.StatusInternalServerError, err)
-		return
-	}
-	ip_address_data, err := smb.IpAddress()
-	ip_address := strings.Split(ip_address_data, "\n")
-	if err != nil {
-		utils.FancyHandleError(err)
-		httputil.NewError(ctx, http.StatusInternalServerError, err)
-		return
-	}
-	var port_arr []string
-	port, err := smb.Port()
-	if err != nil {
-		utils.FancyHandleError(err)
-		httputil.NewError(ctx, http.StatusInternalServerError, err)
-		return
-	}
-	port_data := strings.Split(port, "\n")
-	for i := 0; i < len(port_data); i++ {
-		ports := port_data[i]
-		port_arr = append(port_arr, ports)
-		if i == len(port_data)-1 {
-			port_arr = port_arr[:len(port_data)-1]
-		}
-	}
-	share_path_data, err := smb.SharePath()
-	if err != nil {
-		utils.FancyHandleError(err)
-		httputil.NewError(ctx, http.StatusInternalServerError, err)
-		return
-	}
-	share_path := strings.Split(share_path_data, "\n")
-	share_folder_data, err := smb.ShareFolder()
-	if err != nil {
-		utils.FancyHandleError(err)
-		httputil.NewError(ctx, http.StatusInternalServerError, err)
-		return
-	}
-	share_folder := strings.Split(share_folder_data, "\n")
-	value := model.SmbStatus{
-		Names:       names,
-		Description: description,
-		Status:      status,
-		State:       state,
-		Hostname:    hostname[0],
-		IpAddress:   ip_address[0],
-		Port:        port_arr,
-		ShareFolder: share_folder[0],
-		SharePath:   share_path[0],
-		Users: model.Users{
-			Users: user,
-		},
-	}
-	var ret model.SmbStatus
-	json_data, _ := json.Marshal(value)
-	json.Unmarshal(json_data, &ret)
-	ctx.Header("Access-Control-Allow-Origin", "*")
-	ctx.IndentedJSON(http.StatusOK, ret)
-}
-func Split(r rune) bool {
-	return r == '=' || r == '\n'
 }
 
 // SmbCreate godoc
@@ -142,10 +65,13 @@ func Split(r rune) bool {
 //	@Summary		Create of Smb Service
 //	@Description	SMB 서비스 전체를 생성합니다.
 //	@Tags			SMB
+//	@param			hostname     formData   []string	true    "SMB Server Host Name" collectionFormat(multi)
 //	@param			username     formData   string	true    "SMB Username"
 //	@param			password     formData   string	true    "SMB Password"
 //	@param			folder_name     formData   string	true    "SMB Share Folder Name"
 //	@param			path    formData   string	true    "SMB Server Actual Shared Path"
+//	@param			fs_name     formData   string	true    "Glue File System Name"
+//	@param			volume_path    formData   string	true    "Glue File System Volume Path"
 //	@Accept			x-www-form-urlencoded
 //	@Produce		json
 //	@Success		200	{string}	string "Success"
@@ -154,19 +80,26 @@ func Split(r rune) bool {
 //	@Failure		500	{object}	httputil.HTTP500InternalServerError
 //	@Router			/api/v1/smb [post]
 func (c *Controller) SmbCreate(ctx *gin.Context) {
+	hostname, _ := ctx.GetPostFormArray("hostname")
 	username, _ := ctx.GetPostForm("username")
 	password, _ := ctx.GetPostForm("password")
 	folder, _ := ctx.GetPostForm("folder_name")
 	path, _ := ctx.GetPostForm("path")
-
-	dat, err := smb.SmbCreate(username, password, folder, path)
-	if err != nil {
-		utils.FancyHandleError(err)
-		httputil.NewError(ctx, http.StatusInternalServerError, err)
-		return
+	fs_name, _ := ctx.GetPostForm("fs_name")
+	volume_path, _ := ctx.GetPostForm("volume_path")
+	fmt.Print(fs_name, volume_path)
+	for i := 0; i < len(hostname); i++ {
+		dat, err := smb.SmbCreate(hostname[i], username, password, folder, path, fs_name, volume_path)
+		if err != nil {
+			utils.FancyHandleError(err)
+			httputil.NewError(ctx, http.StatusInternalServerError, err)
+			return
+		}
+		if i == len(hostname)-1 {
+			ctx.Header("Access-Control-Allow-Origin", "*")
+			ctx.IndentedJSON(http.StatusOK, dat)
+		}
 	}
-	ctx.Header("Access-Control-Allow-Origin", "*")
-	ctx.IndentedJSON(http.StatusOK, dat)
 }
 
 // SmbUserCreate godoc
@@ -174,6 +107,7 @@ func (c *Controller) SmbCreate(ctx *gin.Context) {
 //	@Summary		Create User of Smb Service
 //	@Description	SMB 서비스 사용자를 생성합니다.
 //	@Tags			SMB
+//	@param			hostname     formData   []string	true    "SMB Server Host Name" collectionFormat(multi)
 //	@param			username     formData   string	true    "SMB Username"
 //	@param			password     formData   string	true    "SMB Password"
 //	@Accept			x-www-form-urlencoded
@@ -184,17 +118,22 @@ func (c *Controller) SmbCreate(ctx *gin.Context) {
 //	@Failure		500	{object}	httputil.HTTP500InternalServerError
 //	@Router			/api/v1/smb/user [post]
 func (c *Controller) SmbUserCreate(ctx *gin.Context) {
+	hostname, _ := ctx.GetPostFormArray("hostname")
 	username, _ := ctx.GetPostForm("username")
 	password, _ := ctx.GetPostForm("password")
 
-	dat, err := smb.SmbUserCreate(username, password)
-	if err != nil {
-		utils.FancyHandleError(err)
-		httputil.NewError(ctx, http.StatusInternalServerError, err)
-		return
+	for i := 0; i < len(hostname); i++ {
+		dat, err := smb.SmbUserCreate(hostname[i], username, password)
+		if err != nil {
+			utils.FancyHandleError(err)
+			httputil.NewError(ctx, http.StatusInternalServerError, err)
+			return
+		}
+		if i == len(hostname)-1 {
+			ctx.Header("Access-Control-Allow-Origin", "*")
+			ctx.IndentedJSON(http.StatusOK, dat)
+		}
 	}
-	ctx.Header("Access-Control-Allow-Origin", "*")
-	ctx.IndentedJSON(http.StatusOK, dat)
 }
 
 // SmbUserUpdate godoc
@@ -202,6 +141,7 @@ func (c *Controller) SmbUserCreate(ctx *gin.Context) {
 //	@Summary		Update User of Smb Service
 //	@Description	SMB 서비스 사용자의 패스워드를 변경합니다.
 //	@Tags			SMB
+//	@param			hostname     formData   []string	true    "SMB Server Host Name" collectionFormat(multi)
 //	@param			username     formData   string	true    "SMB Username"
 //	@param			password     formData   string	true    "SMB Password"
 //	@Accept			x-www-form-urlencoded
@@ -212,17 +152,22 @@ func (c *Controller) SmbUserCreate(ctx *gin.Context) {
 //	@Failure		500	{object}	httputil.HTTP500InternalServerError
 //	@Router			/api/v1/smb/user [put]
 func (c *Controller) SmbUserUpdate(ctx *gin.Context) {
+	hostname, _ := ctx.GetPostFormArray("hostname")
 	username, _ := ctx.GetPostForm("username")
 	password, _ := ctx.GetPostForm("password")
 
-	dat, err := smb.SmbUserUpdate(username, password)
-	if err != nil {
-		utils.FancyHandleError(err)
-		httputil.NewError(ctx, http.StatusInternalServerError, err)
-		return
+	for i := 0; i < len(hostname); i++ {
+		dat, err := smb.SmbUserUpdate(hostname[i], username, password)
+		if err != nil {
+			utils.FancyHandleError(err)
+			httputil.NewError(ctx, http.StatusInternalServerError, err)
+			return
+		}
+		if i == len(hostname)-1 {
+			ctx.Header("Access-Control-Allow-Origin", "*")
+			ctx.IndentedJSON(http.StatusOK, dat)
+		}
 	}
-	ctx.Header("Access-Control-Allow-Origin", "*")
-	ctx.IndentedJSON(http.StatusOK, dat)
 }
 
 // SmbDelete godoc
@@ -230,6 +175,7 @@ func (c *Controller) SmbUserUpdate(ctx *gin.Context) {
 //	@Summary		Delete of Smb Service
 //	@Description	SMB 서비스 전체를 삭제합니다.
 //	@Tags			SMB
+//	@param			hostname     query   []string	true    "SMB Server Host Name" collectionFormat(multi)
 //	@Accept			x-www-form-urlencoded
 //	@Produce		json
 //	@Success		200	{string}	string "Success"
@@ -238,15 +184,19 @@ func (c *Controller) SmbUserUpdate(ctx *gin.Context) {
 //	@Failure		500	{object}	httputil.HTTP500InternalServerError
 //	@Router			/api/v1/smb [delete]
 func (c *Controller) SmbDelete(ctx *gin.Context) {
-
-	dat, err := smb.SmbDelete()
-	if err != nil {
-		utils.FancyHandleError(err)
-		httputil.NewError(ctx, http.StatusInternalServerError, err)
-		return
+	hostname_arr := ctx.QueryArray("hostname")
+	for i := 0; i < len(hostname_arr); i++ {
+		dat, err := smb.SmbDelete(hostname_arr[i])
+		if err != nil {
+			utils.FancyHandleError(err)
+			httputil.NewError(ctx, http.StatusInternalServerError, err)
+			return
+		}
+		if i == len(hostname_arr)-1 {
+			ctx.Header("Access-Control-Allow-Origin", "*")
+			ctx.IndentedJSON(http.StatusOK, dat)
+		}
 	}
-	ctx.Header("Access-Control-Allow-Origin", "*")
-	ctx.IndentedJSON(http.StatusOK, dat)
 }
 
 // SmbUserDelete godoc
@@ -254,6 +204,7 @@ func (c *Controller) SmbDelete(ctx *gin.Context) {
 //	@Summary		Delete User of Smb Service
 //	@Description	SMB 서비스 사용자를 삭제합니다.
 //	@Tags			SMB
+//	@param			hostname     query   []string	true    "SMB Server Host Name" collectionFormat(multi)
 //	@param			username     query   string	true    "SMB Username"
 //	@Accept			x-www-form-urlencoded
 //	@Produce		json
@@ -263,14 +214,19 @@ func (c *Controller) SmbDelete(ctx *gin.Context) {
 //	@Failure		500	{object}	httputil.HTTP500InternalServerError
 //	@Router			/api/v1/smb/user [delete]
 func (c *Controller) SmbUserDelete(ctx *gin.Context) {
+	hostname_arr := ctx.QueryArray("hostname")
 	username := ctx.Request.URL.Query().Get("username")
 
-	dat, err := smb.SmbUserDelete(username)
-	if err != nil {
-		utils.FancyHandleError(err)
-		httputil.NewError(ctx, http.StatusInternalServerError, err)
-		return
+	for i := 0; i < len(hostname_arr); i++ {
+		dat, err := smb.SmbUserDelete(hostname_arr[i], username)
+		if err != nil {
+			utils.FancyHandleError(err)
+			httputil.NewError(ctx, http.StatusInternalServerError, err)
+			return
+		}
+		if i == len(hostname_arr)-1 {
+			ctx.Header("Access-Control-Allow-Origin", "*")
+			ctx.IndentedJSON(http.StatusOK, dat)
+		}
 	}
-	ctx.Header("Access-Control-Allow-Origin", "*")
-	ctx.IndentedJSON(http.StatusOK, dat)
 }

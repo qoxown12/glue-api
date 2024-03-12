@@ -60,6 +60,7 @@ func FsCreate(fs_name string, data_pool_size string, meta_pool_size string) (out
 						output = "Fail"
 						return
 					}
+					output = "Success"
 					return
 				} else if data_pool_size != "" && meta_pool_size == "" {
 					cmd := exec.Command("ceph", "osd", "pool", "set", fs_name+".data", "size", data_pool_size)
@@ -70,6 +71,7 @@ func FsCreate(fs_name string, data_pool_size string, meta_pool_size string) (out
 						output = "Fail"
 						return
 					}
+					output = "Success"
 					return
 				} else if data_pool_size == "" && meta_pool_size != "" {
 					cmd := exec.Command("ceph", "osd", "pool", "set", fs_name+".meta", "size", meta_pool_size)
@@ -80,6 +82,7 @@ func FsCreate(fs_name string, data_pool_size string, meta_pool_size string) (out
 						output = "Fail"
 						return
 					}
+					output = "Success"
 					return
 				} else {
 					cmd := exec.Command("ceph", "osd", "pool", "set", fs_name+".data", "size", data_pool_size)
@@ -98,7 +101,9 @@ func FsCreate(fs_name string, data_pool_size string, meta_pool_size string) (out
 							output = "Fail"
 							return
 						}
+						output = "Success"
 					}
+					output = "Success"
 					return
 				}
 			}

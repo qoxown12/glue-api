@@ -3424,6 +3424,17 @@
                 "summary": "Create of Smb Service",
                 "parameters": [
                     {
+                        "type": "array",
+                        "items": {
+                            "type": "string"
+                        },
+                        "collectionFormat": "multi",
+                        "description": "SMB Server Host Name",
+                        "name": "hostname",
+                        "in": "formData",
+                        "required": true
+                    },
+                    {
                         "type": "string",
                         "description": "SMB Username",
                         "name": "username",
@@ -3448,6 +3459,20 @@
                         "type": "string",
                         "description": "SMB Server Actual Shared Path",
                         "name": "path",
+                        "in": "formData",
+                        "required": true
+                    },
+                    {
+                        "type": "string",
+                        "description": "Glue File System Name",
+                        "name": "fs_name",
+                        "in": "formData",
+                        "required": true
+                    },
+                    {
+                        "type": "string",
+                        "description": "Glue File System Volume Path",
+                        "name": "volume_path",
                         "in": "formData",
                         "required": true
                     }
@@ -3491,6 +3516,19 @@
                     "SMB"
                 ],
                 "summary": "Delete of Smb Service",
+                "parameters": [
+                    {
+                        "type": "array",
+                        "items": {
+                            "type": "string"
+                        },
+                        "collectionFormat": "multi",
+                        "description": "SMB Server Host Name",
+                        "name": "hostname",
+                        "in": "query",
+                        "required": true
+                    }
+                ],
                 "responses": {
                     "200": {
                         "description": "Success",
@@ -3533,6 +3571,17 @@
                 ],
                 "summary": "Update User of Smb Service",
                 "parameters": [
+                    {
+                        "type": "array",
+                        "items": {
+                            "type": "string"
+                        },
+                        "collectionFormat": "multi",
+                        "description": "SMB Server Host Name",
+                        "name": "hostname",
+                        "in": "formData",
+                        "required": true
+                    },
                     {
                         "type": "string",
                         "description": "SMB Username",
@@ -3589,6 +3638,17 @@
                 "summary": "Create User of Smb Service",
                 "parameters": [
                     {
+                        "type": "array",
+                        "items": {
+                            "type": "string"
+                        },
+                        "collectionFormat": "multi",
+                        "description": "SMB Server Host Name",
+                        "name": "hostname",
+                        "in": "formData",
+                        "required": true
+                    },
+                    {
                         "type": "string",
                         "description": "SMB Username",
                         "name": "username",
@@ -3643,6 +3703,17 @@
                 ],
                 "summary": "Delete User of Smb Service",
                 "parameters": [
+                    {
+                        "type": "array",
+                        "items": {
+                            "type": "string"
+                        },
+                        "collectionFormat": "multi",
+                        "description": "SMB Server Host Name",
+                        "name": "hostname",
+                        "in": "query",
+                        "required": true
+                    },
                     {
                         "type": "string",
                         "description": "SMB Username",
@@ -4416,10 +4487,10 @@
         "SmbStatus": {
             "type": "object",
             "properties": {
-                "description": {
+                "folder_name": {
                     "type": "string"
                 },
-                "folder_name": {
+                "fs_name": {
                     "type": "string"
                 },
                 "hostname": {
@@ -4437,7 +4508,7 @@
                 "port": {
                     "type": "array",
                     "items": {
-                        "type": "string"
+                        "type": "integer"
                     }
                 },
                 "state": {
@@ -4447,7 +4518,13 @@
                     "type": "string"
                 },
                 "users": {
-                    "$ref": "#/definitions/model.Users"
+                    "type": "array",
+                    "items": {
+                        "type": "string"
+                    }
+                },
+                "volume_path": {
+                    "type": "string"
                 }
             }
         },
@@ -4608,17 +4685,6 @@
                     "type": "string",
                     "format": "string",
                     "example": "1.0"
-                }
-            }
-        },
-        "model.Users": {
-            "type": "object",
-            "properties": {
-                "users": {
-                    "type": "array",
-                    "items": {
-                        "type": "string"
-                    }
                 }
             }
         }

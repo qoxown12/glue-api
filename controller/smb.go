@@ -50,7 +50,6 @@ func (c *Controller) SmbStatus(ctx *gin.Context) {
 		stdout, _ := cmd.CombinedOutput()
 		hostname := strings.Split(string(stdout), "\n")
 		status, _ := smb.SmbStatus(hosts[i], hostname[0])
-
 		smb_status = append(smb_status, status)
 		if i == len(hosts)-1 {
 			ctx.Header("Access-Control-Allow-Origin", "*")

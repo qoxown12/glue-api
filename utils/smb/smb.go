@@ -11,17 +11,19 @@ import (
 
 func SmbStatus(hostname string) (dat model.SmbStatus, err error) {
 	var stdout []byte
+
 	cmd := exec.Command("ssh", "-o", "StrictHostKeyChecking=no", hostname, "sh", "/usr/local/samba/sbin/Samba-Execute.sh", "select")
 	stdout, err = cmd.CombinedOutput()
 	if err != nil {
-		err = errors.New(string(stdout))
-		utils.FancyHandleError(err)
+		dat = model.SmbStatus{Status: "Error",
+			State: string(stdout)}
 		return
 	}
 	if err = json.Unmarshal(stdout, &dat); err != nil {
 		return
 	}
 	return
+
 }
 func SmbCreate(hostname string, username string, password string, folder string, path string, fs_name string, volume_path string) (output string, err error) {
 	var stdout []byte

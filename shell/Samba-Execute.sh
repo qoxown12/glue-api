@@ -42,30 +42,28 @@ then
                         echo -e "\tdirectory mask = 0777" >> /usr/local/samba/etc/smb.conf
 
                         # 사용자 추가를 위한 expect 스크립트
-                        user_add=$(useradd $user_id > /dev/null 2>&1; echo $?)
+                        useradd $user_id > /dev/null 2>&1
 
-                        if [ $user_add -ne 9 ]
-                        then
-                                expect -c "
-                                spawn /usr/local/samba/bin/smbpasswd -a $user_id
-                                expect "password:"
+                        expect -c "
+                        spawn /usr/local/samba/bin/smbpasswd -a $user_id
+                        expect "password:"
+                                send \"$user_pw\\r\"
+                                expect "password"
                                         send \"$user_pw\\r\"
-                                        expect "password"
-                                                send \"$user_pw\\r\"
-                                expect eof
-                                " > /dev/null
+                        expect eof
+                        " > /dev/null
 
-                                state=$(systemctl is-enabled smb)
+                        state=$(systemctl is-enabled smb)
 
-                                if [ $state == "disabled" ]
-                                then
-                                        firewall-cmd --permanent --add-service=samba > /dev/null 2>&1
-                                        firewall-cmd --reload > /dev/null 2>&1
+                        if [ $state == "disabled" ]
+                        then
+                                firewall-cmd --permanent --add-service=samba > /dev/null 2>&1
+                                firewall-cmd --reload > /dev/null 2>&1
 
-                                        systemctl enable smb > /dev/null 2>&1
-                                        systemctl start smb > /dev/null
-                                fi
+                                systemctl enable smb > /dev/null 2>&1
+                                systemctl start smb > /dev/null
                         fi
+
                 else
                         echo "ID, PW, Forder Name, PATH Check Please"
                 fi

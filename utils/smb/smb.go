@@ -9,14 +9,36 @@ import (
 	"strings"
 )
 
-func SmbStatus(hostname string) (dat model.SmbStatus, err error) {
+func SmbStatus(hostname string, name string) (dat model.SmbStatus, err error) {
 	var stdout []byte
-
 	cmd := exec.Command("ssh", "-o", "StrictHostKeyChecking=no", hostname, "sh", "/usr/local/samba/sbin/Samba-Execute.sh", "select")
 	stdout, err = cmd.CombinedOutput()
 	if err != nil {
-		dat = model.SmbStatus{Status: "Error",
-			State: string(stdout)}
+		err = errors.New(string(stdout))
+		if strings.Contains(string(stdout), "kex_exchange_identification") {
+			cmd := exec.Command("ssh", "-o", "StrictHostKeyChecking=no", hostname, "sh", "/usr/local/samba/sbin/Samba-Execute.sh", "select")
+			stdout, err = cmd.CombinedOutput()
+			if err != nil {
+				if strings.Contains(string(stdout), "kex_exchange_identification") {
+					cmd := exec.Command("ssh", "-o", "StrictHostKeyChecking=no", hostname, "sh", "/usr/local/samba/sbin/Samba-Execute.sh", "select")
+					stdout, err = cmd.CombinedOutput()
+					if err = json.Unmarshal(stdout, &dat); err != nil {
+						return
+					}
+				}
+			} else {
+				if err = json.Unmarshal(stdout, &dat); err != nil {
+					return
+				}
+			}
+			return
+		} else {
+			dat = model.SmbStatus{
+				Hostname:  name,
+				IpAddress: hostname,
+				Status:    "Error",
+				State:     string(stdout)}
+		}
 		return
 	}
 	if err = json.Unmarshal(stdout, &dat); err != nil {

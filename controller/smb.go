@@ -6,6 +6,8 @@ import (
 	"Glue-API/utils"
 	"Glue-API/utils/smb"
 	"net/http"
+	"os/exec"
+	"strings"
 
 	"github.com/gin-gonic/gin"
 )
@@ -44,8 +46,10 @@ func (c *Controller) SmbStatus(ctx *gin.Context) {
 	}
 	var smb_status []model.SmbStatus
 	for i := 0; i < len(hosts); i++ {
-		status, _ := smb.SmbStatus(hosts[i])
-
+		cmd := exec.Command("sh", "-c", "cat /etc/hosts | grep "+hosts[i]+" | awk '{print $2}'| cut -d '-' -f1")
+		stdout, _ := cmd.CombinedOutput()
+		hostname := strings.Split(string(stdout), "\n")
+		status, _ := smb.SmbStatus(hosts[i], hostname[0])
 		smb_status = append(smb_status, status)
 		if i == len(hosts)-1 {
 			ctx.Header("Access-Control-Allow-Origin", "*")

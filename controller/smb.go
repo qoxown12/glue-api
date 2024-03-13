@@ -5,7 +5,6 @@ import (
 	"Glue-API/model"
 	"Glue-API/utils"
 	"Glue-API/utils/smb"
-	"fmt"
 	"net/http"
 
 	"github.com/gin-gonic/gin"
@@ -45,12 +44,8 @@ func (c *Controller) SmbStatus(ctx *gin.Context) {
 	}
 	var smb_status []model.SmbStatus
 	for i := 0; i < len(hosts); i++ {
-		status, err := smb.SmbStatus(hosts[i])
-		if err != nil {
-			utils.FancyHandleError(err)
-			httputil.NewError(ctx, http.StatusInternalServerError, err)
-			return
-		}
+		status, _ := smb.SmbStatus(hosts[i])
+
 		smb_status = append(smb_status, status)
 		if i == len(hosts)-1 {
 			ctx.Header("Access-Control-Allow-Origin", "*")
@@ -87,7 +82,7 @@ func (c *Controller) SmbCreate(ctx *gin.Context) {
 	path, _ := ctx.GetPostForm("path")
 	fs_name, _ := ctx.GetPostForm("fs_name")
 	volume_path, _ := ctx.GetPostForm("volume_path")
-	fmt.Print(fs_name, volume_path)
+
 	for i := 0; i < len(hostname); i++ {
 		dat, err := smb.SmbCreate(hostname[i], username, password, folder, path, fs_name, volume_path)
 		if err != nil {

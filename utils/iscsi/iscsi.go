@@ -5,7 +5,6 @@ import (
 	"Glue-API/utils"
 	"encoding/json"
 	"errors"
-	"fmt"
 	"os/exec"
 )
 
@@ -52,7 +51,6 @@ func Ip(hostname string) (output string, err error) {
 	var stdout []byte
 	cmd := exec.Command("sh", "-c", "cat /etc/hosts | grep -v '"+hostname+"-' | grep -w '"+hostname+"' | awk '{print $1}'")
 	stdout, err = cmd.CombinedOutput()
-	fmt.Print(cmd)
 	if err != nil {
 		return
 	}

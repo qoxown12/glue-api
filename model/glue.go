@@ -119,4 +119,11 @@ type HostList []struct {
 	Status     string `json:"status"`
 } // @name HostList
 
-type Images interface{} // @name Images
+type Images []struct {
+	Image  string `json:"image"`
+	ID     string `json:"id"`
+	Size   int64  `json:"size"`
+	Format int    `json:"format"`
+} // @name Images
+
+type ImageCommon interface{} // @name ImageCommon

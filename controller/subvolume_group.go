@@ -126,6 +126,7 @@ func (c *Controller) SubVolumeGroupCreate(ctx *gin.Context) {
 //	@Description	GlueFS 볼륨의 그룹을 삭제합니다.
 //	@param			vol_name 	query	string	true	"Glue FS Volume Name"
 //	@param			group_name 	query	string	true	"Glue FS Volume Group Name"
+//	@param			path 	query	string	true	"Glue FS Volume Group Path"
 //	@Tags			GlueFS-SubVolume-Group
 //	@Accept			x-www-form-urlencoded
 //	@Produce		json
@@ -137,8 +138,9 @@ func (c *Controller) SubVolumeGroupCreate(ctx *gin.Context) {
 func (c *Controller) SubVolumeGroupDelete(ctx *gin.Context) {
 	vol_name := ctx.Request.URL.Query().Get("vol_name")
 	group_name := ctx.Request.URL.Query().Get("group_name")
+	path := ctx.Request.URL.Query().Get("path")
 
-	dat, err := fs.SubVolumeGroupDelete(vol_name, group_name)
+	dat, err := fs.SubVolumeGroupDelete(vol_name, group_name, path)
 	if err != nil {
 		utils.FancyHandleError(err)
 		httputil.NewError(ctx, http.StatusInternalServerError, err)

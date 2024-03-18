@@ -22,7 +22,7 @@ func (c *Controller) SubVolumeOption(ctx *gin.Context) {
 //	@Summary		Detail Info and List of Glue FS Sub Volumes
 //	@Description	GlueFS의 하위 볼륨에 대한 상세 정보 및 리스트를 보여줍니다.
 //	@param			vol_name 	query	string	true	"Glue FS Sub Volume Name"
-//	@param			group_name 	query	string	true	"Glue FS Sub Volume Group Name"
+//	@param			group_name 	query	string	false	"Glue FS Sub Volume Group Name"
 //	@Tags			GlueFS-SubVolume
 //	@Accept			x-www-form-urlencoded
 //	@Produce		json
@@ -94,7 +94,7 @@ func (c *Controller) SubVolumeList(ctx *gin.Context) {
 //	@Description	GlueFS의 하위 볼륨을 생성합니다.
 //	@param			vol_name 	formData	string	true	"Glue FS Volume Name"
 //	@param			subvol_name 	formData	string	true	"Glue FS Sub Volume Name"
-//	@param			group_name 	formData	string	true	"Glue FS Sub Volume Group Name"
+//	@param			group_name 	formData	string	false	"Glue FS Sub Volume Group Name"
 //	@param			size 	formData	int	true	"Glue FS Sub Volume Size(default GB)"
 //	@param			data_pool_name 	formData	string	true	"Glue FS Sub Volume Data Pool Name"
 //	@param			mode 	formData	int	true	"Glue FS Sub Volume Permissions"
@@ -134,7 +134,7 @@ func (c *Controller) SubVolumeCreate(ctx *gin.Context) {
 //	@Description	GlueFS 하위 볼륨을 삭제합니다.
 //	@param			vol_name 	query	string	true	"Glue FS Volume Name"
 //	@param			subvol_name 	query	string	true	"Glue FS Sub Volume Name"
-//	@param			group_name 	query	string	true	"Glue FS Volume Group Name"
+//	@param			group_name 	query	string	false	"Glue FS Volume Group Name"
 //	@Tags			GlueFS-SubVolume
 //	@Accept			x-www-form-urlencoded
 //	@Produce		json
@@ -165,7 +165,7 @@ func (c *Controller) SubVolumeDelete(ctx *gin.Context) {
 //	@Description	GlueFS 볼륨의 할당된 사이즈를 수정합니다.
 //	@param			vol_name 	formData	string	true	"Glue FS Volume Name"
 //	@param			subvol_name 	formData	string	true	"Glue FS Sub Volume Name"
-//	@param			group_name 	formData	string	true	"Glue FS Volume Group Name"
+//	@param			group_name 	formData	string	false	"Glue FS Volume Group Name"
 //	@param			new_size 	formData	string	true	"Glue FS Sub Volume New Size(default GB)"
 //	@Tags			GlueFS-SubVolume
 //	@Accept			x-www-form-urlencoded
@@ -201,7 +201,7 @@ func (c *Controller) SubVolumeResize(ctx *gin.Context) {
 //	@Description	GlueFS의 하위 볼륨 스냅샷의 리스트 및 상세 정보를 보여줍니다.
 //	@param			vol_name 	query	string	true	"Glue FS Sub Volume Name"
 //	@param			subvol_name 	query	string	true	"Glue FS Volume Sub Volume Name"
-//	@param			group_name 	query	string	true	"Glue FS Volume Group Name"
+//	@param			group_name 	query	string	false	"Glue FS Volume Group Name"
 //	@param			snap_name 	query	string	false	"Glue FS Volume SnapShot Name"
 //	@Tags			GlueFS-SubVolume-Snapshot
 //	@Accept			x-www-form-urlencoded
@@ -246,7 +246,7 @@ func (c *Controller) SubVolumeSnapList(ctx *gin.Context) {
 //	@Description	GlueFS의 하위 볼륨의 그룹의 스냅샷을 생성합니다.
 //	@param			vol_name 	formData	string	true	"Glue FS Sub Volume Name"
 //	@param			subvol_name 	formData	string	true	"Glue FS Volume Sub Volume Name"
-//	@param			group_name 	formData	string	true	"Glue FS Volume Group Name"
+//	@param			group_name 	formData	string	false	"Glue FS Volume Group Name"
 //	@Tags			GlueFS-SubVolume-Snapshot
 //	@Accept			x-www-form-urlencoded
 //	@Produce		json
@@ -279,7 +279,7 @@ func (c *Controller) SubVolumeSnapCreate(ctx *gin.Context) {
 //	@Description	GlueFS 볼륨의 스냅샷을 삭제합니다.
 //	@param			vol_name 	query	string	true	"Glue FS Volume Name"
 //	@param			subvol_name 	query	string	true	"Glue FS Volume Sub Volume Name"
-//	@param			group_name 	query	string	true	"Glue FS Volume Group Name"
+//	@param			group_name 	query	string	false	"Glue FS Volume Group Name"
 //	@param			snap_name 	query	string	true	"Glue FS Volume Group SnapShot Name"
 //	@Tags			GlueFS-SubVolume-Snapshot
 //	@Accept			x-www-form-urlencoded

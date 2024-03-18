@@ -6,52 +6,92 @@ import (
 	"encoding/json"
 	"errors"
 	"os/exec"
+	"strings"
 )
 
-func ListPool() (pools []string, err error) {
+func RbdPool() (pools []string, err error) {
 	var stdout []byte
-	cmd := exec.Command("ceph", "osd", "pool", "ls", "--format", "json")
+	cmd := exec.Command("sh", "-c", "ceph osd pool ls detail | grep 'rbd' | cut -d \"'\" -f2")
+	stdout, err = cmd.CombinedOutput()
+	if err != nil {
+		return
+	}
+	name := strings.Split(string(stdout), "\n")
+	pools = append(pools, name...)
+	for i := 0; i < len(name); i++ {
+		if i == len(name)-1 {
+			pools = pools[:len(name)-1]
+		}
+	}
+	return
+}
+func RbdImage(pool_name string) (pools []string, err error) {
+	var stdout []byte
+	cmd := exec.Command("rbd", "ls", "-p", pool_name, "--format", "json")
+	stdout, err = cmd.CombinedOutput()
+	if err != nil {
+		return
+	}
+	if err = json.Unmarshal(stdout, &pools); err != nil {
+		return
+	}
+	return
+}
+func ListPool(pool_name string) (pools []string, err error) {
+	var stdout []byte
+	if pool_name == "" {
+		cmd := exec.Command("ceph", "osd", "pool", "ls", "--format", "json")
+		stdout, err = cmd.CombinedOutput()
+
+		if err != nil {
+			return
+		}
+
+		if err = json.Unmarshal(stdout, &pools); err != nil {
+			return
+		}
+		return
+	} else {
+		cmd := exec.Command("sh", "-c", "ceph osd pool ls detail | grep \""+pool_name+"\" | cut -d \"'\" -f2")
+		stdout, err = cmd.CombinedOutput()
+		if err != nil {
+			return
+		}
+		name := strings.Split(string(stdout), "\n")
+		pools = append(pools, name...)
+		for i := 0; i < len(name); i++ {
+			if i == len(name)-1 {
+				pools = pools[:len(name)-1]
+			}
+		}
+		return
+	}
+}
+
+func InfoImage(pool_name string) (dat model.Images, err error) {
+	var stdout []byte
+
+	cmd := exec.Command("rbd", "ls", "-l", "-p", pool_name, "--format", "json")
 	stdout, err = cmd.CombinedOutput()
 
 	if err != nil {
 		return
 	}
 
-	if err = json.Unmarshal(stdout, &pools); err != nil {
+	if err = json.Unmarshal(stdout, &dat); err != nil {
 		return
 	}
 	return
 }
-
-func ListAndInfoImage(image_name string, pool_name string) (dat model.Images, err error) {
+func ListAndInfoImage(image_name string, pool_name string) (dat model.ImageCommon, err error) {
 	var stdout []byte
-	if image_name == "" && pool_name == "" {
-		cmd := exec.Command("rbd", "ls", "--format", "json")
-		stdout, err = cmd.CombinedOutput()
-		if err != nil {
-			return
-		}
 
-		if err = json.Unmarshal(stdout, &dat); err != nil {
-			return
-		}
-	} else if image_name != "" && pool_name == "" {
+	if image_name != "" && pool_name == "" {
 		cmd := exec.Command("rbd", "info", image_name, "--format", "json")
 		stdout, err = cmd.CombinedOutput()
 		if err != nil {
 			return
 		}
-		if err = json.Unmarshal(stdout, &dat); err != nil {
-			return
-		}
-	} else if image_name == "" && pool_name != "" {
-		cmd := exec.Command("rbd", "ls", "-l", "-p", pool_name, "--format", "json")
-		stdout, err = cmd.CombinedOutput()
-
-		if err != nil {
-			return
-		}
-
 		if err = json.Unmarshal(stdout, &dat); err != nil {
 			return
 		}

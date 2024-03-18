@@ -862,7 +862,6 @@ paths:
       - description: Glue FS Volume Group Name
         in: query
         name: group_name
-        required: true
         type: string
       produces:
       - application/json
@@ -899,7 +898,6 @@ paths:
       - description: Glue FS Sub Volume Group Name
         in: query
         name: group_name
-        required: true
         type: string
       produces:
       - application/json
@@ -941,7 +939,6 @@ paths:
       - description: Glue FS Sub Volume Group Name
         in: formData
         name: group_name
-        required: true
         type: string
       - description: Glue FS Sub Volume Size(default GB)
         in: formData
@@ -998,7 +995,6 @@ paths:
       - description: Glue FS Volume Group Name
         in: formData
         name: group_name
-        required: true
         type: string
       - description: Glue FS Sub Volume New Size(default GB)
         in: formData
@@ -1041,6 +1037,11 @@ paths:
       - description: Glue FS Volume Group Name
         in: query
         name: group_name
+        required: true
+        type: string
+      - description: Glue FS Volume Group Path
+        in: query
+        name: path
         required: true
         type: string
       produces:
@@ -1253,7 +1254,6 @@ paths:
       - description: Glue FS Volume Group Name
         in: query
         name: group_name
-        required: true
         type: string
       - description: Glue FS Volume Group SnapShot Name
         in: query
@@ -1300,7 +1300,6 @@ paths:
       - description: Glue FS Volume Group Name
         in: query
         name: group_name
-        required: true
         type: string
       - description: Glue FS Volume SnapShot Name
         in: query
@@ -1345,7 +1344,6 @@ paths:
       - description: Glue FS Volume Group Name
         in: formData
         name: group_name
-        required: true
         type: string
       produces:
       - application/json
@@ -2724,6 +2722,11 @@ paths:
       consumes:
       - application/x-www-form-urlencoded
       description: Glue 의 스토리지 풀 목록을 보여줍니다.
+      parameters:
+      - description: pool_name
+        in: query
+        name: pool_name
+        type: string
       produces:
       - application/json
       responses:

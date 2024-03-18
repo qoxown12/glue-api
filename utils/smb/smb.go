@@ -9,18 +9,20 @@ import (
 	"strings"
 )
 
+var Samba_Execute_sh = "/usr/local/samba/sbin/Samba-Execute.sh"
+
 func SmbStatus(hostname string, name string) (dat model.SmbStatus, err error) {
 	var stdout []byte
-	cmd := exec.Command("ssh", "-o", "StrictHostKeyChecking=no", hostname, "sh", "/usr/local/samba/sbin/Samba-Execute.sh", "select")
+	cmd := exec.Command("ssh", "-o", "StrictHostKeyChecking=no", hostname, "sh", Samba_Execute_sh, "select")
 	stdout, err = cmd.CombinedOutput()
 	if err != nil {
 		err = errors.New(string(stdout))
 		if strings.Contains(string(stdout), "kex_exchange_identification") {
-			cmd := exec.Command("ssh", "-o", "StrictHostKeyChecking=no", hostname, "sh", "/usr/local/samba/sbin/Samba-Execute.sh", "select")
+			cmd := exec.Command("ssh", "-o", "StrictHostKeyChecking=no", hostname, "sh", Samba_Execute_sh, "select")
 			stdout, err = cmd.CombinedOutput()
 			if err != nil {
 				if strings.Contains(string(stdout), "kex_exchange_identification") {
-					cmd := exec.Command("ssh", "-o", "StrictHostKeyChecking=no", hostname, "sh", "/usr/local/samba/sbin/Samba-Execute.sh", "select")
+					cmd := exec.Command("ssh", "-o", "StrictHostKeyChecking=no", hostname, "sh", Samba_Execute_sh, "select")
 					stdout, err = cmd.CombinedOutput()
 					if err = json.Unmarshal(stdout, &dat); err != nil {
 						return
@@ -49,7 +51,7 @@ func SmbStatus(hostname string, name string) (dat model.SmbStatus, err error) {
 }
 func SmbCreate(hostname string, username string, password string, folder string, path string, fs_name string, volume_path string) (output string, err error) {
 	var stdout []byte
-	cmd := exec.Command("ssh", "-o", "StrictHostKeyChecking=no", hostname, "sh", "/usr/local/samba/sbin/Samba-Execute.sh", "create", "--username", username, "--password", password, "--folder", folder, "--path", path, "--fs_name", fs_name, "--volume_path", volume_path)
+	cmd := exec.Command("ssh", "-o", "StrictHostKeyChecking=no", hostname, "sh", Samba_Execute_sh, "create", "--username", username, "--password", password, "--folder", folder, "--path", path, "--fs_name", fs_name, "--volume_path", volume_path)
 	stdout, err = cmd.CombinedOutput()
 	if err != nil {
 		err = errors.New(string(stdout))
@@ -61,7 +63,7 @@ func SmbCreate(hostname string, username string, password string, folder string,
 }
 func SmbUserCreate(hostname string, username string, password string) (output string, err error) {
 	var stdout []byte
-	cmd := exec.Command("ssh", "-o", "StrictHostKeyChecking=no", hostname, "sh", "/usr/local/samba/sbin/Samba-Execute.sh", "user_create", "--username", username, "--password", password)
+	cmd := exec.Command("ssh", "-o", "StrictHostKeyChecking=no", hostname, "sh", Samba_Execute_sh, "user_create", "--username", username, "--password", password)
 	stdout, err = cmd.CombinedOutput()
 	if err != nil {
 		err = errors.New(string(stdout))
@@ -73,7 +75,7 @@ func SmbUserCreate(hostname string, username string, password string) (output st
 }
 func SmbUserUpdate(hostname string, username string, password string) (output string, err error) {
 	var stdout []byte
-	cmd := exec.Command("ssh", "-o", "StrictHostKeyChecking=no", hostname, "sh", "/usr/local/samba/sbin/Samba-Execute.sh", "update", "--username", username, "--password", password)
+	cmd := exec.Command("ssh", "-o", "StrictHostKeyChecking=no", hostname, "sh", Samba_Execute_sh, "update", "--username", username, "--password", password)
 	stdout, err = cmd.CombinedOutput()
 	if err != nil {
 		err = errors.New(string(stdout))
@@ -85,7 +87,7 @@ func SmbUserUpdate(hostname string, username string, password string) (output st
 }
 func SmbUserDelete(hostname string, username string) (output string, err error) {
 	var stdout []byte
-	cmd := exec.Command("ssh", "-o", "StrictHostKeyChecking=no", hostname, "sh", "/usr/local/samba/sbin/Samba-Execute.sh", "user_delete", "--username", username)
+	cmd := exec.Command("ssh", "-o", "StrictHostKeyChecking=no", hostname, "sh", Samba_Execute_sh, "user_delete", "--username", username)
 	stdout, err = cmd.CombinedOutput()
 	if err != nil {
 		err = errors.New(string(stdout))
@@ -97,7 +99,7 @@ func SmbUserDelete(hostname string, username string) (output string, err error) 
 }
 func SmbDelete(hostname string) (output string, err error) {
 	var stdout []byte
-	cmd := exec.Command("ssh", "-o", "StrictHostKeyChecking=no", hostname, "sh", "/usr/local/samba/sbin/Samba-Execute.sh", "delete")
+	cmd := exec.Command("ssh", "-o", "StrictHostKeyChecking=no", hostname, "sh", Samba_Execute_sh, "delete")
 	stdout, err = cmd.CombinedOutput()
 	if err != nil {
 		err = errors.New(string(stdout))

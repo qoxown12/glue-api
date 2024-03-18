@@ -80,6 +80,7 @@ func (c *Controller) GlueVersion(ctx *gin.Context) {
 //	@Summary		List Pools of Glue
 //	@Description	Glue 의 스토리지 풀 목록을 보여줍니다.
 //	@Tags			Pool
+//	@param			pool_name	query	string	false	"pool_name"
 //	@Accept			x-www-form-urlencoded
 //	@Produce		json
 //	@Success		200	{object}	model.GluePools
@@ -88,8 +89,8 @@ func (c *Controller) GlueVersion(ctx *gin.Context) {
 //	@Failure		500	{object}	httputil.HTTP500InternalServerError
 //	@Router			/api/v1/pool [get]
 func (c *Controller) ListPools(ctx *gin.Context) {
-	var dat model.GluePools
-	dat, err := glue.ListPool()
+	pool_name := ctx.Request.URL.Query().Get("pool_name")
+	dat, err := glue.ListPool(pool_name)
 	if err != nil {
 		httputil.NewError(ctx, http.StatusInternalServerError, err)
 		return
@@ -133,7 +134,7 @@ func (c *Controller) PoolDelete(ctx *gin.Context) {
 //	@param			image_name	query	string	false	"Glue Image Name"
 //	@Accept			x-www-form-urlencoded
 //	@Produce		json
-//	@Success		200	{object}	Images
+//	@Success		200	{object}	GluePools
 //	@Failure		400	{object}	httputil.HTTP400BadRequest
 //	@Failure		404	{object}	httputil.HTTP404NotFound
 //	@Failure		500	{object}	httputil.HTTP500InternalServerError
@@ -141,13 +142,44 @@ func (c *Controller) PoolDelete(ctx *gin.Context) {
 func (c *Controller) ListAndInfoImage(ctx *gin.Context) {
 	pool_name := ctx.Request.URL.Query().Get("pool_name")
 	image_name := ctx.Request.URL.Query().Get("image_name")
-	dat, err := glue.ListAndInfoImage(image_name, pool_name)
-	if err != nil {
-		httputil.NewError(ctx, http.StatusInternalServerError, err)
-		return
+
+	if image_name == "" && pool_name == "" {
+		rbd_pool_dat, err := glue.RbdPool()
+		if err != nil {
+			httputil.NewError(ctx, http.StatusInternalServerError, err)
+			return
+		}
+		var pools []string
+		for i := 0; i < len(rbd_pool_dat); i++ {
+			rbd_image_dat, err := glue.RbdImage(rbd_pool_dat[i])
+			if err != nil {
+				httputil.NewError(ctx, http.StatusInternalServerError, err)
+				return
+			}
+			for j := 0; j < len(rbd_image_dat); j++ {
+				name := rbd_pool_dat[i] + string("/") + rbd_image_dat[j]
+				pools = append(pools, name)
+			}
+		}
+		ctx.Header("Access-Control-Allow-Origin", "*")
+		ctx.IndentedJSON(http.StatusOK, pools)
+	} else if image_name == "" && pool_name != "" {
+		dat, err := glue.InfoImage(pool_name)
+		if err != nil {
+			httputil.NewError(ctx, http.StatusInternalServerError, err)
+			return
+		}
+		ctx.Header("Access-Control-Allow-Origin", "*")
+		ctx.IndentedJSON(http.StatusOK, dat)
+	} else {
+		dat, err := glue.ListAndInfoImage(image_name, pool_name)
+		if err != nil {
+			httputil.NewError(ctx, http.StatusInternalServerError, err)
+			return
+		}
+		ctx.Header("Access-Control-Allow-Origin", "*")
+		ctx.IndentedJSON(http.StatusOK, dat)
 	}
-	ctx.Header("Access-Control-Allow-Origin", "*")
-	ctx.IndentedJSON(http.StatusOK, dat)
 }
 
 // CreateImage godoc

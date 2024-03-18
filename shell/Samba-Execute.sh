@@ -22,54 +22,58 @@ if [ -n $action ]
 then
         if [ $action == "create" ]
         then
-                if [ ! -d $path ]
+                user_check=$(useradd $user_id > /dev/null 2>&1 ; echo $?)
+                if [ $user_check -ne 9 ]
                 then
-                        mkdir -p $path
-                        chmod 777 $path
-                fi
-                        mount -t ceph admin@.$fs_name=$volume_path $path
-                        sed -i "$ a mount -t ceph admin@.$fs_name=$volume_path $path" /etc/fstab
-
-                if [ ${#user_id} -ne 0 ] && [ ${#user_pw} -ne 0 ] && [ ${#folder} -ne 0 ] && [ ${#path} -ne 0 ]
-                then
-                        sed -i "s/$before_host/$host_ip/g" /usr/local/samba/etc/smb.conf
-
-                        echo -e "\n[$folder]" >> /usr/local/samba/etc/smb.conf
-                        echo -e "\tpath = $path" >> /usr/local/samba/etc/smb.conf
-                        echo -e "\twritable = yes" >> /usr/local/samba/etc/smb.conf
-                        echo -e "\tpublic = yes" >> /usr/local/samba/etc/smb.conf
-                        echo -e "\tcreate mask = 0777" >> /usr/local/samba/etc/smb.conf
-                        echo -e "\tdirectory mask = 0777" >> /usr/local/samba/etc/smb.conf
-
-                        # 사용자 추가를 위한 expect 스크립트
-                        useradd $user_id > /dev/null 2>&1
-
-                        expect -c "
-                        spawn /usr/local/samba/bin/smbpasswd -a $user_id
-                        expect "password:"
-                                send \"$user_pw\\r\"
-                                expect "password"
-                                        send \"$user_pw\\r\"
-                        expect eof
-                        " > /dev/null
-
-                        state=$(systemctl is-enabled smb)
-
-                        if [ $state == "disabled" ]
+                        if [ ! -d $path ]
                         then
-                                firewall-cmd --permanent --add-service=samba > /dev/null 2>&1
-                                firewall-cmd --reload > /dev/null 2>&1
-
-                                systemctl enable smb > /dev/null 2>&1
-                                systemctl start smb > /dev/null
+                                mkdir -p $path
+                                chmod 777 $path
                         fi
+                                mount -t ceph admin@.$fs_name=$volume_path $path
+                                sed -i "$ a mount -t ceph admin@.$fs_name=$volume_path $path" /etc/fstab
 
-                else
-                        echo "ID, PW, Forder Name, PATH Check Please"
+                        if [ ${#user_id} -ne 0 ] && [ ${#user_pw} -ne 0 ] && [ ${#folder} -ne 0 ] && [ ${#path} -ne 0 ]
+                        then
+                                sed -i "s/$before_host/$host_ip/g" /usr/local/samba/etc/smb.conf
+
+                                echo -e "\n[$folder]" >> /usr/local/samba/etc/smb.conf
+                                echo -e "\tpath = $path" >> /usr/local/samba/etc/smb.conf
+                                echo -e "\twritable = yes" >> /usr/local/samba/etc/smb.conf
+                                echo -e "\tpublic = yes" >> /usr/local/samba/etc/smb.conf
+                                echo -e "\tcreate mask = 0777" >> /usr/local/samba/etc/smb.conf
+                                echo -e "\tdirectory mask = 0777" >> /usr/local/samba/etc/smb.conf
+
+                                # 사용자 추가를 위한 expect 스크립트
+                                useradd $user_id > /dev/null 2>&1
+
+                                expect -c "
+                                spawn /usr/local/samba/bin/smbpasswd -a $user_id
+                                expect "password:"
+                                        send \"$user_pw\\r\"
+                                        expect "password"
+                                                send \"$user_pw\\r\"
+                                expect eof
+                                " > /dev/null
+
+                                state=$(systemctl is-enabled smb)
+
+                                if [ $state == "disabled" ]
+                                then
+                                        firewall-cmd --permanent --add-service=samba > /dev/null 2>&1
+                                        firewall-cmd --reload > /dev/null 2>&1
+
+                                        systemctl enable smb > /dev/null 2>&1
+                                        systemctl start smb > /dev/null
+                                fi
+
+                        else
+                                echo "ID, PW, Forder Name, PATH Check Please"
+                        fi
                 fi
         elif [ $action == "user_create" ]
         then
-                user=$(/usr/local/samba/bin/pdbedit -L | grep -v 'root' | cut -d ':' -f1 )
+                user=$(/usr/local/samba/bin/pdbedit -L | grep -v 'root' | grep -v 'ablecloud' | cut -d ':' -f1 )
                 for list in $user
                 do
                         if [ $user_id == $list ]
@@ -97,7 +101,7 @@ then
                 fi
         elif [ $action == "update" ]
         then
-                user=$(/usr/local/samba/bin/pdbedit -L | grep -v 'root' | cut -d ':' -f1 )
+                user=$(/usr/local/samba/bin/pdbedit -L | grep -v 'root' | grep -v 'ablecloud'| cut -d ':' -f1 )
                 for list in $user
                 do
                         if [ $user_id == $list ]
@@ -120,7 +124,7 @@ then
                 umount $path
                 sed '$ d' -i /etc/fstab
 
-                user=$(/usr/local/samba/bin/pdbedit -L | grep -v 'root' | cut -d ':' -f1)
+                user=$(/usr/local/samba/bin/pdbedit -L | grep -v 'root' | grep -v 'ablecloud' | cut -d ':' -f1)
                 for list in $user
                 do
                         /usr/local/samba/bin/smbpasswd -x $list > /dev/null 2>&1
@@ -146,7 +150,7 @@ then
                 names=$(/usr/bin/systemctl show --no-pager smb | grep -w 'Names' | cut -d "=" -f2)
                 status=$(/usr/bin/systemctl show --no-pager smb | grep -w 'ActiveState' | cut -d "=" -f2)
                 state=$(/usr/bin/systemctl show --no-pager smb | grep -w 'UnitFileState' | cut -d "=" -f2)
-                users_data=$(/usr/local/samba/bin/pdbedit -L | grep -v 'root' | cut -d ':' -f1)
+                users_data=$(/usr/local/samba/bin/pdbedit -L | grep -v 'root' | grep -v 'ablecloud'| cut -d ':' -f1)
                 fs_name=$(/usr/bin/mount | grep admin | cut -d "." -f2 | cut -d "=" -f1)
                 volume_path=$(/usr/bin/mount | grep admin | cut -d "=" -f2 | cut -d " " -f1)
                 user=()

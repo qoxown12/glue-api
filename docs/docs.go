@@ -280,8 +280,7 @@ const docTemplate = `{
                         "type": "string",
                         "description": "Glue FS Sub Volume Group Name",
                         "name": "group_name",
-                        "in": "query",
-                        "required": true
+                        "in": "query"
                     }
                 ],
                 "responses": {
@@ -342,8 +341,7 @@ const docTemplate = `{
                         "type": "string",
                         "description": "Glue FS Volume Group Name",
                         "name": "group_name",
-                        "in": "formData",
-                        "required": true
+                        "in": "formData"
                     },
                     {
                         "type": "string",
@@ -411,8 +409,7 @@ const docTemplate = `{
                         "type": "string",
                         "description": "Glue FS Sub Volume Group Name",
                         "name": "group_name",
-                        "in": "formData",
-                        "required": true
+                        "in": "formData"
                     },
                     {
                         "type": "integer",
@@ -494,8 +491,7 @@ const docTemplate = `{
                         "type": "string",
                         "description": "Glue FS Volume Group Name",
                         "name": "group_name",
-                        "in": "query",
-                        "required": true
+                        "in": "query"
                     }
                 ],
                 "responses": {
@@ -739,6 +735,13 @@ const docTemplate = `{
                         "name": "group_name",
                         "in": "query",
                         "required": true
+                    },
+                    {
+                        "type": "string",
+                        "description": "Glue FS Volume Group Path",
+                        "name": "path",
+                        "in": "query",
+                        "required": true
                     }
                 ],
                 "responses": {
@@ -865,8 +868,7 @@ const docTemplate = `{
                         "type": "string",
                         "description": "Glue FS Volume Group Name",
                         "name": "group_name",
-                        "in": "query",
-                        "required": true
+                        "in": "query"
                     },
                     {
                         "type": "string",
@@ -931,8 +933,7 @@ const docTemplate = `{
                         "type": "string",
                         "description": "Glue FS Volume Group Name",
                         "name": "group_name",
-                        "in": "formData",
-                        "required": true
+                        "in": "formData"
                     }
                 ],
                 "responses": {
@@ -993,8 +994,7 @@ const docTemplate = `{
                         "type": "string",
                         "description": "Glue FS Volume Group Name",
                         "name": "group_name",
-                        "in": "query",
-                        "required": true
+                        "in": "query"
                     },
                     {
                         "type": "string",
@@ -3138,6 +3138,14 @@ const docTemplate = `{
                     "Pool"
                 ],
                 "summary": "List Pools of Glue",
+                "parameters": [
+                    {
+                        "type": "string",
+                        "description": "pool_name",
+                        "name": "pool_name",
+                        "in": "query"
+                    }
+                ],
                 "responses": {
                     "200": {
                         "description": "OK",

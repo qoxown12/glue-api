@@ -97,7 +97,7 @@ func GetToken() (output string, err error) {
 //	@param			hosts 	formData	[]string	true	"Host Name" collectionFormat(multi)
 //	@param			service_id	formData	string	true	"ISCSI Service Name"
 //	@param			pool 	formData	string	true	"Pool Name"
-//	@param			api_port 	formData	int	true	"ISCSI API Port"
+//	@param			api_port 	formData	int	true	"ISCSI API Port" maximum(65535)
 //	@param			api_user 	formData	string	true	"ISCSI API User"
 //	@param			api_password 	formData	string	true	"ISCSI API Password"
 //	@param			count 	formData	int	false	"Iscsi Service Daemon Count"

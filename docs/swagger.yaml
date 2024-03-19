@@ -292,11 +292,6 @@ definitions:
       code:
         example: 400
         type: integer
-      debug:
-        description: Debug info
-        example: true
-        format: bool
-        type: boolean
       message:
         example: status bad request
         type: string
@@ -306,11 +301,6 @@ definitions:
       code:
         example: 404
         type: integer
-      debug:
-        description: Debug info
-        example: true
-        format: bool
-        type: boolean
       message:
         example: Not Found
         type: string
@@ -320,11 +310,6 @@ definitions:
       code:
         example: 500
         type: integer
-      debug:
-        description: Debug info
-        example: true
-        format: bool
-        type: boolean
       message:
         example: InternalServerError
         type: string
@@ -591,11 +576,6 @@ definitions:
   Version:
     description: API의 버전
     properties:
-      debug:
-        description: Debug info
-        example: true
-        format: bool
-        type: boolean
       version:
         example: "1.0"
         format: string
@@ -776,13 +756,13 @@ paths:
         name: fs_name
         required: true
         type: string
-      - description: Glue Data Pool Replicated Size
+      - description: Glue Data Pool Replicated Size(default 3)
         in: formData
         maximum: 3
         minimum: 2
         name: data_pool_size
         type: integer
-      - description: Glue Meta Pool Replicated Size
+      - description: Glue Meta Pool Replicated Size(default 3)
         in: formData
         maximum: 3
         minimum: 2
@@ -1507,6 +1487,7 @@ paths:
         type: string
       - description: ISCSI API Port
         in: formData
+        maximum: 65535
         name: api_port
         required: true
         type: integer
@@ -2533,6 +2514,11 @@ paths:
         name: cluster_id
         required: true
         type: string
+      - description: NFS Export ID
+        in: formData
+        name: export_id
+        required: true
+        type: integer
       - default: RW
         description: NFS Access Type
         enum:
@@ -2680,11 +2666,13 @@ paths:
         type: string
       - description: NFS Ingress Access Port
         in: formData
+        maximum: 65535
         name: frontend_port
         required: true
         type: integer
       - description: NFS Ingress HA Proxy for Load Balancer Port
         in: formData
+        maximum: 65535
         name: monitor_port
         required: true
         type: integer
@@ -2723,9 +2711,9 @@ paths:
       - application/x-www-form-urlencoded
       description: Glue 의 스토리지 풀 목록을 보여줍니다.
       parameters:
-      - description: pool_name
+      - description: pool_type
         in: query
-        name: pool_name
+        name: pool_type
         type: string
       produces:
       - application/json

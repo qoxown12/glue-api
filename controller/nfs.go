@@ -253,6 +253,7 @@ func (c *Controller) NfsExportCreate(ctx *gin.Context) {
 //	@Summary		Update of Glue NFS Export
 //	@Description	Glue NFS Export를 수정합니다.
 //	@param			cluster_id 	path	string	true	"NFS Cluster Identifier"
+//	@param			export_id 	formData	int	true	"NFS Export ID"
 //	@param			access_type formData   string	true    "NFS Access Type" Enums(RW, RO, NONE) default(RW)
 //	@param			fs_name     formData   string	true    "FS Name"
 //	@param			storage_name formData   string	true    "NFS Storage Name" default(CEPH)
@@ -271,6 +272,7 @@ func (c *Controller) NfsExportCreate(ctx *gin.Context) {
 //	@Router			/api/v1/nfs/export/{cluster_id} [put]
 func (c *Controller) NfsExportUpdate(ctx *gin.Context) {
 	cluster_id := ctx.Param("cluster_id")
+	export_id_data, _ := ctx.GetPostForm("export_id")
 	access_type, _ := ctx.GetPostForm("access_type")
 	fs_name, _ := ctx.GetPostForm("fs_name")
 	storage_name, _ := ctx.GetPostForm("storage_name")
@@ -279,19 +281,8 @@ func (c *Controller) NfsExportUpdate(ctx *gin.Context) {
 	squash, _ := ctx.GetPostForm("squash")
 	transports, _ := ctx.GetPostFormArray("transports")
 	security_label := ctx.GetBool("security_label")
+	export_id, _ := strconv.Atoi(export_id_data)
 
-	var export_id int
-	dat, err := nfs.NfsExportDetailed(cluster_id)
-	if err != nil {
-		utils.FancyHandleError(err)
-		httputil.NewError(ctx, http.StatusInternalServerError, err)
-		return
-	}
-	for i := 0; i < len(dat); i++ {
-		if dat[i].Pseudo == pseudo {
-			export_id = dat[i].ExportID
-		}
-	}
 	var protocols = []int{4}
 	value := model.NfsExportUpdate{
 		AccessType: access_type,
@@ -433,8 +424,8 @@ func (c *Controller) NfsExportDetailed(ctx *gin.Context) {
 //	@param			hostname     formData   []string	true    "NFS Ingress Host Name" collectionFormat(multi)
 //	@param			backend_service formData   string	true    "NFS Cluster Type"
 //	@param			virtual_ip     formData   string	true    "NFS Ingress Virtual Ip"
-//	@param			frontend_port     formData   int	true    "NFS Ingress Access Port"
-//	@param			monitor_port     formData   int	true    "NFS Ingress HA Proxy for Load Balancer Port"
+//	@param			frontend_port     formData   int	true    "NFS Ingress Access Port" maximum(65535)
+//	@param			monitor_port     formData   int	true    "NFS Ingress HA Proxy for Load Balancer Port" maximum(65535)
 //	@param			virtual_interface_networks     formData   []string	false    "NFS Ingress Vitual IP of CIDR Networks" collectionFormat(multi)
 //	@Tags			NFS-Ingress
 //	@Accept			x-www-form-urlencoded

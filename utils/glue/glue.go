@@ -30,9 +30,15 @@ func RbdImage(pool_name string) (pools []string, err error) {
 	cmd := exec.Command("rbd", "ls", "-p", pool_name, "--format", "json")
 	stdout, err = cmd.CombinedOutput()
 	if err != nil {
+		err_str := strings.ReplaceAll(string(stdout), "\n", "")
+		err = errors.New(err_str)
+		utils.FancyHandleError(err)
 		return
 	}
 	if err = json.Unmarshal(stdout, &pools); err != nil {
+		err_str := strings.ReplaceAll(string(stdout), "\n", "")
+		err = errors.New(err_str)
+		utils.FancyHandleError(err)
 		return
 	}
 	return
@@ -44,10 +50,16 @@ func ListPool(pool_name string) (pools []string, err error) {
 		stdout, err = cmd.CombinedOutput()
 
 		if err != nil {
+			err_str := strings.ReplaceAll(string(stdout), "\n", "")
+			err = errors.New(err_str)
+			utils.FancyHandleError(err)
 			return
 		}
 
 		if err = json.Unmarshal(stdout, &pools); err != nil {
+			err_str := strings.ReplaceAll(string(stdout), "\n", "")
+			err = errors.New(err_str)
+			utils.FancyHandleError(err)
 			return
 		}
 		return
@@ -75,10 +87,16 @@ func InfoImage(pool_name string) (dat model.Images, err error) {
 	stdout, err = cmd.CombinedOutput()
 
 	if err != nil {
+		err_str := strings.ReplaceAll(string(stdout), "\n", "")
+		err = errors.New(err_str)
+		utils.FancyHandleError(err)
 		return
 	}
 
 	if err = json.Unmarshal(stdout, &dat); err != nil {
+		err_str := strings.ReplaceAll(string(stdout), "\n", "")
+		err = errors.New(err_str)
+		utils.FancyHandleError(err)
 		return
 	}
 	return
@@ -90,18 +108,30 @@ func ListAndInfoImage(image_name string, pool_name string) (dat model.ImageCommo
 		cmd := exec.Command("rbd", "info", image_name, "--format", "json")
 		stdout, err = cmd.CombinedOutput()
 		if err != nil {
+			err_str := strings.ReplaceAll(string(stdout), "\n", "")
+			err = errors.New(err_str)
+			utils.FancyHandleError(err)
 			return
 		}
 		if err = json.Unmarshal(stdout, &dat); err != nil {
+			err_str := strings.ReplaceAll(string(stdout), "\n", "")
+			err = errors.New(err_str)
+			utils.FancyHandleError(err)
 			return
 		}
 	} else {
 		cmd := exec.Command("rbd", "info", pool_name+"/"+image_name, "--format", "json")
 		stdout, err = cmd.CombinedOutput()
 		if err != nil {
+			err_str := strings.ReplaceAll(string(stdout), "\n", "")
+			err = errors.New(err_str)
+			utils.FancyHandleError(err)
 			return
 		}
 		if err = json.Unmarshal(stdout, &dat); err != nil {
+			err_str := strings.ReplaceAll(string(stdout), "\n", "")
+			err = errors.New(err_str)
+			utils.FancyHandleError(err)
 			return
 		}
 	}
@@ -112,9 +142,9 @@ func CreateImage(image_name string, pool_name string, size string) (output strin
 	cmd := exec.Command("rbd", "create", "--size", size, pool_name+"/"+image_name)
 	stdout, err = cmd.CombinedOutput()
 	if err != nil {
-		err = errors.New(string(stdout))
+		err_str := strings.ReplaceAll(string(stdout), "\n", "")
+		err = errors.New(err_str)
 		utils.FancyHandleError(err)
-		output = "Fail"
 		return
 	}
 	output = "Success"
@@ -125,9 +155,10 @@ func DeleteImage(image_name string, pool_name string) (output string, err error)
 	cmd := exec.Command("rbd", "rm", pool_name+"/"+image_name)
 	stdout, err = cmd.CombinedOutput()
 	if err != nil {
-		err = errors.New(string(stdout))
+		std := strings.ReplaceAll(string(stdout), "\n", "")
+		err_str := strings.ReplaceAll(std, "\r", "")
+		err = errors.New(err_str)
 		utils.FancyHandleError(err)
-		output = "Fail"
 		return
 	}
 	output = "Success"
@@ -139,13 +170,15 @@ func Status() (dat model.GlueStatus, err error) {
 	cmd := exec.Command("ceph", "-s", "-f", "json")
 	stdout, err = cmd.CombinedOutput()
 	if err != nil {
-		err = errors.New(string(stdout))
+		err_str := strings.ReplaceAll(string(stdout), "\n", "")
+		err = errors.New(err_str)
 		utils.FancyHandleError(err)
 		return
 	}
 
 	if err = json.Unmarshal(stdout, &dat); err != nil {
-		err = errors.New(string(stdout))
+		err_str := strings.ReplaceAll(string(stdout), "\n", "")
+		err = errors.New(err_str)
 		utils.FancyHandleError(err)
 		return
 	}
@@ -158,16 +191,12 @@ func PoolDelete(pool_name string) (output string, err error) {
 	cmd := exec.Command("ceph", "osd", "pool", "rm", pool_name, pool_name, "--yes-i-really-really-mean-it")
 	stdout, err = cmd.CombinedOutput()
 	if err != nil {
-		err = errors.New(string(stdout))
+		err_str := strings.ReplaceAll(string(stdout), "\n", "")
+		err = errors.New(err_str)
 		utils.FancyHandleError(err)
 		return
 	}
-	if err = json.Unmarshal(stdout, &output); err != nil {
-		err = errors.New(string(stdout))
-		utils.FancyHandleError(err)
-		return
-	}
-
+	output = "Success"
 	return
 }
 func ServiceLs(service_name string, service_type string) (dat model.ServiceLs, err error) {
@@ -176,12 +205,14 @@ func ServiceLs(service_name string, service_type string) (dat model.ServiceLs, e
 		cmd := exec.Command("ceph", "orch", "ls", "-f", "json")
 		stdout, err = cmd.CombinedOutput()
 		if err != nil {
-			err = errors.New(string(stdout))
+			err_str := strings.ReplaceAll(string(stdout), "\n", "")
+			err = errors.New(err_str)
 			utils.FancyHandleError(err)
 			return
 		}
 		if err = json.Unmarshal(stdout, &dat); err != nil {
-			err = errors.New(string(stdout))
+			err_str := strings.ReplaceAll(string(stdout), "\n", "")
+			err = errors.New(err_str)
 			utils.FancyHandleError(err)
 			return
 		}
@@ -190,12 +221,14 @@ func ServiceLs(service_name string, service_type string) (dat model.ServiceLs, e
 		cmd := exec.Command("ceph", "orch", "ls", "--service_type", service_type, "-f", "json")
 		stdout, err = cmd.CombinedOutput()
 		if err != nil {
-			err = errors.New(string(stdout))
+			err_str := strings.ReplaceAll(string(stdout), "\n", "")
+			err = errors.New(err_str)
 			utils.FancyHandleError(err)
 			return
 		}
 		if err = json.Unmarshal(stdout, &dat); err != nil {
-			err = errors.New(string(stdout))
+			err_str := strings.ReplaceAll(string(stdout), "\n", "")
+			err = errors.New(err_str)
 			utils.FancyHandleError(err)
 			return
 		}
@@ -204,11 +237,14 @@ func ServiceLs(service_name string, service_type string) (dat model.ServiceLs, e
 		cmd := exec.Command("ceph", "orch", "ls", "--service_name", service_name, "-f", "json")
 		stdout, err = cmd.CombinedOutput()
 		if err != nil {
-			err = errors.New(string(stdout))
+			err_str := strings.ReplaceAll(string(stdout), "\n", "")
+			err = errors.New(err_str)
 			utils.FancyHandleError(err)
 			return
 		}
 		if err = json.Unmarshal(stdout, &dat); err != nil {
+			err_str := strings.ReplaceAll(string(stdout), "\n", "")
+			err = errors.New(err_str)
 			utils.FancyHandleError(err)
 			return
 		}
@@ -217,12 +253,14 @@ func ServiceLs(service_name string, service_type string) (dat model.ServiceLs, e
 		cmd := exec.Command("ceph", "orch", "ls", "--service_type", service_type, "--service_name", service_name, "-f", "json")
 		stdout, err = cmd.CombinedOutput()
 		if err != nil {
-			err = errors.New(string(stdout))
+			err_str := strings.ReplaceAll(string(stdout), "\n", "")
+			err = errors.New(err_str)
 			utils.FancyHandleError(err)
 			return
 		}
 		if err = json.Unmarshal(stdout, &dat); err != nil {
-			err = errors.New(string(stdout))
+			err_str := strings.ReplaceAll(string(stdout), "\n", "")
+			err = errors.New(err_str)
 			utils.FancyHandleError(err)
 			return
 		}
@@ -236,7 +274,8 @@ func ServiceControl(control string, service_name string) (output string, err err
 		cmd := exec.Command("systemctl", control, service_name)
 		stdout, err = cmd.CombinedOutput()
 		if err != nil {
-			err = errors.New(string(stdout))
+			err_str := strings.ReplaceAll(string(stdout), "\n", "")
+			err = errors.New(err_str)
 			utils.FancyHandleError(err)
 			return
 		}
@@ -246,11 +285,12 @@ func ServiceControl(control string, service_name string) (output string, err err
 		cmd := exec.Command("ceph", "orch", control, service_name)
 		stdout, err = cmd.CombinedOutput()
 		if err != nil {
-			err = errors.New(string(stdout))
+			err_str := strings.ReplaceAll(string(stdout), "\n", "")
+			err = errors.New(err_str)
 			utils.FancyHandleError(err)
 			return
 		}
-		output = string(stdout)
+		output = strings.ReplaceAll(string(stdout), "\n", ".")
 		return
 	}
 }
@@ -260,9 +300,9 @@ func ServiceDelete(service_name string) (output string, err error) {
 	cmd := exec.Command("ceph", "orch", "rm", service_name)
 	stdout, err = cmd.CombinedOutput()
 	if err != nil {
-		err = errors.New(string(stdout))
+		err_str := strings.ReplaceAll(string(stdout), "\n", "")
+		err = errors.New(err_str)
 		utils.FancyHandleError(err)
-		output = "Fail"
 		return
 	}
 	output = "Success"
@@ -274,12 +314,14 @@ func HostList() (dat model.HostList, err error) {
 	cmd := exec.Command("ceph", "orch", "host", "ls", "-f", "json")
 	stdout, err = cmd.CombinedOutput()
 	if err != nil {
-		err = errors.New(string(stdout))
+		err_str := strings.ReplaceAll(string(stdout), "\n", "")
+		err = errors.New(err_str)
 		utils.FancyHandleError(err)
 		return
 	}
 	if err = json.Unmarshal(stdout, &dat); err != nil {
-		err = errors.New(string(stdout))
+		err_str := strings.ReplaceAll(string(stdout), "\n", "")
+		err = errors.New(err_str)
 		utils.FancyHandleError(err)
 		return
 	}
@@ -290,7 +332,8 @@ func HostIp() (output []byte, err error) {
 	cmd := exec.Command("sh", "-c", "cat /etc/hosts | grep -E '*mngt' | grep -v 'ccvm' | awk '{print $1}'")
 	stdout, err = cmd.CombinedOutput()
 	if err != nil {
-		err = errors.New(string(stdout))
+		err_str := strings.ReplaceAll(string(stdout), "\n", "")
+		err = errors.New(err_str)
 		utils.FancyHandleError(err)
 		return
 	}

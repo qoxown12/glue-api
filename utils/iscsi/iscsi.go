@@ -6,16 +6,17 @@ import (
 	"encoding/json"
 	"errors"
 	"os/exec"
+	"strings"
 )
 
 func IscsiServiceCreate(iscsi_yaml string) (output string, err error) {
-	var stdCreate []byte
-	cluster_create_cmd := exec.Command("ceph", "orch", "apply", "-i", iscsi_yaml)
-	stdCreate, err = cluster_create_cmd.CombinedOutput()
+	var stdout []byte
+	cmd := exec.Command("ceph", "orch", "apply", "-i", iscsi_yaml)
+	stdout, err = cmd.CombinedOutput()
 	if err != nil {
-		err = errors.New(string(stdCreate))
+		err_str := strings.ReplaceAll(string(stdout), "\n", "")
+		err = errors.New(err_str)
 		utils.FancyHandleError(err)
-		output = "Fail"
 		return
 	} else {
 		output = "Success"
@@ -27,9 +28,15 @@ func IscsiService() (dat model.IscsiService, err error) {
 	cmd := exec.Command("ceph", "orch", "ls", "--service_type", "iscsi", "-f", "json")
 	stdout, err = cmd.CombinedOutput()
 	if err != nil {
+		err_str := strings.ReplaceAll(string(stdout), "\n", "")
+		err = errors.New(err_str)
+		utils.FancyHandleError(err)
 		return
 	}
 	if err = json.Unmarshal(stdout, &dat); err != nil {
+		err_str := strings.ReplaceAll(string(stdout), "\n", "")
+		err = errors.New(err_str)
+		utils.FancyHandleError(err)
 		return
 	}
 	return
@@ -40,9 +47,15 @@ func GlueUrl() (dat model.GlueUrl, err error) {
 	cmd := exec.Command("ceph", "mgr", "stat")
 	stdout, err = cmd.CombinedOutput()
 	if err != nil {
+		err_str := strings.ReplaceAll(string(stdout), "\n", "")
+		err = errors.New(err_str)
+		utils.FancyHandleError(err)
 		return
 	}
 	if err = json.Unmarshal(stdout, &dat); err != nil {
+		err_str := strings.ReplaceAll(string(stdout), "\n", "")
+		err = errors.New(err_str)
+		utils.FancyHandleError(err)
 		return
 	}
 	return

@@ -49,8 +49,8 @@ func (c *Controller) FsStatus(ctx *gin.Context) {
 //	@Summary		Create of Glue FS
 //	@Description	GlueFS를 생성합니다.
 //	@param			fs_name 	path	string	true	"Glue FS Name"
-//	@param			data_pool_size	formData	int	false	"Glue Data Pool Replicated Size" minimum(2) maximum(3)
-//	@param			meta_pool_size 	formData	int	false	"Glue Meta Pool Replicated Size" minimum(2) maximum(3)
+//	@param			data_pool_size	formData	int	false	"Glue Data Pool Replicated Size(default 3)" minimum(2) maximum(3)
+//	@param			meta_pool_size 	formData	int	false	"Glue Meta Pool Replicated Size(default 3)" minimum(2) maximum(3)
 //	@Tags			GlueFS
 //	@Accept			x-www-form-urlencoded
 //	@Produce		json

@@ -14,7 +14,8 @@ func SubVolumeGroupCreate(vol_name string, group_name string, size string, data_
 	cmd := exec.Command("ceph", "fs", "subvolumegroup", "create", vol_name, group_name, size, data_pool_name, "--mode", mode)
 	stdout, err = cmd.CombinedOutput()
 	if err != nil {
-		err = errors.New(string(stdout))
+		err_str := strings.ReplaceAll(string(stdout), "\n", "")
+		err = errors.New(err_str)
 		utils.FancyHandleError(err)
 		return
 	}
@@ -26,11 +27,14 @@ func SubVolumeGroupInfo(vol_name string, group_name string) (dat model.SubVolume
 	cmd := exec.Command("ceph", "fs", "subvolumegroup", "info", vol_name, group_name)
 	stdout, err = cmd.CombinedOutput()
 	if err != nil {
-		err = errors.New(string(stdout))
+		err_str := strings.ReplaceAll(string(stdout), "\n", "")
+		err = errors.New(err_str)
 		utils.FancyHandleError(err)
 		return
 	}
 	if err = json.Unmarshal(stdout, &dat); err != nil {
+		err_str := strings.ReplaceAll(string(stdout), "\n", "")
+		err = errors.New(err_str)
 		utils.FancyHandleError(err)
 		return
 	}
@@ -41,11 +45,14 @@ func SubVolumeGroupLs(vol_name string) (dat model.SubVolumeAllLs, err error) {
 	cmd := exec.Command("ceph", "fs", "subvolumegroup", "ls", vol_name)
 	stdout, err = cmd.CombinedOutput()
 	if err != nil {
-		err = errors.New(string(stdout))
+		err_str := strings.ReplaceAll(string(stdout), "\n", "")
+		err = errors.New(err_str)
 		utils.FancyHandleError(err)
 		return
 	}
 	if err = json.Unmarshal(stdout, &dat); err != nil {
+		err_str := strings.ReplaceAll(string(stdout), "\n", "")
+		err = errors.New(err_str)
 		utils.FancyHandleError(err)
 		return
 	}
@@ -56,7 +63,8 @@ func SubVolumeGroupGetPath(vol_name string, group_name string) (output string, e
 	cmd := exec.Command("ceph", "fs", "subvolumegroup", "getpath", vol_name, group_name)
 	stdout, err = cmd.CombinedOutput()
 	if err != nil {
-		err = errors.New(string(stdout))
+		err_str := strings.ReplaceAll(string(stdout), "\n", "")
+		err = errors.New(err_str)
 		utils.FancyHandleError(err)
 		return
 	}
@@ -69,28 +77,32 @@ func SubVolumeGroupDelete(vol_name string, group_name string, path string) (outp
 	cmd := exec.Command("mount", "-t", "ceph", "admin@."+vol_name+"="+path, "/gluefs/not")
 	stdout, err = cmd.CombinedOutput()
 	if err != nil {
-		err = errors.New(string(stdout))
+		err_str := strings.ReplaceAll(string(stdout), "\n", "")
+		err = errors.New(err_str)
 		utils.FancyHandleError(err)
 		return
 	} else {
 		cmd := exec.Command("sh", "-c", "rm -rf /gluefs/not/*")
 		stdout, err = cmd.CombinedOutput()
 		if err != nil {
-			err = errors.New(string(stdout))
+			err_str := strings.ReplaceAll(string(stdout), "\n", "")
+			err = errors.New(err_str)
 			utils.FancyHandleError(err)
 			return
 		} else {
 			cmd := exec.Command("umount", "-l", "-f", "/gluefs/not")
 			stdout, err = cmd.CombinedOutput()
 			if err != nil {
-				err = errors.New(string(stdout))
+				err_str := strings.ReplaceAll(string(stdout), "\n", "")
+				err = errors.New(err_str)
 				utils.FancyHandleError(err)
 				return
 			} else {
 				cmd := exec.Command("ceph", "fs", "subvolumegroup", "rm", vol_name, group_name)
 				stdout, err = cmd.CombinedOutput()
 				if err != nil {
-					err = errors.New(string(stdout))
+					err_str := strings.ReplaceAll(string(stdout), "\n", "")
+					err = errors.New(err_str)
 					utils.FancyHandleError(err)
 					return
 				}
@@ -105,7 +117,8 @@ func SubVolumeGroupResize(vol_name string, group_name string, new_size string) (
 	cmd := exec.Command("ceph", "fs", "subvolumegroup", "resize", vol_name, group_name, new_size, "--no_shrink")
 	stdout, err = cmd.CombinedOutput()
 	if err != nil {
-		err = errors.New(string(stdout))
+		err_str := strings.ReplaceAll(string(stdout), "\n", "")
+		err = errors.New(err_str)
 		utils.FancyHandleError(err)
 		return
 	}
@@ -117,7 +130,8 @@ func SubVolumeGroupSnapDelete(vol_name string, group_name string, snap_name stri
 	cmd := exec.Command("ceph", "fs", "subvolumegroup", "snapshot", "rm", vol_name, group_name, snap_name, "--force")
 	stdout, err = cmd.CombinedOutput()
 	if err != nil {
-		err = errors.New(string(stdout))
+		err_str := strings.ReplaceAll(string(stdout), "\n", "")
+		err = errors.New(err_str)
 		utils.FancyHandleError(err)
 		return
 	}
@@ -129,11 +143,14 @@ func SubVolumeGroupSnapLs(vol_name string, group_name string) (dat model.SubVolu
 	cmd := exec.Command("ceph", "fs", "subvolumegroup", "snapshot", "ls", vol_name, group_name)
 	stdout, err = cmd.CombinedOutput()
 	if err != nil {
-		err = errors.New(string(stdout))
+		err_str := strings.ReplaceAll(string(stdout), "\n", "")
+		err = errors.New(err_str)
 		utils.FancyHandleError(err)
 		return
 	}
 	if err = json.Unmarshal(stdout, &dat); err != nil {
+		err_str := strings.ReplaceAll(string(stdout), "\n", "")
+		err = errors.New(err_str)
 		utils.FancyHandleError(err)
 		return
 	}

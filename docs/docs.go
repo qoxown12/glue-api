@@ -1057,7 +1057,7 @@ const docTemplate = `{
                         "maximum": 3,
                         "minimum": 2,
                         "type": "integer",
-                        "description": "Glue Data Pool Replicated Size",
+                        "description": "Glue Data Pool Replicated Size(default 3)",
                         "name": "data_pool_size",
                         "in": "formData"
                     },
@@ -1065,7 +1065,7 @@ const docTemplate = `{
                         "maximum": 3,
                         "minimum": 2,
                         "type": "integer",
-                        "description": "Glue Meta Pool Replicated Size",
+                        "description": "Glue Meta Pool Replicated Size(default 3)",
                         "name": "meta_pool_size",
                         "in": "formData"
                     }
@@ -1356,6 +1356,7 @@ const docTemplate = `{
                         "required": true
                     },
                     {
+                        "maximum": 65535,
                         "type": "integer",
                         "description": "ISCSI API Port",
                         "name": "api_port",
@@ -2619,6 +2620,13 @@ const docTemplate = `{
                         "required": true
                     },
                     {
+                        "type": "integer",
+                        "description": "NFS Export ID",
+                        "name": "export_id",
+                        "in": "formData",
+                        "required": true
+                    },
+                    {
                         "enum": [
                             "RW",
                             "RO",
@@ -2949,6 +2957,7 @@ const docTemplate = `{
                         "required": true
                     },
                     {
+                        "maximum": 65535,
                         "type": "integer",
                         "description": "NFS Ingress Access Port",
                         "name": "frontend_port",
@@ -2956,6 +2965,7 @@ const docTemplate = `{
                         "required": true
                     },
                     {
+                        "maximum": 65535,
                         "type": "integer",
                         "description": "NFS Ingress HA Proxy for Load Balancer Port",
                         "name": "monitor_port",
@@ -3141,8 +3151,8 @@ const docTemplate = `{
                 "parameters": [
                     {
                         "type": "string",
-                        "description": "pool_name",
-                        "name": "pool_name",
+                        "description": "pool_type",
+                        "name": "pool_type",
                         "in": "query"
                     }
                 ],
@@ -4243,12 +4253,6 @@ const docTemplate = `{
                     "type": "integer",
                     "example": 400
                 },
-                "debug": {
-                    "description": "Debug info",
-                    "type": "boolean",
-                    "format": "bool",
-                    "example": true
-                },
                 "message": {
                     "type": "string",
                     "example": "status bad request"
@@ -4262,12 +4266,6 @@ const docTemplate = `{
                     "type": "integer",
                     "example": 404
                 },
-                "debug": {
-                    "description": "Debug info",
-                    "type": "boolean",
-                    "format": "bool",
-                    "example": true
-                },
                 "message": {
                     "type": "string",
                     "example": "Not Found"
@@ -4280,12 +4278,6 @@ const docTemplate = `{
                 "code": {
                     "type": "integer",
                     "example": 500
-                },
-                "debug": {
-                    "description": "Debug info",
-                    "type": "boolean",
-                    "format": "bool",
-                    "example": true
                 },
                 "message": {
                     "type": "string",
@@ -4690,12 +4682,6 @@ const docTemplate = `{
             "description": "API의 버전",
             "type": "object",
             "properties": {
-                "debug": {
-                    "description": "Debug info",
-                    "type": "boolean",
-                    "format": "bool",
-                    "example": true
-                },
                 "version": {
                     "type": "string",
                     "format": "string",

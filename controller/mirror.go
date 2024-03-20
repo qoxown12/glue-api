@@ -344,7 +344,6 @@ func (c *Controller) MirrorDelete(ctx *gin.Context) {
 func (c *Controller) MirrorImageSetup(ctx *gin.Context) {
 	//var dat model.MirrorSetup
 	var dat = struct {
-		model.AbleModel
 		Message string
 	}{}
 
@@ -392,7 +391,6 @@ func (c *Controller) MirrorImageSetup(ctx *gin.Context) {
 func (c *Controller) MirrorImageUpdate(ctx *gin.Context) {
 	//var dat model.MirrorSetup
 	var dat = struct {
-		model.AbleModel
 		Message string
 	}{}
 

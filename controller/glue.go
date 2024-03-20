@@ -80,7 +80,7 @@ func (c *Controller) GlueVersion(ctx *gin.Context) {
 //	@Summary		List Pools of Glue
 //	@Description	Glue 의 스토리지 풀 목록을 보여줍니다.
 //	@Tags			Pool
-//	@param			pool_name	query	string	false	"pool_name"
+//	@param			pool_type	query	string	false	"pool_type"
 //	@Accept			x-www-form-urlencoded
 //	@Produce		json
 //	@Success		200	{object}	model.GluePools
@@ -89,9 +89,10 @@ func (c *Controller) GlueVersion(ctx *gin.Context) {
 //	@Failure		500	{object}	httputil.HTTP500InternalServerError
 //	@Router			/api/v1/pool [get]
 func (c *Controller) ListPools(ctx *gin.Context) {
-	pool_name := ctx.Request.URL.Query().Get("pool_name")
-	dat, err := glue.ListPool(pool_name)
+	pool_type := ctx.Request.URL.Query().Get("pool_type")
+	dat, err := glue.ListPool(pool_type)
 	if err != nil {
+		utils.FancyHandleError(err)
 		httputil.NewError(ctx, http.StatusInternalServerError, err)
 		return
 	}
@@ -146,6 +147,7 @@ func (c *Controller) ListAndInfoImage(ctx *gin.Context) {
 	if image_name == "" && pool_name == "" {
 		rbd_pool_dat, err := glue.RbdPool()
 		if err != nil {
+			utils.FancyHandleError(err)
 			httputil.NewError(ctx, http.StatusInternalServerError, err)
 			return
 		}
@@ -153,6 +155,7 @@ func (c *Controller) ListAndInfoImage(ctx *gin.Context) {
 		for i := 0; i < len(rbd_pool_dat); i++ {
 			rbd_image_dat, err := glue.RbdImage(rbd_pool_dat[i])
 			if err != nil {
+				utils.FancyHandleError(err)
 				httputil.NewError(ctx, http.StatusInternalServerError, err)
 				return
 			}
@@ -166,6 +169,7 @@ func (c *Controller) ListAndInfoImage(ctx *gin.Context) {
 	} else if image_name == "" && pool_name != "" {
 		dat, err := glue.InfoImage(pool_name)
 		if err != nil {
+			utils.FancyHandleError(err)
 			httputil.NewError(ctx, http.StatusInternalServerError, err)
 			return
 		}
@@ -174,6 +178,7 @@ func (c *Controller) ListAndInfoImage(ctx *gin.Context) {
 	} else {
 		dat, err := glue.ListAndInfoImage(image_name, pool_name)
 		if err != nil {
+			utils.FancyHandleError(err)
 			httputil.NewError(ctx, http.StatusInternalServerError, err)
 			return
 		}
@@ -203,6 +208,7 @@ func (c *Controller) CreateImage(ctx *gin.Context) {
 	size, _ := ctx.GetPostForm("size")
 	size_int, err := strconv.Atoi(size)
 	if err != nil {
+		utils.FancyHandleError(err)
 		httputil.NewError(ctx, http.StatusInternalServerError, err)
 		return
 	}
@@ -210,6 +216,7 @@ func (c *Controller) CreateImage(ctx *gin.Context) {
 	size_st := strconv.Itoa(size_int)
 	dat, err := glue.CreateImage(image_name, pool_name, size_st)
 	if err != nil {
+		utils.FancyHandleError(err)
 		httputil.NewError(ctx, http.StatusInternalServerError, err)
 		return
 	}
@@ -236,6 +243,7 @@ func (c *Controller) DeleteImage(ctx *gin.Context) {
 	pool_name := ctx.Request.URL.Query().Get("pool_name")
 	dat, err := glue.DeleteImage(image_name, pool_name)
 	if err != nil {
+		utils.FancyHandleError(err)
 		httputil.NewError(ctx, http.StatusInternalServerError, err)
 		return
 	}

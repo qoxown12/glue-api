@@ -84,3 +84,8 @@ type FsGetInfo struct {
 	} `json:"mdsmap"`
 	ID int `json:"id"`
 } //@name FsGetInfo
+type CephHost []struct {
+	Addr     string `json:"addr"`
+	Hostname string `json:"hostname"`
+	Status   string `json:"status"`
+}

@@ -29,22 +29,28 @@ func FsStatus() (dat model.FsStatus, err error) {
 
 	return
 }
-func FsCreate(fs_name string, data_pool_size string, meta_pool_size string) (output string, err error) {
+func CephHost() (dat model.CephHost, err error) {
 	var stdout []byte
-	cmd := exec.Command("ceph", "fs", "volume", "create", fs_name, "--placement=label:scvm")
+	cmd := exec.Command("ceph", "orch", "host", "ls", "-f", "json")
 	stdout, err = cmd.CombinedOutput()
-	if string(stdout) != "" {
-		cmd := exec.Command("ceph", "fs", "volume", "rm", fs_name, "--yes-i-really-mean-it")
-		stdout, err = cmd.CombinedOutput()
-		if err != nil {
-			err_str := strings.ReplaceAll(string(stdout), "\n", "")
-			err = errors.New(err_str)
-			utils.FancyHandleError(err)
-			return
-		}
-		output = "Please check the host label."
+	if err != nil {
+		err_str := strings.ReplaceAll(string(stdout), "\n", "")
+		err = errors.New(err_str)
+		utils.FancyHandleError(err)
 		return
 	}
+	if err = json.Unmarshal(stdout, &dat); err != nil {
+		err_str := strings.ReplaceAll(string(stdout), "\n", "")
+		err = errors.New(err_str)
+		utils.FancyHandleError(err)
+		return
+	}
+	return
+}
+func FsCreate(fs_name string, data_pool_size string, meta_pool_size string, hosts string) (output string, err error) {
+	var stdout []byte
+	cmd := exec.Command("ceph", "fs", "volume", "create", fs_name, "--placement", hosts)
+	stdout, err = cmd.CombinedOutput()
 	if err != nil {
 		err_str := strings.ReplaceAll(string(stdout), "\n", "")
 		err = errors.New(err_str)

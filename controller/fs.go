@@ -6,6 +6,7 @@ import (
 	"Glue-API/utils"
 	"Glue-API/utils/fs"
 	"net/http"
+	"strings"
 
 	"github.com/gin-gonic/gin"
 )
@@ -39,6 +40,7 @@ func (c *Controller) FsStatus(ctx *gin.Context) {
 		httputil.NewError(ctx, http.StatusInternalServerError, err)
 		return
 	}
+
 	// Print the output
 	ctx.Header("Access-Control-Allow-Origin", "*")
 	ctx.IndentedJSON(http.StatusOK, value)
@@ -63,7 +65,20 @@ func (c *Controller) FsCreate(ctx *gin.Context) {
 	fs_name := ctx.Param("fs_name")
 	data_pool_size, _ := ctx.GetPostForm("data_pool_size")
 	meta_pool_size, _ := ctx.GetPostForm("meta_pool_size")
-	dat, err := fs.FsCreate(fs_name, data_pool_size, meta_pool_size)
+	host, err := fs.CephHost()
+	if err != nil {
+		utils.FancyHandleError(err)
+		httputil.NewError(ctx, http.StatusInternalServerError, err)
+		return
+	}
+	var hosts []string
+	for i := 0; i < len(host); i++ {
+		if strings.Contains(host[i].Hostname, "scvm") {
+			hosts = append(hosts, host[i].Hostname)
+		}
+	}
+	hosts_str := strings.Join(hosts, ",")
+	dat, err := fs.FsCreate(fs_name, data_pool_size, meta_pool_size, hosts_str)
 	if err != nil {
 		utils.FancyHandleError(err)
 		httputil.NewError(ctx, http.StatusInternalServerError, err)

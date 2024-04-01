@@ -450,6 +450,84 @@ definitions:
       states:
         description: 이미지 상세
     type: object
+  RgwUserInfo:
+    properties:
+      bucket_quota:
+        properties:
+          check_on_raw:
+            type: boolean
+          enabled:
+            type: boolean
+          max_objects:
+            type: integer
+          max_size:
+            type: integer
+          max_size_kb:
+            type: integer
+        type: object
+      caps:
+        items: {}
+        type: array
+      default_placement:
+        type: string
+      default_storage_class:
+        type: string
+      display_name:
+        type: string
+      email:
+        type: string
+      keys:
+        items:
+          properties:
+            access_key:
+              type: string
+            secret_key:
+              type: string
+            user:
+              type: string
+          type: object
+        type: array
+      max_buckets:
+        type: integer
+      mfa_ids:
+        items: {}
+        type: array
+      op_mask:
+        type: string
+      placement_tags:
+        items: {}
+        type: array
+      subusers:
+        items: {}
+        type: array
+      suspended:
+        type: integer
+      swift_keys:
+        items: {}
+        type: array
+      system:
+        type: boolean
+      temp_url_keys:
+        items: {}
+        type: array
+      type:
+        type: string
+      user_id:
+        type: string
+      user_quota:
+        properties:
+          check_on_raw:
+            type: boolean
+          enabled:
+            type: boolean
+          max_objects:
+            type: integer
+          max_size:
+            type: integer
+          max_size_kb:
+            type: integer
+        type: object
+    type: object
   SmbStatus:
     properties:
       folder_name:
@@ -579,6 +657,11 @@ definitions:
       version:
         example: "1.0"
         format: string
+        type: string
+    type: object
+  model.GwvmMgmt:
+    properties:
+      message:
         type: string
     type: object
 info:
@@ -788,6 +871,44 @@ paths:
           schema:
             $ref: '#/definitions/HTTP500InternalServerError'
       summary: Create of Glue FS
+      tags:
+      - GlueFS
+  /api/v1/gluefs/{new_name}:
+    put:
+      consumes:
+      - application/x-www-form-urlencoded
+      description: GlueFS를 수정합니다.
+      parameters:
+      - description: Glue FS Old Name
+        in: path
+        name: old_name
+        required: true
+        type: string
+      - description: Glue FS New Name
+        in: formData
+        name: new_name
+        required: true
+        type: string
+      produces:
+      - application/json
+      responses:
+        "200":
+          description: Success
+          schema:
+            type: string
+        "400":
+          description: Bad Request
+          schema:
+            $ref: '#/definitions/HTTP400BadRequest'
+        "404":
+          description: Not Found
+          schema:
+            $ref: '#/definitions/HTTP404NotFound'
+        "500":
+          description: Internal Server Error
+          schema:
+            $ref: '#/definitions/HTTP500InternalServerError'
+      summary: Update of Glue FS
       tags:
       - GlueFS
   /api/v1/gluefs/info/{fs_name}:
@@ -1347,6 +1468,228 @@ paths:
       summary: Create of Glue FS Sub Volume Group Snapshot
       tags:
       - GlueFS-SubVolume-Snapshot
+  /api/v1/gwvm/{hypervisorType}:
+    get:
+      consumes:
+      - application/x-www-form-urlencoded
+      description: gwvm의 상태를 보여줍니다.
+      parameters:
+      - description: Hypervisor Type
+        in: path
+        name: hypervisorType
+        required: true
+        type: string
+      produces:
+      - application/json
+      responses:
+        "200":
+          description: OK
+          schema:
+            $ref: '#/definitions/model.GwvmMgmt'
+        "400":
+          description: Bad Request
+          schema:
+            $ref: '#/definitions/HTTP400BadRequest'
+        "404":
+          description: Not Found
+          schema:
+            $ref: '#/definitions/HTTP404NotFound'
+        "500":
+          description: Internal Server Error
+          schema:
+            $ref: '#/definitions/HTTP500InternalServerError'
+      summary: State of Gateway VM
+      tags:
+      - Gwvm
+    post:
+      consumes:
+      - multipart/form-data
+      description: gwvm을 생성합니다.
+      parameters:
+      - description: Hypervisor Type
+        in: path
+        name: hypervisorType
+        required: true
+        type: string
+      - description: Gwvm Management Nic Paren
+        in: formData
+        name: gwvmMngtNicParen
+        required: true
+        type: string
+      - description: Gwvm Management Nic Ip
+        in: formData
+        name: gwvmMngtNicIp
+        required: true
+        type: string
+      - description: Gwvm Storage Nic Parent
+        in: formData
+        name: gwvmStorageNicParent
+        required: true
+        type: string
+      - description: Gwvm Storage Nic Ip
+        in: formData
+        name: gwvmStorageNicIp
+        required: true
+        type: string
+      produces:
+      - application/json
+      responses:
+        "200":
+          description: OK
+          schema:
+            $ref: '#/definitions/model.GwvmMgmt'
+        "400":
+          description: Bad Request
+          schema:
+            $ref: '#/definitions/HTTP400BadRequest'
+        "404":
+          description: Not Found
+          schema:
+            $ref: '#/definitions/HTTP404NotFound'
+        "500":
+          description: Internal Server Error
+          schema:
+            $ref: '#/definitions/HTTP500InternalServerError'
+      summary: Setup Gateway Vm
+      tags:
+      - Gwvm
+  /api/v1/gwvm/delete/{hypervisorType}:
+    delete:
+      consumes:
+      - multipart/form-data
+      description: Gateway VM을 삭제합니다.
+      parameters:
+      - description: Hypervisor Type
+        in: path
+        name: hypervisorType
+        required: true
+        type: string
+      produces:
+      - application/json
+      responses:
+        "200":
+          description: OK
+          schema:
+            $ref: '#/definitions/model.GwvmMgmt'
+        "400":
+          description: Bad Request
+          schema:
+            $ref: '#/definitions/HTTP400BadRequest'
+        "404":
+          description: Not Found
+          schema:
+            $ref: '#/definitions/HTTP404NotFound'
+        "500":
+          description: Internal Server Error
+          schema:
+            $ref: '#/definitions/HTTP500InternalServerError'
+      summary: Delete to Gateway VM
+      tags:
+      - Gwvm
+  /api/v1/gwvm/migrate/{hypervisorType}:
+    put:
+      consumes:
+      - multipart/form-data
+      description: Gateway VM을 Pcs cluster내 다른 호스트로 마이그레이션 합니다.
+      parameters:
+      - description: Hypervisor Type
+        in: path
+        name: hypervisorType
+        required: true
+        type: string
+      - description: Migration Target Host
+        in: formData
+        name: target
+        required: true
+        type: string
+      produces:
+      - application/json
+      responses:
+        "200":
+          description: OK
+          schema:
+            $ref: '#/definitions/model.GwvmMgmt'
+        "400":
+          description: Bad Request
+          schema:
+            $ref: '#/definitions/HTTP400BadRequest'
+        "404":
+          description: Not Found
+          schema:
+            $ref: '#/definitions/HTTP404NotFound'
+        "500":
+          description: Internal Server Error
+          schema:
+            $ref: '#/definitions/HTTP500InternalServerError'
+      summary: VmMigrate to Gateway VM
+      tags:
+      - Gwvm
+  /api/v1/gwvm/start/{hypervisorType}:
+    put:
+      consumes:
+      - multipart/form-data
+      description: Gateway VM을 실행합니다.
+      parameters:
+      - description: Hypervisor Type
+        in: path
+        name: hypervisorType
+        required: true
+        type: string
+      produces:
+      - application/json
+      responses:
+        "200":
+          description: OK
+          schema:
+            $ref: '#/definitions/model.GwvmMgmt'
+        "400":
+          description: Bad Request
+          schema:
+            $ref: '#/definitions/HTTP400BadRequest'
+        "404":
+          description: Not Found
+          schema:
+            $ref: '#/definitions/HTTP404NotFound'
+        "500":
+          description: Internal Server Error
+          schema:
+            $ref: '#/definitions/HTTP500InternalServerError'
+      summary: Start to Gateway VM
+      tags:
+      - Gwvm
+  /api/v1/gwvm/stop/{hypervisorType}:
+    put:
+      consumes:
+      - multipart/form-data
+      description: Gateway VM Pcs cluster를 Cleanup 합니다.
+      parameters:
+      - description: Hypervisor Type
+        in: path
+        name: hypervisorType
+        required: true
+        type: string
+      produces:
+      - application/json
+      responses:
+        "200":
+          description: OK
+          schema:
+            $ref: '#/definitions/model.GwvmMgmt'
+        "400":
+          description: Bad Request
+          schema:
+            $ref: '#/definitions/HTTP400BadRequest'
+        "404":
+          description: Not Found
+          schema:
+            $ref: '#/definitions/HTTP404NotFound'
+        "500":
+          description: Internal Server Error
+          schema:
+            $ref: '#/definitions/HTTP500InternalServerError'
+      summary: Cleanup to Gateway VM
+      tags:
+      - Gwvm
   /api/v1/image:
     delete:
       consumes:
@@ -1525,6 +1868,71 @@ paths:
           schema:
             $ref: '#/definitions/HTTP500InternalServerError'
       summary: Create of Iscsi Servcie Daemon
+      tags:
+      - Iscsi
+    put:
+      consumes:
+      - application/x-www-form-urlencoded
+      description: Iscsi 서비스 데몬을 수정합니다.
+      parameters:
+      - collectionFormat: multi
+        description: Host Name
+        in: formData
+        items:
+          type: string
+        name: hosts
+        required: true
+        type: array
+      - description: ISCSI Service Name
+        in: formData
+        name: service_id
+        required: true
+        type: string
+      - description: Pool Name
+        in: formData
+        name: pool
+        required: true
+        type: string
+      - description: ISCSI API Port
+        in: formData
+        maximum: 65535
+        name: api_port
+        required: true
+        type: integer
+      - description: ISCSI API User
+        in: formData
+        name: api_user
+        required: true
+        type: string
+      - description: ISCSI API Password
+        in: formData
+        name: api_password
+        required: true
+        type: string
+      - description: Iscsi Service Daemon Count
+        in: formData
+        name: count
+        type: integer
+      produces:
+      - application/json
+      responses:
+        "200":
+          description: Success
+          schema:
+            type: string
+        "400":
+          description: Bad Request
+          schema:
+            $ref: '#/definitions/HTTP400BadRequest'
+        "404":
+          description: Not Found
+          schema:
+            $ref: '#/definitions/HTTP404NotFound'
+        "500":
+          description: Internal Server Error
+          schema:
+            $ref: '#/definitions/HTTP500InternalServerError'
+      summary: Update of Iscsi Servcie Daemon
       tags:
       - Iscsi
   /api/v1/iscsi/discovery:
@@ -2345,6 +2753,55 @@ paths:
       summary: Create of Glue NFS Cluster
       tags:
       - NFS
+    put:
+      consumes:
+      - application/x-www-form-urlencoded
+      description: Glue NFS Cluster를 수정합니다.
+      parameters:
+      - description: NFS Cluster Identifier
+        in: path
+        name: cluster_id
+        required: true
+        type: string
+      - description: Cluster Port
+        in: path
+        name: port
+        required: true
+        type: string
+      - collectionFormat: multi
+        description: Cluster Daemon Hostname
+        in: formData
+        items:
+          type: string
+        name: hostname
+        required: true
+        type: array
+      - description: Cluster Daemon Service Count
+        in: formData
+        name: service_count
+        type: integer
+      produces:
+      - application/json
+      responses:
+        "200":
+          description: Success
+          schema:
+            type: string
+        "400":
+          description: Bad Request
+          schema:
+            $ref: '#/definitions/HTTP400BadRequest'
+        "404":
+          description: Not Found
+          schema:
+            $ref: '#/definitions/HTTP404NotFound'
+        "500":
+          description: Internal Server Error
+          schema:
+            $ref: '#/definitions/HTTP500InternalServerError'
+      summary: Update of Glue NFS Cluster
+      tags:
+      - NFS
   /api/v1/nfs/export:
     get:
       consumes:
@@ -2705,6 +3162,75 @@ paths:
       summary: Create of Glue NFS Ingress Service
       tags:
       - NFS-Ingress
+    put:
+      consumes:
+      - application/x-www-form-urlencoded
+      description: Glue NFS Ingress Service를 수정합니다.
+      parameters:
+      - description: NFS Ingress Service Name
+        in: formData
+        name: service_id
+        required: true
+        type: string
+      - collectionFormat: multi
+        description: NFS Ingress Host Name
+        in: formData
+        items:
+          type: string
+        name: hostname
+        required: true
+        type: array
+      - description: NFS Cluster Type
+        in: formData
+        name: backend_service
+        required: true
+        type: string
+      - description: NFS Ingress Virtual Ip
+        in: formData
+        name: virtual_ip
+        required: true
+        type: string
+      - description: NFS Ingress Access Port
+        in: formData
+        maximum: 65535
+        name: frontend_port
+        required: true
+        type: integer
+      - description: NFS Ingress HA Proxy for Load Balancer Port
+        in: formData
+        maximum: 65535
+        name: monitor_port
+        required: true
+        type: integer
+      - collectionFormat: multi
+        description: NFS Ingress Vitual IP of CIDR Networks
+        in: formData
+        items:
+          type: string
+        name: virtual_interface_networks
+        type: array
+      produces:
+      - application/json
+      responses:
+        "200":
+          description: Success
+          schema:
+            type: string
+        "400":
+          description: Bad Request
+          schema:
+            $ref: '#/definitions/HTTP400BadRequest'
+        "404":
+          description: Not Found
+          schema:
+            $ref: '#/definitions/HTTP404NotFound'
+        "500":
+          description: Internal Server Error
+          schema:
+            $ref: '#/definitions/HTTP500InternalServerError'
+      summary: Update of Glue NFS Ingress Service
+      tags:
+      - NFS-Ingress
   /api/v1/pool:
     get:
       consumes:
@@ -2769,6 +3295,380 @@ paths:
       summary: Delete of Pool
       tags:
       - Pool
+  /api/v1/rgw:
+    get:
+      consumes:
+      - application/x-www-form-urlencoded
+      description: RADOS Gateway Daemon 정보를 가져옵니다.
+      produces:
+      - application/json
+      responses:
+        "200":
+          description: OK
+          schema:
+            items:
+              properties:
+                default:
+                  type: boolean
+                id:
+                  type: string
+                port:
+                  type: integer
+                realm_name:
+                  type: string
+                server_hostname:
+                  type: string
+                service_map_id:
+                  type: string
+                version:
+                  type: string
+                zone_name:
+                  type: string
+                zonegroup_name:
+                  type: string
+              type: object
+            type: array
+        "400":
+          description: Bad Request
+          schema:
+            $ref: '#/definitions/HTTP400BadRequest'
+        "404":
+          description: Not Found
+          schema:
+            $ref: '#/definitions/HTTP404NotFound'
+        "500":
+          description: Internal Server Error
+          schema:
+            $ref: '#/definitions/HTTP500InternalServerError'
+      summary: Show List of RADOS Gateway Daemon
+      tags:
+      - RGW
+    post:
+      consumes:
+      - application/x-www-form-urlencoded
+      description: RADOS Gateway Service를 생성합니다.
+      parameters:
+      - description: RGW Service Name
+        in: formData
+        name: service_name
+        required: true
+        type: string
+      - description: RGW Realm Name
+        in: formData
+        name: realm_name
+        type: string
+      - description: RGW Zone Group Name
+        in: formData
+        name: zonegroup_name
+        type: string
+      - description: RGW Zone Name
+        in: formData
+        name: zone_name
+        type: string
+      - description: 'Service Port(default: 80)'
+        in: formData
+        name: port
+        type: integer
+      - collectionFormat: multi
+        description: Service Placement Hosts
+        in: formData
+        items:
+          type: string
+        name: hosts
+        required: true
+        type: array
+      produces:
+      - application/json
+      responses:
+        "200":
+          description: OK
+          schema:
+            type: string
+        "400":
+          description: Bad Request
+          schema:
+            $ref: '#/definitions/HTTP400BadRequest'
+        "404":
+          description: Not Found
+          schema:
+            $ref: '#/definitions/HTTP404NotFound'
+        "500":
+          description: Internal Server Error
+          schema:
+            $ref: '#/definitions/HTTP500InternalServerError'
+      summary: Create of RADOS Gateway Service
+      tags:
+      - RGW
+    put:
+      consumes:
+      - application/x-www-form-urlencoded
+      description: RADOS Gateway Service를 수정합니다.
+      parameters:
+      - description: RGW Service Name
+        in: formData
+        name: service_name
+        required: true
+        type: string
+      - description: RGW Realm Name
+        in: formData
+        name: realm_name
+        type: string
+      - description: RGW Zone Group Name
+        in: formData
+        name: zonegroup_name
+        type: string
+      - description: RGW Zone Name
+        in: formData
+        name: zone_name
+        type: string
+      - description: 'Service Port(default: 80)'
+        in: formData
+        name: port
+        type: integer
+      - collectionFormat: multi
+        description: Service Placement Hosts
+        in: formData
+        items:
+          type: string
+        name: hosts
+        required: true
+        type: array
+      produces:
+      - application/json
+      responses:
+        "200":
+          description: OK
+          schema:
+            type: string
+        "400":
+          description: Bad Request
+          schema:
+            $ref: '#/definitions/HTTP400BadRequest'
+        "404":
+          description: Not Found
+          schema:
+            $ref: '#/definitions/HTTP404NotFound'
+        "500":
+          description: Internal Server Error
+          schema:
+            $ref: '#/definitions/HTTP500InternalServerError'
+      summary: Update of RADOS Gateway Service
+      tags:
+      - RGW
+  /api/v1/rgw/quota:
+    post:
+      consumes:
+      - application/x-www-form-urlencoded
+      description: RADOS Gateway Quota를 설정 및 활성화합니다.
+      parameters:
+      - description: RGW User ID Name
+        in: formData
+        name: username
+        required: true
+        type: string
+      - description: RGW Quota Target
+        enum:
+        - user
+        - bucket
+        in: formData
+        name: scope
+        required: true
+        type: string
+      - description: RGW Quota Max Objects
+        in: formData
+        name: max_objects
+        required: true
+        type: integer
+      - description: RGW Quota Max Size(B/K/M/G/T)
+        in: formData
+        name: max_size
+        required: true
+        type: string
+      - default: enable
+        description: RGW Quota Whether Activated
+        enum:
+        - enable
+        - disable
+        in: formData
+        name: state
+        required: true
+        type: string
+      produces:
+      - application/json
+      responses:
+        "200":
+          description: Success
+          schema:
+            type: string
+        "400":
+          description: Bad Request
+          schema:
+            $ref: '#/definitions/HTTP400BadRequest'
+        "404":
+          description: Not Found
+          schema:
+            $ref: '#/definitions/HTTP404NotFound'
+        "500":
+          description: Internal Server Error
+          schema:
+            $ref: '#/definitions/HTTP500InternalServerError'
+      summary: Setting of RADOS Gateway Quota
+      tags:
+      - RGW
+  /api/v1/rgw/user:
+    delete:
+      consumes:
+      - application/x-www-form-urlencoded
+      description: RADOS Gateway User를 삭제합니다.
+      parameters:
+      - description: RGW User ID Name
+        in: query
+        name: username
+        required: true
+        type: string
+      produces:
+      - application/json
+      responses:
+        "200":
+          description: Success
+          schema:
+            type: string
+        "400":
+          description: Bad Request
+          schema:
+            $ref: '#/definitions/HTTP400BadRequest'
+        "404":
+          description: Not Found
+          schema:
+            $ref: '#/definitions/HTTP404NotFound'
+        "500":
+          description: Internal Server Error
+          schema:
+            $ref: '#/definitions/HTTP500InternalServerError'
+      summary: Delete of RADOS Gateway User
+      tags:
+      - RGW-User
+    get:
+      consumes:
+      - application/x-www-form-urlencoded
+      description: RADOS Gateway User의 리스트 및 정보를 보여줍니다.
+      produces:
+      - application/json
+      responses:
+        "200":
+          description: OK
+          schema:
+            $ref: '#/definitions/RgwUserInfo'
+        "400":
+          description: Bad Request
+          schema:
+            $ref: '#/definitions/HTTP400BadRequest'
+        "404":
+          description: Not Found
+          schema:
+            $ref: '#/definitions/HTTP404NotFound'
+        "500":
+          description: Internal Server Error
+          schema:
+            $ref: '#/definitions/HTTP500InternalServerError'
+      summary: List and Info of RADOS Gateway Users
+      tags:
+      - RGW-User
+    post:
+      consumes:
+      - application/x-www-form-urlencoded
+      description: RADOS Gateway User를 생성합니다.
+      parameters:
+      - description: RGW User ID Name
+        in: formData
+        name: username
+        required: true
+        type: string
+      - description: RGW  User Display Name
+        in: formData
+        name: display_name
+        required: true
+        type: string
+      - description: RGW User Email
+        in: formData
+        name: email
+        type: string
+      produces:
+      - application/json
+      responses:
+        "200":
+          description: Success
+          schema:
+            type: string
+        "400":
+          description: Bad Request
+          schema:
+            $ref: '#/definitions/HTTP400BadRequest'
+        "404":
+          description: Not Found
+          schema:
+            $ref: '#/definitions/HTTP404NotFound'
+        "500":
+          description: Internal Server Error
+          schema:
+            $ref: '#/definitions/HTTP500InternalServerError'
+      summary: Create of RADOS Gateway User
+      tags:
+      - RGW-User
+    put:
+      consumes:
+      - application/x-www-form-urlencoded
+      description: RADOS Gateway User를 수정합니다.
+      parameters:
+      - description: RGW User ID Name
+        in: formData
+        name: username
+        required: true
+        type: string
+      - description: RGW User Display Name
+        in: formData
+        name: display_name
+        type: string
+      - description: 'RGW User Email '
+        in: formData
+        name: email
+        type: string
+      - description: RGW User S3
+        enum:
+        - s3
+        in: formData
+        name: key_type
+        type: string
+      - description: RGW User S3 Access Key
+        in: formData
+        name: access_key
+        type: string
+      - description: RGW User S3 Secret Key
+        in: formData
+        name: secret_key
+        type: string
+      produces:
+      - application/json
+      responses:
+        "200":
+          description: Success
+          schema:
+            type: string
+        "400":
+          description: Bad Request
+          schema:
+            $ref: '#/definitions/HTTP400BadRequest'
+        "404":
+          description: Not Found
+          schema:
+            $ref: '#/definitions/HTTP404NotFound'
+        "500":
+          description: Internal Server Error
+          schema:
+            $ref: '#/definitions/HTTP500InternalServerError'
+      summary: Update of RADOS Gateway User
+      tags:
+      - RGW-User
   /api/v1/service:
     get:
       consumes:

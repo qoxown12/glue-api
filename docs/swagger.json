@@ -1139,6 +1139,396 @@
                 }
             }
         },
+        "/api/v1/gluefs/{new_name}": {
+            "put": {
+                "description": "GlueFS를 수정합니다.",
+                "consumes": [
+                    "application/x-www-form-urlencoded"
+                ],
+                "produces": [
+                    "application/json"
+                ],
+                "tags": [
+                    "GlueFS"
+                ],
+                "summary": "Update of Glue FS",
+                "parameters": [
+                    {
+                        "type": "string",
+                        "description": "Glue FS Old Name",
+                        "name": "old_name",
+                        "in": "path",
+                        "required": true
+                    },
+                    {
+                        "type": "string",
+                        "description": "Glue FS New Name",
+                        "name": "new_name",
+                        "in": "formData",
+                        "required": true
+                    }
+                ],
+                "responses": {
+                    "200": {
+                        "description": "Success",
+                        "schema": {
+                            "type": "string"
+                        }
+                    },
+                    "400": {
+                        "description": "Bad Request",
+                        "schema": {
+                            "$ref": "#/definitions/HTTP400BadRequest"
+                        }
+                    },
+                    "404": {
+                        "description": "Not Found",
+                        "schema": {
+                            "$ref": "#/definitions/HTTP404NotFound"
+                        }
+                    },
+                    "500": {
+                        "description": "Internal Server Error",
+                        "schema": {
+                            "$ref": "#/definitions/HTTP500InternalServerError"
+                        }
+                    }
+                }
+            }
+        },
+        "/api/v1/gwvm/delete/{hypervisorType}": {
+            "delete": {
+                "description": "Gateway VM을 삭제합니다.",
+                "consumes": [
+                    "multipart/form-data"
+                ],
+                "produces": [
+                    "application/json"
+                ],
+                "tags": [
+                    "Gwvm"
+                ],
+                "summary": "Delete to Gateway VM",
+                "parameters": [
+                    {
+                        "type": "string",
+                        "description": "Hypervisor Type",
+                        "name": "hypervisorType",
+                        "in": "path",
+                        "required": true
+                    }
+                ],
+                "responses": {
+                    "200": {
+                        "description": "OK",
+                        "schema": {
+                            "$ref": "#/definitions/model.GwvmMgmt"
+                        }
+                    },
+                    "400": {
+                        "description": "Bad Request",
+                        "schema": {
+                            "$ref": "#/definitions/HTTP400BadRequest"
+                        }
+                    },
+                    "404": {
+                        "description": "Not Found",
+                        "schema": {
+                            "$ref": "#/definitions/HTTP404NotFound"
+                        }
+                    },
+                    "500": {
+                        "description": "Internal Server Error",
+                        "schema": {
+                            "$ref": "#/definitions/HTTP500InternalServerError"
+                        }
+                    }
+                }
+            }
+        },
+        "/api/v1/gwvm/migrate/{hypervisorType}": {
+            "put": {
+                "description": "Gateway VM을 Pcs cluster내 다른 호스트로 마이그레이션 합니다.",
+                "consumes": [
+                    "multipart/form-data"
+                ],
+                "produces": [
+                    "application/json"
+                ],
+                "tags": [
+                    "Gwvm"
+                ],
+                "summary": "VmMigrate to Gateway VM",
+                "parameters": [
+                    {
+                        "type": "string",
+                        "description": "Hypervisor Type",
+                        "name": "hypervisorType",
+                        "in": "path",
+                        "required": true
+                    },
+                    {
+                        "type": "string",
+                        "description": "Migration Target Host",
+                        "name": "target",
+                        "in": "formData",
+                        "required": true
+                    }
+                ],
+                "responses": {
+                    "200": {
+                        "description": "OK",
+                        "schema": {
+                            "$ref": "#/definitions/model.GwvmMgmt"
+                        }
+                    },
+                    "400": {
+                        "description": "Bad Request",
+                        "schema": {
+                            "$ref": "#/definitions/HTTP400BadRequest"
+                        }
+                    },
+                    "404": {
+                        "description": "Not Found",
+                        "schema": {
+                            "$ref": "#/definitions/HTTP404NotFound"
+                        }
+                    },
+                    "500": {
+                        "description": "Internal Server Error",
+                        "schema": {
+                            "$ref": "#/definitions/HTTP500InternalServerError"
+                        }
+                    }
+                }
+            }
+        },
+        "/api/v1/gwvm/start/{hypervisorType}": {
+            "put": {
+                "description": "Gateway VM을 실행합니다.",
+                "consumes": [
+                    "multipart/form-data"
+                ],
+                "produces": [
+                    "application/json"
+                ],
+                "tags": [
+                    "Gwvm"
+                ],
+                "summary": "Start to Gateway VM",
+                "parameters": [
+                    {
+                        "type": "string",
+                        "description": "Hypervisor Type",
+                        "name": "hypervisorType",
+                        "in": "path",
+                        "required": true
+                    }
+                ],
+                "responses": {
+                    "200": {
+                        "description": "OK",
+                        "schema": {
+                            "$ref": "#/definitions/model.GwvmMgmt"
+                        }
+                    },
+                    "400": {
+                        "description": "Bad Request",
+                        "schema": {
+                            "$ref": "#/definitions/HTTP400BadRequest"
+                        }
+                    },
+                    "404": {
+                        "description": "Not Found",
+                        "schema": {
+                            "$ref": "#/definitions/HTTP404NotFound"
+                        }
+                    },
+                    "500": {
+                        "description": "Internal Server Error",
+                        "schema": {
+                            "$ref": "#/definitions/HTTP500InternalServerError"
+                        }
+                    }
+                }
+            }
+        },
+        "/api/v1/gwvm/stop/{hypervisorType}": {
+            "put": {
+                "description": "Gateway VM Pcs cluster를 Cleanup 합니다.",
+                "consumes": [
+                    "multipart/form-data"
+                ],
+                "produces": [
+                    "application/json"
+                ],
+                "tags": [
+                    "Gwvm"
+                ],
+                "summary": "Cleanup to Gateway VM",
+                "parameters": [
+                    {
+                        "type": "string",
+                        "description": "Hypervisor Type",
+                        "name": "hypervisorType",
+                        "in": "path",
+                        "required": true
+                    }
+                ],
+                "responses": {
+                    "200": {
+                        "description": "OK",
+                        "schema": {
+                            "$ref": "#/definitions/model.GwvmMgmt"
+                        }
+                    },
+                    "400": {
+                        "description": "Bad Request",
+                        "schema": {
+                            "$ref": "#/definitions/HTTP400BadRequest"
+                        }
+                    },
+                    "404": {
+                        "description": "Not Found",
+                        "schema": {
+                            "$ref": "#/definitions/HTTP404NotFound"
+                        }
+                    },
+                    "500": {
+                        "description": "Internal Server Error",
+                        "schema": {
+                            "$ref": "#/definitions/HTTP500InternalServerError"
+                        }
+                    }
+                }
+            }
+        },
+        "/api/v1/gwvm/{hypervisorType}": {
+            "get": {
+                "description": "gwvm의 상태를 보여줍니다.",
+                "consumes": [
+                    "application/x-www-form-urlencoded"
+                ],
+                "produces": [
+                    "application/json"
+                ],
+                "tags": [
+                    "Gwvm"
+                ],
+                "summary": "State of Gateway VM",
+                "parameters": [
+                    {
+                        "type": "string",
+                        "description": "Hypervisor Type",
+                        "name": "hypervisorType",
+                        "in": "path",
+                        "required": true
+                    }
+                ],
+                "responses": {
+                    "200": {
+                        "description": "OK",
+                        "schema": {
+                            "$ref": "#/definitions/model.GwvmMgmt"
+                        }
+                    },
+                    "400": {
+                        "description": "Bad Request",
+                        "schema": {
+                            "$ref": "#/definitions/HTTP400BadRequest"
+                        }
+                    },
+                    "404": {
+                        "description": "Not Found",
+                        "schema": {
+                            "$ref": "#/definitions/HTTP404NotFound"
+                        }
+                    },
+                    "500": {
+                        "description": "Internal Server Error",
+                        "schema": {
+                            "$ref": "#/definitions/HTTP500InternalServerError"
+                        }
+                    }
+                }
+            },
+            "post": {
+                "description": "gwvm을 생성합니다.",
+                "consumes": [
+                    "multipart/form-data"
+                ],
+                "produces": [
+                    "application/json"
+                ],
+                "tags": [
+                    "Gwvm"
+                ],
+                "summary": "Setup Gateway Vm",
+                "parameters": [
+                    {
+                        "type": "string",
+                        "description": "Hypervisor Type",
+                        "name": "hypervisorType",
+                        "in": "path",
+                        "required": true
+                    },
+                    {
+                        "type": "string",
+                        "description": "Gwvm Management Nic Paren",
+                        "name": "gwvmMngtNicParen",
+                        "in": "formData",
+                        "required": true
+                    },
+                    {
+                        "type": "string",
+                        "description": "Gwvm Management Nic Ip",
+                        "name": "gwvmMngtNicIp",
+                        "in": "formData",
+                        "required": true
+                    },
+                    {
+                        "type": "string",
+                        "description": "Gwvm Storage Nic Parent",
+                        "name": "gwvmStorageNicParent",
+                        "in": "formData",
+                        "required": true
+                    },
+                    {
+                        "type": "string",
+                        "description": "Gwvm Storage Nic Ip",
+                        "name": "gwvmStorageNicIp",
+                        "in": "formData",
+                        "required": true
+                    }
+                ],
+                "responses": {
+                    "200": {
+                        "description": "OK",
+                        "schema": {
+                            "$ref": "#/definitions/model.GwvmMgmt"
+                        }
+                    },
+                    "400": {
+                        "description": "Bad Request",
+                        "schema": {
+                            "$ref": "#/definitions/HTTP400BadRequest"
+                        }
+                    },
+                    "404": {
+                        "description": "Not Found",
+                        "schema": {
+                            "$ref": "#/definitions/HTTP404NotFound"
+                        }
+                    },
+                    "500": {
+                        "description": "Internal Server Error",
+                        "schema": {
+                            "$ref": "#/definitions/HTTP500InternalServerError"
+                        }
+                    }
+                }
+            }
+        },
         "/api/v1/image": {
             "get": {
                 "description": "Glue 스토리지 풀의 이미지 목록을 보여줍니다.",
@@ -1310,6 +1700,100 @@
             }
         },
         "/api/v1/iscsi": {
+            "put": {
+                "description": "Iscsi 서비스 데몬을 수정합니다.",
+                "consumes": [
+                    "application/x-www-form-urlencoded"
+                ],
+                "produces": [
+                    "application/json"
+                ],
+                "tags": [
+                    "Iscsi"
+                ],
+                "summary": "Update of Iscsi Servcie Daemon",
+                "parameters": [
+                    {
+                        "type": "array",
+                        "items": {
+                            "type": "string"
+                        },
+                        "collectionFormat": "multi",
+                        "description": "Host Name",
+                        "name": "hosts",
+                        "in": "formData",
+                        "required": true
+                    },
+                    {
+                        "type": "string",
+                        "description": "ISCSI Service Name",
+                        "name": "service_id",
+                        "in": "formData",
+                        "required": true
+                    },
+                    {
+                        "type": "string",
+                        "description": "Pool Name",
+                        "name": "pool",
+                        "in": "formData",
+                        "required": true
+                    },
+                    {
+                        "maximum": 65535,
+                        "type": "integer",
+                        "description": "ISCSI API Port",
+                        "name": "api_port",
+                        "in": "formData",
+                        "required": true
+                    },
+                    {
+                        "type": "string",
+                        "description": "ISCSI API User",
+                        "name": "api_user",
+                        "in": "formData",
+                        "required": true
+                    },
+                    {
+                        "type": "string",
+                        "description": "ISCSI API Password",
+                        "name": "api_password",
+                        "in": "formData",
+                        "required": true
+                    },
+                    {
+                        "type": "integer",
+                        "description": "Iscsi Service Daemon Count",
+                        "name": "count",
+                        "in": "formData"
+                    }
+                ],
+                "responses": {
+                    "200": {
+                        "description": "Success",
+                        "schema": {
+                            "type": "string"
+                        }
+                    },
+                    "400": {
+                        "description": "Bad Request",
+                        "schema": {
+                            "$ref": "#/definitions/HTTP400BadRequest"
+                        }
+                    },
+                    "404": {
+                        "description": "Not Found",
+                        "schema": {
+                            "$ref": "#/definitions/HTTP404NotFound"
+                        }
+                    },
+                    "500": {
+                        "description": "Internal Server Error",
+                        "schema": {
+                            "$ref": "#/definitions/HTTP500InternalServerError"
+                        }
+                    }
+                }
+            },
             "post": {
                 "description": "Iscsi 서비스 데몬을 생성합니다.",
                 "consumes": [
@@ -2904,6 +3388,105 @@
             }
         },
         "/api/v1/nfs/ingress": {
+            "put": {
+                "description": "Glue NFS Ingress Service를 수정합니다.",
+                "consumes": [
+                    "application/x-www-form-urlencoded"
+                ],
+                "produces": [
+                    "application/json"
+                ],
+                "tags": [
+                    "NFS-Ingress"
+                ],
+                "summary": "Update of Glue NFS Ingress Service",
+                "parameters": [
+                    {
+                        "type": "string",
+                        "description": "NFS Ingress Service Name",
+                        "name": "service_id",
+                        "in": "formData",
+                        "required": true
+                    },
+                    {
+                        "type": "array",
+                        "items": {
+                            "type": "string"
+                        },
+                        "collectionFormat": "multi",
+                        "description": "NFS Ingress Host Name",
+                        "name": "hostname",
+                        "in": "formData",
+                        "required": true
+                    },
+                    {
+                        "type": "string",
+                        "description": "NFS Cluster Type",
+                        "name": "backend_service",
+                        "in": "formData",
+                        "required": true
+                    },
+                    {
+                        "type": "string",
+                        "description": "NFS Ingress Virtual Ip",
+                        "name": "virtual_ip",
+                        "in": "formData",
+                        "required": true
+                    },
+                    {
+                        "maximum": 65535,
+                        "type": "integer",
+                        "description": "NFS Ingress Access Port",
+                        "name": "frontend_port",
+                        "in": "formData",
+                        "required": true
+                    },
+                    {
+                        "maximum": 65535,
+                        "type": "integer",
+                        "description": "NFS Ingress HA Proxy for Load Balancer Port",
+                        "name": "monitor_port",
+                        "in": "formData",
+                        "required": true
+                    },
+                    {
+                        "type": "array",
+                        "items": {
+                            "type": "string"
+                        },
+                        "collectionFormat": "multi",
+                        "description": "NFS Ingress Vitual IP of CIDR Networks",
+                        "name": "virtual_interface_networks",
+                        "in": "formData"
+                    }
+                ],
+                "responses": {
+                    "200": {
+                        "description": "Success",
+                        "schema": {
+                            "type": "string"
+                        }
+                    },
+                    "400": {
+                        "description": "Bad Request",
+                        "schema": {
+                            "$ref": "#/definitions/HTTP400BadRequest"
+                        }
+                    },
+                    "404": {
+                        "description": "Not Found",
+                        "schema": {
+                            "$ref": "#/definitions/HTTP404NotFound"
+                        }
+                    },
+                    "500": {
+                        "description": "Internal Server Error",
+                        "schema": {
+                            "$ref": "#/definitions/HTTP500InternalServerError"
+                        }
+                    }
+                }
+            },
             "post": {
                 "description": "Glue NFS Ingress Service를 생성합니다.",
                 "consumes": [
@@ -3055,6 +3638,78 @@
             }
         },
         "/api/v1/nfs/{cluster_id}/{port}": {
+            "put": {
+                "description": "Glue NFS Cluster를 수정합니다.",
+                "consumes": [
+                    "application/x-www-form-urlencoded"
+                ],
+                "produces": [
+                    "application/json"
+                ],
+                "tags": [
+                    "NFS"
+                ],
+                "summary": "Update of Glue NFS Cluster",
+                "parameters": [
+                    {
+                        "type": "string",
+                        "description": "NFS Cluster Identifier",
+                        "name": "cluster_id",
+                        "in": "path",
+                        "required": true
+                    },
+                    {
+                        "type": "string",
+                        "description": "Cluster Port",
+                        "name": "port",
+                        "in": "path",
+                        "required": true
+                    },
+                    {
+                        "type": "array",
+                        "items": {
+                            "type": "string"
+                        },
+                        "collectionFormat": "multi",
+                        "description": "Cluster Daemon Hostname",
+                        "name": "hostname",
+                        "in": "formData",
+                        "required": true
+                    },
+                    {
+                        "type": "integer",
+                        "description": "Cluster Daemon Service Count",
+                        "name": "service_count",
+                        "in": "formData"
+                    }
+                ],
+                "responses": {
+                    "200": {
+                        "description": "Success",
+                        "schema": {
+                            "type": "string"
+                        }
+                    },
+                    "400": {
+                        "description": "Bad Request",
+                        "schema": {
+                            "$ref": "#/definitions/HTTP400BadRequest"
+                        }
+                    },
+                    "404": {
+                        "description": "Not Found",
+                        "schema": {
+                            "$ref": "#/definitions/HTTP404NotFound"
+                        }
+                    },
+                    "500": {
+                        "description": "Internal Server Error",
+                        "schema": {
+                            "$ref": "#/definitions/HTTP500InternalServerError"
+                        }
+                    }
+                }
+            },
             "post": {
                 "description": "Glue NFS Cluster를 생성합니다.",
                 "consumes": [
@@ -3194,6 +3849,563 @@
                         "description": "pool_name",
                         "name": "pool_name",
                         "in": "path",
+                        "required": true
+                    }
+                ],
+                "responses": {
+                    "200": {
+                        "description": "Success",
+                        "schema": {
+                            "type": "string"
+                        }
+                    },
+                    "400": {
+                        "description": "Bad Request",
+                        "schema": {
+                            "$ref": "#/definitions/HTTP400BadRequest"
+                        }
+                    },
+                    "404": {
+                        "description": "Not Found",
+                        "schema": {
+                            "$ref": "#/definitions/HTTP404NotFound"
+                        }
+                    },
+                    "500": {
+                        "description": "Internal Server Error",
+                        "schema": {
+                            "$ref": "#/definitions/HTTP500InternalServerError"
+                        }
+                    }
+                }
+            }
+        },
+        "/api/v1/rgw": {
+            "get": {
+                "description": "RADOS Gateway Daemon 정보를 가져옵니다.",
+                "consumes": [
+                    "application/x-www-form-urlencoded"
+                ],
+                "produces": [
+                    "application/json"
+                ],
+                "tags": [
+                    "RGW"
+                ],
+                "summary": "Show List of RADOS Gateway Daemon",
+                "responses": {
+                    "200": {
+                        "description": "OK",
+                        "schema": {
+                            "type": "array",
+                            "items": {
+                                "type": "object",
+                                "properties": {
+                                    "default": {
+                                        "type": "boolean"
+                                    },
+                                    "id": {
+                                        "type": "string"
+                                    },
+                                    "port": {
+                                        "type": "integer"
+                                    },
+                                    "realm_name": {
+                                        "type": "string"
+                                    },
+                                    "server_hostname": {
+                                        "type": "string"
+                                    },
+                                    "service_map_id": {
+                                        "type": "string"
+                                    },
+                                    "version": {
+                                        "type": "string"
+                                    },
+                                    "zone_name": {
+                                        "type": "string"
+                                    },
+                                    "zonegroup_name": {
+                                        "type": "string"
+                                    }
+                                }
+                            }
+                        }
+                    },
+                    "400": {
+                        "description": "Bad Request",
+                        "schema": {
+                            "$ref": "#/definitions/HTTP400BadRequest"
+                        }
+                    },
+                    "404": {
+                        "description": "Not Found",
+                        "schema": {
+                            "$ref": "#/definitions/HTTP404NotFound"
+                        }
+                    },
+                    "500": {
+                        "description": "Internal Server Error",
+                        "schema": {
+                            "$ref": "#/definitions/HTTP500InternalServerError"
+                        }
+                    }
+                }
+            },
+            "put": {
+                "description": "RADOS Gateway Service를 수정합니다.",
+                "consumes": [
+                    "application/x-www-form-urlencoded"
+                ],
+                "produces": [
+                    "application/json"
+                ],
+                "tags": [
+                    "RGW"
+                ],
+                "summary": "Update of RADOS Gateway Service",
+                "parameters": [
+                    {
+                        "type": "string",
+                        "description": "RGW Service Name",
+                        "name": "service_name",
+                        "in": "formData",
+                        "required": true
+                    },
+                    {
+                        "type": "string",
+                        "description": "RGW Realm Name",
+                        "name": "realm_name",
+                        "in": "formData"
+                    },
+                    {
+                        "type": "string",
+                        "description": "RGW Zone Group Name",
+                        "name": "zonegroup_name",
+                        "in": "formData"
+                    },
+                    {
+                        "type": "string",
+                        "description": "RGW Zone Name",
+                        "name": "zone_name",
+                        "in": "formData"
+                    },
+                    {
+                        "type": "integer",
+                        "description": "Service Port(default: 80)",
+                        "name": "port",
+                        "in": "formData"
+                    },
+                    {
+                        "type": "array",
+                        "items": {
+                            "type": "string"
+                        },
+                        "collectionFormat": "multi",
+                        "description": "Service Placement Hosts",
+                        "name": "hosts",
+                        "in": "formData",
+                        "required": true
+                    }
+                ],
+                "responses": {
+                    "200": {
+                        "description": "OK",
+                        "schema": {
+                            "type": "string"
+                        }
+                    },
+                    "400": {
+                        "description": "Bad Request",
+                        "schema": {
+                            "$ref": "#/definitions/HTTP400BadRequest"
+                        }
+                    },
+                    "404": {
+                        "description": "Not Found",
+                        "schema": {
+                            "$ref": "#/definitions/HTTP404NotFound"
+                        }
+                    },
+                    "500": {
+                        "description": "Internal Server Error",
+                        "schema": {
+                            "$ref": "#/definitions/HTTP500InternalServerError"
+                        }
+                    }
+                }
+            },
+            "post": {
+                "description": "RADOS Gateway Service를 생성합니다.",
+                "consumes": [
+                    "application/x-www-form-urlencoded"
+                ],
+                "produces": [
+                    "application/json"
+                ],
+                "tags": [
+                    "RGW"
+                ],
+                "summary": "Create of RADOS Gateway Service",
+                "parameters": [
+                    {
+                        "type": "string",
+                        "description": "RGW Service Name",
+                        "name": "service_name",
+                        "in": "formData",
+                        "required": true
+                    },
+                    {
+                        "type": "string",
+                        "description": "RGW Realm Name",
+                        "name": "realm_name",
+                        "in": "formData"
+                    },
+                    {
+                        "type": "string",
+                        "description": "RGW Zone Group Name",
+                        "name": "zonegroup_name",
+                        "in": "formData"
+                    },
+                    {
+                        "type": "string",
+                        "description": "RGW Zone Name",
+                        "name": "zone_name",
+                        "in": "formData"
+                    },
+                    {
+                        "type": "integer",
+                        "description": "Service Port(default: 80)",
+                        "name": "port",
+                        "in": "formData"
+                    },
+                    {
+                        "type": "array",
+                        "items": {
+                            "type": "string"
+                        },
+                        "collectionFormat": "multi",
+                        "description": "Service Placement Hosts",
+                        "name": "hosts",
+                        "in": "formData",
+                        "required": true
+                    }
+                ],
+                "responses": {
+                    "200": {
+                        "description": "OK",
+                        "schema": {
+                            "type": "string"
+                        }
+                    },
+                    "400": {
+                        "description": "Bad Request",
+                        "schema": {
+                            "$ref": "#/definitions/HTTP400BadRequest"
+                        }
+                    },
+                    "404": {
+                        "description": "Not Found",
+                        "schema": {
+                            "$ref": "#/definitions/HTTP404NotFound"
+                        }
+                    },
+                    "500": {
+                        "description": "Internal Server Error",
+                        "schema": {
+                            "$ref": "#/definitions/HTTP500InternalServerError"
+                        }
+                    }
+                }
+            }
+        },
+        "/api/v1/rgw/quota": {
+            "post": {
+                "description": "RADOS Gateway Quota를 설정 및 활성화합니다.",
+                "consumes": [
+                    "application/x-www-form-urlencoded"
+                ],
+                "produces": [
+                    "application/json"
+                ],
+                "tags": [
+                    "RGW"
+                ],
+                "summary": "Setting of RADOS Gateway Quota",
+                "parameters": [
+                    {
+                        "type": "string",
+                        "description": "RGW User ID Name",
+                        "name": "username",
+                        "in": "formData",
+                        "required": true
+                    },
+                    {
+                        "enum": [
+                            "user",
+                            "bucket"
+                        ],
+                        "type": "string",
+                        "description": "RGW Quota Target",
+                        "name": "scope",
+                        "in": "formData",
+                        "required": true
+                    },
+                    {
+                        "type": "integer",
+                        "description": "RGW Quota Max Objects",
+                        "name": "max_objects",
+                        "in": "formData",
+                        "required": true
+                    },
+                    {
+                        "type": "string",
+                        "description": "RGW Quota Max Size(B/K/M/G/T)",
+                        "name": "max_size",
+                        "in": "formData",
+                        "required": true
+                    },
+                    {
+                        "enum": [
+                            "enable",
+                            "disable"
+                        ],
+                        "type": "string",
+                        "default": "enable",
+                        "description": "RGW Quota Whether Activated",
+                        "name": "state",
+                        "in": "formData",
+                        "required": true
+                    }
+                ],
+                "responses": {
+                    "200": {
+                        "description": "Success",
+                        "schema": {
+                            "type": "string"
+                        }
+                    },
+                    "400": {
+                        "description": "Bad Request",
+                        "schema": {
+                            "$ref": "#/definitions/HTTP400BadRequest"
+                        }
+                    },
+                    "404": {
+                        "description": "Not Found",
+                        "schema": {
+                            "$ref": "#/definitions/HTTP404NotFound"
+                        }
+                    },
+                    "500": {
+                        "description": "Internal Server Error",
+                        "schema": {
+                            "$ref": "#/definitions/HTTP500InternalServerError"
+                        }
+                    }
+                }
+            }
+        },
+        "/api/v1/rgw/user": {
+            "get": {
+                "description": "RADOS Gateway User의 리스트 및 정보를 보여줍니다.",
+                "consumes": [
+                    "application/x-www-form-urlencoded"
+                ],
+                "produces": [
+                    "application/json"
+                ],
+                "tags": [
+                    "RGW-User"
+                ],
+                "summary": "List and Info of RADOS Gateway Users",
+                "responses": {
+                    "200": {
+                        "description": "OK",
+                        "schema": {
+                            "$ref": "#/definitions/RgwUserInfo"
+                        }
+                    },
+                    "400": {
+                        "description": "Bad Request",
+                        "schema": {
+                            "$ref": "#/definitions/HTTP400BadRequest"
+                        }
+                    },
+                    "404": {
+                        "description": "Not Found",
+                        "schema": {
+                            "$ref": "#/definitions/HTTP404NotFound"
+                        }
+                    },
+                    "500": {
+                        "description": "Internal Server Error",
+                        "schema": {
+                            "$ref": "#/definitions/HTTP500InternalServerError"
+                        }
+                    }
+                }
+            },
+            "put": {
+                "description": "RADOS Gateway User를 수정합니다.",
+                "consumes": [
+                    "application/x-www-form-urlencoded"
+                ],
+                "produces": [
+                    "application/json"
+                ],
+                "tags": [
+                    "RGW-User"
+                ],
+                "summary": "Update of RADOS Gateway User",
+                "parameters": [
+                    {
+                        "type": "string",
+                        "description": "RGW User ID Name",
+                        "name": "username",
+                        "in": "formData",
+                        "required": true
+                    },
+                    {
+                        "type": "string",
+                        "description": "RGW User Display Name",
+                        "name": "display_name",
+                        "in": "formData"
+                    },
+                    {
+                        "type": "string",
+                        "description": "RGW User Email ",
+                        "name": "email",
+                        "in": "formData"
+                    },
+                    {
+                        "enum": [
+                            "s3"
+                        ],
+                        "type": "string",
+                        "description": "RGW User S3",
+                        "name": "key_type",
+                        "in": "formData"
+                    },
+                    {
+                        "type": "string",
+                        "description": "RGW User S3 Access Key",
+                        "name": "access_key",
+                        "in": "formData"
+                    },
+                    {
+                        "type": "string",
+                        "description": "RGW User S3 Secret Key",
+                        "name": "secret_key",
+                        "in": "formData"
+                    }
+                ],
+                "responses": {
+                    "200": {
+                        "description": "Success",
+                        "schema": {
+                            "type": "string"
+                        }
+                    },
+                    "400": {
+                        "description": "Bad Request",
+                        "schema": {
+                            "$ref": "#/definitions/HTTP400BadRequest"
+                        }
+                    },
+                    "404": {
+                        "description": "Not Found",
+                        "schema": {
+                            "$ref": "#/definitions/HTTP404NotFound"
+                        }
+                    },
+                    "500": {
+                        "description": "Internal Server Error",
+                        "schema": {
+                            "$ref": "#/definitions/HTTP500InternalServerError"
+                        }
+                    }
+                }
+            },
+            "post": {
+                "description": "RADOS Gateway User를 생성합니다.",
+                "consumes": [
+                    "application/x-www-form-urlencoded"
+                ],
+                "produces": [
+                    "application/json"
+                ],
+                "tags": [
+                    "RGW-User"
+                ],
+                "summary": "Create of RADOS Gateway User",
+                "parameters": [
+                    {
+                        "type": "string",
+                        "description": "RGW User ID Name",
+                        "name": "username",
+                        "in": "formData",
+                        "required": true
+                    },
+                    {
+                        "type": "string",
+                        "description": "RGW  User Display Name",
+                        "name": "display_name",
+                        "in": "formData",
+                        "required": true
+                    },
+                    {
+                        "type": "string",
+                        "description": "RGW User Email",
+                        "name": "email",
+                        "in": "formData"
+                    }
+                ],
+                "responses": {
+                    "200": {
+                        "description": "Success",
+                        "schema": {
+                            "type": "string"
+                        }
+                    },
+                    "400": {
+                        "description": "Bad Request",
+                        "schema": {
+                            "$ref": "#/definitions/HTTP400BadRequest"
+                        }
+                    },
+                    "404": {
+                        "description": "Not Found",
+                        "schema": {
+                            "$ref": "#/definitions/HTTP404NotFound"
+                        }
+                    },
+                    "500": {
+                        "description": "Internal Server Error",
+                        "schema": {
+                            "$ref": "#/definitions/HTTP500InternalServerError"
+                        }
+                    }
+                }
+            },
+            "delete": {
+                "description": "RADOS Gateway User를 삭제합니다.",
+                "consumes": [
+                    "application/x-www-form-urlencoded"
+                ],
+                "produces": [
+                    "application/json"
+                ],
+                "tags": [
+                    "RGW-User"
+                ],
+                "summary": "Delete of RADOS Gateway User",
+                "parameters": [
+                    {
+                        "type": "string",
+                        "description": "RGW User ID Name",
+                        "name": "username",
+                        "in": "query",
                         "required": true
                     }
                 ],
@@ -4484,6 +5696,122 @@
                 }
             }
         },
+        "RgwUserInfo": {
+            "type": "object",
+            "properties": {
+                "bucket_quota": {
+                    "type": "object",
+                    "properties": {
+                        "check_on_raw": {
+                            "type": "boolean"
+                        },
+                        "enabled": {
+                            "type": "boolean"
+                        },
+                        "max_objects": {
+                            "type": "integer"
+                        },
+                        "max_size": {
+                            "type": "integer"
+                        },
+                        "max_size_kb": {
+                            "type": "integer"
+                        }
+                    }
+                },
+                "caps": {
+                    "type": "array",
+                    "items": {}
+                },
+                "default_placement": {
+                    "type": "string"
+                },
+                "default_storage_class": {
+                    "type": "string"
+                },
+                "display_name": {
+                    "type": "string"
+                },
+                "email": {
+                    "type": "string"
+                },
+                "keys": {
+                    "type": "array",
+                    "items": {
+                        "type": "object",
+                        "properties": {
+                            "access_key": {
+                                "type": "string"
+                            },
+                            "secret_key": {
+                                "type": "string"
+                            },
+                            "user": {
+                                "type": "string"
+                            }
+                        }
+                    }
+                },
+                "max_buckets": {
+                    "type": "integer"
+                },
+                "mfa_ids": {
+                    "type": "array",
+                    "items": {}
+                },
+                "op_mask": {
+                    "type": "string"
+                },
+                "placement_tags": {
+                    "type": "array",
+                    "items": {}
+                },
+                "subusers": {
+                    "type": "array",
+                    "items": {}
+                },
+                "suspended": {
+                    "type": "integer"
+                },
+                "swift_keys": {
+                    "type": "array",
+                    "items": {}
+                },
+                "system": {
+                    "type": "boolean"
+                },
+                "temp_url_keys": {
+                    "type": "array",
+                    "items": {}
+                },
+                "type": {
+                    "type": "string"
+                },
+                "user_id": {
+                    "type": "string"
+                },
+                "user_quota": {
+                    "type": "object",
+                    "properties": {
+                        "check_on_raw": {
+                            "type": "boolean"
+                        },
+                        "enabled": {
+                            "type": "boolean"
+                        },
+                        "max_objects": {
+                            "type": "integer"
+                        },
+                        "max_size": {
+                            "type": "integer"
+                        },
+                        "max_size_kb": {
+                            "type": "integer"
+                        }
+                    }
+                }
+            }
+        },
         "SmbStatus": {
             "type": "object",
             "properties": {
@@ -4679,6 +6007,14 @@
                     "type": "string",
                     "format": "string",
                     "example": "1.0"
+                }
+            }
+        },
+        "model.GwvmMgmt": {
+            "type": "object",
+            "properties": {
+                "message": {
+                    "type": "string"
                 }
             }
         }

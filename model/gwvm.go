@@ -5,6 +5,5 @@ package model
 // )
 
 type GwvmMgmt struct {
-	AbleModel
 	Message string
 }

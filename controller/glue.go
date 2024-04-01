@@ -274,6 +274,7 @@ func (c *Controller) ServiceLs(ctx *gin.Context) {
 		httputil.NewError(ctx, http.StatusInternalServerError, err)
 		return
 	}
+
 	// Print the output
 	ctx.Header("Access-Control-Allow-Origin", "*")
 	ctx.IndentedJSON(http.StatusOK, dat)
@@ -322,6 +323,27 @@ func (c *Controller) ServiceControl(ctx *gin.Context) {
 //	@Router			/api/v1/service/{service_name} [delete]
 func (c *Controller) ServiceDelete(ctx *gin.Context) {
 	service_name := ctx.Param("service_name")
+	// if strings.Contains(service_name, "rgw") {
+	// 	rgw_dat, err := glue.RgwPool()
+	// 	if err != nil {
+	// 		utils.FancyHandleError(err)
+	// 		httputil.NewError(ctx, http.StatusInternalServerError, err)
+	// 		return
+	// 	}
+	// 	for i := 0; i < len(rgw_dat); i++ {
+	// 		a, err := glue.PoolDelete(rgw_dat[i])
+	// 		if err != nil {
+	// 			utils.FancyHandleError(err)
+	// 			httputil.NewError(ctx, http.StatusInternalServerError, err)
+	// 			return
+	// 		}
+	// 		fmt.Print(a)
+	// 		if i == len(rgw_dat)-1 {
+	// 			ctx.Header("Access-Control-Allow-Origin", "*")
+	// 			ctx.IndentedJSON(http.StatusOK, "Success")
+	// 		}
+	// 	}
+	// }
 	dat, err := glue.ServiceDelete(service_name)
 	if err != nil {
 		utils.FancyHandleError(err)

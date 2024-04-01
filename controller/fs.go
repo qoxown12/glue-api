@@ -30,6 +30,11 @@ func (c *Controller) FsOption(ctx *gin.Context) {
 //	@Router			/api/v1/gluefs [get]
 func (c *Controller) FsStatus(ctx *gin.Context) {
 	dat, err := fs.FsStatus()
+	if err != nil {
+		utils.FancyHandleError(err)
+		httputil.NewError(ctx, http.StatusInternalServerError, err)
+		return
+	}
 	dat2, err := fs.FsList()
 	value := model.FsSum{
 		FsStatus: dat,
@@ -79,6 +84,34 @@ func (c *Controller) FsCreate(ctx *gin.Context) {
 	}
 	hosts_str := strings.Join(hosts, ",")
 	dat, err := fs.FsCreate(fs_name, data_pool_size, meta_pool_size, hosts_str)
+	if err != nil {
+		utils.FancyHandleError(err)
+		httputil.NewError(ctx, http.StatusInternalServerError, err)
+		return
+	}
+	// Print the output
+	ctx.Header("Access-Control-Allow-Origin", "*")
+	ctx.IndentedJSON(http.StatusOK, dat)
+}
+
+// FsUpdate godoc
+//
+//	@Summary		Update of Glue FS
+//	@Description	GlueFS를 수정합니다.
+//	@param			old_name 	path	string	true	"Glue FS Old Name"
+//	@param			new_name 	formData	string	true	"Glue FS New Name"
+//	@Tags			GlueFS
+//	@Accept			x-www-form-urlencoded
+//	@Produce		json
+//	@Success		200	{string}	string	"Success"
+//	@Failure		400	{object}	httputil.HTTP400BadRequest
+//	@Failure		404	{object}	httputil.HTTP404NotFound
+//	@Failure		500	{object}	httputil.HTTP500InternalServerError
+//	@Router			/api/v1/gluefs/{new_name} [put]
+func (c *Controller) FsUpdate(ctx *gin.Context) {
+	new_name := ctx.Param("new_name")
+	old_name, _ := ctx.GetPostForm("old_name")
+	dat, err := fs.FsUpdate(old_name, new_name)
 	if err != nil {
 		utils.FancyHandleError(err)
 		httputil.NewError(ctx, http.StatusInternalServerError, err)

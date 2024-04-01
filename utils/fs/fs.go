@@ -216,3 +216,35 @@ func FsList() (dat model.FsList, err error) {
 
 	return
 }
+
+func FsUpdate(old_name string, new_name string) (output string, err error) {
+	var stdout []byte
+	cmd := exec.Command("ceph", "fs", "rename", old_name, new_name, "--yes-i-really-mean-it")
+	stdout, err = cmd.CombinedOutput()
+	if err != nil {
+		err_str := strings.ReplaceAll(string(stdout), "\n", "")
+		err = errors.New(err_str)
+		utils.FancyHandleError(err)
+		return
+	} else {
+		cmd := exec.Command("ceph", "osd", "pool", "rename", old_name+".data", new_name+".data")
+		stdout, err = cmd.CombinedOutput()
+		if err != nil {
+			err_str := strings.ReplaceAll(string(stdout), "\n", "")
+			err = errors.New(err_str)
+			utils.FancyHandleError(err)
+			return
+		} else {
+			cmd := exec.Command("ceph", "osd", "pool", "rename", old_name+".meta", new_name+".meta")
+			stdout, err = cmd.CombinedOutput()
+			if err != nil {
+				err_str := strings.ReplaceAll(string(stdout), "\n", "")
+				err = errors.New(err_str)
+				utils.FancyHandleError(err)
+				return
+			}
+			output = "Success"
+			return
+		}
+	}
+}

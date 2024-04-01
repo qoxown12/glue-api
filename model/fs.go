@@ -23,6 +23,14 @@ type FsStatus struct {
 		Used  int    `json:"used"`
 	} `json:"pools"`
 } //@name FsStatus
+type FsUpdate struct {
+	Service_type string      `yaml:"service_type"`
+	Service_id   string      `yaml:"service_id"`
+	Placement    FsPlacement `yaml:"placement"`
+} //@name FsUpdate
+type FsPlacement struct {
+	Hosts []string `yaml:"hosts"`
+}
 
 // FsList model info
 // @Description GlueFS 리스트 구조체

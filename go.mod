@@ -8,11 +8,9 @@ require (
 	github.com/melbahja/goph v1.4.0
 	github.com/swaggo/files v1.0.1
 	github.com/swaggo/gin-swagger v1.6.0
-	github.com/swaggo/swag v1.16.3
+	github.com/swaggo/swag v1.16.2
 	gopkg.in/yaml.v2 v2.4.0
 )
-
-require github.com/google/go-cmp v0.5.9 // indirect
 
 require (
 	github.com/KyleBanks/depth v1.2.1 // indirect

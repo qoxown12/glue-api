@@ -188,7 +188,7 @@ func Status() (dat model.GlueStatus, err error) {
 
 func PoolDelete(pool_name string) (output string, err error) {
 	var stdout []byte
-	cmd := exec.Command("ceph", "osd", "pool", "rm", pool_name, pool_name, "--yes-i-really-really-mean-it")
+	cmd := exec.Command("ceph", "config", "get", "mon", "mon_allow_pool_delete")
 	stdout, err = cmd.CombinedOutput()
 	if err != nil {
 		err_str := strings.ReplaceAll(string(stdout), "\n", "")
@@ -196,8 +196,38 @@ func PoolDelete(pool_name string) (output string, err error) {
 		utils.FancyHandleError(err)
 		return
 	}
-	output = "Success"
-	return
+	if string(stdout) == "true" {
+		cmd := exec.Command("ceph", "osd", "pool", "rm", pool_name, pool_name, "--yes-i-really-really-mean-it")
+		stdout, err = cmd.CombinedOutput()
+		if err != nil {
+			err_str := strings.ReplaceAll(string(stdout), "\n", "")
+			err = errors.New(err_str)
+			utils.FancyHandleError(err)
+			return
+		}
+		output = "Success"
+		return
+	} else {
+		cmd := exec.Command("ceph", "config", "set", "mon", "mon_allow_pool_delete", "true")
+		stdout, err = cmd.CombinedOutput()
+		if err != nil {
+			err_str := strings.ReplaceAll(string(stdout), "\n", "")
+			err = errors.New(err_str)
+			utils.FancyHandleError(err)
+			return
+		} else {
+			cmd := exec.Command("ceph", "osd", "pool", "rm", pool_name, pool_name, "--yes-i-really-really-mean-it")
+			stdout, err = cmd.CombinedOutput()
+			if err != nil {
+				err_str := strings.ReplaceAll(string(stdout), "\n", "")
+				err = errors.New(err_str)
+				utils.FancyHandleError(err)
+				return
+			}
+			output = "Success"
+			return
+		}
+	}
 }
 func ServiceLs(service_name string, service_type string) (dat model.ServiceLs, err error) {
 	var stdout []byte
@@ -226,11 +256,16 @@ func ServiceLs(service_name string, service_type string) (dat model.ServiceLs, e
 			utils.FancyHandleError(err)
 			return
 		}
-		if err = json.Unmarshal(stdout, &dat); err != nil {
-			err_str := strings.ReplaceAll(string(stdout), "\n", "")
-			err = errors.New(err_str)
-			utils.FancyHandleError(err)
+		if strings.Contains(string(stdout), "No services reported") {
+			dat = "No services reported"
 			return
+		} else {
+			if err = json.Unmarshal(stdout, &dat); err != nil {
+				err_str := strings.ReplaceAll(string(stdout), "\n", "")
+				err = errors.New(err_str)
+				utils.FancyHandleError(err)
+				return
+			}
 		}
 		return
 	} else if service_name != "" && service_type == "" {
@@ -242,11 +277,16 @@ func ServiceLs(service_name string, service_type string) (dat model.ServiceLs, e
 			utils.FancyHandleError(err)
 			return
 		}
-		if err = json.Unmarshal(stdout, &dat); err != nil {
-			err_str := strings.ReplaceAll(string(stdout), "\n", "")
-			err = errors.New(err_str)
-			utils.FancyHandleError(err)
+		if strings.Contains(string(stdout), "No services reported") {
+			dat = "No services reported"
 			return
+		} else {
+			if err = json.Unmarshal(stdout, &dat); err != nil {
+				err_str := strings.ReplaceAll(string(stdout), "\n", "")
+				err = errors.New(err_str)
+				utils.FancyHandleError(err)
+				return
+			}
 		}
 		return
 	} else {
@@ -258,11 +298,16 @@ func ServiceLs(service_name string, service_type string) (dat model.ServiceLs, e
 			utils.FancyHandleError(err)
 			return
 		}
-		if err = json.Unmarshal(stdout, &dat); err != nil {
-			err_str := strings.ReplaceAll(string(stdout), "\n", "")
-			err = errors.New(err_str)
-			utils.FancyHandleError(err)
+		if strings.Contains(string(stdout), "No services reported") {
+			dat = "No services reported"
 			return
+		} else {
+			if err = json.Unmarshal(stdout, &dat); err != nil {
+				err_str := strings.ReplaceAll(string(stdout), "\n", "")
+				err = errors.New(err_str)
+				utils.FancyHandleError(err)
+				return
+			}
 		}
 		return
 	}
@@ -338,5 +383,27 @@ func HostIp() (output []byte, err error) {
 		return
 	}
 	output = stdout
+	return
+}
+func RgwPool() (output []string, err error) {
+	var stdout []byte
+	cmd := exec.Command("sh", "-c", "ceph osd pool ls | grep 'rgw' | sort")
+	stdout, err = cmd.CombinedOutput()
+	if err != nil {
+		err_str := strings.ReplaceAll(string(stdout), "\n", "")
+		err = errors.New(err_str)
+		utils.FancyHandleError(err)
+		return
+	}
+	var str []string
+	str_data := strings.Split(string(stdout), "\n")
+	for i := 0; i < len(str_data); i++ {
+		strs := str_data[i]
+		str = append(str, strs)
+		if i == len(str_data)-1 {
+			str = str[:len(str_data)-1]
+		}
+	}
+	output = str
 	return
 }

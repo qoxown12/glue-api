@@ -216,7 +216,134 @@ func (c *Controller) IscsiServiceCreate(ctx *gin.Context) {
 		ctx.Header("Access-Control-Allow-Origin", "*")
 		ctx.IndentedJSON(http.StatusOK, dat)
 	}
+}
 
+// IscsiServiceUpdate godoc
+//
+//	@Summary		Update of Iscsi Servcie Daemon
+//	@Description	Iscsi 서비스 데몬을 수정합니다.
+//	@param			hosts 	formData	[]string	true	"Host Name" collectionFormat(multi)
+//	@param			service_id	formData	string	true	"ISCSI Service Name"
+//	@param			pool 	formData	string	true	"Pool Name"
+//	@param			api_port 	formData	int	true	"ISCSI API Port" maximum(65535)
+//	@param			api_user 	formData	string	true	"ISCSI API User"
+//	@param			api_password 	formData	string	true	"ISCSI API Password"
+//	@param			count 	formData	int	false	"Iscsi Service Daemon Count"
+//	@Tags			Iscsi
+//	@Accept			x-www-form-urlencoded
+//	@Produce		json
+//	@Success		200	{string}	string	"Success"
+//	@Failure		400	{object}	httputil.HTTP400BadRequest
+//	@Failure		404	{object}	httputil.HTTP404NotFound
+//	@Failure		500	{object}	httputil.HTTP500InternalServerError
+//	@Router			/api/v1/iscsi [put]
+func (c *Controller) IscsiServiceUpdate(ctx *gin.Context) {
+	service_id, _ := ctx.GetPostForm("service_id")
+	hosts, _ := ctx.GetPostFormArray("hosts")
+	pool, _ := ctx.GetPostForm("pool")
+	api_port, _ := ctx.GetPostForm("api_port")
+	api_user, _ := ctx.GetPostForm("api_user")
+	api_password, _ := ctx.GetPostForm("api_password")
+	service_count, _ := ctx.GetPostForm("count")
+	port, _ := strconv.Atoi(api_port)
+	count, _ := strconv.Atoi(service_count)
+
+	var ip_data []string
+	for i := 0; i < len(hosts); i++ {
+		dat, err := iscsi.Ip(hosts[i])
+		if err != nil {
+			utils.FancyHandleError(err)
+			httputil.NewError(ctx, http.StatusInternalServerError, err)
+			return
+		}
+		ip := strings.Split(dat, "\n")
+		ip_data = append(ip_data, ip[0])
+	}
+	ip_address := strings.Join(ip_data, ",")
+	if service_count == "" {
+		value := model.IscsiServiceCreate{
+			Service_Type: "iscsi",
+			Service_Id:   service_id,
+			Spec: model.Spec{
+				Pool:          pool,
+				Api_Port:      port,
+				Api_User:      api_user,
+				Api_Password:  api_password,
+				TrustedIpList: ip_address},
+			Placement: model.Placement{
+				Hosts: hosts},
+		}
+		yaml_data, err := yaml.Marshal(&value)
+		if err != nil {
+			utils.FancyHandleError(err)
+			httputil.NewError(ctx, http.StatusInternalServerError, err)
+			return
+		}
+		iscsi_yaml := "/etc/ceph/iscsi.yaml"
+		err = os.WriteFile(iscsi_yaml, yaml_data, 0644)
+		if err != nil {
+			utils.FancyHandleError(err)
+			httputil.NewError(ctx, http.StatusInternalServerError, err)
+			return
+		}
+
+		dat, err := iscsi.IscsiServiceCreate(iscsi_yaml)
+		if err != nil {
+			utils.FancyHandleError(err)
+			httputil.NewError(ctx, http.StatusInternalServerError, err)
+			return
+		} else {
+			if err := os.Remove(iscsi_yaml); err != nil {
+				utils.FancyHandleError(err)
+				httputil.NewError(ctx, http.StatusInternalServerError, err)
+			}
+		}
+		// Print the output
+		ctx.Header("Access-Control-Allow-Origin", "*")
+		ctx.IndentedJSON(http.StatusOK, dat)
+	} else {
+		value := model.IscsiServiceCreateCount{
+			Service_Type: "iscsi",
+			Service_Id:   service_id,
+			Spec: model.Spec{
+				Pool:          pool,
+				Api_Port:      port,
+				Api_User:      api_user,
+				Api_Password:  api_password,
+				TrustedIpList: ip_address},
+			Placement: model.PlacementCount{
+				Count: count,
+				Hosts: hosts},
+		}
+		yaml_data, err := yaml.Marshal(&value)
+		if err != nil {
+			utils.FancyHandleError(err)
+			httputil.NewError(ctx, http.StatusInternalServerError, err)
+			return
+		}
+		iscsi_yaml := "/etc/ceph/iscsi.yaml"
+		err = os.WriteFile(iscsi_yaml, yaml_data, 0644)
+		if err != nil {
+			utils.FancyHandleError(err)
+			httputil.NewError(ctx, http.StatusInternalServerError, err)
+			return
+		}
+
+		dat, err := iscsi.IscsiServiceCreate(iscsi_yaml)
+		if err != nil {
+			utils.FancyHandleError(err)
+			httputil.NewError(ctx, http.StatusInternalServerError, err)
+			return
+		} else {
+			if err := os.Remove(iscsi_yaml); err != nil {
+				utils.FancyHandleError(err)
+				httputil.NewError(ctx, http.StatusInternalServerError, err)
+			}
+		}
+		// Print the output
+		ctx.Header("Access-Control-Allow-Origin", "*")
+		ctx.IndentedJSON(http.StatusOK, dat)
+	}
 }
 
 // IscsiTargetList godoc

@@ -27,10 +27,11 @@ import (
 
 //	@securityDefinitions.basic	BasicAuth
 
-// @securityDefinitions.apikey	ApiKeyAuth
-// @in							header
-// @name						Authorization
-// @description				Description for what is this security definition being used
+//	@securityDefinitions.apikey	ApiKeyAuth
+//	@in							header
+//	@name						Authorization
+//	@description				Description for what is this security definition being used
+
 func main() {
 	// programmatically set swagger info
 
@@ -39,7 +40,7 @@ func main() {
 	docs.SwaggerInfo.Version = "1.0"
 	//docs.SwaggerInfo.Host = ".swagger.io"
 	docs.SwaggerInfo.BasePath = "/"
-	docs.SwaggerInfo.Schemes = []string{"http", "https"}
+	docs.SwaggerInfo.Schemes = []string{"https", "http"}
 	log.SetFlags(log.LstdFlags | log.Lshortfile)
 	r := gin.Default()
 	r.ForwardedByClientIP = true
@@ -51,12 +52,15 @@ func main() {
 		glue := v1.Group("/glue")
 		{
 			glue.GET("", c.GlueStatus)
+
 			glue.GET("/hosts", c.HostList)
+
 			glue.GET("/version", c.GlueVersion)
 		}
 		pool := v1.Group("/pool")
 		{
 			pool.GET("", c.ListPools)
+
 			pool.DELETE("/:pool_name", c.PoolDelete)
 			pool.OPTIONS("/:pool_name", c.GlueOption)
 		}
@@ -70,6 +74,7 @@ func main() {
 		service := v1.Group("/service")
 		{
 			service.GET("", c.ServiceLs)
+
 			service.POST("/:service_name", c.ServiceControl)
 			service.DELETE("/:service_name", c.ServiceDelete)
 			service.OPTIONS("/:service_name", c.GlueOption)
@@ -77,9 +82,12 @@ func main() {
 		fs := v1.Group("/gluefs")
 		{
 			fs.GET("", c.FsStatus)
+
 			fs.POST("/:fs_name", c.FsCreate)
+			fs.PUT("/:new_name", c.FsUpdate)
 			fs.DELETE("/:fs_name", c.FsDelete)
 			fs.OPTIONS("/:fs_name", c.FsOption)
+
 			fs.GET("/info/:fs_name", c.FsGetInfo)
 
 			subvolume := fs.Group("/subvolume")
@@ -98,6 +106,7 @@ func main() {
 					group.PUT("", c.SubVolumeGroupResize)
 
 					group.DELETE("/snapshot", c.SubVolumeGroupSnapDelete)
+
 					group.OPTIONS("", c.SubVolumeOption)
 				}
 				snapshot := subvolume.Group("/snapshot")
@@ -112,16 +121,26 @@ func main() {
 		nfs := v1.Group("/nfs")
 		{
 			nfs.GET("", c.NfsClusterList)
+
 			nfs.POST("/:cluster_id/:port", c.NfsClusterCreate)
+			nfs.PUT("/:cluster_id/:port", c.NfsClusterUpdate)
+			nfs.OPTIONS("/:cluster_id/:port", c.NfsOption)
+
 			nfs.DELETE("/:cluster_id", c.NfsClusterDelete)
 			nfs.OPTIONS("/:cluster_id", c.NfsOption)
+
 			nfs.POST("/ingress", c.NfsIngressCreate)
+			nfs.PUT("/ingress", c.NfsIngressUpdate)
+			nfs.OPTIONS("/ingress", c.NfsOption)
+
 			nfs_export := nfs.Group("/export")
 			{
 				nfs_export.GET("", c.NfsExportDetailed)
+
 				nfs_export.POST("/:cluster_id", c.NfsExportCreate)
 				nfs_export.PUT("/:cluster_id", c.NfsExportUpdate)
 				nfs_export.OPTIONS("/:cluster_id", c.NfsOption)
+
 				nfs_export.DELETE("/:cluster_id/:export_id", c.NfsExportDelete)
 				nfs_export.OPTIONS("/:cluster_id/:export_id", c.NfsOption)
 			}
@@ -129,6 +148,8 @@ func main() {
 		iscsi := v1.Group("/iscsi")
 		{
 			iscsi.POST("", c.IscsiServiceCreate)
+			iscsi.PUT("", c.IscsiServiceUpdate)
+			iscsi.OPTIONS("", c.IscsiOption)
 
 			iscsi.GET("/discovery", c.IscsiGetDiscoveryAuth)
 			iscsi.PUT("/discovery", c.IscsiUpdateDiscoveryAuth)
@@ -150,12 +171,30 @@ func main() {
 			smb.POST("", c.SmbCreate)
 			smb.DELETE("", c.SmbDelete)
 			smb.OPTIONS("", c.SmbOption)
+
 			smb_user := smb.Group("/user")
 			{
 				smb_user.POST("", c.SmbUserCreate)
 				smb_user.PUT("", c.SmbUserUpdate)
 				smb_user.DELETE("", c.SmbUserDelete)
 				smb_user.OPTIONS("", c.SmbOption)
+			}
+		}
+		rgw := v1.Group("/rgw")
+		{
+			rgw.GET("", c.RgwDaemon)
+			rgw.POST("", c.RgwServiceCreate)
+			rgw.PUT("", c.RgwServiceUpdate)
+			rgw.OPTIONS("", c.RgwOption)
+			rgw.POST("/quota", c.RgwQuota)
+
+			user := rgw.Group("/user")
+			{
+				user.GET("", c.RgwUserList)
+				user.POST("", c.RgwUserCreate)
+				user.DELETE("", c.RgwUserDelete)
+				user.PUT("", c.RgwUserUpdate)
+				user.OPTIONS("", c.RgwOption)
 			}
 		}
 		mirror := v1.Group("/mirror")
@@ -184,18 +223,12 @@ func main() {
 		gwvm := v1.Group("/gwvm")
 		{
 			gwvm.GET("/:hypervisorType", c.VmState)
-			gwvm.GET("/detail/:hypervisorType", c.VmDetail)
-			gwvm.POST("/:hypervisorType", c.VmSetup)        //Setup Gateway VM
-			gwvm.PATCH("/start/:hypervisorType", c.VmStart) //Start to Gateway VM
-			gwvm.OPTIONS("/start/:hypervisorType", c.VmStartOptions)
-			gwvm.PATCH("/stop/:hypervisorType", c.VmStop) //Stop to Gateway VM
-			gwvm.OPTIONS("/stop/:hypervisorType", c.VmStopOptions)
+			gwvm.POST("/:hypervisorType", c.VmSetup)           //Setup Gateway VM
+			gwvm.PUT("/start/:hypervisorType", c.VmStart)      //Start to Gateway VM
+			gwvm.PUT("/stop/:hypervisorType", c.VmStop)        //Stop to Gateway VM
 			gwvm.DELETE("/delete/:hypervisorType", c.VmDelete) //Delete to Gateway VM
-			gwvm.OPTIONS("/delete/:hypervisorType", c.VmDeleteOptions)
-			gwvm.PATCH("/cleanup/:hypervisorType", c.VmCleanup) //Cleanup to Gateway VM
-			gwvm.OPTIONS("/cleanup/:hypervisorType", c.VmCleanupOptions)
-			gwvm.PATCH("/migrate/:hypervisorType", c.VmMigrate) //Migrate to Gateway VM
-			gwvm.OPTIONS("/migrate/:hypervisorType", c.VmMigrateOptions)
+			gwvm.PUT("/cleanup/:hypervisorType", c.VmCleanup)  //Cleanup to Gateway VM
+			gwvm.PUT("/migrate/:hypervisorType", c.VmMigrate)  //Migrate to Gateway VM
 		}
 		/*
 			admin := v1.Group("/admin")

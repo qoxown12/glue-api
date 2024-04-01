@@ -1,7 +1,6 @@
 package httputil
 
 import (
-	"Glue-API/model"
 	"github.com/gin-gonic/gin"
 )
 
@@ -17,7 +16,6 @@ func NewError(ctx *gin.Context, status int, err error) {
 // HTTPError
 // @description
 type HTTPError struct {
-	model.AbleModel
 	Code    int    `json:"code"`
 	Message string `json:"message"`
 } //@name HTTPError

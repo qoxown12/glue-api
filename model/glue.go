@@ -7,13 +7,14 @@ import (
 // GlueVersion
 // @Description Glue의 버전
 type GlueVersion struct {
-	AbleModel
 	Mon interface {
 	} `json:"mon"`
 	Mgr interface {
 	} `json:"mgr"`
 	Osd interface {
 	} `json:"osd"`
+	Mds interface {
+	} `json:"mds"`
 	RbdMirror interface {
 	} `json:"rbd-mirror"`
 	Rgw interface {
@@ -25,7 +26,6 @@ type GlueVersion struct {
 // GlueStatus model info
 // @Description Glue의 상태를 나타내는 구조체
 type GlueStatus struct {
-	AbleModel
 	Fsid   uuid.UUID `json:"fsid" example:"9980ffe8-4bc1-11ee-9b1f-002481004170" format:"uuid"` //Glue클러스터를 구분하는 ID
 	Health struct {
 		Status string `json:"status" example:"HEALTH_WARN" format:"string"`
@@ -91,7 +91,39 @@ type GlueStatus struct {
 	} `json:"progress_events"`
 } // @name GlueStatus
 
-type GluePools struct {
-	AbleModel
-	Pools []string `json:"pools"`
-} // @name GluePools
+type GluePools interface{} // @name GluePools
+
+type ServiceLs interface{} // @name ServiceLs
+
+type InfoImage struct {
+	Name            string   `json:"name"`
+	ID              string   `json:"id"`
+	Size            int64    `json:"size"`
+	Objects         int      `json:"objects"`
+	Order           int      `json:"order"`
+	ObjectSize      int      `json:"object_size"`
+	SnapshotCount   int      `json:"snapshot_count"`
+	BlockNamePrefix string   `json:"block_name_prefix"`
+	Format          int      `json:"format"`
+	Features        []string `json:"features"`
+	OpFeatures      []any    `json:"op_features"`
+	Flags           []any    `json:"flags"`
+	CreateTimestamp string   `json:"create_timestamp"`
+	AccessTimestamp string   `json:"access_timestamp"`
+	ModifyTimestamp string   `json:"modify_timestamp"`
+} // @name InfoImage
+type HostList []struct {
+	Ip_Address string `json:"ip_address"`
+	Addr       string `json:"addr"`
+	Hostname   string `json:"hostname"`
+	Status     string `json:"status"`
+} // @name HostList
+
+type Images []struct {
+	Image  string `json:"image"`
+	ID     string `json:"id"`
+	Size   int64  `json:"size"`
+	Format int    `json:"format"`
+} // @name Images
+
+type ImageCommon interface{} // @name ImageCommon

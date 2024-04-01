@@ -19,13 +19,11 @@ type MirrorImage struct {
 } //@name MirrorImage
 
 type MirrorList struct {
-	AbleModel
 	Local  []MirrorImage `json:"Local"`
 	Remote []MirrorImage `json:"Remote"`
 } //@name MirrorList
 
 type MirrorSetup struct {
-	AbleModel
 	LocalClusterName  string      `json:"localClusterName"`  //미러링 상태
 	RemoteClusterName string      `json:"remoteClusterName"` //미러링 상태
 	Host              string      `json:"host"`
@@ -54,7 +52,6 @@ type MirrorConf struct {
 } //@name MirrorConf
 
 type MirrorStatus struct {
-	AbleModel
 	Health       string      `json:"health"`        //미러링 상태
 	DaemonHealth string      `json:"daemon_health"` //미러링 데몬 상태
 	ImageHealth  string      `json:"image_health"`  //이미지 상태
@@ -87,7 +84,6 @@ type AuthKey struct {
 } //@name AuthKey
 
 type SnapshotList struct {
-	AbleModel
 	Images []Snapshot `json:"images"`
 } // @name SnapshotList
 
@@ -99,7 +95,6 @@ type Snapshot struct {
 } //@name Snapshot
 
 type ImageMirror struct {
-	AbleModel
 	Pool      string            `json:"pool"`
 	Namespace string            `json:"namespace"`
 	Image     string            `json:"image"`
@@ -107,7 +102,6 @@ type ImageMirror struct {
 } //@name ImageMirror
 
 type ImageStatus struct {
-	AbleModel
 	Name          string `json:"name"`
 	GlobalId      string `json:"global_id"`
 	State         string `json:"state"`

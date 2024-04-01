@@ -27,10 +27,11 @@ import (
 
 //	@securityDefinitions.basic	BasicAuth
 
-// @securityDefinitions.apikey	ApiKeyAuth
-// @in							header
-// @name						Authorization
-// @description				Description for what is this security definition being used
+//	@securityDefinitions.apikey	ApiKeyAuth
+//	@in							header
+//	@name						Authorization
+//	@description				Description for what is this security definition being used
+
 func main() {
 	// programmatically set swagger info
 
@@ -39,7 +40,7 @@ func main() {
 	docs.SwaggerInfo.Version = "1.0"
 	//docs.SwaggerInfo.Host = ".swagger.io"
 	docs.SwaggerInfo.BasePath = "/"
-	docs.SwaggerInfo.Schemes = []string{"http", "https"}
+	docs.SwaggerInfo.Schemes = []string{"https", "http"}
 	log.SetFlags(log.LstdFlags | log.Lshortfile)
 	r := gin.Default()
 	r.ForwardedByClientIP = true
@@ -51,11 +52,149 @@ func main() {
 		glue := v1.Group("/glue")
 		{
 			glue.GET("", c.GlueStatus)
+
+			glue.GET("/hosts", c.HostList)
+
 			glue.GET("/version", c.GlueVersion)
-			pool := glue.Group("/pool")
+		}
+		pool := v1.Group("/pool")
+		{
+			pool.GET("", c.ListPools)
+
+			pool.DELETE("/:pool_name", c.PoolDelete)
+			pool.OPTIONS("/:pool_name", c.GlueOption)
+		}
+		image := v1.Group("/image")
+		{
+			image.GET("", c.ListAndInfoImage)
+			image.POST("", c.CreateImage)
+			image.DELETE("", c.DeleteImage)
+			image.OPTIONS("", c.GlueOption)
+		}
+		service := v1.Group("/service")
+		{
+			service.GET("", c.ServiceLs)
+
+			service.POST("/:service_name", c.ServiceControl)
+			service.DELETE("/:service_name", c.ServiceDelete)
+			service.OPTIONS("/:service_name", c.GlueOption)
+		}
+		fs := v1.Group("/gluefs")
+		{
+			fs.GET("", c.FsStatus)
+
+			fs.POST("/:fs_name", c.FsCreate)
+			fs.PUT("/:new_name", c.FsUpdate)
+			fs.DELETE("/:fs_name", c.FsDelete)
+			fs.OPTIONS("/:fs_name", c.FsOption)
+
+			fs.GET("/info/:fs_name", c.FsGetInfo)
+
+			subvolume := fs.Group("/subvolume")
 			{
-				pool.GET("", c.ListPools)
-				pool.GET("/:pool", c.ListImages)
+				subvolume.GET("", c.SubVolumeList)
+				subvolume.POST("", c.SubVolumeCreate)
+				subvolume.DELETE("", c.SubVolumeDelete)
+				subvolume.PUT("", c.SubVolumeResize)
+				subvolume.OPTIONS("", c.SubVolumeOption)
+
+				group := subvolume.Group("/group")
+				{
+					group.GET("", c.SubVolumeGroupList)
+					group.POST("", c.SubVolumeGroupCreate)
+					group.DELETE("", c.SubVolumeGroupDelete)
+					group.PUT("", c.SubVolumeGroupResize)
+
+					group.DELETE("/snapshot", c.SubVolumeGroupSnapDelete)
+
+					group.OPTIONS("", c.SubVolumeOption)
+				}
+				snapshot := subvolume.Group("/snapshot")
+				{
+					snapshot.GET("", c.SubVolumeSnapList)
+					snapshot.POST("", c.SubVolumeSnapCreate)
+					snapshot.DELETE("", c.SubVolumeSnapDelete)
+					snapshot.OPTIONS("", c.SubVolumeOption)
+				}
+			}
+		}
+		nfs := v1.Group("/nfs")
+		{
+			nfs.GET("", c.NfsClusterList)
+
+			nfs.POST("/:cluster_id/:port", c.NfsClusterCreate)
+			nfs.PUT("/:cluster_id/:port", c.NfsClusterUpdate)
+			nfs.OPTIONS("/:cluster_id/:port", c.NfsOption)
+
+			nfs.DELETE("/:cluster_id", c.NfsClusterDelete)
+			nfs.OPTIONS("/:cluster_id", c.NfsOption)
+
+			nfs.POST("/ingress", c.NfsIngressCreate)
+			nfs.PUT("/ingress", c.NfsIngressUpdate)
+			nfs.OPTIONS("/ingress", c.NfsOption)
+
+			nfs_export := nfs.Group("/export")
+			{
+				nfs_export.GET("", c.NfsExportDetailed)
+
+				nfs_export.POST("/:cluster_id", c.NfsExportCreate)
+				nfs_export.PUT("/:cluster_id", c.NfsExportUpdate)
+				nfs_export.OPTIONS("/:cluster_id", c.NfsOption)
+
+				nfs_export.DELETE("/:cluster_id/:export_id", c.NfsExportDelete)
+				nfs_export.OPTIONS("/:cluster_id/:export_id", c.NfsOption)
+			}
+		}
+		iscsi := v1.Group("/iscsi")
+		{
+			iscsi.POST("", c.IscsiServiceCreate)
+			iscsi.PUT("", c.IscsiServiceUpdate)
+			iscsi.OPTIONS("", c.IscsiOption)
+
+			iscsi.GET("/discovery", c.IscsiGetDiscoveryAuth)
+			iscsi.PUT("/discovery", c.IscsiUpdateDiscoveryAuth)
+			iscsi.OPTIONS("/discovery", c.IscsiOption)
+
+			iscsi_target := iscsi.Group("/target")
+			{
+				iscsi_target.GET("", c.IscsiTargetList)
+				iscsi_target.DELETE("", c.IscsiTargetDelete)
+				iscsi_target.POST("", c.IscsiTargetCreate)
+				iscsi_target.PUT("", c.IscsiTargetUpdate)
+				iscsi_target.OPTIONS("", c.IscsiOption)
+			}
+
+		}
+		smb := v1.Group("/smb")
+		{
+			smb.GET("", c.SmbStatus)
+			smb.POST("", c.SmbCreate)
+			smb.DELETE("", c.SmbDelete)
+			smb.OPTIONS("", c.SmbOption)
+
+			smb_user := smb.Group("/user")
+			{
+				smb_user.POST("", c.SmbUserCreate)
+				smb_user.PUT("", c.SmbUserUpdate)
+				smb_user.DELETE("", c.SmbUserDelete)
+				smb_user.OPTIONS("", c.SmbOption)
+			}
+		}
+		rgw := v1.Group("/rgw")
+		{
+			rgw.GET("", c.RgwDaemon)
+			rgw.POST("", c.RgwServiceCreate)
+			rgw.PUT("", c.RgwServiceUpdate)
+			rgw.OPTIONS("", c.RgwOption)
+			rgw.POST("/quota", c.RgwQuota)
+
+			user := rgw.Group("/user")
+			{
+				user.GET("", c.RgwUserList)
+				user.POST("", c.RgwUserCreate)
+				user.DELETE("", c.RgwUserDelete)
+				user.PUT("", c.RgwUserUpdate)
+				user.OPTIONS("", c.RgwOption)
 			}
 		}
 		mirror := v1.Group("/mirror")
@@ -100,7 +239,7 @@ func main() {
 		*/
 		r.Any("/version", c.Version)
 	}
-	r.GET("/swaggers/*any", ginSwagger.WrapHandler(swaggerFiles.Handler))
+	r.GET("/swagger/*any", ginSwagger.WrapHandler(swaggerFiles.Handler))
 	r.RunTLS(":8080", "/root/ssl/server.crt", "/root/ssl/server.key")
 	// r.Run(":8080")
 }

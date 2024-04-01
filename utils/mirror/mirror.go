@@ -7,11 +7,11 @@ import (
 	"encoding/json"
 	"errors"
 	"fmt"
-	"github.com/gin-gonic/gin"
-	"github.com/melbahja/goph"
 	"os"
 	"os/exec"
 	"strings"
+
+	"github.com/melbahja/goph"
 )
 
 func IsConfigured() (configured bool, err error) {
@@ -29,16 +29,11 @@ func GetConfigure() (clusterConf model.MirrorConf, err error) {
 	//lines := strings.Split(sOut, "\n")
 	tfCluster, err := os.CreateTemp(os.TempDir(), "Glue-Cluster-")
 	tfKey, err := os.CreateTemp(os.TempDir(), "Glue-Key-")
-	if gin.IsDebugging() != true {
 
-		cmd := exec.Command("rbd", "mirror", "pool", "info", "--all", "--format", "json", "--pretty-format")
-		stdout, err = cmd.CombinedOutput()
-		if err != nil {
-			return clusterConf, err
-		}
-
-	} else {
-		stdout = []byte("{\n    \"mode\": \"image\",\n    \"site_name\": \"cluster1\",\n    \"peers\": [\n        {\n            \"uuid\": \"c5f36d07-a69e-45b5-a6ae-7e7a5f1266f0\",\n            \"direction\": \"rx-tx\",\n            \"site_name\": \"cluster2\",\n            \"mirror_uuid\": \"d7576286-c14c-47cf-8b87-58c4ec7e08dc\",\n            \"client_name\": \"client.rbd-mirror-peer\",\n            \"key\": \"AQAxDx5lljPfGhAAQhP1voVx5Dogn3f+nzYM8A==\",\n            \"mon_host\": \"[v2:100.100.1.24:3300/0,v1:100.100.1.24:6789/0],[v2:100.100.1.25:3300/0,v1:100.100.1.25:6789/0],[v2:100.100.1.26:3300/0,v1:100.100.1.26:6789/0]\"\n        }\n    ]\n}")
+	cmd := exec.Command("rbd", "mirror", "pool", "info", "--all", "--format", "json", "--pretty-format")
+	stdout, err = cmd.CombinedOutput()
+	if err != nil {
+		return clusterConf, err
 	}
 
 	if err = json.Unmarshal(stdout, &clusterConf); err != nil {
@@ -80,16 +75,11 @@ func GetRemoteConfigure(client *goph.Client) (clusterConf model.MirrorConf, err 
 	//lines := strings.Split(sOut, "\n")
 	tfCluster, err := os.CreateTemp(os.TempDir(), "Glue-Cluster-")
 	tfKey, err := os.CreateTemp(os.TempDir(), "Glue-Key-")
-	if gin.IsDebugging() != true {
 
-		cmd, err := client.Command("rbd", "mirror", "pool", "info", "--all", "--format", "json", "--pretty-format")
-		stdout, err = cmd.CombinedOutput()
-		if err != nil {
-			return clusterConf, err
-		}
-
-	} else {
-		stdout = []byte("{\n    \"mode\": \"image\",\n    \"site_name\": \"cluster1\",\n    \"peers\": [\n        {\n            \"uuid\": \"c5f36d07-a69e-45b5-a6ae-7e7a5f1266f0\",\n            \"direction\": \"rx-tx\",\n            \"site_name\": \"cluster2\",\n            \"mirror_uuid\": \"d7576286-c14c-47cf-8b87-58c4ec7e08dc\",\n            \"client_name\": \"client.rbd-mirror-peer\",\n            \"key\": \"AQAxDx5lljPfGhAAQhP1voVx5Dogn3f+nzYM8A==\",\n            \"mon_host\": \"[v2:100.100.1.24:3300/0,v1:100.100.1.24:6789/0],[v2:100.100.1.25:3300/0,v1:100.100.1.25:6789/0],[v2:100.100.1.26:3300/0,v1:100.100.1.26:6789/0]\"\n        }\n    ]\n}")
+	cmd, err := client.Command("rbd", "mirror", "pool", "info", "--all", "--format", "json", "--pretty-format")
+	stdout, err = cmd.CombinedOutput()
+	if err != nil {
+		return clusterConf, err
 	}
 
 	if err = json.Unmarshal(stdout, &clusterConf); err != nil {
@@ -136,99 +126,12 @@ func ImageList() (MirrorList model.MirrorList, err error) {
 	if err != nil {
 		return
 	}
-	if gin.IsDebugging() != true {
 
-		strRemoteStatus := exec.Command("rbd", "mirror", "snapshot", "schedule", "list", "-R", "--format", "json", "--pretty-format", "-c", mirrorConfig.ClusterName, "-K", mirrorConfig.KeyFileName, "-n", mirrorConfig.Name)
-		stdRemote, err = strRemoteStatus.CombinedOutput()
-		strLocalStatus := exec.Command("rbd", "mirror", "snapshot", "schedule", "list", "-R", "--format", "json", "--pretty-format")
-		stdLocal, err = strLocalStatus.CombinedOutput()
+	strRemoteStatus := exec.Command("rbd", "mirror", "snapshot", "schedule", "list", "-R", "--format", "json", "--pretty-format", "-c", mirrorConfig.ClusterName, "-K", mirrorConfig.KeyFileName, "-n", mirrorConfig.Name)
+	stdRemote, err = strRemoteStatus.CombinedOutput()
+	strLocalStatus := exec.Command("rbd", "mirror", "snapshot", "schedule", "list", "-R", "--format", "json", "--pretty-format")
+	stdLocal, err = strLocalStatus.CombinedOutput()
 
-		/*
-			   [
-			    {
-			        "pool": "rbd",
-			        "namespace": "",
-			        "image": "4f1ff9d5-7cfd-4d5a-97fd-ba3bb6faa17b",
-			        "items": [
-			            {
-			                "interval": "10m",
-			                "start_time": ""
-			            }
-			        ]
-			    },
-			    {
-			        "pool": "rbd",
-			        "namespace": "",
-			        "image": "5f44786f-ddc8-4f89-b955-5933ecd6ed5e",
-			        "items": [
-			            {
-			                "interval": "10m",
-			                "start_time": ""
-			            }
-			        ]
-			    },
-			    {
-			        "pool": "rbd",
-			        "namespace": "",
-			        "image": "ac3c34ed-f3a1-403b-8fa8-332286445ebc",
-			        "items": [
-			            {
-			                "interval": "10m",
-			                "start_time": ""
-			            }
-			        ]
-			    },
-			    {
-			        "pool": "rbd",
-			        "namespace": "",
-			        "image": "ce7f8aba-3171-4c3d-9ecc-6177b1b8fc77",
-			        "items": [
-			            {
-			                "interval": "10m",
-			                "start_time": ""
-			            }
-			        ]
-			    },
-			    {
-			        "pool": "rbd",
-			        "namespace": "",
-			        "image": "d50cb9bf-b2c7-4bf1-9e21-557d1471d3a9",
-			        "items": [
-			            {
-			                "interval": "10m",
-			                "start_time": ""
-			            }
-			        ]
-			    },
-			    {
-			        "pool": "rbd",
-			        "namespace": "",
-			        "image": "mirror-test",
-			        "items": [
-			            {
-			                "interval": "10m",
-			                "start_time": ""
-			            }
-			        ]
-			    },
-			    {
-			        "pool": "rbd",
-			        "namespace": "",
-			        "image": "test2",
-			        "items": [
-			            {
-			                "interval": "10m",
-			                "start_time": ""
-			            }
-			        ]
-			    }
-			]
-		*/
-
-	} else {
-		stdRemote = []byte("[\n    {\n        \"pool\": \"rbd\",\n        \"namespace\": \"\",\n        \"image\": \"4f1ff9d5-7cfd-4d5a-97fd-ba3bb6faa17b\",\n        \"items\": [\n            {\n                \"interval\": \"10m\",\n                \"start_time\": \"\"\n            }\n        ]\n    },\n    {\n        \"pool\": \"rbd\",\n        \"namespace\": \"\",\n        \"image\": \"5f44786f-ddc8-4f89-b955-5933ecd6ed5e\",\n        \"items\": [\n            {\n                \"interval\": \"10m\",\n                \"start_time\": \"\"\n            }\n        ]\n    },\n    {\n        \"pool\": \"rbd\",\n        \"namespace\": \"\",\n        \"image\": \"ac3c34ed-f3a1-403b-8fa8-332286445ebc\",\n        \"items\": [\n            {\n                \"interval\": \"10m\",\n                \"start_time\": \"\"\n            }\n        ]\n    },\n    {\n        \"pool\": \"rbd\",\n        \"namespace\": \"\",\n        \"image\": \"ce7f8aba-3171-4c3d-9ecc-6177b1b8fc77\",\n        \"items\": [\n            {\n                \"interval\": \"10m\",\n                \"start_time\": \"\"\n            }\n        ]\n    },\n    {\n        \"pool\": \"rbd\",\n        \"namespace\": \"\",\n        \"image\": \"d50cb9bf-b2c7-4bf1-9e21-557d1471d3a9\",\n        \"items\": [\n            {\n                \"interval\": \"10m\",\n                \"start_time\": \"\"\n            }\n        ]\n    },\n    {\n        \"pool\": \"rbd\",\n        \"namespace\": \"\",\n        \"image\": \"mirror-test\",\n        \"items\": [\n            {\n                \"interval\": \"10m\",\n                \"start_time\": \"\"\n            }\n        ]\n    },\n    {\n        \"pool\": \"rbd\",\n        \"namespace\": \"\",\n        \"image\": \"test2\",\n        \"items\": [\n            {\n                \"interval\": \"10m\",\n                \"start_time\": \"\"\n            }\n        ]\n    }\n]")
-		stdLocal = []byte("[\n    {\n        \"pool\": \"rbd\",\n        \"namespace\": \"\",\n        \"image\": \"4f1ff9d5-7cfd-4d5a-97fd-ba3bb6faa17b\",\n        \"items\": [\n            {\n                \"interval\": \"10m\",\n                \"start_time\": \"\"\n            }\n        ]\n    },\n    {\n        \"pool\": \"rbd\",\n        \"namespace\": \"\",\n        \"image\": \"5f44786f-ddc8-4f89-b955-5933ecd6ed5e\",\n        \"items\": [\n            {\n                \"interval\": \"10m\",\n                \"start_time\": \"\"\n            }\n        ]\n    },\n    {\n        \"pool\": \"rbd\",\n        \"namespace\": \"\",\n        \"image\": \"ac3c34ed-f3a1-403b-8fa8-332286445ebc\",\n        \"items\": [\n            {\n                \"interval\": \"10m\",\n                \"start_time\": \"\"\n            }\n        ]\n    },\n    {\n        \"pool\": \"rbd\",\n        \"namespace\": \"\",\n        \"image\": \"ce7f8aba-3171-4c3d-9ecc-6177b1b8fc77\",\n        \"items\": [\n            {\n                \"interval\": \"10m\",\n                \"start_time\": \"\"\n            }\n        ]\n    },\n    {\n        \"pool\": \"rbd\",\n        \"namespace\": \"\",\n        \"image\": \"d50cb9bf-b2c7-4bf1-9e21-557d1471d3a9\",\n        \"items\": [\n            {\n                \"interval\": \"10m\",\n                \"start_time\": \"\"\n            }\n        ]\n    },\n    {\n        \"pool\": \"rbd\",\n        \"namespace\": \"\",\n        \"image\": \"mirror-test\",\n        \"items\": [\n            {\n                \"interval\": \"10m\",\n                \"start_time\": \"\"\n            }\n        ]\n    },\n    {\n        \"pool\": \"rbd\",\n        \"namespace\": \"\",\n        \"image\": \"test2\",\n        \"items\": [\n            {\n                \"interval\": \"10m\",\n                \"start_time\": \"\"\n            }\n        ]\n    }\n]")
-	}
 	if err != nil {
 		return
 	}
@@ -240,7 +143,6 @@ func ImageList() (MirrorList model.MirrorList, err error) {
 	}
 	MirrorList.Local = Local
 	MirrorList.Remote = Remote
-	MirrorList.Debug = gin.IsDebugging()
 	return MirrorList, err
 }
 
@@ -249,23 +151,15 @@ func Status() (mirrorStatus model.MirrorStatus, err error) {
 		Summary model.MirrorStatus `json:"summary"`
 	}
 	var stdout []byte
-	if gin.IsDebugging() != true {
+	cmd := exec.Command("rbd", "mirror", "pool", "status", "--format", "json", "--pretty-format")
+	var out strings.Builder
+	//cmd.Stderr = &out
+	stdout, err = cmd.CombinedOutput()
 
-		cmd := exec.Command("rbd", "mirror", "pool", "status", "--format", "json", "--pretty-format")
-		var out strings.Builder
-		//cmd.Stderr = &out
-		stdout, err = cmd.CombinedOutput()
-
-		if err != nil {
-			err = errors.Join(err, errors.New(out.String()))
-			utils.FancyHandleError(err)
-			return
-		}
-
-	} else {
-
-		stdout = []byte("{\n    \"summary\": {\n        \"health\": \"WARNING\",\n        \"daemon_health\": \"OK\",\n        \"image_health\": \"WARNING\",\n        \"states\": {\n            \"unknown\": 14\n        }\n    }\n}")
-
+	if err != nil {
+		err = errors.Join(err, errors.New(out.String()))
+		utils.FancyHandleError(err)
+		return
 	}
 	if err = json.Unmarshal(stdout, &tmpdat); err != nil {
 		utils.FancyHandleError(err)
@@ -279,25 +173,18 @@ func ImageDelete(poolName string, imageName string) (output string, err error) {
 
 	var stdRemove []byte
 
-	if gin.IsDebugging() != true {
+	strRemoveStatus := exec.Command("rbd", "mirror", "snapshot", "schedule", "rm", "--pool", poolName, "--image", imageName)
+	stdRemove, err = strRemoveStatus.CombinedOutput()
 
-		strRemoveStatus := exec.Command("rbd", "mirror", "snapshot", "schedule", "rm", "--pool", poolName, "--image", imageName)
-		stdRemove, err = strRemoveStatus.CombinedOutput()
-	} else {
-		stdRemove = []byte("[\n    {\n        \"pool\": \"rbd\",\n        \"namespace\": \"\",\n        \"image\": \"4f1ff9d5-7cfd-4d5a-97fd-ba3bb6faa17b\",\n        \"items\": [\n            {\n                \"interval\": \"10m\",\n                \"start_time\": \"\"\n            }\n        ]\n    },\n    {\n        \"pool\": \"rbd\",\n        \"namespace\": \"\",\n        \"image\": \"5f44786f-ddc8-4f89-b955-5933ecd6ed5e\",\n        \"items\": [\n            {\n                \"interval\": \"10m\",\n                \"start_time\": \"\"\n            }\n        ]\n    },\n    {\n        \"pool\": \"rbd\",\n        \"namespace\": \"\",\n        \"image\": \"ac3c34ed-f3a1-403b-8fa8-332286445ebc\",\n        \"items\": [\n            {\n                \"interval\": \"10m\",\n                \"start_time\": \"\"\n            }\n        ]\n    },\n    {\n        \"pool\": \"rbd\",\n        \"namespace\": \"\",\n        \"image\": \"ce7f8aba-3171-4c3d-9ecc-6177b1b8fc77\",\n        \"items\": [\n            {\n                \"interval\": \"10m\",\n                \"start_time\": \"\"\n            }\n        ]\n    },\n    {\n        \"pool\": \"rbd\",\n        \"namespace\": \"\",\n        \"image\": \"d50cb9bf-b2c7-4bf1-9e21-557d1471d3a9\",\n        \"items\": [\n            {\n                \"interval\": \"10m\",\n                \"start_time\": \"\"\n            }\n        ]\n    },\n    {\n        \"pool\": \"rbd\",\n        \"namespace\": \"\",\n        \"image\": \"mirror-test\",\n        \"items\": [\n            {\n                \"interval\": \"10m\",\n                \"start_time\": \"\"\n            }\n        ]\n    },\n    {\n        \"pool\": \"rbd\",\n        \"namespace\": \"\",\n        \"image\": \"test2\",\n        \"items\": [\n            {\n                \"interval\": \"10m\",\n                \"start_time\": \"\"\n            }\n        ]\n    }\n]")
-	}
 	if err != nil {
 		err = errors.New(string(stdRemove))
 		utils.FancyHandleError(err)
 		return
 	}
-	if gin.IsDebugging() != true {
 
-		strRemoveStatus := exec.Command("rbd", "mirror", "image", "disable", "--pool", poolName, "--image", imageName)
-		stdRemove, err = strRemoveStatus.CombinedOutput()
-	} else {
-		stdRemove = []byte("[\n    {\n        \"pool\": \"rbd\",\n        \"namespace\": \"\",\n        \"image\": \"4f1ff9d5-7cfd-4d5a-97fd-ba3bb6faa17b\",\n        \"items\": [\n            {\n                \"interval\": \"10m\",\n                \"start_time\": \"\"\n            }\n        ]\n    },\n    {\n        \"pool\": \"rbd\",\n        \"namespace\": \"\",\n        \"image\": \"5f44786f-ddc8-4f89-b955-5933ecd6ed5e\",\n        \"items\": [\n            {\n                \"interval\": \"10m\",\n                \"start_time\": \"\"\n            }\n        ]\n    },\n    {\n        \"pool\": \"rbd\",\n        \"namespace\": \"\",\n        \"image\": \"ac3c34ed-f3a1-403b-8fa8-332286445ebc\",\n        \"items\": [\n            {\n                \"interval\": \"10m\",\n                \"start_time\": \"\"\n            }\n        ]\n    },\n    {\n        \"pool\": \"rbd\",\n        \"namespace\": \"\",\n        \"image\": \"ce7f8aba-3171-4c3d-9ecc-6177b1b8fc77\",\n        \"items\": [\n            {\n                \"interval\": \"10m\",\n                \"start_time\": \"\"\n            }\n        ]\n    },\n    {\n        \"pool\": \"rbd\",\n        \"namespace\": \"\",\n        \"image\": \"d50cb9bf-b2c7-4bf1-9e21-557d1471d3a9\",\n        \"items\": [\n            {\n                \"interval\": \"10m\",\n                \"start_time\": \"\"\n            }\n        ]\n    },\n    {\n        \"pool\": \"rbd\",\n        \"namespace\": \"\",\n        \"image\": \"mirror-test\",\n        \"items\": [\n            {\n                \"interval\": \"10m\",\n                \"start_time\": \"\"\n            }\n        ]\n    },\n    {\n        \"pool\": \"rbd\",\n        \"namespace\": \"\",\n        \"image\": \"test2\",\n        \"items\": [\n            {\n                \"interval\": \"10m\",\n                \"start_time\": \"\"\n            }\n        ]\n    }\n]")
-	}
+	strRemovestatus := exec.Command("rbd", "mirror", "image", "disable", "--pool", poolName, "--image", imageName)
+	stdRemove, err = strRemovestatus.CombinedOutput()
+
 	if err != nil {
 		err = errors.New(string(stdRemove))
 		utils.FancyHandleError(err)
@@ -312,18 +199,12 @@ func ImageSetup(poolName string, imageName string) (output string, err error) {
 
 	var stdoutMirrorEnable []byte
 
-	if gin.IsDebugging() != true {
-
-		strMirrorEnableOutput := exec.Command("rbd", "mirror", "image", "enable", "--pool", poolName, "--image", imageName, "snapshot")
-		stdoutMirrorEnable, err = strMirrorEnableOutput.CombinedOutput()
-		if err != nil || string(stdoutMirrorEnable) != "Mirroring enabled\n" {
-			err = errors.Join(err, errors.New(string(stdoutMirrorEnable)))
-			utils.FancyHandleError(err)
-			return
-		}
-
-	} else {
-		stdoutMirrorEnable = []byte("[\n    {\n        \"pool\": \"rbd\",\n        \"namespace\": \"\",\n        \"image\": \"4f1ff9d5-7cfd-4d5a-97fd-ba3bb6faa17b\",\n        \"items\": [\n            {\n                \"interval\": \"10m\",\n                \"start_time\": \"\"\n            }\n        ]\n    },\n    {\n        \"pool\": \"rbd\",\n        \"namespace\": \"\",\n        \"image\": \"5f44786f-ddc8-4f89-b955-5933ecd6ed5e\",\n        \"items\": [\n            {\n                \"interval\": \"10m\",\n                \"start_time\": \"\"\n            }\n        ]\n    },\n    {\n        \"pool\": \"rbd\",\n        \"namespace\": \"\",\n        \"image\": \"ac3c34ed-f3a1-403b-8fa8-332286445ebc\",\n        \"items\": [\n            {\n                \"interval\": \"10m\",\n                \"start_time\": \"\"\n            }\n        ]\n    },\n    {\n        \"pool\": \"rbd\",\n        \"namespace\": \"\",\n        \"image\": \"ce7f8aba-3171-4c3d-9ecc-6177b1b8fc77\",\n        \"items\": [\n            {\n                \"interval\": \"10m\",\n                \"start_time\": \"\"\n            }\n        ]\n    },\n    {\n        \"pool\": \"rbd\",\n        \"namespace\": \"\",\n        \"image\": \"d50cb9bf-b2c7-4bf1-9e21-557d1471d3a9\",\n        \"items\": [\n            {\n                \"interval\": \"10m\",\n                \"start_time\": \"\"\n            }\n        ]\n    },\n    {\n        \"pool\": \"rbd\",\n        \"namespace\": \"\",\n        \"image\": \"mirror-test\",\n        \"items\": [\n            {\n                \"interval\": \"10m\",\n                \"start_time\": \"\"\n            }\n        ]\n    },\n    {\n        \"pool\": \"rbd\",\n        \"namespace\": \"\",\n        \"image\": \"test2\",\n        \"items\": [\n            {\n                \"interval\": \"10m\",\n                \"start_time\": \"\"\n            }\n        ]\n    }\n]")
+	strMirrorEnableOutput := exec.Command("rbd", "mirror", "image", "enable", "--pool", poolName, "--image", imageName, "snapshot")
+	stdoutMirrorEnable, err = strMirrorEnableOutput.CombinedOutput()
+	if err != nil || string(stdoutMirrorEnable) != "Mirroring enabled\n" {
+		err = errors.Join(err, errors.New(string(stdoutMirrorEnable)))
+		utils.FancyHandleError(err)
+		return
 	}
 
 	output = string(stdoutMirrorEnable)
@@ -334,23 +215,17 @@ func ImageConfig(poolName string, imageName string, interval string, startTime s
 
 	var stdoutScheduleEnable []byte
 
-	if gin.IsDebugging() != true {
-		var strScheduleOutput *exec.Cmd
-		print(startTime)
-		if startTime == "" {
-			strScheduleOutput = exec.Command("rbd", "mirror", "snapshot", "schedule", "add", "--pool", poolName, "--image", imageName, interval)
-		} else {
-			strScheduleOutput = exec.Command("rbd", "mirror", "snapshot", "schedule", "add", "--pool", poolName, "--image", imageName, interval, startTime)
-		}
-		stdoutScheduleEnable, err = strScheduleOutput.CombinedOutput()
-		if err != nil {
-			err = errors.Join(err, errors.New(string(stdoutScheduleEnable)))
-			utils.FancyHandleError(err)
-			return
-		}
-
+	var strScheduleOutput *exec.Cmd
+	if startTime == "" {
+		strScheduleOutput = exec.Command("rbd", "mirror", "snapshot", "schedule", "add", "--pool", poolName, "--image", imageName, interval)
 	} else {
-		stdoutScheduleEnable = []byte("[\n    {\n        \"pool\": \"rbd\",\n        \"namespace\": \"\",\n        \"image\": \"4f1ff9d5-7cfd-4d5a-97fd-ba3bb6faa17b\",\n        \"items\": [\n            {\n                \"interval\": \"10m\",\n                \"start_time\": \"\"\n            }\n        ]\n    },\n    {\n        \"pool\": \"rbd\",\n        \"namespace\": \"\",\n        \"image\": \"5f44786f-ddc8-4f89-b955-5933ecd6ed5e\",\n        \"items\": [\n            {\n                \"interval\": \"10m\",\n                \"start_time\": \"\"\n            }\n        ]\n    },\n    {\n        \"pool\": \"rbd\",\n        \"namespace\": \"\",\n        \"image\": \"ac3c34ed-f3a1-403b-8fa8-332286445ebc\",\n        \"items\": [\n            {\n                \"interval\": \"10m\",\n                \"start_time\": \"\"\n            }\n        ]\n    },\n    {\n        \"pool\": \"rbd\",\n        \"namespace\": \"\",\n        \"image\": \"ce7f8aba-3171-4c3d-9ecc-6177b1b8fc77\",\n        \"items\": [\n            {\n                \"interval\": \"10m\",\n                \"start_time\": \"\"\n            }\n        ]\n    },\n    {\n        \"pool\": \"rbd\",\n        \"namespace\": \"\",\n        \"image\": \"d50cb9bf-b2c7-4bf1-9e21-557d1471d3a9\",\n        \"items\": [\n            {\n                \"interval\": \"10m\",\n                \"start_time\": \"\"\n            }\n        ]\n    },\n    {\n        \"pool\": \"rbd\",\n        \"namespace\": \"\",\n        \"image\": \"mirror-test\",\n        \"items\": [\n            {\n                \"interval\": \"10m\",\n                \"start_time\": \"\"\n            }\n        ]\n    },\n    {\n        \"pool\": \"rbd\",\n        \"namespace\": \"\",\n        \"image\": \"test2\",\n        \"items\": [\n            {\n                \"interval\": \"10m\",\n                \"start_time\": \"\"\n            }\n        ]\n    }\n]")
+		strScheduleOutput = exec.Command("rbd", "mirror", "snapshot", "schedule", "add", "--pool", poolName, "--image", imageName, interval, startTime)
+	}
+	stdoutScheduleEnable, err = strScheduleOutput.CombinedOutput()
+	if err != nil {
+		err = errors.Join(err, errors.New(string(stdoutScheduleEnable)))
+		utils.FancyHandleError(err)
+		return
 	}
 
 	output = string(stdoutScheduleEnable)
@@ -360,12 +235,9 @@ func ImageConfig(poolName string, imageName string, interval string, startTime s
 func ImageStatus(poolName string, imageName string) (imageStatus model.ImageStatus, err error) {
 
 	var stdoutScheduleEnable []byte
-	if gin.IsDebugging() != true {
-		strScheduleOutput := exec.Command("rbd", "mirror", "image", "status", "--pool", poolName, "--image", imageName, "--format", "json")
-		stdoutScheduleEnable, err = strScheduleOutput.CombinedOutput()
-	} else {
-		stdoutScheduleEnable = []byte("{\"name\":\"test\",\"global_id\":\"8a5db4a1-8d16-43df-bc9e-8ea8c8007879\",\"state\":\"up+stopped\",\"description\":\"local image is primary\",\"daemon_service\":{\"service_id\":\"1517082\",\"instance_id\":\"1707685\",\"daemon_id\":\"scvm13.kphwqj\",\"hostname\":\"scvm13\"},\"last_update\":\"2023-11-03 10:11:26\",\"peer_sites\":[{\"site_name\":\"rbd2\",\"mirror_uuids\":\"b69a89e3-ea2b-4ce5-8973-19ac0832281f\",\"state\":\"up+replaying\",\"description\":\"replaying, {\\\"bytes_per_second\\\":0.0,\\\"bytes_per_snapshot\\\":0.0,\\\"last_snapshot_bytes\\\":0,\\\"last_snapshot_sync_seconds\\\":0,\\\"local_snapshot_timestamp\\\":1698973860,\\\"remote_snapshot_timestamp\\\":1698973860,\\\"replay_state\\\":\\\"idle\\\"}\",\"last_update\":\"2023-11-03 10:11:28\"}],\"snapshots\":[{\"id\":6636,\"name\":\".mirror.primary.8a5db4a1-8d16-43df-bc9e-8ea8c8007879.68dfeb05-f9e1-4b4e-894e-5b622821320d\",\"demoted\":false,\"mirror_peer_uuids\":[]},{\"id\":6638,\"name\":\".mirror.primary.8a5db4a1-8d16-43df-bc9e-8ea8c8007879.71bb09d3-651c-4052-846f-c395563df597\",\"demoted\":false,\"mirror_peer_uuids\":[\"231f94df-9c4a-4316-8473-34fbc7f50d6b\"]}]}")
-	}
+
+	strScheduleOutput := exec.Command("rbd", "mirror", "image", "status", "--pool", poolName, "--image", imageName, "--format", "json")
+	stdoutScheduleEnable, err = strScheduleOutput.CombinedOutput()
 
 	if err = json.Unmarshal(stdoutScheduleEnable, &imageStatus); err != nil {
 		err = errors.Join(err, errors.New(string(stdoutScheduleEnable)))
@@ -702,12 +574,8 @@ func ConfigMirror(dat model.MirrorSetup, privkeyname string) (EncodedLocalToken 
 func ImagePromote(poolName string, imageName string) (imageStatus model.ImageStatus, err error) {
 
 	var stdoutScheduleEnable []byte
-	if gin.IsDebugging() != true {
-		strScheduleOutput := exec.Command("rbd", "mirror", "image", "promote", "--pool", poolName, "--image", imageName)
-		stdoutScheduleEnable, err = strScheduleOutput.CombinedOutput()
-	} else {
-		stdoutScheduleEnable = []byte("{\"name\":\"test\",\"global_id\":\"8a5db4a1-8d16-43df-bc9e-8ea8c8007879\",\"state\":\"up+stopped\",\"description\":\"local image is primary\",\"daemon_service\":{\"service_id\":\"1517082\",\"instance_id\":\"1707685\",\"daemon_id\":\"scvm13.kphwqj\",\"hostname\":\"scvm13\"},\"last_update\":\"2023-11-03 10:11:26\",\"peer_sites\":[{\"site_name\":\"rbd2\",\"mirror_uuids\":\"b69a89e3-ea2b-4ce5-8973-19ac0832281f\",\"state\":\"up+replaying\",\"description\":\"replaying, {\\\"bytes_per_second\\\":0.0,\\\"bytes_per_snapshot\\\":0.0,\\\"last_snapshot_bytes\\\":0,\\\"last_snapshot_sync_seconds\\\":0,\\\"local_snapshot_timestamp\\\":1698973860,\\\"remote_snapshot_timestamp\\\":1698973860,\\\"replay_state\\\":\\\"idle\\\"}\",\"last_update\":\"2023-11-03 10:11:28\"}],\"snapshots\":[{\"id\":6636,\"name\":\".mirror.primary.8a5db4a1-8d16-43df-bc9e-8ea8c8007879.68dfeb05-f9e1-4b4e-894e-5b622821320d\",\"demoted\":false,\"mirror_peer_uuids\":[]},{\"id\":6638,\"name\":\".mirror.primary.8a5db4a1-8d16-43df-bc9e-8ea8c8007879.71bb09d3-651c-4052-846f-c395563df597\",\"demoted\":false,\"mirror_peer_uuids\":[\"231f94df-9c4a-4316-8473-34fbc7f50d6b\"]}]}")
-	}
+	strScheduleOutput := exec.Command("rbd", "mirror", "image", "promote", "--pool", poolName, "--image", imageName)
+	stdoutScheduleEnable, err = strScheduleOutput.CombinedOutput()
 
 	if !strings.Contains(string(stdoutScheduleEnable), "Image promoted") {
 		err = errors.Join(err, errors.New(string(stdoutScheduleEnable)))

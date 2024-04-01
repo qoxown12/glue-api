@@ -6,12 +6,13 @@ import (
 	"Glue-API/utils"
 	"Glue-API/utils/mirror"
 	"errors"
-	"github.com/gin-gonic/gin"
-	"github.com/melbahja/goph"
 	"net/http"
 	"os"
 	"os/exec"
 	"strings"
+
+	"github.com/gin-gonic/gin"
+	"github.com/melbahja/goph"
 )
 
 // MirrorImageList godoc
@@ -120,27 +121,9 @@ func (c *Controller) MirrorStatus(ctx *gin.Context) {
 		return
 	}
 	// Print the output
-	dat.Debug = gin.IsDebugging()
 	ctx.IndentedJSON(http.StatusOK, dat)
 }
 
-// MirrorSetup godoc
-//
-//	@Summary		Setup Mirroring Cluster
-//	@Description	Glue 의 미러링 클러스터를 설정합니다.
-//	@param			localClusterName	formData	string	true	"Local Cluster Name"
-//	@param			remoteClusterName	formData	string	true	"Remote Cluster Name"
-//	@param			host				formData	string	true	"Remote Cluster Host Address"
-//	@param			privateKeyFile		formData	file	true	"Remote Cluster PrivateKey"
-//	@param			mirrorPool			formData	string	true	"Pool Name for Mirroring"
-//	@Tags			Mirror
-//	@Accept			multipart/form-data
-//	@Produce		json
-//	@Success		200	{object}	model.MirrorSetup
-//	@Failure		400	{object}	httputil.HTTP400BadRequest
-//	@Failure		404	{object}	httputil.HTTP404NotFound
-//	@Failure		500	{object}	httputil.HTTP500InternalServerError
-//	@Router			/api/v1/mirror [post]
 func (c *Controller) MirrorSetup(ctx *gin.Context) {
 	var dat model.MirrorSetup
 
@@ -161,21 +144,16 @@ func (c *Controller) MirrorSetup(ctx *gin.Context) {
 		return
 	}
 
-	if gin.IsDebugging() != true {
-		EncodedLocalToken, EncodedRemoteToken, err := mirror.ConfigMirror(dat, privkeyname)
-		if err != nil {
-			utils.FancyHandleError(err)
-			httputil.NewError(ctx, http.StatusInternalServerError, err)
-			return
-		}
-
-		dat.LocalToken = EncodedLocalToken
-		dat.RemoteToken = EncodedRemoteToken
-
-	} else {
-		println("...")
+	EncodedLocalToken, EncodedRemoteToken, err := mirror.ConfigMirror(dat, privkeyname)
+	if err != nil {
+		utils.FancyHandleError(err)
+		httputil.NewError(ctx, http.StatusInternalServerError, err)
+		return
 	}
-	dat.Debug = gin.IsDebugging()
+
+	dat.LocalToken = EncodedLocalToken
+	dat.RemoteToken = EncodedRemoteToken
+
 	ctx.IndentedJSON(http.StatusOK, dat)
 }
 
@@ -217,58 +195,42 @@ func (c *Controller) MirrorDelete(ctx *gin.Context) {
 		return
 	}
 
-	if gin.IsDebugging() != true {
+	// Get Mirroring Images
+	MirroredImage, err := mirror.ImageList()
+	if err != nil {
+		utils.FancyHandleError(err)
+		httputil.NewError(ctx, http.StatusInternalServerError, err)
+		return
+	}
+	for _, image := range MirroredImage.Local {
+		_, errt := mirror.ImageDelete(image.Pool, image.Image)
+		if errt != nil {
+			err = errors.Join(err, errt)
+		}
+	}
+	if err != nil {
+		utils.FancyHandleError(err)
+		httputil.NewError(ctx, http.StatusInternalServerError, err)
+		return
+	}
+	for _, image := range MirroredImage.Remote {
+		_, errt := mirror.ImageDelete(image.Pool, image.Image)
+		if errt != nil {
+			err = errors.Join(err, errt)
+		}
+	}
+	if err != nil {
+		utils.FancyHandleError(err)
+		httputil.NewError(ctx, http.StatusInternalServerError, err)
+		return
+	}
 
-		// Get Mirroring Images
-		MirroredImage, err := mirror.ImageList()
-		if err != nil {
-			utils.FancyHandleError(err)
-			httputil.NewError(ctx, http.StatusInternalServerError, err)
-			return
-		}
-		for _, image := range MirroredImage.Local {
-			_, errt := mirror.ImageDelete(image.Pool, image.Image)
-			if errt != nil {
-				err = errors.Join(err, errt)
-			}
-		}
-		if err != nil {
-			utils.FancyHandleError(err)
-			httputil.NewError(ctx, http.StatusInternalServerError, err)
-			return
-		}
-		for _, image := range MirroredImage.Remote {
-			_, errt := mirror.ImageDelete(image.Pool, image.Image)
-			if errt != nil {
-				err = errors.Join(err, errt)
-			}
-		}
-		if err != nil {
-			utils.FancyHandleError(err)
-			httputil.NewError(ctx, http.StatusInternalServerError, err)
-			return
-		}
+	//remote local peer
+	mirrorStatus, err := mirror.GetConfigure()
 
-		//remote local peer
-		mirrorStatus, err := mirror.GetConfigure()
-
-		if len(mirrorStatus.Peers) > 0 {
-			peerUUID := mirrorStatus.Peers[0].Uuid
-			cmd := exec.Command("rbd", "mirror", "pool", "peer", "remove", "--pool", dat.MirrorPool, peerUUID)
-			cmd.Stderr = &out
-			stdout, err = cmd.CombinedOutput()
-			println("out: " + string(stdout))
-			println("err: " + out.String())
-			if err != nil || (out.String() != "" && out.String() != "rbd: mirroring is already configured for image mode") {
-				err = errors.Join(err, errors.New(out.String()))
-				utils.FancyHandleError(err)
-				httputil.NewError(ctx, http.StatusInternalServerError, err)
-				return
-			}
-		}
-
-		// Mirror Disable
-		cmd := exec.Command("rbd", "mirror", "pool", "disable")
+	if len(mirrorStatus.Peers) > 0 {
+		peerUUID := mirrorStatus.Peers[0].Uuid
+		cmd := exec.Command("rbd", "mirror", "pool", "peer", "remove", "--pool", dat.MirrorPool, peerUUID)
 		cmd.Stderr = &out
 		stdout, err = cmd.CombinedOutput()
 		println("out: " + string(stdout))
@@ -279,48 +241,48 @@ func (c *Controller) MirrorDelete(ctx *gin.Context) {
 			httputil.NewError(ctx, http.StatusInternalServerError, err)
 			return
 		}
+	}
 
-		// Mirror Daemon Destroy
-		cmd = exec.Command("ceph", "orch", "rm", "rbd-mirror")
-		cmd.Stderr = &out
-		stdout, err = cmd.CombinedOutput()
+	// Mirror Disable
+	cmd := exec.Command("rbd", "mirror", "pool", "disable")
+	cmd.Stderr = &out
+	stdout, err = cmd.CombinedOutput()
+	println("out: " + string(stdout))
+	println("err: " + out.String())
+	if err != nil || (out.String() != "" && out.String() != "rbd: mirroring is already configured for image mode") {
+		err = errors.Join(err, errors.New(out.String()))
+		utils.FancyHandleError(err)
+		httputil.NewError(ctx, http.StatusInternalServerError, err)
+		return
+	}
+
+	// Mirror Daemon Destroy
+	cmd = exec.Command("ceph", "orch", "rm", "rbd-mirror")
+	cmd.Stderr = &out
+	stdout, err = cmd.CombinedOutput()
+	if err != nil {
+		err = errors.Join(err, errors.New(out.String()))
+		utils.FancyHandleError(err)
+		httputil.NewError(ctx, http.StatusInternalServerError, err)
+		return
+	}
+
+	//remote local peer
+	out.Reset()
+	client, err := utils.ConnectSSH(dat.Host, privkeyname)
+	defer func(client *goph.Client) {
+		err := client.Close()
 		if err != nil {
-			err = errors.Join(err, errors.New(out.String()))
 			utils.FancyHandleError(err)
 			httputil.NewError(ctx, http.StatusInternalServerError, err)
 			return
 		}
+	}(client)
+	remoteMirrorStatus, err := mirror.GetRemoteConfigure(client)
 
-		//remote local peer
-		out.Reset()
-		client, err := utils.ConnectSSH(dat.Host, privkeyname)
-		defer func(client *goph.Client) {
-			err := client.Close()
-			if err != nil {
-				utils.FancyHandleError(err)
-				httputil.NewError(ctx, http.StatusInternalServerError, err)
-				return
-			}
-		}(client)
-		remoteMirrorStatus, err := mirror.GetRemoteConfigure(client)
-
-		if len(remoteMirrorStatus.Peers) > 0 {
-			peerUUID := remoteMirrorStatus.Peers[0].Uuid
-			sshcmd, err := client.Command("rbd", "mirror", "pool", "peer", "remove", "--pool", dat.MirrorPool, peerUUID)
-			sshcmd.Stderr = &out
-			stdout, err = sshcmd.CombinedOutput()
-			println("out: " + string(stdout))
-			println("err: " + out.String())
-			if err != nil || (out.String() != "" && out.String() != "rbd: mirroring is already configured for image mode") {
-				err = errors.Join(err, errors.New(out.String()))
-				utils.FancyHandleError(err)
-				httputil.NewError(ctx, http.StatusInternalServerError, err)
-				return
-			}
-		}
-
-		// Mirror Disable
-		sshcmd, err := client.Command("rbd", "mirror", "pool", "disable")
+	if len(remoteMirrorStatus.Peers) > 0 {
+		peerUUID := remoteMirrorStatus.Peers[0].Uuid
+		sshcmd, err := client.Command("rbd", "mirror", "pool", "peer", "remove", "--pool", dat.MirrorPool, peerUUID)
 		sshcmd.Stderr = &out
 		stdout, err = sshcmd.CombinedOutput()
 		println("out: " + string(stdout))
@@ -331,22 +293,33 @@ func (c *Controller) MirrorDelete(ctx *gin.Context) {
 			httputil.NewError(ctx, http.StatusInternalServerError, err)
 			return
 		}
+	}
 
-		// Mirror Daemon Destroy
-		sshcmd, err = client.Command("ceph", "orch", "rm", "rbd-mirror")
-		sshcmd.Stderr = &out
-		stdout, err = sshcmd.CombinedOutput()
-		if err != nil {
-			err = errors.Join(err, errors.New(out.String()))
-			utils.FancyHandleError(err)
-			httputil.NewError(ctx, http.StatusInternalServerError, err)
-			return
-		}
+	// Mirror Disable
+	sshcmd, err := client.Command("rbd", "mirror", "pool", "disable")
+	sshcmd.Stderr = &out
+	stdout, err = sshcmd.CombinedOutput()
+	println("out: " + string(stdout))
+	println("err: " + out.String())
+	if err != nil || (out.String() != "" && out.String() != "rbd: mirroring is already configured for image mode") {
+		err = errors.Join(err, errors.New(out.String()))
+		utils.FancyHandleError(err)
+		httputil.NewError(ctx, http.StatusInternalServerError, err)
+		return
+	}
 
+	// Mirror Daemon Destroy
+	sshcmd, err = client.Command("ceph", "orch", "rm", "rbd-mirror")
+	sshcmd.Stderr = &out
+	stdout, err = sshcmd.CombinedOutput()
+	if err != nil {
+		err = errors.Join(err, errors.New(out.String()))
+		utils.FancyHandleError(err)
+		httputil.NewError(ctx, http.StatusInternalServerError, err)
+		return
 	}
 
 	// Print the output
-	dat.Debug = gin.IsDebugging()
 	dat.LocalToken = EncodedLocalToken
 	dat.RemoteToken = EncodedRemoteToken
 	ctx.IndentedJSON(http.StatusOK, dat)
@@ -371,7 +344,6 @@ func (c *Controller) MirrorDelete(ctx *gin.Context) {
 func (c *Controller) MirrorImageSetup(ctx *gin.Context) {
 	//var dat model.MirrorSetup
 	var dat = struct {
-		model.AbleModel
 		Message string
 	}{}
 
@@ -419,7 +391,6 @@ func (c *Controller) MirrorImageSetup(ctx *gin.Context) {
 func (c *Controller) MirrorImageUpdate(ctx *gin.Context) {
 	//var dat model.MirrorSetup
 	var dat = struct {
-		model.AbleModel
 		Message string
 	}{}
 
@@ -467,7 +438,6 @@ func (c *Controller) MirrorImagestatus(ctx *gin.Context) {
 		return
 	}
 	print(dat.Description)
-	dat.Debug = gin.IsDebugging()
 	ctx.IndentedJSON(http.StatusOK, dat)
 }
 
@@ -512,7 +482,6 @@ func (c *Controller) MirrorImagePromote(ctx *gin.Context) {
 		httputil.NewError(ctx, http.StatusInternalServerError, err)
 		return
 	}
-	dat.Debug = gin.IsDebugging()
 	ctx.IndentedJSON(http.StatusOK, dat)
 }
 
@@ -556,6 +525,5 @@ func (c *Controller) MirrorImageDemote(ctx *gin.Context) {
 		httputil.NewError(ctx, http.StatusInternalServerError, err)
 		return
 	}
-	dat.Debug = gin.IsDebugging()
 	ctx.IndentedJSON(http.StatusOK, dat)
 }

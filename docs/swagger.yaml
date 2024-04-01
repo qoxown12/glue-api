@@ -796,6 +796,43 @@ paths:
       summary: Show Status and List of Glue FS
       tags:
       - GlueFS
+    put:
+      consumes:
+      - application/x-www-form-urlencoded
+      description: GlueFS를 수정합니다.
+      parameters:
+      - description: Glue FS Old Name
+        in: formData
+        name: old_name
+        required: true
+        type: string
+      - description: Glue FS New Name
+        in: formData
+        name: new_name
+        required: true
+        type: string
+      produces:
+      - application/json
+      responses:
+        "200":
+          description: Success
+          schema:
+            type: string
+        "400":
+          description: Bad Request
+          schema:
+            $ref: '#/definitions/HTTP400BadRequest'
+        "404":
+          description: Not Found
+          schema:
+            $ref: '#/definitions/HTTP404NotFound'
+        "500":
+          description: Internal Server Error
+          schema:
+            $ref: '#/definitions/HTTP500InternalServerError'
+      summary: Update of Glue FS
+      tags:
+      - GlueFS
   /api/v1/gluefs/{fs_name}:
     delete:
       consumes:
@@ -871,44 +908,6 @@ paths:
           schema:
             $ref: '#/definitions/HTTP500InternalServerError'
       summary: Create of Glue FS
-      tags:
-      - GlueFS
-  /api/v1/gluefs/{new_name}:
-    put:
-      consumes:
-      - application/x-www-form-urlencoded
-      description: GlueFS를 수정합니다.
-      parameters:
-      - description: Glue FS Old Name
-        in: path
-        name: old_name
-        required: true
-        type: string
-      - description: Glue FS New Name
-        in: formData
-        name: new_name
-        required: true
-        type: string
-      produces:
-      - application/json
-      responses:
-        "200":
-          description: Success
-          schema:
-            type: string
-        "400":
-          description: Bad Request
-          schema:
-            $ref: '#/definitions/HTTP400BadRequest'
-        "404":
-          description: Not Found
-          schema:
-            $ref: '#/definitions/HTTP404NotFound'
-        "500":
-          description: Internal Server Error
-          schema:
-            $ref: '#/definitions/HTTP500InternalServerError'
-      summary: Update of Glue FS
       tags:
       - GlueFS
   /api/v1/gluefs/info/{fs_name}:
@@ -1553,6 +1552,39 @@ paths:
       summary: Setup Gateway Vm
       tags:
       - Gwvm
+  /api/v1/gwvm/cleanup/{hypervisorType}:
+    put:
+      consumes:
+      - multipart/form-data
+      description: Gateway VM Pcs cluster를 Cleanup 합니다.
+      parameters:
+      - description: Hypervisor Type
+        in: path
+        name: hypervisorType
+        required: true
+        type: string
+      produces:
+      - application/json
+      responses:
+        "200":
+          description: OK
+          schema:
+            $ref: '#/definitions/model.GwvmMgmt'
+        "400":
+          description: Bad Request
+          schema:
+            $ref: '#/definitions/HTTP400BadRequest'
+        "404":
+          description: Not Found
+          schema:
+            $ref: '#/definitions/HTTP404NotFound'
+        "500":
+          description: Internal Server Error
+          schema:
+            $ref: '#/definitions/HTTP500InternalServerError'
+      summary: Cleanup to Gateway VM
+      tags:
+      - Gwvm
   /api/v1/gwvm/delete/{hypervisorType}:
     delete:
       consumes:
@@ -1661,7 +1693,7 @@ paths:
     put:
       consumes:
       - multipart/form-data
-      description: Gateway VM Pcs cluster를 Cleanup 합니다.
+      description: Gateway VM을 정지합니다.
       parameters:
       - description: Hypervisor Type
         in: path
@@ -1687,7 +1719,7 @@ paths:
           description: Internal Server Error
           schema:
             $ref: '#/definitions/HTTP500InternalServerError'
-      summary: Cleanup to Gateway VM
+      summary: Stop to Gateway VM
       tags:
       - Gwvm
   /api/v1/image:

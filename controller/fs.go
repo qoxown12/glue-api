@@ -98,7 +98,7 @@ func (c *Controller) FsCreate(ctx *gin.Context) {
 //
 //	@Summary		Update of Glue FS
 //	@Description	GlueFS를 수정합니다.
-//	@param			old_name 	path	string	true	"Glue FS Old Name"
+//	@param			old_name 	formData	string	true	"Glue FS Old Name"
 //	@param			new_name 	formData	string	true	"Glue FS New Name"
 //	@Tags			GlueFS
 //	@Accept			x-www-form-urlencoded
@@ -107,10 +107,10 @@ func (c *Controller) FsCreate(ctx *gin.Context) {
 //	@Failure		400	{object}	httputil.HTTP400BadRequest
 //	@Failure		404	{object}	httputil.HTTP404NotFound
 //	@Failure		500	{object}	httputil.HTTP500InternalServerError
-//	@Router			/api/v1/gluefs/{new_name} [put]
+//	@Router			/api/v1/gluefs [put]
 func (c *Controller) FsUpdate(ctx *gin.Context) {
-	new_name := ctx.Param("new_name")
 	old_name, _ := ctx.GetPostForm("old_name")
+	new_name, _ := ctx.GetPostForm("new_name")
 	dat, err := fs.FsUpdate(old_name, new_name)
 	if err != nil {
 		utils.FancyHandleError(err)

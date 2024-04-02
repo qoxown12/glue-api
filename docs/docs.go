@@ -203,6 +203,61 @@ const docTemplate = `{
                         }
                     }
                 }
+            },
+            "put": {
+                "description": "GlueFS를 수정합니다.",
+                "consumes": [
+                    "application/x-www-form-urlencoded"
+                ],
+                "produces": [
+                    "application/json"
+                ],
+                "tags": [
+                    "GlueFS"
+                ],
+                "summary": "Update of Glue FS",
+                "parameters": [
+                    {
+                        "type": "string",
+                        "description": "Glue FS Old Name",
+                        "name": "old_name",
+                        "in": "formData",
+                        "required": true
+                    },
+                    {
+                        "type": "string",
+                        "description": "Glue FS New Name",
+                        "name": "new_name",
+                        "in": "formData",
+                        "required": true
+                    }
+                ],
+                "responses": {
+                    "200": {
+                        "description": "Success",
+                        "schema": {
+                            "type": "string"
+                        }
+                    },
+                    "400": {
+                        "description": "Bad Request",
+                        "schema": {
+                            "$ref": "#/definitions/HTTP400BadRequest"
+                        }
+                    },
+                    "404": {
+                        "description": "Not Found",
+                        "schema": {
+                            "$ref": "#/definitions/HTTP404NotFound"
+                        }
+                    },
+                    "500": {
+                        "description": "Internal Server Error",
+                        "schema": {
+                            "$ref": "#/definitions/HTTP500InternalServerError"
+                        }
+                    }
+                }
             }
         },
         "/api/v1/gluefs/info/{fs_name}": {
@@ -1146,40 +1201,33 @@ const docTemplate = `{
                 }
             }
         },
-        "/api/v1/gluefs/{new_name}": {
+        "/api/v1/gwvm/cleanup/{hypervisorType}": {
             "put": {
-                "description": "GlueFS를 수정합니다.",
+                "description": "Gateway VM Pcs cluster를 Cleanup 합니다.",
                 "consumes": [
-                    "application/x-www-form-urlencoded"
+                    "multipart/form-data"
                 ],
                 "produces": [
                     "application/json"
                 ],
                 "tags": [
-                    "GlueFS"
+                    "Gwvm"
                 ],
-                "summary": "Update of Glue FS",
+                "summary": "Cleanup to Gateway VM",
                 "parameters": [
                     {
                         "type": "string",
-                        "description": "Glue FS Old Name",
-                        "name": "old_name",
+                        "description": "Hypervisor Type",
+                        "name": "hypervisorType",
                         "in": "path",
-                        "required": true
-                    },
-                    {
-                        "type": "string",
-                        "description": "Glue FS New Name",
-                        "name": "new_name",
-                        "in": "formData",
                         "required": true
                     }
                 ],
                 "responses": {
                     "200": {
-                        "description": "Success",
+                        "description": "OK",
                         "schema": {
-                            "type": "string"
+                            "$ref": "#/definitions/model.GwvmMgmt"
                         }
                     },
                     "400": {
@@ -1362,7 +1410,7 @@ const docTemplate = `{
         },
         "/api/v1/gwvm/stop/{hypervisorType}": {
             "put": {
-                "description": "Gateway VM Pcs cluster를 Cleanup 합니다.",
+                "description": "Gateway VM을 정지합니다.",
                 "consumes": [
                     "multipart/form-data"
                 ],
@@ -1372,7 +1420,7 @@ const docTemplate = `{
                 "tags": [
                     "Gwvm"
                 ],
-                "summary": "Cleanup to Gateway VM",
+                "summary": "Stop to Gateway VM",
                 "parameters": [
                     {
                         "type": "string",

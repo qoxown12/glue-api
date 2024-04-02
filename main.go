@@ -82,9 +82,10 @@ func main() {
 		fs := v1.Group("/gluefs")
 		{
 			fs.GET("", c.FsStatus)
+			fs.PUT("", c.FsUpdate)
+			fs.OPTIONS("", c.FsOption)
 
 			fs.POST("/:fs_name", c.FsCreate)
-			fs.PUT("/:new_name", c.FsUpdate)
 			fs.DELETE("/:fs_name", c.FsDelete)
 			fs.OPTIONS("/:fs_name", c.FsOption)
 

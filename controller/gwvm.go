@@ -224,10 +224,9 @@ func (c *Controller) VmDeleteOptions(ctx *gin.Context) {
 //	@Failure		400	{object}	httputil.HTTP400BadRequest
 //	@Failure		404	{object}	httputil.HTTP404NotFound
 //	@Failure		500	{object}	httputil.HTTP500InternalServerError
-//	@Router			/api/v1/gwvm/stop/{hypervisorType} [put]
+//	@Router			/api/v1/gwvm/cleanup/{hypervisorType} [put]
 func (c *Controller) VmCleanup(ctx *gin.Context) {
 	var dat = struct {
-		model.AbleModel
 		Message string
 	}{}
 	hypervisorType := ctx.Param("hypervisorType")

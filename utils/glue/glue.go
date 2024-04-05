@@ -257,7 +257,7 @@ func ServiceLs(service_name string, service_type string) (dat model.ServiceLs, e
 			return
 		}
 		if strings.Contains(string(stdout), "No services reported") {
-			dat = "No services reported"
+			dat = make([]string, 0)
 			return
 		} else {
 			if err = json.Unmarshal(stdout, &dat); err != nil {
@@ -278,7 +278,7 @@ func ServiceLs(service_name string, service_type string) (dat model.ServiceLs, e
 			return
 		}
 		if strings.Contains(string(stdout), "No services reported") {
-			dat = "No services reported"
+			dat = make([]string, 0)
 			return
 		} else {
 			if err = json.Unmarshal(stdout, &dat); err != nil {
@@ -299,7 +299,7 @@ func ServiceLs(service_name string, service_type string) (dat model.ServiceLs, e
 			return
 		}
 		if strings.Contains(string(stdout), "No services reported") {
-			dat = "No services reported"
+			dat = make([]string, 0)
 			return
 		} else {
 			if err = json.Unmarshal(stdout, &dat); err != nil {

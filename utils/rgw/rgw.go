@@ -56,7 +56,7 @@ func RgwServiceCreate(service_name string, realm_name string, zonegroup_name str
 						utils.FancyHandleError(err)
 						return
 					}
-					output = strings.ReplaceAll(string(stdout), "\n", "")
+					output = "Success"
 					return
 				}
 			}

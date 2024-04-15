@@ -96,7 +96,7 @@ func (c *Controller) RgwDaemon(ctx *gin.Context) {
 //	@param			zonegroup_name     formData   string	false    "RGW Zone Group Name"
 //	@param			zone_name     formData   string	false    "RGW Zone Name"
 //	@param			port     formData   int	false    "Service Port(default: 80)"
-//	@param			hosts     formData   []string	true    "Service Placement Hosts" collectionFormat(multi)
+//	@param			hostname     formData   []string	true    "Service Placement Host Name" collectionFormat(multi)
 //	@Accept			x-www-form-urlencoded
 //	@Produce		json
 //	@Success		200	{string}	string ""
@@ -110,9 +110,9 @@ func (c *Controller) RgwServiceCreate(ctx *gin.Context) {
 	zonegroup_name, _ := ctx.GetPostForm("zonegroup_name")
 	zone_name, _ := ctx.GetPostForm("zone_name")
 	port, _ := ctx.GetPostForm("port")
-	hosts, _ := ctx.GetPostFormArray("hosts")
+	hostname, _ := ctx.GetPostFormArray("hostname")
 
-	hosts_str := strings.Join(hosts, ",")
+	hosts_str := strings.Join(hostname, ",")
 	if port == "" {
 		port = "80"
 	}
@@ -199,6 +199,7 @@ func (c *Controller) RgwServiceUpdate(ctx *gin.Context) {
 //
 //	@Summary		List and Info of RADOS Gateway Users
 //	@Description	RADOS Gateway User의 리스트 및 정보를 보여줍니다.
+//	@param			username     query   string	false    "RGW User Name"
 //	@Tags			RGW-User
 //	@Accept			x-www-form-urlencoded
 //	@Produce		json
@@ -208,54 +209,67 @@ func (c *Controller) RgwServiceUpdate(ctx *gin.Context) {
 //	@Failure		500	{object}	httputil.HTTP500InternalServerError
 //	@Router			/api/v1/rgw/user [get]
 func (c *Controller) RgwUserList(ctx *gin.Context) {
-	var userInfo []model.RgwUserInfoAndStat
-	list_dat, err := rgw.RgwUserList()
-	if err != nil {
-		utils.FancyHandleError(err)
-		httputil.NewError(ctx, http.StatusInternalServerError, err)
-		return
-	}
-	for i := 0; i < len(list_dat); i++ {
-		info_dat, err := rgw.RgwUserInfo(list_dat[i])
+	username := ctx.Request.URL.Query().Get("username")
+
+	if username != "" {
+		dat, err := rgw.RgwUserInfo(username)
 		if err != nil {
 			utils.FancyHandleError(err)
 			httputil.NewError(ctx, http.StatusInternalServerError, err)
 			return
 		}
-		stat_dat, err := rgw.RgwUserStat(list_dat[i])
+		ctx.Header("Access-Control-Allow-Origin", "*")
+		ctx.IndentedJSON(http.StatusOK, dat)
+	} else {
+		var userInfo []model.RgwUserInfoAndStat
+		list_dat, err := rgw.RgwUserList()
 		if err != nil {
 			utils.FancyHandleError(err)
 			httputil.NewError(ctx, http.StatusInternalServerError, err)
 			return
 		}
-		value := model.RgwUserInfoAndStat{
-			UserID:              info_dat.UserID,
-			DisplayName:         info_dat.DisplayName,
-			Email:               info_dat.Email,
-			Suspended:           info_dat.Suspended,
-			MaxBuckets:          info_dat.MaxBuckets,
-			Subusers:            info_dat.Subusers,
-			Keys:                info_dat.Keys,
-			SwiftKeys:           info_dat.SwiftKeys,
-			Caps:                info_dat.Caps,
-			OpMask:              info_dat.OpMask,
-			System:              info_dat.System,
-			DefaultPlacement:    info_dat.DefaultPlacement,
-			DefaultStorageClass: info_dat.DefaultStorageClass,
-			PlacementTags:       info_dat.PlacementTags,
-			BucketQuota:         info_dat.BucketQuota,
-			UserQuota:           info_dat.UserQuota,
-			TempURLKeys:         info_dat.TempURLKeys,
-			Type:                info_dat.Type,
-			MfaIds:              info_dat.MfaIds,
-			Stats: model.RgwUserStat{
-				Stats: stat_dat.Stats,
-			},
+		for i := 0; i < len(list_dat); i++ {
+			info_dat, err := rgw.RgwUserInfo(list_dat[i])
+			if err != nil {
+				utils.FancyHandleError(err)
+				httputil.NewError(ctx, http.StatusInternalServerError, err)
+				return
+			}
+			stat_dat, err := rgw.RgwUserStat(list_dat[i])
+			if err != nil {
+				utils.FancyHandleError(err)
+				httputil.NewError(ctx, http.StatusInternalServerError, err)
+				return
+			}
+			value := model.RgwUserInfoAndStat{
+				UserID:              info_dat.UserID,
+				DisplayName:         info_dat.DisplayName,
+				Email:               info_dat.Email,
+				Suspended:           info_dat.Suspended,
+				MaxBuckets:          info_dat.MaxBuckets,
+				Subusers:            info_dat.Subusers,
+				Keys:                info_dat.Keys,
+				SwiftKeys:           info_dat.SwiftKeys,
+				Caps:                info_dat.Caps,
+				OpMask:              info_dat.OpMask,
+				System:              info_dat.System,
+				DefaultPlacement:    info_dat.DefaultPlacement,
+				DefaultStorageClass: info_dat.DefaultStorageClass,
+				PlacementTags:       info_dat.PlacementTags,
+				BucketQuota:         info_dat.BucketQuota,
+				UserQuota:           info_dat.UserQuota,
+				TempURLKeys:         info_dat.TempURLKeys,
+				Type:                info_dat.Type,
+				MfaIds:              info_dat.MfaIds,
+				Stats: model.RgwUserStat{
+					Stats: stat_dat.Stats,
+				},
+			}
+			userInfo = append(userInfo, value)
 		}
-		userInfo = append(userInfo, value)
+		ctx.Header("Access-Control-Allow-Origin", "*")
+		ctx.IndentedJSON(http.StatusOK, userInfo)
 	}
-	ctx.Header("Access-Control-Allow-Origin", "*")
-	ctx.IndentedJSON(http.StatusOK, userInfo)
 }
 
 // RgwUserCreate godoc

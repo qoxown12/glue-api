@@ -47,7 +47,7 @@ func CephHost() (dat model.CephHost, err error) {
 	}
 	return
 }
-func FsCreate(fs_name string, data_pool_size string, meta_pool_size string, hosts string) (output string, err error) {
+func FsCreate(fs_name string, hosts string) (output string, err error) {
 	var stdout []byte
 	cmd := exec.Command("ceph", "fs", "volume", "create", fs_name, "--placement", hosts)
 	stdout, err = cmd.CombinedOutput()
@@ -65,7 +65,6 @@ func FsCreate(fs_name string, data_pool_size string, meta_pool_size string, host
 			utils.FancyHandleError(err)
 			return
 		} else {
-
 			cmd := exec.Command("ceph", "osd", "pool", "rename", "cephfs."+fs_name+".meta", fs_name+".meta")
 			stdout, err = cmd.CombinedOutput()
 			if err != nil {
@@ -74,61 +73,25 @@ func FsCreate(fs_name string, data_pool_size string, meta_pool_size string, host
 				utils.FancyHandleError(err)
 				return
 			} else {
-				if data_pool_size == "" && meta_pool_size == "" {
-					cmd := exec.Command("ceph", "osd", "pool", "set", fs_name+".data", "size", "2")
-					stdout, err = cmd.CombinedOutput()
-					if err != nil {
-						err_str := strings.ReplaceAll(string(stdout), "\n", "")
-						err = errors.New(err_str)
-						utils.FancyHandleError(err)
-						return
-					}
-					output = "Success"
-					return
-				} else if data_pool_size != "" && meta_pool_size == "" {
-					cmd := exec.Command("ceph", "osd", "pool", "set", fs_name+".data", "size", data_pool_size)
-					stdout, err = cmd.CombinedOutput()
-					if err != nil {
-						err_str := strings.ReplaceAll(string(stdout), "\n", "")
-						err = errors.New(err_str)
-						utils.FancyHandleError(err)
-						return
-					}
-					output = "Success"
-					return
-				} else if data_pool_size == "" && meta_pool_size != "" {
-					cmd := exec.Command("ceph", "osd", "pool", "set", fs_name+".meta", "size", meta_pool_size)
-					stdout, err = cmd.CombinedOutput()
-					if err != nil {
-						err_str := strings.ReplaceAll(string(stdout), "\n", "")
-						err = errors.New(err_str)
-						utils.FancyHandleError(err)
-						return
-					}
-					output = "Success"
+				cmd := exec.Command("ceph", "osd", "pool", "set", fs_name+".data", "size", "2")
+				stdout, err = cmd.CombinedOutput()
+				if err != nil {
+					err_str := strings.ReplaceAll(string(stdout), "\n", "")
+					err = errors.New(err_str)
+					utils.FancyHandleError(err)
 					return
 				} else {
-					cmd := exec.Command("ceph", "osd", "pool", "set", fs_name+".data", "size", data_pool_size)
+					cmd := exec.Command("ceph", "osd", "pool", "set", fs_name+".meta", "size", "2")
 					stdout, err = cmd.CombinedOutput()
 					if err != nil {
 						err_str := strings.ReplaceAll(string(stdout), "\n", "")
 						err = errors.New(err_str)
 						utils.FancyHandleError(err)
 						return
-					} else {
-						cmd := exec.Command("ceph", "osd", "pool", "set", fs_name+".meta", "size", meta_pool_size)
-						stdout, err = cmd.CombinedOutput()
-						if err != nil {
-							err_str := strings.ReplaceAll(string(stdout), "\n", "")
-							err = errors.New(err_str)
-							utils.FancyHandleError(err)
-							return
-						}
-						output = "Success"
 					}
+					output = "Success"
+					return
 				}
-				output = "Success"
-				return
 			}
 		}
 	}
@@ -151,9 +114,8 @@ func FsDelete(fs_name string) (output string, err error) {
 			err = errors.New(err_str)
 			utils.FancyHandleError(err)
 			return
-		} else {
-			output = "Success"
 		}
+		output = "Success"
 		return
 	} else {
 		cmd := exec.Command("ceph", "config", "set", "mon", "mon_allow_pool_delete", "true")
@@ -171,9 +133,8 @@ func FsDelete(fs_name string) (output string, err error) {
 				err = errors.New(err_str)
 				utils.FancyHandleError(err)
 				return
-			} else {
-				output = "Success"
 			}
+			output = "Success"
 			return
 		}
 	}
@@ -194,7 +155,6 @@ func FsGetInfo(fs_name string) (dat model.FsGetInfo, err error) {
 		utils.FancyHandleError(err)
 		return
 	}
-
 	return
 }
 func FsList() (dat model.FsList, err error) {
@@ -213,10 +173,8 @@ func FsList() (dat model.FsList, err error) {
 		utils.FancyHandleError(err)
 		return
 	}
-
 	return
 }
-
 func FsUpdate(old_name string, new_name string) (output string, err error) {
 	var stdout []byte
 	cmd := exec.Command("ceph", "fs", "rename", old_name, new_name, "--yes-i-really-mean-it")

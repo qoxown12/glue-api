@@ -48,7 +48,6 @@ func ListPool(pool_name string) (pools []string, err error) {
 	if pool_name == "" {
 		cmd := exec.Command("ceph", "osd", "pool", "ls", "--format", "json")
 		stdout, err = cmd.CombinedOutput()
-
 		if err != nil {
 			err_str := strings.ReplaceAll(string(stdout), "\n", "")
 			err = errors.New(err_str)
@@ -79,10 +78,8 @@ func ListPool(pool_name string) (pools []string, err error) {
 		return
 	}
 }
-
 func InfoImage(pool_name string) (dat model.Images, err error) {
 	var stdout []byte
-
 	cmd := exec.Command("rbd", "ls", "-l", "-p", pool_name, "--format", "json")
 	stdout, err = cmd.CombinedOutput()
 
@@ -103,7 +100,6 @@ func InfoImage(pool_name string) (dat model.Images, err error) {
 }
 func ListAndInfoImage(image_name string, pool_name string) (dat model.ImageCommon, err error) {
 	var stdout []byte
-
 	if image_name != "" && pool_name == "" {
 		cmd := exec.Command("rbd", "info", image_name, "--format", "json")
 		stdout, err = cmd.CombinedOutput()
@@ -165,7 +161,6 @@ func DeleteImage(image_name string, pool_name string) (output string, err error)
 	return
 }
 func Status() (dat model.GlueStatus, err error) {
-
 	var stdout []byte
 	cmd := exec.Command("ceph", "-s", "-f", "json")
 	stdout, err = cmd.CombinedOutput()
@@ -175,17 +170,14 @@ func Status() (dat model.GlueStatus, err error) {
 		utils.FancyHandleError(err)
 		return
 	}
-
 	if err = json.Unmarshal(stdout, &dat); err != nil {
 		err_str := strings.ReplaceAll(string(stdout), "\n", "")
 		err = errors.New(err_str)
 		utils.FancyHandleError(err)
 		return
 	}
-
 	return
 }
-
 func PoolDelete(pool_name string) (output string, err error) {
 	var stdout []byte
 	cmd := exec.Command("ceph", "config", "get", "mon", "mon_allow_pool_delete")
@@ -312,7 +304,6 @@ func ServiceLs(service_name string, service_type string) (dat model.ServiceLs, e
 		return
 	}
 }
-
 func ServiceControl(control string, service_name string) (output string, err error) {
 	var stdout []byte
 	if service_name == "smb" {
@@ -339,7 +330,6 @@ func ServiceControl(control string, service_name string) (output string, err err
 		return
 	}
 }
-
 func ServiceDelete(service_name string) (output string, err error) {
 	var stdout []byte
 	cmd := exec.Command("ceph", "orch", "rm", service_name)
@@ -353,7 +343,6 @@ func ServiceDelete(service_name string) (output string, err error) {
 	output = "Success"
 	return
 }
-
 func HostList() (dat model.HostList, err error) {
 	var stdout []byte
 	cmd := exec.Command("ceph", "orch", "host", "ls", "-f", "json")
@@ -405,5 +394,37 @@ func RgwPool() (output []string, err error) {
 		}
 	}
 	output = str
+	return
+}
+func PoolReplicatedList(pool_type string) (output []string, err error) {
+	var stdout []byte
+	cmd := exec.Command("sh", "-c", "ceph osd pool ls | grep '"+pool_type+"'")
+	stdout, err = cmd.CombinedOutput()
+	if err != nil {
+		err_str := strings.ReplaceAll(string(stdout), "\n", "")
+		err = errors.New(err_str)
+		utils.FancyHandleError(err)
+		return
+	}
+	str := strings.Split(string(stdout), "\n")
+	for i := 0; i < len(str); i++ {
+		output = append(output, str[i])
+		if i == len(str)-1 {
+			output = output[:len(str)-1]
+		}
+	}
+	return
+}
+func PoolReplicatedSize(pool_name string) (output string, err error) {
+	var stdout []byte
+	cmd := exec.Command("ceph", "osd", "pool", "set", pool_name, "size", "2")
+	stdout, err = cmd.CombinedOutput()
+	if err != nil {
+		err_str := strings.ReplaceAll(string(stdout), "\n", "")
+		err = errors.New(err_str)
+		utils.FancyHandleError(err)
+		return
+	}
+	output = "Success"
 	return
 }

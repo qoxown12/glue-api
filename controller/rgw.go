@@ -4,6 +4,7 @@ import (
 	"Glue-API/httputil"
 	"Glue-API/model"
 	"Glue-API/utils"
+	"Glue-API/utils/glue"
 	"Glue-API/utils/rgw"
 	"crypto/tls"
 	"encoding/json"
@@ -121,6 +122,21 @@ func (c *Controller) RgwServiceCreate(ctx *gin.Context) {
 		utils.FancyHandleError(err)
 		httputil.NewError(ctx, http.StatusInternalServerError, err)
 		return
+	} else {
+		pool, err := glue.PoolReplicatedList("rgw")
+		if err != nil {
+			utils.FancyHandleError(err)
+			httputil.NewError(ctx, http.StatusInternalServerError, err)
+			return
+		}
+		for i := 0; i < len(pool); i++ {
+			_, err := glue.PoolReplicatedSize(pool[i])
+			if err != nil {
+				utils.FancyHandleError(err)
+				httputil.NewError(ctx, http.StatusInternalServerError, err)
+				return
+			}
+		}
 	}
 	ctx.Header("Access-Control-Allow-Origin", "*")
 	ctx.IndentedJSON(http.StatusOK, dat)

@@ -18,11 +18,9 @@ func NfsServiceCreate(yaml_file string) (output string, err error) {
 		err = errors.New(err_str)
 		utils.FancyHandleError(err)
 		return
-	} else {
-		output = "Success"
 	}
+	output = "Success"
 	return
-
 }
 func NfsClusterDelete(cluster_id string) (output string, err error) {
 	var stdout []byte
@@ -47,9 +45,8 @@ func NfsExportCreateOrUpdate(cluster_id string, json_file string) (output string
 		err = errors.New(err_str)
 		utils.FancyHandleError(err)
 		return
-	} else {
-		output = "Success"
 	}
+	output = "Success"
 	return
 }
 func NfsExportDelete(cluster_id string, pseudo string) (output string, err error) {
@@ -62,9 +59,8 @@ func NfsExportDelete(cluster_id string, pseudo string) (output string, err error
 		err = errors.New(err_str)
 		utils.FancyHandleError(err)
 		return
-	} else {
-		output = "Success"
 	}
+	output = "Success"
 	return
 }
 func NfsClusterList(cluster_id string) (dat model.NfsClusterList, err error) {
@@ -78,7 +74,6 @@ func NfsClusterList(cluster_id string) (dat model.NfsClusterList, err error) {
 			utils.FancyHandleError(err)
 			return
 		}
-
 		if err = json.Unmarshal(stdout, &dat); err != nil {
 			err_str := strings.ReplaceAll(string(stdout), "\n", "")
 			err = errors.New(err_str)
@@ -94,7 +89,6 @@ func NfsClusterList(cluster_id string) (dat model.NfsClusterList, err error) {
 			utils.FancyHandleError(err)
 			return
 		}
-
 		if err = json.Unmarshal(stdout, &dat); err != nil {
 			err_str := strings.ReplaceAll(string(stdout), "\n", "")
 			err = errors.New(err_str)
@@ -106,7 +100,6 @@ func NfsClusterList(cluster_id string) (dat model.NfsClusterList, err error) {
 }
 func NfsExportDetailed(cluster_id string) (dat model.NfsExportDetailed, err error) {
 	var stdout []byte
-
 	cmd := exec.Command("ceph", "nfs", "export", "ls", cluster_id, "--detailed")
 	stdout, err = cmd.CombinedOutput()
 	if err != nil {
@@ -115,7 +108,6 @@ func NfsExportDetailed(cluster_id string) (dat model.NfsExportDetailed, err erro
 		utils.FancyHandleError(err)
 		return
 	}
-
 	if err = json.Unmarshal(stdout, &dat); err != nil {
 		err_str := strings.ReplaceAll(string(stdout), "\n", "")
 		err = errors.New(err_str)
@@ -126,7 +118,6 @@ func NfsExportDetailed(cluster_id string) (dat model.NfsExportDetailed, err erro
 }
 func NfsClusterLs() (dat model.NfsClusterInfoList, err error) {
 	var stdout []byte
-
 	cmd := exec.Command("ceph", "nfs", "cluster", "ls")
 	stdout, err = cmd.CombinedOutput()
 	if err != nil {
@@ -135,7 +126,6 @@ func NfsClusterLs() (dat model.NfsClusterInfoList, err error) {
 		utils.FancyHandleError(err)
 		return
 	}
-
 	if err = json.Unmarshal(stdout, &dat); err != nil {
 		err_str := strings.ReplaceAll(string(stdout), "\n", "")
 		err = errors.New(err_str)

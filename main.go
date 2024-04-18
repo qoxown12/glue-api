@@ -198,6 +198,36 @@ func main() {
 				user.OPTIONS("", c.RgwOption)
 			}
 		}
+		nvmeof := v1.Group("/nvmeof")
+		{
+			nvmeof.POST("", c.NvmeOfServiceCreate)
+
+			nvmeof.GET("/list", c.NvmeOfList)
+			nvmeof.GET("/target", c.NvmeOfTargetVerify)
+
+			nvmeof.POST("/image/download", c.NvmeOfImageDownload)
+
+			nvmeof.POST("/target", c.NvmeOfTargetCreate)
+			nvmeof.POST("/target2", c.NvmeOfTargetCreate2)
+
+			nvmeof.POST("/connect", c.NvmeOfConnect)
+			nvmeof.POST("/disconnect", c.NvmeOfDisConnect)
+
+			subsystem := nvmeof.Group("/subsystem")
+			{
+				subsystem.GET("", c.NvmeOfSubSystemList)
+				subsystem.POST("", c.NvmeOfSubSystemCreate)
+				subsystem.DELETE("", c.NvmeOfSubSystemDelete)
+				subsystem.OPTIONS("", c.NvmeOption)
+			}
+			namespace := nvmeof.Group("/namespace")
+			{
+				namespace.GET("", c.NvmeOfNameSpaceList)
+				namespace.POST("", c.NvmeOfNameSpaceCreate)
+				namespace.DELETE("", c.NvmeOfNameSpaceDelete)
+				namespace.OPTIONS("", c.NvmeOption)
+			}
+		}
 		mirror := v1.Group("/mirror")
 		{
 			mirror.GET("", c.MirrorStatus) //Get Mirroring Status

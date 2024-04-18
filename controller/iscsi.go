@@ -94,7 +94,7 @@ func GetToken() (output string, err error) {
 //
 //	@Summary		Create of Iscsi Servcie Daemon
 //	@Description	Iscsi 서비스 데몬을 생성합니다.
-//	@param			hosts 	formData	[]string	true	"Host Name" collectionFormat(multi)
+//	@param			hosts	formData	[]string	true	"Host Name" collectionFormat(multi)
 //	@param			service_id	formData	string	true	"ISCSI Service Name"
 //	@param			pool 	formData	string	true	"Pool Name"
 //	@param			api_port 	formData	int	true	"ISCSI API Port" maximum(65535)
@@ -222,7 +222,7 @@ func (c *Controller) IscsiServiceCreate(ctx *gin.Context) {
 //
 //	@Summary		Update of Iscsi Servcie Daemon
 //	@Description	Iscsi 서비스 데몬을 수정합니다.
-//	@param			hosts 	formData	[]string	true	"Host Name" collectionFormat(multi)
+//	@param			hosts	formData	[]string	true	"Host Name" collectionFormat(multi)
 //	@param			service_id	formData	string	true	"ISCSI Service Name"
 //	@param			pool 	formData	string	true	"Pool Name"
 //	@param			api_port 	formData	int	true	"ISCSI API Port" maximum(65535)

@@ -5,7 +5,6 @@ import (
 	"Glue-API/utils"
 	"encoding/json"
 	"errors"
-	"fmt"
 	"os/exec"
 	"strings"
 )
@@ -21,7 +20,7 @@ func RgwServiceCreate(service_name string, realm_name string, zonegroup_name str
 			utils.FancyHandleError(err)
 			return
 		}
-		output = strings.ReplaceAll(string(stdout), "\n", "")
+		output = "Success"
 		return
 	} else {
 		cmd := exec.Command("radosgw-admin", "realm", "create", "--rgw-realm", realm_name)
@@ -135,7 +134,6 @@ func RgwUserCreate(username string, display_name string, email string) (output s
 	if email != "" {
 		cmd := exec.Command("radosgw-admin", "user", "create", "--uid", username, "--display-name", display_name, "--email", email)
 		stdout, err = cmd.CombinedOutput()
-		fmt.Print(cmd)
 		if err != nil {
 			err_str := strings.ReplaceAll(string(stdout), "\n", "")
 			err = errors.New(err_str)
@@ -146,7 +144,6 @@ func RgwUserCreate(username string, display_name string, email string) (output s
 	} else {
 		cmd := exec.Command("radosgw-admin", "user", "create", "--uid", username, "--display-name", display_name)
 		stdout, err = cmd.CombinedOutput()
-		fmt.Print(cmd)
 		if err != nil {
 			err_str := strings.ReplaceAll(string(stdout), "\n", "")
 			err = errors.New(err_str)
@@ -157,7 +154,6 @@ func RgwUserCreate(username string, display_name string, email string) (output s
 	}
 	return
 }
-
 func RgwUserDelete(username string) (output string, err error) {
 	var stdout []byte
 	cmd := exec.Command("radosgw-admin", "user", "rm", "--uid", username)

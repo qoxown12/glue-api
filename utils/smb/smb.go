@@ -53,7 +53,6 @@ func SmbStatus(hostname string, name string) (dat model.SmbStatus, err error) {
 		return
 	}
 	return
-
 }
 func SmbCreate(hostname string, username string, password string, folder string, path string, fs_name string, volume_path string) (output string, err error) {
 	var stdout []byte

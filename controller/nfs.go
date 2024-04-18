@@ -4,6 +4,7 @@ import (
 	"Glue-API/httputil"
 	"Glue-API/model"
 	"Glue-API/utils"
+	"Glue-API/utils/glue"
 	"Glue-API/utils/nfs"
 	"encoding/json"
 	"net/http"
@@ -101,6 +102,20 @@ func (c *Controller) NfsClusterCreate(ctx *gin.Context) {
 			if err := os.Remove(nfs_yaml); err != nil {
 				utils.FancyHandleError(err)
 				httputil.NewError(ctx, http.StatusInternalServerError, err)
+			}
+			pool, err := glue.PoolReplicatedList("nfs")
+			if err != nil {
+				utils.FancyHandleError(err)
+				httputil.NewError(ctx, http.StatusInternalServerError, err)
+				return
+			}
+			for i := 0; i < len(pool); i++ {
+				_, err := glue.PoolReplicatedSize(pool[i])
+				if err != nil {
+					utils.FancyHandleError(err)
+					httputil.NewError(ctx, http.StatusInternalServerError, err)
+					return
+				}
 			}
 		}
 		ctx.Header("Access-Control-Allow-Origin", "*")

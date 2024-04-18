@@ -1107,22 +1107,6 @@ const docTemplate = `{
                         "name": "fs_name",
                         "in": "path",
                         "required": true
-                    },
-                    {
-                        "maximum": 3,
-                        "minimum": 2,
-                        "type": "integer",
-                        "description": "Glue Data Pool Replicated Size(default 3)",
-                        "name": "data_pool_size",
-                        "in": "formData"
-                    },
-                    {
-                        "maximum": 3,
-                        "minimum": 2,
-                        "type": "integer",
-                        "description": "Glue Meta Pool Replicated Size(default 3)",
-                        "name": "meta_pool_size",
-                        "in": "formData"
                     }
                 ],
                 "responses": {
@@ -3838,6 +3822,850 @@ const docTemplate = `{
                 }
             }
         },
+        "/api/v1/nvmeof": {
+            "post": {
+                "description": "NVMe-OF 서비스를 생성합니다.",
+                "consumes": [
+                    "application/x-www-form-urlencoded"
+                ],
+                "produces": [
+                    "application/json"
+                ],
+                "tags": [
+                    "NVMe-OF"
+                ],
+                "summary": "Create of NVMe-OF Service",
+                "parameters": [
+                    {
+                        "type": "string",
+                        "description": "Glue NVMe-OF Store Data In Pool Name",
+                        "name": "pool_name",
+                        "in": "formData",
+                        "required": true
+                    },
+                    {
+                        "type": "array",
+                        "items": {
+                            "type": "string"
+                        },
+                        "collectionFormat": "multi",
+                        "description": "Glue NVMe-OF Service Placement Hosts",
+                        "name": "hostname",
+                        "in": "formData",
+                        "required": true
+                    }
+                ],
+                "responses": {
+                    "200": {
+                        "description": "Success",
+                        "schema": {
+                            "type": "string"
+                        }
+                    },
+                    "400": {
+                        "description": "Bad Request",
+                        "schema": {
+                            "$ref": "#/definitions/HTTP400BadRequest"
+                        }
+                    },
+                    "404": {
+                        "description": "Not Found",
+                        "schema": {
+                            "$ref": "#/definitions/HTTP404NotFound"
+                        }
+                    },
+                    "500": {
+                        "description": "Internal Server Error",
+                        "schema": {
+                            "$ref": "#/definitions/HTTP500InternalServerError"
+                        }
+                    }
+                }
+            }
+        },
+        "/api/v1/nvmeof/connect": {
+            "post": {
+                "description": "NVMe-OF 하위 시스템에 연결합니다.",
+                "consumes": [
+                    "application/x-www-form-urlencoded"
+                ],
+                "produces": [
+                    "application/json"
+                ],
+                "tags": [
+                    "NVMe-OF"
+                ],
+                "summary": "Connect of NVMe-OF Sub System",
+                "parameters": [
+                    {
+                        "type": "string",
+                        "description": "Glue NVMe-OF Run Host Name",
+                        "name": "hostname",
+                        "in": "formData",
+                        "required": true
+                    },
+                    {
+                        "type": "string",
+                        "description": "Glue NVMe-OF Sub System NQN ID",
+                        "name": "subsystem_nqn_id",
+                        "in": "formData"
+                    },
+                    {
+                        "enum": [
+                            true,
+                            false
+                        ],
+                        "type": "boolean",
+                        "default": false,
+                        "description": "Glue NVMe-OF Full Connection Check",
+                        "name": "full_connection",
+                        "in": "formData",
+                        "required": true
+                    }
+                ],
+                "responses": {
+                    "200": {
+                        "description": "Success",
+                        "schema": {
+                            "type": "string"
+                        }
+                    },
+                    "400": {
+                        "description": "Bad Request",
+                        "schema": {
+                            "$ref": "#/definitions/HTTP400BadRequest"
+                        }
+                    },
+                    "404": {
+                        "description": "Not Found",
+                        "schema": {
+                            "$ref": "#/definitions/HTTP404NotFound"
+                        }
+                    },
+                    "500": {
+                        "description": "Internal Server Error",
+                        "schema": {
+                            "$ref": "#/definitions/HTTP500InternalServerError"
+                        }
+                    }
+                }
+            }
+        },
+        "/api/v1/nvmeof/disconnect": {
+            "post": {
+                "description": "NVMe-OF 하위 시스템에 연결을 해제합니다.",
+                "consumes": [
+                    "application/x-www-form-urlencoded"
+                ],
+                "produces": [
+                    "application/json"
+                ],
+                "tags": [
+                    "NVMe-OF"
+                ],
+                "summary": "DisConnect of NVMe-OF Sub System",
+                "parameters": [
+                    {
+                        "type": "string",
+                        "description": "Glue NVMe-OF Run Host Name",
+                        "name": "hostname",
+                        "in": "formData",
+                        "required": true
+                    },
+                    {
+                        "type": "string",
+                        "description": "Glue NVMe-OF Sub System NQN ID",
+                        "name": "subsystem_nqn_id",
+                        "in": "formData"
+                    },
+                    {
+                        "enum": [
+                            true,
+                            false
+                        ],
+                        "type": "boolean",
+                        "default": false,
+                        "description": "Glue NVMe-OF Full DisConnection Check",
+                        "name": "full_DisConnection",
+                        "in": "formData",
+                        "required": true
+                    }
+                ],
+                "responses": {
+                    "200": {
+                        "description": "Success",
+                        "schema": {
+                            "type": "string"
+                        }
+                    },
+                    "400": {
+                        "description": "Bad Request",
+                        "schema": {
+                            "$ref": "#/definitions/HTTP400BadRequest"
+                        }
+                    },
+                    "404": {
+                        "description": "Not Found",
+                        "schema": {
+                            "$ref": "#/definitions/HTTP404NotFound"
+                        }
+                    },
+                    "500": {
+                        "description": "Internal Server Error",
+                        "schema": {
+                            "$ref": "#/definitions/HTTP500InternalServerError"
+                        }
+                    }
+                }
+            }
+        },
+        "/api/v1/nvmeof/image/download": {
+            "post": {
+                "description": "NVMe-OF 이미지를 최신으로 다운받습니다.",
+                "consumes": [
+                    "application/x-www-form-urlencoded"
+                ],
+                "produces": [
+                    "application/json"
+                ],
+                "tags": [
+                    "NVMe-OF"
+                ],
+                "summary": "Download of NVMe-OF Image",
+                "responses": {
+                    "200": {
+                        "description": "Success",
+                        "schema": {
+                            "type": "string"
+                        }
+                    },
+                    "400": {
+                        "description": "Bad Request",
+                        "schema": {
+                            "$ref": "#/definitions/HTTP400BadRequest"
+                        }
+                    },
+                    "404": {
+                        "description": "Not Found",
+                        "schema": {
+                            "$ref": "#/definitions/HTTP404NotFound"
+                        }
+                    },
+                    "500": {
+                        "description": "Internal Server Error",
+                        "schema": {
+                            "$ref": "#/definitions/HTTP500InternalServerError"
+                        }
+                    }
+                }
+            }
+        },
+        "/api/v1/nvmeof/list": {
+            "get": {
+                "description": "연결된 NVMe-OF의 상세정보 및 리스트를 보여줍니다.",
+                "consumes": [
+                    "application/x-www-form-urlencoded"
+                ],
+                "produces": [
+                    "application/json"
+                ],
+                "tags": [
+                    "NVMe-OF"
+                ],
+                "summary": "Show Detail and List of Connected NVMe-OF Infomation",
+                "parameters": [
+                    {
+                        "enum": [
+                            "true",
+                            "false"
+                        ],
+                        "type": "string",
+                        "default": "true",
+                        "description": "Glue NVMe-OF List detail",
+                        "name": "detail",
+                        "in": "query",
+                        "required": true
+                    },
+                    {
+                        "type": "string",
+                        "description": "Glue NVMe-OF Run Host Name",
+                        "name": "hostname",
+                        "in": "query"
+                    }
+                ],
+                "responses": {
+                    "200": {
+                        "description": "OK",
+                        "schema": {
+                            "$ref": "#/definitions/NvmeOfList"
+                        }
+                    },
+                    "400": {
+                        "description": "Bad Request",
+                        "schema": {
+                            "$ref": "#/definitions/HTTP400BadRequest"
+                        }
+                    },
+                    "404": {
+                        "description": "Not Found",
+                        "schema": {
+                            "$ref": "#/definitions/HTTP404NotFound"
+                        }
+                    },
+                    "500": {
+                        "description": "Internal Server Error",
+                        "schema": {
+                            "$ref": "#/definitions/HTTP500InternalServerError"
+                        }
+                    }
+                }
+            }
+        },
+        "/api/v1/nvmeof/namespace": {
+            "get": {
+                "description": "NVMe-OF의 Sub System 리스트를 보여줍니다.",
+                "consumes": [
+                    "application/x-www-form-urlencoded"
+                ],
+                "produces": [
+                    "application/json"
+                ],
+                "tags": [
+                    "NVMe-OF-NameSpace"
+                ],
+                "summary": "Show List of NVMe-OF Sub Systems",
+                "parameters": [
+                    {
+                        "type": "string",
+                        "description": "Glue NVMe-OF Sub System NQN ID",
+                        "name": "subsystem_nqn_id",
+                        "in": "query",
+                        "required": true
+                    }
+                ],
+                "responses": {
+                    "200": {
+                        "description": "OK",
+                        "schema": {
+                            "$ref": "#/definitions/NvmeOfNameSpaceList"
+                        }
+                    },
+                    "400": {
+                        "description": "Bad Request",
+                        "schema": {
+                            "$ref": "#/definitions/HTTP400BadRequest"
+                        }
+                    },
+                    "404": {
+                        "description": "Not Found",
+                        "schema": {
+                            "$ref": "#/definitions/HTTP404NotFound"
+                        }
+                    },
+                    "500": {
+                        "description": "Internal Server Error",
+                        "schema": {
+                            "$ref": "#/definitions/HTTP500InternalServerError"
+                        }
+                    }
+                }
+            },
+            "post": {
+                "description": "NVMe-OF의 네임스페이스를 생성합니다.",
+                "consumes": [
+                    "application/x-www-form-urlencoded"
+                ],
+                "produces": [
+                    "application/json"
+                ],
+                "tags": [
+                    "NVMe-OF-NameSpace"
+                ],
+                "summary": "Create of NVMe-OF NameSpace",
+                "parameters": [
+                    {
+                        "type": "string",
+                        "description": "Glue NVMe-OF Gateway IP",
+                        "name": "gateway_ip",
+                        "in": "formData",
+                        "required": true
+                    },
+                    {
+                        "type": "string",
+                        "description": "Glue NVMe-OF Sub System NQN ID",
+                        "name": "subsystem_nqn_id",
+                        "in": "formData",
+                        "required": true
+                    },
+                    {
+                        "type": "string",
+                        "description": "Glue Pool Name",
+                        "name": "pool_name",
+                        "in": "formData",
+                        "required": true
+                    },
+                    {
+                        "type": "string",
+                        "description": "Glue Image Name",
+                        "name": "image_name",
+                        "in": "formData",
+                        "required": true
+                    },
+                    {
+                        "type": "integer",
+                        "description": "Glue NVMe-OF Image Size(default GB)",
+                        "name": "size",
+                        "in": "formData",
+                        "required": true
+                    }
+                ],
+                "responses": {
+                    "200": {
+                        "description": "Success",
+                        "schema": {
+                            "type": "string"
+                        }
+                    },
+                    "400": {
+                        "description": "Bad Request",
+                        "schema": {
+                            "$ref": "#/definitions/HTTP400BadRequest"
+                        }
+                    },
+                    "404": {
+                        "description": "Not Found",
+                        "schema": {
+                            "$ref": "#/definitions/HTTP404NotFound"
+                        }
+                    },
+                    "500": {
+                        "description": "Internal Server Error",
+                        "schema": {
+                            "$ref": "#/definitions/HTTP500InternalServerError"
+                        }
+                    }
+                }
+            },
+            "delete": {
+                "description": "NVMe-OF의 네임스페이스를 삭제합니다.",
+                "consumes": [
+                    "application/x-www-form-urlencoded"
+                ],
+                "produces": [
+                    "application/json"
+                ],
+                "tags": [
+                    "NVMe-OF-NameSpace"
+                ],
+                "summary": "Delete of NVMe-OF NameSpace",
+                "parameters": [
+                    {
+                        "type": "string",
+                        "description": "Glue NVMe-OF Sub System NQN ID",
+                        "name": "subsystem_nqn_id",
+                        "in": "query",
+                        "required": true
+                    },
+                    {
+                        "type": "string",
+                        "description": "Glue NVMe-OF NameSpace UUID",
+                        "name": "namespace_uuid",
+                        "in": "query",
+                        "required": true
+                    },
+                    {
+                        "enum": [
+                            true,
+                            false
+                        ],
+                        "type": "boolean",
+                        "default": false,
+                        "description": "Glue NVMe-OF Image Delete Check",
+                        "name": "image_del_check",
+                        "in": "query",
+                        "required": true
+                    },
+                    {
+                        "type": "string",
+                        "description": "Glue Pool Name",
+                        "name": "pool_name",
+                        "in": "query"
+                    },
+                    {
+                        "type": "string",
+                        "description": "Glue Image Name",
+                        "name": "image_name",
+                        "in": "query"
+                    }
+                ],
+                "responses": {
+                    "200": {
+                        "description": "Success",
+                        "schema": {
+                            "type": "string"
+                        }
+                    },
+                    "400": {
+                        "description": "Bad Request",
+                        "schema": {
+                            "$ref": "#/definitions/HTTP400BadRequest"
+                        }
+                    },
+                    "404": {
+                        "description": "Not Found",
+                        "schema": {
+                            "$ref": "#/definitions/HTTP404NotFound"
+                        }
+                    },
+                    "500": {
+                        "description": "Internal Server Error",
+                        "schema": {
+                            "$ref": "#/definitions/HTTP500InternalServerError"
+                        }
+                    }
+                }
+            }
+        },
+        "/api/v1/nvmeof/subsystem": {
+            "get": {
+                "description": "NVMe-OF의 Sub System 리스트를 보여줍니다.",
+                "consumes": [
+                    "application/x-www-form-urlencoded"
+                ],
+                "produces": [
+                    "application/json"
+                ],
+                "tags": [
+                    "NVMe-OF-SubSystem"
+                ],
+                "summary": "Show List of NVMe-OF Sub System",
+                "parameters": [
+                    {
+                        "type": "string",
+                        "description": "Glue NVMe-OF Sub System NQN ID",
+                        "name": "subsystem_nqn_id",
+                        "in": "query"
+                    }
+                ],
+                "responses": {
+                    "200": {
+                        "description": "OK",
+                        "schema": {
+                            "$ref": "#/definitions/NvmeOfSubSystemList"
+                        }
+                    },
+                    "400": {
+                        "description": "Bad Request",
+                        "schema": {
+                            "$ref": "#/definitions/HTTP400BadRequest"
+                        }
+                    },
+                    "404": {
+                        "description": "Not Found",
+                        "schema": {
+                            "$ref": "#/definitions/HTTP404NotFound"
+                        }
+                    },
+                    "500": {
+                        "description": "Internal Server Error",
+                        "schema": {
+                            "$ref": "#/definitions/HTTP500InternalServerError"
+                        }
+                    }
+                }
+            },
+            "post": {
+                "description": "NVMe-OF의 Sub System을 생성합니다.",
+                "consumes": [
+                    "application/x-www-form-urlencoded"
+                ],
+                "produces": [
+                    "application/json"
+                ],
+                "tags": [
+                    "NVMe-OF-SubSystem"
+                ],
+                "summary": "Create of NVMe-OF Sub System",
+                "parameters": [
+                    {
+                        "type": "string",
+                        "description": "Glue NVMe-OF Gateway IP",
+                        "name": "gateway_ip",
+                        "in": "formData",
+                        "required": true
+                    },
+                    {
+                        "type": "string",
+                        "description": "Glue NVMe-OF Sub System NQN ID",
+                        "name": "subsystem_nqn_id",
+                        "in": "formData",
+                        "required": true
+                    }
+                ],
+                "responses": {
+                    "200": {
+                        "description": "Success",
+                        "schema": {
+                            "type": "string"
+                        }
+                    },
+                    "400": {
+                        "description": "Bad Request",
+                        "schema": {
+                            "$ref": "#/definitions/HTTP400BadRequest"
+                        }
+                    },
+                    "404": {
+                        "description": "Not Found",
+                        "schema": {
+                            "$ref": "#/definitions/HTTP404NotFound"
+                        }
+                    },
+                    "500": {
+                        "description": "Internal Server Error",
+                        "schema": {
+                            "$ref": "#/definitions/HTTP500InternalServerError"
+                        }
+                    }
+                }
+            },
+            "delete": {
+                "description": "NVMe-OF Sub System을 삭제합니다.",
+                "consumes": [
+                    "application/x-www-form-urlencoded"
+                ],
+                "produces": [
+                    "application/json"
+                ],
+                "tags": [
+                    "NVMe-OF-SubSystem"
+                ],
+                "summary": "Delete of NVMe-OF Sub System",
+                "parameters": [
+                    {
+                        "type": "string",
+                        "description": "Glue NVMe-OF Sub System NQN ID",
+                        "name": "subsystem_nqn_id",
+                        "in": "query",
+                        "required": true
+                    }
+                ],
+                "responses": {
+                    "200": {
+                        "description": "Success",
+                        "schema": {
+                            "type": "string"
+                        }
+                    },
+                    "400": {
+                        "description": "Bad Request",
+                        "schema": {
+                            "$ref": "#/definitions/HTTP400BadRequest"
+                        }
+                    },
+                    "404": {
+                        "description": "Not Found",
+                        "schema": {
+                            "$ref": "#/definitions/HTTP404NotFound"
+                        }
+                    },
+                    "500": {
+                        "description": "Internal Server Error",
+                        "schema": {
+                            "$ref": "#/definitions/HTTP500InternalServerError"
+                        }
+                    }
+                }
+            }
+        },
+        "/api/v1/nvmeof/target": {
+            "get": {
+                "description": "NVMe-OF의 타겟에 연결 할 수 있는지에 대한 리스트를 보여줍니다.",
+                "consumes": [
+                    "application/x-www-form-urlencoded"
+                ],
+                "produces": [
+                    "application/json"
+                ],
+                "tags": [
+                    "NVMe-OF"
+                ],
+                "summary": "Show List of Verify the NVMe-OF Target is Reachable",
+                "responses": {
+                    "200": {
+                        "description": "OK",
+                        "schema": {
+                            "$ref": "#/definitions/NvmeOfTargetVerify"
+                        }
+                    },
+                    "400": {
+                        "description": "Bad Request",
+                        "schema": {
+                            "$ref": "#/definitions/HTTP400BadRequest"
+                        }
+                    },
+                    "404": {
+                        "description": "Not Found",
+                        "schema": {
+                            "$ref": "#/definitions/HTTP404NotFound"
+                        }
+                    },
+                    "500": {
+                        "description": "Internal Server Error",
+                        "schema": {
+                            "$ref": "#/definitions/HTTP500InternalServerError"
+                        }
+                    }
+                }
+            },
+            "post": {
+                "description": "NVMe-OF 타켓을 생성합니다.",
+                "consumes": [
+                    "application/x-www-form-urlencoded"
+                ],
+                "produces": [
+                    "application/json"
+                ],
+                "tags": [
+                    "NVMe-OF"
+                ],
+                "summary": "Create of NVMe-OF Target",
+                "parameters": [
+                    {
+                        "type": "string",
+                        "description": "Glue NVMe-OF Sub System NQN ID",
+                        "name": "subsystem_nqn_id",
+                        "in": "formData",
+                        "required": true
+                    },
+                    {
+                        "type": "string",
+                        "description": "Glue NVMe-OF Use Image Pool Name",
+                        "name": "pool_name",
+                        "in": "formData",
+                        "required": true
+                    },
+                    {
+                        "type": "string",
+                        "description": "Glue NVMe-OF Use Image Name",
+                        "name": "image_name",
+                        "in": "formData",
+                        "required": true
+                    },
+                    {
+                        "type": "integer",
+                        "description": "Glue NVMe-OF Image Size(default GB)",
+                        "name": "size",
+                        "in": "formData",
+                        "required": true
+                    }
+                ],
+                "responses": {
+                    "200": {
+                        "description": "Success",
+                        "schema": {
+                            "type": "string"
+                        }
+                    },
+                    "400": {
+                        "description": "Bad Request",
+                        "schema": {
+                            "$ref": "#/definitions/HTTP400BadRequest"
+                        }
+                    },
+                    "404": {
+                        "description": "Not Found",
+                        "schema": {
+                            "$ref": "#/definitions/HTTP404NotFound"
+                        }
+                    },
+                    "500": {
+                        "description": "Internal Server Error",
+                        "schema": {
+                            "$ref": "#/definitions/HTTP500InternalServerError"
+                        }
+                    }
+                }
+            }
+        },
+        "/api/v1/nvmeof/target2": {
+            "post": {
+                "description": "NVMe-OF 타켓을 생성합니다. 개별적으로 하나 타겟만 만드는 API",
+                "consumes": [
+                    "application/x-www-form-urlencoded"
+                ],
+                "produces": [
+                    "application/json"
+                ],
+                "tags": [
+                    "NVMe-OF"
+                ],
+                "summary": "Create of NVMe-OF Target",
+                "parameters": [
+                    {
+                        "type": "string",
+                        "description": "Glue NVMe-OF Gateway IP",
+                        "name": "gateway_ip",
+                        "in": "formData",
+                        "required": true
+                    },
+                    {
+                        "type": "string",
+                        "description": "Glue NVMe-OF Sub System NQN ID",
+                        "name": "subsystem_nqn_id",
+                        "in": "formData",
+                        "required": true
+                    },
+                    {
+                        "type": "string",
+                        "description": "Glue NVMe-OF Use Image Pool Name",
+                        "name": "pool_name",
+                        "in": "formData",
+                        "required": true
+                    },
+                    {
+                        "type": "string",
+                        "description": "Glue NVMe-OF Use Image Name",
+                        "name": "image_name",
+                        "in": "formData",
+                        "required": true
+                    },
+                    {
+                        "type": "integer",
+                        "description": "Glue NVMe-OF Image Size(default GB)",
+                        "name": "size",
+                        "in": "formData",
+                        "required": true
+                    }
+                ],
+                "responses": {
+                    "200": {
+                        "description": "Success",
+                        "schema": {
+                            "type": "string"
+                        }
+                    },
+                    "400": {
+                        "description": "Bad Request",
+                        "schema": {
+                            "$ref": "#/definitions/HTTP400BadRequest"
+                        }
+                    },
+                    "404": {
+                        "description": "Not Found",
+                        "schema": {
+                            "$ref": "#/definitions/HTTP404NotFound"
+                        }
+                    },
+                    "500": {
+                        "description": "Internal Server Error",
+                        "schema": {
+                            "$ref": "#/definitions/HTTP500InternalServerError"
+                        }
+                    }
+                }
+            }
+        },
         "/api/v1/pool": {
             "get": {
                 "description": "Glue 의 스토리지 풀 목록을 보여줍니다.",
@@ -4140,8 +4968,8 @@ const docTemplate = `{
                             "type": "string"
                         },
                         "collectionFormat": "multi",
-                        "description": "Service Placement Hosts",
-                        "name": "hosts",
+                        "description": "Service Placement Host Name",
+                        "name": "hostname",
                         "in": "formData",
                         "required": true
                     }
@@ -4274,6 +5102,14 @@ const docTemplate = `{
                     "RGW-User"
                 ],
                 "summary": "List and Info of RADOS Gateway Users",
+                "parameters": [
+                    {
+                        "type": "string",
+                        "description": "RGW User Name",
+                        "name": "username",
+                        "in": "query"
+                    }
+                ],
                 "responses": {
                     "200": {
                         "description": "OK",
@@ -5748,6 +6584,259 @@ const docTemplate = `{
                 },
                 "states": {
                     "description": "이미지 상세"
+                }
+            }
+        },
+        "NvmeOfList": {
+            "type": "object",
+            "properties": {
+                "Devices": {
+                    "type": "array",
+                    "items": {
+                        "type": "object",
+                        "properties": {
+                            "HostID": {
+                                "type": "string"
+                            },
+                            "HostNQN": {
+                                "type": "string"
+                            },
+                            "Subsystems": {
+                                "type": "array",
+                                "items": {
+                                    "type": "object",
+                                    "properties": {
+                                        "Controllers": {
+                                            "type": "array",
+                                            "items": {
+                                                "type": "object",
+                                                "properties": {
+                                                    "Address": {
+                                                        "type": "string"
+                                                    },
+                                                    "Controller": {
+                                                        "type": "string"
+                                                    },
+                                                    "Firmware": {
+                                                        "type": "string"
+                                                    },
+                                                    "ModelNumber": {
+                                                        "type": "string"
+                                                    },
+                                                    "Namespaces": {
+                                                        "type": "array",
+                                                        "items": {}
+                                                    },
+                                                    "Paths": {
+                                                        "type": "array",
+                                                        "items": {
+                                                            "type": "object",
+                                                            "properties": {
+                                                                "ANAState": {
+                                                                    "type": "string"
+                                                                },
+                                                                "Path": {
+                                                                    "type": "string"
+                                                                }
+                                                            }
+                                                        }
+                                                    },
+                                                    "SerialNumber": {
+                                                        "type": "string"
+                                                    },
+                                                    "Transport": {
+                                                        "type": "string"
+                                                    }
+                                                }
+                                            }
+                                        },
+                                        "Namespaces": {
+                                            "type": "array",
+                                            "items": {
+                                                "type": "object",
+                                                "properties": {
+                                                    "Generic": {
+                                                        "type": "string"
+                                                    },
+                                                    "MaximumLBA": {
+                                                        "type": "integer"
+                                                    },
+                                                    "NSID": {
+                                                        "type": "integer"
+                                                    },
+                                                    "NameSpace": {
+                                                        "type": "string"
+                                                    },
+                                                    "PhysicalSize": {
+                                                        "type": "integer"
+                                                    },
+                                                    "SectorSize": {
+                                                        "type": "integer"
+                                                    },
+                                                    "UsedBytes": {
+                                                        "type": "integer"
+                                                    }
+                                                }
+                                            }
+                                        },
+                                        "Subsystem": {
+                                            "type": "string"
+                                        },
+                                        "SubsystemNQN": {
+                                            "type": "string"
+                                        }
+                                    }
+                                }
+                            }
+                        }
+                    }
+                }
+            }
+        },
+        "NvmeOfNameSpaceList": {
+            "type": "object",
+            "properties": {
+                "error_message": {
+                    "type": "string"
+                },
+                "namespaces": {
+                    "type": "array",
+                    "items": {
+                        "type": "object",
+                        "properties": {
+                            "bdev_name": {
+                                "type": "string"
+                            },
+                            "block_size": {
+                                "type": "integer"
+                            },
+                            "load_balancing_group": {
+                                "type": "integer"
+                            },
+                            "nsid": {
+                                "type": "integer"
+                            },
+                            "r_mbytes_per_second": {
+                                "type": "string"
+                            },
+                            "rbd_image_name": {
+                                "type": "string"
+                            },
+                            "rbd_image_size": {
+                                "type": "string"
+                            },
+                            "rbd_pool_name": {
+                                "type": "string"
+                            },
+                            "rw_ios_per_second": {
+                                "type": "string"
+                            },
+                            "rw_mbytes_per_second": {
+                                "type": "string"
+                            },
+                            "uuid": {
+                                "type": "string"
+                            },
+                            "w_mbytes_per_second": {
+                                "type": "string"
+                            }
+                        }
+                    }
+                },
+                "status": {
+                    "type": "integer"
+                },
+                "subsystem_nqn": {
+                    "type": "string"
+                }
+            }
+        },
+        "NvmeOfSubSystemList": {
+            "type": "object",
+            "properties": {
+                "error_message": {
+                    "type": "string"
+                },
+                "status": {
+                    "type": "integer"
+                },
+                "subsystems": {
+                    "type": "array",
+                    "items": {
+                        "type": "object",
+                        "properties": {
+                            "enable_ha": {
+                                "type": "boolean"
+                            },
+                            "max_cntlid": {
+                                "type": "integer"
+                            },
+                            "min_cntlid": {
+                                "type": "integer"
+                            },
+                            "model_number": {
+                                "type": "string"
+                            },
+                            "namespace_count": {
+                                "type": "integer"
+                            },
+                            "nqn": {
+                                "type": "string"
+                            },
+                            "serial_number": {
+                                "type": "string"
+                            },
+                            "subtype": {
+                                "type": "string"
+                            }
+                        }
+                    }
+                }
+            }
+        },
+        "NvmeOfTargetVerify": {
+            "type": "object",
+            "properties": {
+                "genctr": {
+                    "type": "integer"
+                },
+                "records": {
+                    "type": "array",
+                    "items": {
+                        "type": "object",
+                        "properties": {
+                            "adrfam": {
+                                "type": "string"
+                            },
+                            "eflags": {
+                                "type": "string"
+                            },
+                            "portid": {
+                                "type": "integer"
+                            },
+                            "sectype": {
+                                "type": "string"
+                            },
+                            "subnqn": {
+                                "type": "string"
+                            },
+                            "subtype": {
+                                "type": "string"
+                            },
+                            "traddr": {
+                                "type": "string"
+                            },
+                            "treq": {
+                                "type": "string"
+                            },
+                            "trsvcid": {
+                                "type": "string"
+                            },
+                            "trtype": {
+                                "type": "string"
+                            }
+                        }
+                    }
                 }
             }
         },

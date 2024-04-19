@@ -4,6 +4,7 @@ import (
 	"Glue-API/httputil"
 	"Glue-API/model"
 	"Glue-API/utils"
+	"Glue-API/utils/glue"
 	"Glue-API/utils/iscsi"
 	"bytes"
 	"crypto/tls"
@@ -11,7 +12,6 @@ import (
 	"io"
 	"net/http"
 	"os"
-	"os/exec"
 	"strconv"
 	"strings"
 	"time"
@@ -23,71 +23,6 @@ import (
 func (c *Controller) IscsiOption(ctx *gin.Context) {
 	SetOptionHeader(ctx)
 	ctx.IndentedJSON(http.StatusOK, nil)
-}
-
-func GlueUrl() (output string) {
-	dat, err := iscsi.GlueUrl()
-	if err != nil {
-		utils.FancyHandleError(err)
-		return
-	}
-	url := strings.Split(dat.ActiveName, ".")
-
-	var stdout []byte
-	cmd := exec.Command("sh", "-c", "cat /etc/hosts | grep '"+url[0]+"-mngt' | awk '{print $1}'")
-	stdout, err = cmd.CombinedOutput()
-	if err != nil {
-		return
-	}
-	result := strings.Replace(string(stdout), "\n", "", -1)
-
-	output = string("https://") + result + string(":8443/")
-	return
-}
-func GetToken() (output string, err error) {
-	client := &http.Client{
-		Transport: &http.Transport{
-			TLSClientConfig: &tls.Config{InsecureSkipVerify: true},
-		},
-	}
-	user_json := model.UserInfo{
-		Username: "ablecloud",
-		Password: "Ablecloud1!",
-	}
-	user, err := json.Marshal(user_json)
-	if err != nil {
-		utils.FancyHandleError(err)
-		return
-	}
-	url := GlueUrl() + "api/auth"
-	var jsonStr = bytes.NewBuffer(user)
-	request, err := http.NewRequest(http.MethodPost, url, jsonStr)
-	if err != nil {
-		utils.FancyHandleError(err)
-		return
-	}
-	request.Header.Set("Content-Type", "application/json")
-	request.Header.Set("accept", "application/vnd.ceph.api.v1.0+json")
-
-	result, err := client.Do(request)
-	if err != nil {
-		utils.FancyHandleError(err)
-		return
-	}
-	defer result.Body.Close()
-
-	body, err := io.ReadAll(result.Body)
-	if err != nil {
-		utils.FancyHandleError(err)
-		return
-	}
-	var dat model.Token
-	if err = json.Unmarshal(body, &dat); err != nil {
-		utils.FancyHandleError(err)
-		return
-	}
-	output = dat.Token
-	return
 }
 
 // IscsiServiceCreate godoc
@@ -297,10 +232,15 @@ func (c *Controller) IscsiServiceUpdate(ctx *gin.Context) {
 				utils.FancyHandleError(err)
 				httputil.NewError(ctx, http.StatusInternalServerError, err)
 			}
+			dat, err = glue.ServiceReDeploy("iscsi." + service_id)
+			if err != nil {
+				utils.FancyHandleError(err)
+				httputil.NewError(ctx, http.StatusInternalServerError, err)
+				return
+			}
+			ctx.Header("Access-Control-Allow-Origin", "*")
+			ctx.IndentedJSON(http.StatusOK, dat)
 		}
-		// Print the output
-		ctx.Header("Access-Control-Allow-Origin", "*")
-		ctx.IndentedJSON(http.StatusOK, dat)
 	} else {
 		value := model.IscsiServiceCreateCount{
 			Service_Type: "iscsi",
@@ -339,10 +279,15 @@ func (c *Controller) IscsiServiceUpdate(ctx *gin.Context) {
 				utils.FancyHandleError(err)
 				httputil.NewError(ctx, http.StatusInternalServerError, err)
 			}
+			dat, err = glue.ServiceReDeploy("iscsi." + service_id)
+			if err != nil {
+				utils.FancyHandleError(err)
+				httputil.NewError(ctx, http.StatusInternalServerError, err)
+				return
+			}
+			ctx.Header("Access-Control-Allow-Origin", "*")
+			ctx.IndentedJSON(http.StatusOK, dat)
 		}
-		// Print the output
-		ctx.Header("Access-Control-Allow-Origin", "*")
-		ctx.IndentedJSON(http.StatusOK, dat)
 	}
 }
 
@@ -888,6 +833,44 @@ func (c *Controller) IscsiUpdateDiscoveryAuth(ctx *gin.Context) {
 		return
 	}
 	// Print the output
+	ctx.Header("Access-Control-Allow-Origin", "*")
+	ctx.IndentedJSON(http.StatusOK, dat)
+}
+
+// IscsiTargetPurge godoc
+//
+//	@Summary		Purge of Iscsi Target
+//	@Description	Iscsi 타겟을 파괴합니다.
+//	@Tags			IscsiTarget
+//	@param			iqn_id	query	string	true	"Iscsi Target IQN Name"
+//	@Accept			x-www-form-urlencoded
+//	@Produce		json
+//	@Success		200	{string}	string "Success"
+//	@Failure		400	{object}	httputil.HTTP400BadRequest
+//	@Failure		404	{object}	httputil.HTTP404NotFound
+//	@Failure		500	{object}	httputil.HTTP500InternalServerError
+//	@Router			/api/v1/iscsi/target/purge [delete]
+func (c *Controller) IscsiTargetPurge(ctx *gin.Context) {
+	iqn_id := ctx.Request.URL.Query().Get("iqn_id")
+
+	hostname, err := iscsi.IscsiHost()
+	if err != nil {
+		utils.FancyHandleError(err)
+		httputil.NewError(ctx, http.StatusInternalServerError, err)
+		return
+	}
+	container_id, err := iscsi.ContainerId(hostname[0].Placement.Hosts[0])
+	if err != nil {
+		utils.FancyHandleError(err)
+		httputil.NewError(ctx, http.StatusInternalServerError, err)
+		return
+	}
+	dat, err := iscsi.IscsiNADelete(hostname[0].Placement.Hosts[0], container_id, iqn_id)
+	if err != nil {
+		utils.FancyHandleError(err)
+		httputil.NewError(ctx, http.StatusInternalServerError, err)
+		return
+	}
 	ctx.Header("Access-Control-Allow-Origin", "*")
 	ctx.IndentedJSON(http.StatusOK, dat)
 }

@@ -108,3 +108,17 @@ type NvmeOfPath struct {
 		SectorSize   int    `json:"SectorSize"`
 	} `json:"Devices"`
 }
+
+type NvmeOfServiceCreate struct {
+	ServiceType string          `yaml:"service_type"`
+	ServiceId   string          `yaml:"service_id"`
+	Placement   NvmeOfPlacement `yaml:"placement"`
+	Spec        NvmeOfSpec      `yaml:"spec"`
+}
+type NvmeOfPlacement struct {
+	Hosts []string `yaml:"hosts"`
+}
+type NvmeOfSpec struct {
+	Pool            string `yaml:"pool"`
+	TgtCmdExtraArgs string `yaml:"tgt_cmd_extra_args"`
+}

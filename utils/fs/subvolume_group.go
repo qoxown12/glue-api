@@ -74,6 +74,8 @@ func SubVolumeGroupGetPath(vol_name string, group_name string) (output string, e
 }
 func SubVolumeGroupDelete(vol_name string, group_name string, path string) (output string, err error) {
 	var stdout []byte
+	cmd := exec.Command("mkdir", "-p", "/gluefs/not")
+	_, _ = cmd.CombinedOutput()
 	if path == "" {
 		cmd := exec.Command("mount", "-t", "ceph", "admin@."+vol_name)
 		_, err = cmd.CombinedOutput()

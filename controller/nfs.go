@@ -208,7 +208,7 @@ func (c *Controller) NfsClusterUpdate(ctx *gin.Context) {
 			httputil.NewError(ctx, http.StatusInternalServerError, err)
 			return
 		}
-		dat, err := nfs.NfsServiceCreate(nfs_yaml)
+		_, err = nfs.NfsServiceCreate(nfs_yaml)
 		if err != nil {
 			utils.FancyHandleError(err)
 			httputil.NewError(ctx, http.StatusInternalServerError, err)
@@ -218,9 +218,15 @@ func (c *Controller) NfsClusterUpdate(ctx *gin.Context) {
 				utils.FancyHandleError(err)
 				httputil.NewError(ctx, http.StatusInternalServerError, err)
 			}
+			dat, err := glue.ServiceReDeploy("nfs" + cluster_id)
+			if err != nil {
+				utils.FancyHandleError(err)
+				httputil.NewError(ctx, http.StatusInternalServerError, err)
+				return
+			}
+			ctx.Header("Access-Control-Allow-Origin", "*")
+			ctx.IndentedJSON(http.StatusOK, dat)
 		}
-		ctx.Header("Access-Control-Allow-Origin", "*")
-		ctx.IndentedJSON(http.StatusOK, dat)
 	} else {
 		value := model.NfsClusterCreateCount{
 			ServiceType: "nfs",
@@ -245,7 +251,7 @@ func (c *Controller) NfsClusterUpdate(ctx *gin.Context) {
 			httputil.NewError(ctx, http.StatusInternalServerError, err)
 			return
 		}
-		dat, err := nfs.NfsServiceCreate(nfs_yaml)
+		_, err = nfs.NfsServiceCreate(nfs_yaml)
 		if err != nil {
 			utils.FancyHandleError(err)
 			httputil.NewError(ctx, http.StatusInternalServerError, err)
@@ -255,9 +261,15 @@ func (c *Controller) NfsClusterUpdate(ctx *gin.Context) {
 				utils.FancyHandleError(err)
 				httputil.NewError(ctx, http.StatusInternalServerError, err)
 			}
+			dat, err := glue.ServiceReDeploy("nfs" + cluster_id)
+			if err != nil {
+				utils.FancyHandleError(err)
+				httputil.NewError(ctx, http.StatusInternalServerError, err)
+				return
+			}
+			ctx.Header("Access-Control-Allow-Origin", "*")
+			ctx.IndentedJSON(http.StatusOK, dat)
 		}
-		ctx.Header("Access-Control-Allow-Origin", "*")
-		ctx.IndentedJSON(http.StatusOK, dat)
 	}
 
 }
@@ -294,9 +306,9 @@ func (c *Controller) NfsClusterDelete(ctx *gin.Context) {
 //	@Description	Glue NFS Export를 생성합니다.
 //	@param			cluster_id 	path	string	true	"NFS Cluster Identifier"
 //	@param			access_type formData   string	true    "NFS Access Type" Enums(RW, RO, NONE) default(RW)
-//	@param			fs_name     formData   string	true    "FS Name"
-//	@param			storage_name formData   string	true    "NFS Storage Name" default(CEPH)
-//	@param			path         formData    string true    "Glue FS Path"
+//	@param			fs_name     formData   string	false    "FS Name(if stroage_name is CEPH Required value)"
+//	@param			storage_name formData   string	true    "NFS Storage Name" Enums(CEPH, RGW)
+//	@param			path         formData    string true    "Glue FS Path or Glue RGW Bucket Name"
 //	@param			pseudo     formData   string	true    "NFS Export Path"
 //	@param			squash     formData   string	true    "Squash"	Enums(no_root_squash, root_id_squash, all_squash, root_squash) default(no_root_squash)
 //	@param			transports     formData   []string	false    "Transports" collectionFormat(multi) default(TCP)
@@ -321,17 +333,31 @@ func (c *Controller) NfsExportCreate(ctx *gin.Context) {
 	security_label := ctx.GetBool("security_label")
 
 	var protocols = []int{4}
-	value := model.NfsExportCreate{
-		AccessType: access_type,
-		Fsal: model.Fsal{
-			Name:   storage_name,
-			FsName: fs_name},
-		Protocols:     protocols,
-		Path:          path,
-		Pseudo:        pseudo,
-		Squash:        squash,
-		SecurityLabel: security_label,
-		Transports:    transports}
+	var value model.NfsExportAll
+	if storage_name == "CEPH" {
+		value = model.NfsExportCreate{
+			AccessType: access_type,
+			Fsal: model.NfsFsal{
+				Name:   storage_name,
+				FsName: fs_name},
+			Protocols:     protocols,
+			Path:          path,
+			Pseudo:        pseudo,
+			Squash:        squash,
+			SecurityLabel: security_label,
+			Transports:    transports}
+	} else {
+		value = model.NfsExportRgwCreate{
+			AccessType: access_type,
+			Fsal: model.RgwFsal{
+				Name: storage_name,
+			},
+			Protocols:  protocols,
+			Path:       path,
+			Pseudo:     pseudo,
+			Squash:     squash,
+			Transports: transports}
+	}
 	json_data, err := json.MarshalIndent(value, "", " ")
 	if err != nil {
 		utils.FancyHandleError(err)
@@ -371,9 +397,9 @@ func (c *Controller) NfsExportCreate(ctx *gin.Context) {
 //	@param			cluster_id 	path	string	true	"NFS Cluster Identifier"
 //	@param			export_id 	formData	int	true	"NFS Export ID"
 //	@param			access_type formData   string	true    "NFS Access Type" Enums(RW, RO, NONE) default(RW)
-//	@param			fs_name     formData   string	true    "FS Name"
-//	@param			storage_name formData   string	true    "NFS Storage Name" default(CEPH)
-//	@param			path         formData    string true    "Glue FS Path"
+//	@param			fs_name     formData   string	false    "FS Name(if stroage_name is CEPH Required value)"
+//	@param			storage_name formData   string	true    "NFS Storage Name" Enums(CEPH, RGW)
+//	@param			path         formData    string true    "Glue FS Path or Glue RGW Bucket Name"
 //	@param			pseudo     formData   string	true    "NFS Export Path"
 //	@param			squash     formData   string	true    "Squash"	Enums(no_root_squash, root_id_squash, all_squash, root_squash) default(no_root_squash)
 //	@param			transports     formData   []string	false    "Transports" collectionFormat(multi) default(TCP)
@@ -400,18 +426,34 @@ func (c *Controller) NfsExportUpdate(ctx *gin.Context) {
 	export_id, _ := strconv.Atoi(export_id_data)
 
 	var protocols = []int{4}
-	value := model.NfsExportUpdate{
-		AccessType: access_type,
-		Fsal: model.Fsal{
-			Name:   storage_name,
-			FsName: fs_name},
-		Protocols:     protocols,
-		Path:          path,
-		Pseudo:        pseudo,
-		Squash:        squash,
-		SecurityLabel: security_label,
-		ExportID:      export_id,
-		Transports:    transports}
+	var value model.NfsExportAll
+	if storage_name == "CEPH" {
+		value = model.NfsExportUpdate{
+			AccessType: access_type,
+			Fsal: model.NfsFsal{
+				Name:   storage_name,
+				FsName: fs_name},
+			Protocols:     protocols,
+			Path:          path,
+			Pseudo:        pseudo,
+			Squash:        squash,
+			SecurityLabel: security_label,
+			ExportID:      export_id,
+			Transports:    transports}
+	} else {
+		value = model.NfsExportRgwUpdate{
+			AccessType: access_type,
+			Fsal: model.RgwFsal{
+				Name: storage_name,
+			},
+			Protocols:  protocols,
+			Path:       path,
+			Pseudo:     pseudo,
+			Squash:     squash,
+			ExportID:   export_id,
+			Transports: transports}
+	}
+
 	json_data, err := json.MarshalIndent(value, "", " ")
 	if err != nil {
 		utils.FancyHandleError(err)
@@ -669,7 +711,7 @@ func (c *Controller) NfsIngressUpdate(ctx *gin.Context) {
 		httputil.NewError(ctx, http.StatusInternalServerError, err)
 		return
 	} else {
-		dat, err := nfs.NfsServiceCreate(nfs_ingress_conf)
+		_, err := nfs.NfsServiceCreate(nfs_ingress_conf)
 		if err != nil {
 			utils.FancyHandleError(err)
 			httputil.NewError(ctx, http.StatusInternalServerError, err)
@@ -680,8 +722,14 @@ func (c *Controller) NfsIngressUpdate(ctx *gin.Context) {
 				httputil.NewError(ctx, http.StatusInternalServerError, err)
 				return
 			}
+			dat, err := glue.ServiceReDeploy("ingress." + service_id)
+			if err != nil {
+				utils.FancyHandleError(err)
+				httputil.NewError(ctx, http.StatusInternalServerError, err)
+				return
+			}
+			ctx.Header("Access-Control-Allow-Origin", "*")
+			ctx.IndentedJSON(http.StatusOK, dat)
 		}
-		ctx.Header("Access-Control-Allow-Origin", "*")
-		ctx.IndentedJSON(http.StatusOK, dat)
 	}
 }

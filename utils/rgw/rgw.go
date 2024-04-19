@@ -75,7 +75,7 @@ func RgwServiceUpdate(yaml_file string) (output string, err error) {
 	output = "Success"
 	return
 }
-func RgwUserList() (dat model.RgwUserList, err error) {
+func RgwUserList() (output model.RgwUserList, err error) {
 	var stdout []byte
 	cmd := exec.Command("radosgw-admin", "user", "list")
 	stdout, err = cmd.CombinedOutput()
@@ -85,7 +85,7 @@ func RgwUserList() (dat model.RgwUserList, err error) {
 		utils.FancyHandleError(err)
 		return
 	}
-	if err = json.Unmarshal(stdout, &dat); err != nil {
+	if err = json.Unmarshal(stdout, &output); err != nil {
 		err_str := strings.ReplaceAll(string(stdout), "\n", "")
 		err = errors.New(err_str)
 		utils.FancyHandleError(err)
@@ -93,7 +93,7 @@ func RgwUserList() (dat model.RgwUserList, err error) {
 	}
 	return
 }
-func RgwUserInfo(username string) (dat model.RgwUserInfo, err error) {
+func RgwUserInfo(username string) (output model.RgwUserInfo, err error) {
 	var stdout []byte
 	cmd := exec.Command("radosgw-admin", "user", "info", "--uid", username)
 	stdout, err = cmd.CombinedOutput()
@@ -103,7 +103,7 @@ func RgwUserInfo(username string) (dat model.RgwUserInfo, err error) {
 		utils.FancyHandleError(err)
 		return
 	}
-	if err = json.Unmarshal(stdout, &dat); err != nil {
+	if err = json.Unmarshal(stdout, &output); err != nil {
 		err_str := strings.ReplaceAll(string(stdout), "\n", "")
 		err = errors.New(err_str)
 		utils.FancyHandleError(err)
@@ -111,7 +111,7 @@ func RgwUserInfo(username string) (dat model.RgwUserInfo, err error) {
 	}
 	return
 }
-func RgwUserStat(username string) (dat model.RgwUserStat, err error) {
+func RgwUserStat(username string) (output model.RgwUserStat, err error) {
 	var stdout []byte
 	cmd := exec.Command("radosgw-admin", "user", "stats", "--uid", username)
 	stdout, err = cmd.CombinedOutput()
@@ -121,7 +121,7 @@ func RgwUserStat(username string) (dat model.RgwUserStat, err error) {
 		utils.FancyHandleError(err)
 		return
 	}
-	if err = json.Unmarshal(stdout, &dat); err != nil {
+	if err = json.Unmarshal(stdout, &output); err != nil {
 		err_str := strings.ReplaceAll(string(stdout), "\n", "")
 		err = errors.New(err_str)
 		utils.FancyHandleError(err)
@@ -132,7 +132,7 @@ func RgwUserStat(username string) (dat model.RgwUserStat, err error) {
 func RgwUserCreate(username string, display_name string, email string) (output string, err error) {
 	var stdout []byte
 	if email != "" {
-		cmd := exec.Command("radosgw-admin", "user", "create", "--uid", username, "--display-name", display_name, "--email", email)
+		cmd := exec.Command("radosgw-admin", "user", "create", "--uid", username, "--display-name", display_name, "--email", email, "--admin")
 		stdout, err = cmd.CombinedOutput()
 		if err != nil {
 			err_str := strings.ReplaceAll(string(stdout), "\n", "")
@@ -142,7 +142,7 @@ func RgwUserCreate(username string, display_name string, email string) (output s
 		}
 		output = "Success"
 	} else {
-		cmd := exec.Command("radosgw-admin", "user", "create", "--uid", username, "--display-name", display_name)
+		cmd := exec.Command("radosgw-admin", "user", "create", "--uid", username, "--display-name", display_name, "--admin")
 		stdout, err = cmd.CombinedOutput()
 		if err != nil {
 			err_str := strings.ReplaceAll(string(stdout), "\n", "")
@@ -295,4 +295,71 @@ func RgwQuota(username string, scope string, max_object string, max_size string,
 			return
 		}
 	}
+}
+
+func RgwBucketDetail(bucket_name string) (output model.RGwCommon, err error) {
+	var stdout []byte
+	if bucket_name == "" {
+		cmd := exec.Command("radosgw-admin", "bucket", "stats")
+		stdout, err = cmd.CombinedOutput()
+		if err != nil {
+			err_str := strings.ReplaceAll(string(stdout), "\n", "")
+			err = errors.New(err_str)
+			utils.FancyHandleError(err)
+			return
+		}
+		if err = json.Unmarshal(stdout, &output); err != nil {
+			err_str := strings.ReplaceAll(string(stdout), "\n", "")
+			err = errors.New(err_str)
+			utils.FancyHandleError(err)
+			return
+		}
+	} else {
+		cmd := exec.Command("radosgw-admin", "bucket", "stats", "--bucket", bucket_name)
+		stdout, err = cmd.CombinedOutput()
+		if err != nil {
+			err_str := strings.ReplaceAll(string(stdout), "\n", "")
+			err = errors.New(err_str)
+			utils.FancyHandleError(err)
+			return
+		}
+		if err = json.Unmarshal(stdout, &output); err != nil {
+			err_str := strings.ReplaceAll(string(stdout), "\n", "")
+			err = errors.New(err_str)
+			utils.FancyHandleError(err)
+			return
+		}
+	}
+	return
+}
+func RgwBucketList() (output model.RGwCommon, err error) {
+	var stdout []byte
+	cmd := exec.Command("radosgw-admin", "bucket", "list")
+	stdout, err = cmd.CombinedOutput()
+	if err != nil {
+		err_str := strings.ReplaceAll(string(stdout), "\n", "")
+		err = errors.New(err_str)
+		utils.FancyHandleError(err)
+		return
+	}
+	if err = json.Unmarshal(stdout, &output); err != nil {
+		err_str := strings.ReplaceAll(string(stdout), "\n", "")
+		err = errors.New(err_str)
+		utils.FancyHandleError(err)
+		return
+	}
+	return
+}
+func RgwBucketDelete(bucket_name string) (output string, err error) {
+	var stdout []byte
+	cmd := exec.Command("radosgw-admin", "bucket", "rm", "--bucket", bucket_name)
+	stdout, err = cmd.CombinedOutput()
+	if err != nil {
+		err_str := strings.ReplaceAll(string(stdout), "\n", "")
+		err = errors.New(err_str)
+		utils.FancyHandleError(err)
+		return
+	}
+	output = "Success"
+	return
 }

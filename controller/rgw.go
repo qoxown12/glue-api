@@ -6,6 +6,7 @@ import (
 	"Glue-API/utils"
 	"Glue-API/utils/glue"
 	"Glue-API/utils/rgw"
+	"bytes"
 	"crypto/tls"
 	"encoding/json"
 	"io"
@@ -147,7 +148,7 @@ func (c *Controller) RgwServiceCreate(ctx *gin.Context) {
 //	@Summary		Update of RADOS Gateway Service
 //	@Description	RADOS Gateway Service를 수정합니다.
 //	@Tags			RGW
-//	@param			service_name     formData   string	true    "RGW Service Name"
+//	@param			service_id     formData   string	true    "RGW Service Name"
 //	@param			realm_name     formData   string	false    "RGW Realm Name"
 //	@param			zonegroup_name     formData   string	false    "RGW Zone Group Name"
 //	@param			zone_name     formData   string	false    "RGW Zone Name"
@@ -161,7 +162,7 @@ func (c *Controller) RgwServiceCreate(ctx *gin.Context) {
 //	@Failure		500	{object}	httputil.HTTP500InternalServerError
 //	@Router			/api/v1/rgw [put]
 func (c *Controller) RgwServiceUpdate(ctx *gin.Context) {
-	service_name, _ := ctx.GetPostForm("service_name")
+	service_id, _ := ctx.GetPostForm("service_id")
 	realm_name, _ := ctx.GetPostForm("realm_name")
 	zonegroup_name, _ := ctx.GetPostForm("zonegroup_name")
 	zone_name, _ := ctx.GetPostForm("zone_name")
@@ -170,7 +171,7 @@ func (c *Controller) RgwServiceUpdate(ctx *gin.Context) {
 
 	value := model.RgwUpdate{
 		Service_type: "rgw",
-		Service_id:   service_name,
+		Service_id:   service_id,
 		Placement: model.RgwUpdatePlacement{
 			Hosts: hosts,
 		},
@@ -194,7 +195,7 @@ func (c *Controller) RgwServiceUpdate(ctx *gin.Context) {
 		httputil.NewError(ctx, http.StatusInternalServerError, err)
 		return
 	} else {
-		dat, err := rgw.RgwServiceUpdate(rgw_conf)
+		_, err := rgw.RgwServiceUpdate(rgw_conf)
 		if err != nil {
 			utils.FancyHandleError(err)
 			httputil.NewError(ctx, http.StatusInternalServerError, err)
@@ -205,9 +206,15 @@ func (c *Controller) RgwServiceUpdate(ctx *gin.Context) {
 				httputil.NewError(ctx, http.StatusInternalServerError, err)
 				return
 			}
+			dat, err := glue.ServiceReDeploy("rgw." + service_id)
+			if err != nil {
+				utils.FancyHandleError(err)
+				httputil.NewError(ctx, http.StatusInternalServerError, err)
+				return
+			}
+			ctx.Header("Access-Control-Allow-Origin", "*")
+			ctx.IndentedJSON(http.StatusOK, dat)
 		}
-		ctx.Header("Access-Control-Allow-Origin", "*")
-		ctx.IndentedJSON(http.StatusOK, dat)
 	}
 }
 
@@ -405,6 +412,253 @@ func (c *Controller) RgwQuota(ctx *gin.Context) {
 	state, _ := ctx.GetPostForm("state")
 
 	dat, err := rgw.RgwQuota(username, scope, max_objects, max_size, state)
+	if err != nil {
+		utils.FancyHandleError(err)
+		httputil.NewError(ctx, http.StatusInternalServerError, err)
+		return
+	}
+	ctx.Header("Access-Control-Allow-Origin", "*")
+	ctx.IndentedJSON(http.StatusOK, dat)
+}
+
+// RgwBucketList godoc
+//
+//		@Summary		Show List of RADOS Gateway Bucket
+//		@Description	RADOS Gateway 버킷을 리스트를 보여줍니다.
+//		@Tags			RGW-Bucket
+//		@param			bucket_name	query	string	false	"RGW Bucket Name"
+//	 	@param          detail 		query 	string 	true 	"RGW Bucket List Detail" Enums(true, false) default(false)
+//		@Accept			x-www-form-urlencoded
+//		@Produce		json
+//		@Success		200	{object}	RgwCommon
+//		@Failure		400	{object}	httputil.HTTP400BadRequest
+//		@Failure		404	{object}	httputil.HTTP404NotFound
+//		@Failure		500	{object}	httputil.HTTP500InternalServerError
+//		@Router			/api/v1/rgw/bucket [get]
+func (c *Controller) RgwBucketList(ctx *gin.Context) {
+	bucket_name := ctx.Request.URL.Query().Get("bucket_name")
+	detail := ctx.Request.URL.Query().Get("detail")
+	if detail == "true" {
+		dat, err := rgw.RgwBucketDetail(bucket_name)
+		if err != nil {
+			utils.FancyHandleError(err)
+			httputil.NewError(ctx, http.StatusInternalServerError, err)
+			return
+		}
+		ctx.Header("Access-Control-Allow-Origin", "*")
+		ctx.IndentedJSON(http.StatusOK, dat)
+	} else {
+		if bucket_name != "" {
+			dat, err := rgw.RgwBucketDetail(bucket_name)
+			if err != nil {
+				utils.FancyHandleError(err)
+				httputil.NewError(ctx, http.StatusInternalServerError, err)
+				return
+			}
+			ctx.Header("Access-Control-Allow-Origin", "*")
+			ctx.IndentedJSON(http.StatusOK, dat)
+		}
+		dat, err := rgw.RgwBucketList()
+		if err != nil {
+			utils.FancyHandleError(err)
+			httputil.NewError(ctx, http.StatusInternalServerError, err)
+			return
+		}
+		ctx.Header("Access-Control-Allow-Origin", "*")
+		ctx.IndentedJSON(http.StatusOK, dat)
+	}
+}
+
+// RgwBucketCreate godoc
+//
+//	@Summary		Create of RADOS Gateway Bucket
+//	@Description	RADOS Gateway 버킷을 생성합니다.
+//	@Tags			RGW-Bucket
+//	@param			bucket_name	formData	string	true	"RGW Bucket Name"
+//	@param			username	formData	string	true	"RGW User Name"
+//	@param			lock_enabled 	formData	boolean	true	"RGW Bucket Lock Enabled" Enums(true, false) default(false)
+//	@param			lock_mode 	formData	string	false	"RGW Bucket Lock Mode" Enums(compliance, governance)
+//	@param			lock_retention_period_days 	formData	int	false	"RGW Bucket Lock Period"
+//	@Accept			x-www-form-urlencoded
+//	@Produce		json
+//	@Success		200	{object}	RgwCommon
+//	@Failure		400	{object}	httputil.HTTP400BadRequest
+//	@Failure		404	{object}	httputil.HTTP404NotFound
+//	@Failure		500	{object}	httputil.HTTP500InternalServerError
+//	@Router			/api/v1/rgw/bucket [post]
+func (c *Controller) RgwBucketCreate(ctx *gin.Context) {
+	bucket_name, _ := ctx.GetPostForm("bucket_name")
+	username, _ := ctx.GetPostForm("username")
+	lock_enabled, _ := ctx.GetPostForm("lock_enabled")
+	lock_mode, _ := ctx.GetPostForm("lock_mode")
+	lock_retention_period_days, _ := ctx.GetPostForm("lock_retention_period_days")
+
+	value := model.RgwBucketCreate{
+		Bucket:                     bucket_name,
+		Uid:                        username,
+		Lock_enabled:               lock_enabled,
+		Lock_mode:                  lock_mode,
+		Lock_retention_period_days: lock_retention_period_days,
+	}
+	json_data, errs := json.Marshal(value)
+	if errs != nil {
+		utils.FancyHandleError(errs)
+		httputil.NewError(ctx, http.StatusInternalServerError, errs)
+		return
+	}
+	var jsonStr = bytes.NewBuffer(json_data)
+	var request *http.Request
+	var responseBody []byte
+	var err error
+	requestUrl := GlueUrl() + "api/rgw/bucket"
+	if request, err = http.NewRequest(http.MethodPost, requestUrl, jsonStr); err != nil {
+		utils.FancyHandleError(err)
+		httputil.NewError(ctx, http.StatusInternalServerError, err)
+	}
+	token, err := GetToken()
+	if err != nil {
+		utils.FancyHandleError(err)
+		httputil.NewError(ctx, http.StatusInternalServerError, err)
+		return
+	}
+	request.Header.Add("accept", "application/vnd.ceph.api.v1.0+json")
+	request.Header.Set("Content-Type", "application/json")
+	request.Header.Add("Authorization", "Bearer "+token)
+	client := &http.Client{
+		Timeout: 30 * time.Second,
+		Transport: &http.Transport{
+			TLSClientConfig: &tls.Config{InsecureSkipVerify: true},
+		},
+	}
+	response, err := client.Do(request)
+	if err != nil {
+		utils.FancyHandleError(err)
+		httputil.NewError(ctx, http.StatusInternalServerError, err)
+		return
+	}
+	defer response.Body.Close()
+
+	responseBody, err = io.ReadAll(response.Body)
+	if err != nil {
+		utils.FancyHandleError(err)
+		httputil.NewError(ctx, http.StatusInternalServerError, err)
+		return
+	}
+	var dat model.RGwCommon
+	if err = json.Unmarshal(responseBody, &dat); err != nil {
+		utils.FancyHandleError(err)
+		httputil.NewError(ctx, http.StatusInternalServerError, err)
+		return
+	}
+	// Print the output
+	ctx.Header("Access-Control-Allow-Origin", "*")
+	ctx.IndentedJSON(http.StatusOK, "Success")
+}
+
+// RgwBucketUpdate godoc
+//
+//	@Summary		Update of RADOS Gateway Bucket
+//	@Description	RADOS Gateway 버킷을 수정합니다.
+//	@Tags			RGW-Bucket
+//	@param			bucket_name	formData	string	true	"RGW Bucket Name"
+//	@param			bucket_id	formData	string	true	"RGW Bucket ID"
+//	@param			username	formData	string	true	"RGW User Name"
+//	@param			versioning 	formData	string	false	"RGW Bucket Lock Enabled" Enums(Enabled, Suspended)
+//	@param			lock_mode 	formData	string	false	"RGW Bucket Lock Mode(Required value if the lock box is checked)" Enums(compliance, governance)
+//	@param			lock_retention_period_days 	formData	int	false	"RGW Bucket Lock Period(Required value if the lock box is checked)"
+//	@Accept			x-www-form-urlencoded
+//	@Produce		json
+//	@Success		200	{object}	RgwCommon
+//	@Failure		400	{object}	httputil.HTTP400BadRequest
+//	@Failure		404	{object}	httputil.HTTP404NotFound
+//	@Failure		500	{object}	httputil.HTTP500InternalServerError
+//	@Router			/api/v1/rgw/bucket [put]
+func (c *Controller) RgwBucketUpdate(ctx *gin.Context) {
+	bucket_name, _ := ctx.GetPostForm("bucket_name")
+	bucket_id, _ := ctx.GetPostForm("bucket_id")
+	username, _ := ctx.GetPostForm("username")
+	versioning, _ := ctx.GetPostForm("versioning")
+	lock_mode, _ := ctx.GetPostForm("lock_mode")
+	lock_retention_period_days, _ := ctx.GetPostForm("lock_retention_period_days")
+
+	value := model.RgwBucketUpdate{
+		Bucket_id:                  bucket_id,
+		Uid:                        username,
+		Versioning_state:           versioning,
+		Lock_mode:                  lock_mode,
+		Lock_retention_period_days: lock_retention_period_days,
+	}
+	json_data, errs := json.Marshal(value)
+	if errs != nil {
+		utils.FancyHandleError(errs)
+		httputil.NewError(ctx, http.StatusInternalServerError, errs)
+		return
+	}
+	var jsonStr = bytes.NewBuffer(json_data)
+	var request *http.Request
+	var responseBody []byte
+	var err error
+	requestUrl := GlueUrl() + "api/rgw/bucket/" + bucket_name
+	if request, err = http.NewRequest(http.MethodPut, requestUrl, jsonStr); err != nil {
+		utils.FancyHandleError(err)
+		httputil.NewError(ctx, http.StatusInternalServerError, err)
+	}
+	token, err := GetToken()
+	if err != nil {
+		utils.FancyHandleError(err)
+		httputil.NewError(ctx, http.StatusInternalServerError, err)
+		return
+	}
+	request.Header.Add("accept", "application/vnd.ceph.api.v1.0+json")
+	request.Header.Set("Content-Type", "application/json")
+	request.Header.Add("Authorization", "Bearer "+token)
+	client := &http.Client{
+		Timeout: 30 * time.Second,
+		Transport: &http.Transport{
+			TLSClientConfig: &tls.Config{InsecureSkipVerify: true},
+		},
+	}
+	response, err := client.Do(request)
+	if err != nil {
+		utils.FancyHandleError(err)
+		httputil.NewError(ctx, http.StatusInternalServerError, err)
+		return
+	}
+	defer response.Body.Close()
+
+	responseBody, err = io.ReadAll(response.Body)
+	if err != nil {
+		utils.FancyHandleError(err)
+		httputil.NewError(ctx, http.StatusInternalServerError, err)
+		return
+	}
+	var dat model.RGwCommon
+	if err = json.Unmarshal(responseBody, &dat); err != nil {
+		utils.FancyHandleError(err)
+		httputil.NewError(ctx, http.StatusInternalServerError, err)
+		return
+	}
+	// Print the output
+	ctx.Header("Access-Control-Allow-Origin", "*")
+	ctx.IndentedJSON(http.StatusOK, "Success")
+}
+
+// RgwBucketDelete godoc
+//
+//	@Summary		Delete of RADOS Gateway Bucket
+//	@Description	RADOS Gateway 버킷을 삭제합니다.
+//	@Tags			RGW-Bucket
+//	@param			bucket_name	query	string	true	"RGW Bucket Name"
+//	@Accept			x-www-form-urlencoded
+//	@Produce		json
+//	@Success		200	{object}	RgwCommon
+//	@Failure		400	{object}	httputil.HTTP400BadRequest
+//	@Failure		404	{object}	httputil.HTTP404NotFound
+//	@Failure		500	{object}	httputil.HTTP500InternalServerError
+//	@Router			/api/v1/rgw/bucket [delete]
+func (c *Controller) RgwBucketDelete(ctx *gin.Context) {
+	bucket_name := ctx.Request.URL.Query().Get("bucket_name")
+	dat, err := rgw.RgwBucketDelete(bucket_name)
 	if err != nil {
 		utils.FancyHandleError(err)
 		httputil.NewError(ctx, http.StatusInternalServerError, err)

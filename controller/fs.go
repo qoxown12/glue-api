@@ -45,7 +45,6 @@ func (c *Controller) FsStatus(ctx *gin.Context) {
 		httputil.NewError(ctx, http.StatusInternalServerError, err)
 		return
 	}
-
 	// Print the output
 	ctx.Header("Access-Control-Allow-Origin", "*")
 	ctx.IndentedJSON(http.StatusOK, value)
@@ -133,15 +132,30 @@ func (c *Controller) FsUpdate(ctx *gin.Context) {
 //	@Router			/api/v1/gluefs/{fs_name} [delete]
 func (c *Controller) FsDelete(ctx *gin.Context) {
 	fs_name := ctx.Param("fs_name")
-	dat, err := fs.FsDelete(fs_name)
+	list, err := fs.SubVolumeGroupLs(fs_name)
 	if err != nil {
 		utils.FancyHandleError(err)
 		httputil.NewError(ctx, http.StatusInternalServerError, err)
 		return
 	}
-	// Print the output
-	ctx.Header("Access-Control-Allow-Origin", "*")
-	ctx.IndentedJSON(http.StatusOK, dat)
+	if len(list) != 0 {
+		for i := 0; i < len(list); i++ {
+			if list[i].Name != "" {
+				ctx.Header("Access-Control-Allow-Origin", "*")
+				ctx.IndentedJSON(http.StatusBadRequest, "Please Subvolume Group Check")
+			}
+		}
+	} else {
+		dat, err := fs.FsDelete(fs_name)
+		if err != nil {
+			utils.FancyHandleError(err)
+			httputil.NewError(ctx, http.StatusInternalServerError, err)
+			return
+		}
+		ctx.Header("Access-Control-Allow-Origin", "*")
+		ctx.IndentedJSON(http.StatusOK, dat)
+	}
+
 }
 
 // FsGetInfo godoc

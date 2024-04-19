@@ -310,273 +310,6 @@ const docTemplate = `{
                 }
             }
         },
-        "/api/v1/gluefs/subvolume": {
-            "get": {
-                "description": "GlueFS의 하위 볼륨에 대한 상세 정보 및 리스트를 보여줍니다.",
-                "consumes": [
-                    "application/x-www-form-urlencoded"
-                ],
-                "produces": [
-                    "application/json"
-                ],
-                "tags": [
-                    "GlueFS-SubVolume"
-                ],
-                "summary": "Detail Info and List of Glue FS Sub Volumes",
-                "parameters": [
-                    {
-                        "type": "string",
-                        "description": "Glue FS Sub Volume Name",
-                        "name": "vol_name",
-                        "in": "query",
-                        "required": true
-                    },
-                    {
-                        "type": "string",
-                        "description": "Glue FS Sub Volume Group Name",
-                        "name": "group_name",
-                        "in": "query"
-                    }
-                ],
-                "responses": {
-                    "200": {
-                        "description": "OK",
-                        "schema": {
-                            "$ref": "#/definitions/SubVolumeList"
-                        }
-                    },
-                    "400": {
-                        "description": "Bad Request",
-                        "schema": {
-                            "$ref": "#/definitions/HTTP400BadRequest"
-                        }
-                    },
-                    "404": {
-                        "description": "Not Found",
-                        "schema": {
-                            "$ref": "#/definitions/HTTP404NotFound"
-                        }
-                    },
-                    "500": {
-                        "description": "Internal Server Error",
-                        "schema": {
-                            "$ref": "#/definitions/HTTP500InternalServerError"
-                        }
-                    }
-                }
-            },
-            "put": {
-                "description": "GlueFS 볼륨의 할당된 사이즈를 수정합니다.",
-                "consumes": [
-                    "application/x-www-form-urlencoded"
-                ],
-                "produces": [
-                    "application/json"
-                ],
-                "tags": [
-                    "GlueFS-SubVolume"
-                ],
-                "summary": "Update Size of Glue FS Volume",
-                "parameters": [
-                    {
-                        "type": "string",
-                        "description": "Glue FS Volume Name",
-                        "name": "vol_name",
-                        "in": "formData",
-                        "required": true
-                    },
-                    {
-                        "type": "string",
-                        "description": "Glue FS Sub Volume Name",
-                        "name": "subvol_name",
-                        "in": "formData",
-                        "required": true
-                    },
-                    {
-                        "type": "string",
-                        "description": "Glue FS Volume Group Name",
-                        "name": "group_name",
-                        "in": "formData"
-                    },
-                    {
-                        "type": "string",
-                        "description": "Glue FS Sub Volume New Size(default GB)",
-                        "name": "new_size",
-                        "in": "formData",
-                        "required": true
-                    }
-                ],
-                "responses": {
-                    "200": {
-                        "description": "Success",
-                        "schema": {
-                            "type": "string"
-                        }
-                    },
-                    "400": {
-                        "description": "Bad Request",
-                        "schema": {
-                            "$ref": "#/definitions/HTTP400BadRequest"
-                        }
-                    },
-                    "404": {
-                        "description": "Not Found",
-                        "schema": {
-                            "$ref": "#/definitions/HTTP404NotFound"
-                        }
-                    },
-                    "500": {
-                        "description": "Internal Server Error",
-                        "schema": {
-                            "$ref": "#/definitions/HTTP500InternalServerError"
-                        }
-                    }
-                }
-            },
-            "post": {
-                "description": "GlueFS의 하위 볼륨을 생성합니다.",
-                "consumes": [
-                    "application/x-www-form-urlencoded"
-                ],
-                "produces": [
-                    "application/json"
-                ],
-                "tags": [
-                    "GlueFS-SubVolume"
-                ],
-                "summary": "Create of Glue FS Sub Volume",
-                "parameters": [
-                    {
-                        "type": "string",
-                        "description": "Glue FS Volume Name",
-                        "name": "vol_name",
-                        "in": "formData",
-                        "required": true
-                    },
-                    {
-                        "type": "string",
-                        "description": "Glue FS Sub Volume Name",
-                        "name": "subvol_name",
-                        "in": "formData",
-                        "required": true
-                    },
-                    {
-                        "type": "string",
-                        "description": "Glue FS Sub Volume Group Name",
-                        "name": "group_name",
-                        "in": "formData"
-                    },
-                    {
-                        "type": "integer",
-                        "description": "Glue FS Sub Volume Size(default GB)",
-                        "name": "size",
-                        "in": "formData",
-                        "required": true
-                    },
-                    {
-                        "type": "string",
-                        "description": "Glue FS Sub Volume Data Pool Name",
-                        "name": "data_pool_name",
-                        "in": "formData",
-                        "required": true
-                    },
-                    {
-                        "type": "integer",
-                        "description": "Glue FS Sub Volume Permissions",
-                        "name": "mode",
-                        "in": "formData",
-                        "required": true
-                    }
-                ],
-                "responses": {
-                    "200": {
-                        "description": "Success",
-                        "schema": {
-                            "type": "string"
-                        }
-                    },
-                    "400": {
-                        "description": "Bad Request",
-                        "schema": {
-                            "$ref": "#/definitions/HTTP400BadRequest"
-                        }
-                    },
-                    "404": {
-                        "description": "Not Found",
-                        "schema": {
-                            "$ref": "#/definitions/HTTP404NotFound"
-                        }
-                    },
-                    "500": {
-                        "description": "Internal Server Error",
-                        "schema": {
-                            "$ref": "#/definitions/HTTP500InternalServerError"
-                        }
-                    }
-                }
-            },
-            "delete": {
-                "description": "GlueFS 하위 볼륨을 삭제합니다.",
-                "consumes": [
-                    "application/x-www-form-urlencoded"
-                ],
-                "produces": [
-                    "application/json"
-                ],
-                "tags": [
-                    "GlueFS-SubVolume"
-                ],
-                "summary": "Delete of Glue FS Volume",
-                "parameters": [
-                    {
-                        "type": "string",
-                        "description": "Glue FS Volume Name",
-                        "name": "vol_name",
-                        "in": "query",
-                        "required": true
-                    },
-                    {
-                        "type": "string",
-                        "description": "Glue FS Sub Volume Name",
-                        "name": "subvol_name",
-                        "in": "query",
-                        "required": true
-                    },
-                    {
-                        "type": "string",
-                        "description": "Glue FS Volume Group Name",
-                        "name": "group_name",
-                        "in": "query"
-                    }
-                ],
-                "responses": {
-                    "200": {
-                        "description": "Success",
-                        "schema": {
-                            "type": "string"
-                        }
-                    },
-                    "400": {
-                        "description": "Bad Request",
-                        "schema": {
-                            "$ref": "#/definitions/HTTP400BadRequest"
-                        }
-                    },
-                    "404": {
-                        "description": "Not Found",
-                        "schema": {
-                            "$ref": "#/definitions/HTTP404NotFound"
-                        }
-                    },
-                    "500": {
-                        "description": "Internal Server Error",
-                        "schema": {
-                            "$ref": "#/definitions/HTTP500InternalServerError"
-                        }
-                    }
-                }
-            }
-        },
         "/api/v1/gluefs/subvolume/group": {
             "get": {
                 "description": "GlueFS볼륨의 그룹에 대한 상세 정보 및 리스트를 보여줍니다.",
@@ -795,266 +528,6 @@ const docTemplate = `{
                         "type": "string",
                         "description": "Glue FS Volume Group Path",
                         "name": "path",
-                        "in": "query",
-                        "required": true
-                    }
-                ],
-                "responses": {
-                    "200": {
-                        "description": "Success",
-                        "schema": {
-                            "type": "string"
-                        }
-                    },
-                    "400": {
-                        "description": "Bad Request",
-                        "schema": {
-                            "$ref": "#/definitions/HTTP400BadRequest"
-                        }
-                    },
-                    "404": {
-                        "description": "Not Found",
-                        "schema": {
-                            "$ref": "#/definitions/HTTP404NotFound"
-                        }
-                    },
-                    "500": {
-                        "description": "Internal Server Error",
-                        "schema": {
-                            "$ref": "#/definitions/HTTP500InternalServerError"
-                        }
-                    }
-                }
-            }
-        },
-        "/api/v1/gluefs/subvolume/group/snapshot": {
-            "delete": {
-                "description": "GlueFS 볼륨의 그룹의 스냅샷을 삭제합니다.",
-                "consumes": [
-                    "application/x-www-form-urlencoded"
-                ],
-                "produces": [
-                    "application/json"
-                ],
-                "tags": [
-                    "GlueFS-SubVolume-Group"
-                ],
-                "summary": "Delete of Glue FS Volume Group Snapshot",
-                "parameters": [
-                    {
-                        "type": "string",
-                        "description": "Glue FS Volume Name",
-                        "name": "vol_name",
-                        "in": "query",
-                        "required": true
-                    },
-                    {
-                        "type": "string",
-                        "description": "Glue FS Volume Group Name",
-                        "name": "group_name",
-                        "in": "query",
-                        "required": true
-                    },
-                    {
-                        "type": "string",
-                        "description": "Glue FS Volume Group SnapShot Name",
-                        "name": "snap_name",
-                        "in": "query",
-                        "required": true
-                    }
-                ],
-                "responses": {
-                    "200": {
-                        "description": "Success",
-                        "schema": {
-                            "type": "string"
-                        }
-                    },
-                    "400": {
-                        "description": "Bad Request",
-                        "schema": {
-                            "$ref": "#/definitions/HTTP400BadRequest"
-                        }
-                    },
-                    "404": {
-                        "description": "Not Found",
-                        "schema": {
-                            "$ref": "#/definitions/HTTP404NotFound"
-                        }
-                    },
-                    "500": {
-                        "description": "Internal Server Error",
-                        "schema": {
-                            "$ref": "#/definitions/HTTP500InternalServerError"
-                        }
-                    }
-                }
-            }
-        },
-        "/api/v1/gluefs/subvolume/snapshot": {
-            "get": {
-                "description": "GlueFS의 하위 볼륨 스냅샷의 리스트 및 상세 정보를 보여줍니다.",
-                "consumes": [
-                    "application/x-www-form-urlencoded"
-                ],
-                "produces": [
-                    "application/json"
-                ],
-                "tags": [
-                    "GlueFS-SubVolume-Snapshot"
-                ],
-                "summary": "Show List or Info of Glue FS Sub Volume Snapshot",
-                "parameters": [
-                    {
-                        "type": "string",
-                        "description": "Glue FS Sub Volume Name",
-                        "name": "vol_name",
-                        "in": "query",
-                        "required": true
-                    },
-                    {
-                        "type": "string",
-                        "description": "Glue FS Volume Sub Volume Name",
-                        "name": "subvol_name",
-                        "in": "query",
-                        "required": true
-                    },
-                    {
-                        "type": "string",
-                        "description": "Glue FS Volume Group Name",
-                        "name": "group_name",
-                        "in": "query"
-                    },
-                    {
-                        "type": "string",
-                        "description": "Glue FS Volume SnapShot Name",
-                        "name": "snap_name",
-                        "in": "query"
-                    }
-                ],
-                "responses": {
-                    "200": {
-                        "description": "OK",
-                        "schema": {}
-                    },
-                    "400": {
-                        "description": "Bad Request",
-                        "schema": {
-                            "$ref": "#/definitions/HTTP400BadRequest"
-                        }
-                    },
-                    "404": {
-                        "description": "Not Found",
-                        "schema": {
-                            "$ref": "#/definitions/HTTP404NotFound"
-                        }
-                    },
-                    "500": {
-                        "description": "Internal Server Error",
-                        "schema": {
-                            "$ref": "#/definitions/HTTP500InternalServerError"
-                        }
-                    }
-                }
-            },
-            "post": {
-                "description": "GlueFS의 하위 볼륨의 그룹의 스냅샷을 생성합니다.",
-                "consumes": [
-                    "application/x-www-form-urlencoded"
-                ],
-                "produces": [
-                    "application/json"
-                ],
-                "tags": [
-                    "GlueFS-SubVolume-Snapshot"
-                ],
-                "summary": "Create of Glue FS Sub Volume Group Snapshot",
-                "parameters": [
-                    {
-                        "type": "string",
-                        "description": "Glue FS Sub Volume Name",
-                        "name": "vol_name",
-                        "in": "formData",
-                        "required": true
-                    },
-                    {
-                        "type": "string",
-                        "description": "Glue FS Volume Sub Volume Name",
-                        "name": "subvol_name",
-                        "in": "formData",
-                        "required": true
-                    },
-                    {
-                        "type": "string",
-                        "description": "Glue FS Volume Group Name",
-                        "name": "group_name",
-                        "in": "formData"
-                    }
-                ],
-                "responses": {
-                    "200": {
-                        "description": "Success",
-                        "schema": {
-                            "type": "string"
-                        }
-                    },
-                    "400": {
-                        "description": "Bad Request",
-                        "schema": {
-                            "$ref": "#/definitions/HTTP400BadRequest"
-                        }
-                    },
-                    "404": {
-                        "description": "Not Found",
-                        "schema": {
-                            "$ref": "#/definitions/HTTP404NotFound"
-                        }
-                    },
-                    "500": {
-                        "description": "Internal Server Error",
-                        "schema": {
-                            "$ref": "#/definitions/HTTP500InternalServerError"
-                        }
-                    }
-                }
-            },
-            "delete": {
-                "description": "GlueFS 볼륨의 스냅샷을 삭제합니다.",
-                "consumes": [
-                    "application/x-www-form-urlencoded"
-                ],
-                "produces": [
-                    "application/json"
-                ],
-                "tags": [
-                    "GlueFS-SubVolume-Snapshot"
-                ],
-                "summary": "Delete of Glue FS Volume Snapshot",
-                "parameters": [
-                    {
-                        "type": "string",
-                        "description": "Glue FS Volume Name",
-                        "name": "vol_name",
-                        "in": "query",
-                        "required": true
-                    },
-                    {
-                        "type": "string",
-                        "description": "Glue FS Volume Sub Volume Name",
-                        "name": "subvol_name",
-                        "in": "query",
-                        "required": true
-                    },
-                    {
-                        "type": "string",
-                        "description": "Glue FS Volume Group Name",
-                        "name": "group_name",
-                        "in": "query"
-                    },
-                    {
-                        "type": "string",
-                        "description": "Glue FS Volume Group SnapShot Name",
-                        "name": "snap_name",
                         "in": "query",
                         "required": true
                     }
@@ -2402,6 +1875,56 @@ const docTemplate = `{
                 }
             }
         },
+        "/api/v1/iscsi/target/purge": {
+            "delete": {
+                "description": "Iscsi 타겟을 파괴합니다.",
+                "consumes": [
+                    "application/x-www-form-urlencoded"
+                ],
+                "produces": [
+                    "application/json"
+                ],
+                "tags": [
+                    "IscsiTarget"
+                ],
+                "summary": "Purge of Iscsi Target",
+                "parameters": [
+                    {
+                        "type": "string",
+                        "description": "Iscsi Target IQN Name",
+                        "name": "iqn_id",
+                        "in": "query",
+                        "required": true
+                    }
+                ],
+                "responses": {
+                    "200": {
+                        "description": "Success",
+                        "schema": {
+                            "type": "string"
+                        }
+                    },
+                    "400": {
+                        "description": "Bad Request",
+                        "schema": {
+                            "$ref": "#/definitions/HTTP400BadRequest"
+                        }
+                    },
+                    "404": {
+                        "description": "Not Found",
+                        "schema": {
+                            "$ref": "#/definitions/HTTP404NotFound"
+                        }
+                    },
+                    "500": {
+                        "description": "Internal Server Error",
+                        "schema": {
+                            "$ref": "#/definitions/HTTP500InternalServerError"
+                        }
+                    }
+                }
+            }
+        },
         "/api/v1/mirror": {
             "get": {
                 "description": "Glue 의 미러링 상태를 보여줍니다.",
@@ -3157,14 +2680,16 @@ const docTemplate = `{
                     },
                     {
                         "type": "string",
-                        "description": "FS Name",
+                        "description": "FS Name(if stroage_name is CEPH Required value)",
                         "name": "fs_name",
-                        "in": "formData",
-                        "required": true
+                        "in": "formData"
                     },
                     {
+                        "enum": [
+                            "CEPH",
+                            "RGW"
+                        ],
                         "type": "string",
-                        "default": "CEPH",
                         "description": "NFS Storage Name",
                         "name": "storage_name",
                         "in": "formData",
@@ -3172,7 +2697,7 @@ const docTemplate = `{
                     },
                     {
                         "type": "string",
-                        "description": "Glue FS Path",
+                        "description": "Glue FS Path or Glue RGW Bucket Name",
                         "name": "path",
                         "in": "formData",
                         "required": true
@@ -3280,14 +2805,16 @@ const docTemplate = `{
                     },
                     {
                         "type": "string",
-                        "description": "FS Name",
+                        "description": "FS Name(if stroage_name is CEPH Required value)",
                         "name": "fs_name",
-                        "in": "formData",
-                        "required": true
+                        "in": "formData"
                     },
                     {
+                        "enum": [
+                            "CEPH",
+                            "RGW"
+                        ],
                         "type": "string",
-                        "default": "CEPH",
                         "description": "NFS Storage Name",
                         "name": "storage_name",
                         "in": "formData",
@@ -3295,7 +2822,7 @@ const docTemplate = `{
                     },
                     {
                         "type": "string",
-                        "description": "Glue FS Path",
+                        "description": "Glue FS Path or Glue RGW Bucket Name",
                         "name": "path",
                         "in": "formData",
                         "required": true
@@ -3883,142 +3410,6 @@ const docTemplate = `{
                 }
             }
         },
-        "/api/v1/nvmeof/connect": {
-            "post": {
-                "description": "NVMe-OF 하위 시스템에 연결합니다.",
-                "consumes": [
-                    "application/x-www-form-urlencoded"
-                ],
-                "produces": [
-                    "application/json"
-                ],
-                "tags": [
-                    "NVMe-OF"
-                ],
-                "summary": "Connect of NVMe-OF Sub System",
-                "parameters": [
-                    {
-                        "type": "string",
-                        "description": "Glue NVMe-OF Run Host Name",
-                        "name": "hostname",
-                        "in": "formData",
-                        "required": true
-                    },
-                    {
-                        "type": "string",
-                        "description": "Glue NVMe-OF Sub System NQN ID",
-                        "name": "subsystem_nqn_id",
-                        "in": "formData"
-                    },
-                    {
-                        "enum": [
-                            true,
-                            false
-                        ],
-                        "type": "boolean",
-                        "default": false,
-                        "description": "Glue NVMe-OF Full Connection Check",
-                        "name": "full_connection",
-                        "in": "formData",
-                        "required": true
-                    }
-                ],
-                "responses": {
-                    "200": {
-                        "description": "Success",
-                        "schema": {
-                            "type": "string"
-                        }
-                    },
-                    "400": {
-                        "description": "Bad Request",
-                        "schema": {
-                            "$ref": "#/definitions/HTTP400BadRequest"
-                        }
-                    },
-                    "404": {
-                        "description": "Not Found",
-                        "schema": {
-                            "$ref": "#/definitions/HTTP404NotFound"
-                        }
-                    },
-                    "500": {
-                        "description": "Internal Server Error",
-                        "schema": {
-                            "$ref": "#/definitions/HTTP500InternalServerError"
-                        }
-                    }
-                }
-            }
-        },
-        "/api/v1/nvmeof/disconnect": {
-            "post": {
-                "description": "NVMe-OF 하위 시스템에 연결을 해제합니다.",
-                "consumes": [
-                    "application/x-www-form-urlencoded"
-                ],
-                "produces": [
-                    "application/json"
-                ],
-                "tags": [
-                    "NVMe-OF"
-                ],
-                "summary": "DisConnect of NVMe-OF Sub System",
-                "parameters": [
-                    {
-                        "type": "string",
-                        "description": "Glue NVMe-OF Run Host Name",
-                        "name": "hostname",
-                        "in": "formData",
-                        "required": true
-                    },
-                    {
-                        "type": "string",
-                        "description": "Glue NVMe-OF Sub System NQN ID",
-                        "name": "subsystem_nqn_id",
-                        "in": "formData"
-                    },
-                    {
-                        "enum": [
-                            true,
-                            false
-                        ],
-                        "type": "boolean",
-                        "default": false,
-                        "description": "Glue NVMe-OF Full DisConnection Check",
-                        "name": "full_DisConnection",
-                        "in": "formData",
-                        "required": true
-                    }
-                ],
-                "responses": {
-                    "200": {
-                        "description": "Success",
-                        "schema": {
-                            "type": "string"
-                        }
-                    },
-                    "400": {
-                        "description": "Bad Request",
-                        "schema": {
-                            "$ref": "#/definitions/HTTP400BadRequest"
-                        }
-                    },
-                    "404": {
-                        "description": "Not Found",
-                        "schema": {
-                            "$ref": "#/definitions/HTTP404NotFound"
-                        }
-                    },
-                    "500": {
-                        "description": "Internal Server Error",
-                        "schema": {
-                            "$ref": "#/definitions/HTTP500InternalServerError"
-                        }
-                    }
-                }
-            }
-        },
         "/api/v1/nvmeof/image/download": {
             "post": {
                 "description": "NVMe-OF 이미지를 최신으로 다운받습니다.",
@@ -4032,72 +3423,20 @@ const docTemplate = `{
                     "NVMe-OF"
                 ],
                 "summary": "Download of NVMe-OF Image",
+                "parameters": [
+                    {
+                        "type": "string",
+                        "description": "Glue NVMe-OF Gateway IP",
+                        "name": "gateway_ip",
+                        "in": "formData",
+                        "required": true
+                    }
+                ],
                 "responses": {
                     "200": {
                         "description": "Success",
                         "schema": {
                             "type": "string"
-                        }
-                    },
-                    "400": {
-                        "description": "Bad Request",
-                        "schema": {
-                            "$ref": "#/definitions/HTTP400BadRequest"
-                        }
-                    },
-                    "404": {
-                        "description": "Not Found",
-                        "schema": {
-                            "$ref": "#/definitions/HTTP404NotFound"
-                        }
-                    },
-                    "500": {
-                        "description": "Internal Server Error",
-                        "schema": {
-                            "$ref": "#/definitions/HTTP500InternalServerError"
-                        }
-                    }
-                }
-            }
-        },
-        "/api/v1/nvmeof/list": {
-            "get": {
-                "description": "연결된 NVMe-OF의 상세정보 및 리스트를 보여줍니다.",
-                "consumes": [
-                    "application/x-www-form-urlencoded"
-                ],
-                "produces": [
-                    "application/json"
-                ],
-                "tags": [
-                    "NVMe-OF"
-                ],
-                "summary": "Show Detail and List of Connected NVMe-OF Infomation",
-                "parameters": [
-                    {
-                        "enum": [
-                            "true",
-                            "false"
-                        ],
-                        "type": "string",
-                        "default": "true",
-                        "description": "Glue NVMe-OF List detail",
-                        "name": "detail",
-                        "in": "query",
-                        "required": true
-                    },
-                    {
-                        "type": "string",
-                        "description": "Glue NVMe-OF Run Host Name",
-                        "name": "hostname",
-                        "in": "query"
-                    }
-                ],
-                "responses": {
-                    "200": {
-                        "description": "OK",
-                        "schema": {
-                            "$ref": "#/definitions/NvmeOfList"
                         }
                     },
                     "400": {
@@ -4183,13 +3522,6 @@ const docTemplate = `{
                 ],
                 "summary": "Create of NVMe-OF NameSpace",
                 "parameters": [
-                    {
-                        "type": "string",
-                        "description": "Glue NVMe-OF Gateway IP",
-                        "name": "gateway_ip",
-                        "in": "formData",
-                        "required": true
-                    },
                     {
                         "type": "string",
                         "description": "Glue NVMe-OF Sub System NQN ID",
@@ -4479,118 +3811,8 @@ const docTemplate = `{
             }
         },
         "/api/v1/nvmeof/target": {
-            "get": {
-                "description": "NVMe-OF의 타겟에 연결 할 수 있는지에 대한 리스트를 보여줍니다.",
-                "consumes": [
-                    "application/x-www-form-urlencoded"
-                ],
-                "produces": [
-                    "application/json"
-                ],
-                "tags": [
-                    "NVMe-OF"
-                ],
-                "summary": "Show List of Verify the NVMe-OF Target is Reachable",
-                "responses": {
-                    "200": {
-                        "description": "OK",
-                        "schema": {
-                            "$ref": "#/definitions/NvmeOfTargetVerify"
-                        }
-                    },
-                    "400": {
-                        "description": "Bad Request",
-                        "schema": {
-                            "$ref": "#/definitions/HTTP400BadRequest"
-                        }
-                    },
-                    "404": {
-                        "description": "Not Found",
-                        "schema": {
-                            "$ref": "#/definitions/HTTP404NotFound"
-                        }
-                    },
-                    "500": {
-                        "description": "Internal Server Error",
-                        "schema": {
-                            "$ref": "#/definitions/HTTP500InternalServerError"
-                        }
-                    }
-                }
-            },
             "post": {
                 "description": "NVMe-OF 타켓을 생성합니다.",
-                "consumes": [
-                    "application/x-www-form-urlencoded"
-                ],
-                "produces": [
-                    "application/json"
-                ],
-                "tags": [
-                    "NVMe-OF"
-                ],
-                "summary": "Create of NVMe-OF Target",
-                "parameters": [
-                    {
-                        "type": "string",
-                        "description": "Glue NVMe-OF Sub System NQN ID",
-                        "name": "subsystem_nqn_id",
-                        "in": "formData",
-                        "required": true
-                    },
-                    {
-                        "type": "string",
-                        "description": "Glue NVMe-OF Use Image Pool Name",
-                        "name": "pool_name",
-                        "in": "formData",
-                        "required": true
-                    },
-                    {
-                        "type": "string",
-                        "description": "Glue NVMe-OF Use Image Name",
-                        "name": "image_name",
-                        "in": "formData",
-                        "required": true
-                    },
-                    {
-                        "type": "integer",
-                        "description": "Glue NVMe-OF Image Size(default GB)",
-                        "name": "size",
-                        "in": "formData",
-                        "required": true
-                    }
-                ],
-                "responses": {
-                    "200": {
-                        "description": "Success",
-                        "schema": {
-                            "type": "string"
-                        }
-                    },
-                    "400": {
-                        "description": "Bad Request",
-                        "schema": {
-                            "$ref": "#/definitions/HTTP400BadRequest"
-                        }
-                    },
-                    "404": {
-                        "description": "Not Found",
-                        "schema": {
-                            "$ref": "#/definitions/HTTP404NotFound"
-                        }
-                    },
-                    "500": {
-                        "description": "Internal Server Error",
-                        "schema": {
-                            "$ref": "#/definitions/HTTP500InternalServerError"
-                        }
-                    }
-                }
-            }
-        },
-        "/api/v1/nvmeof/target2": {
-            "post": {
-                "description": "NVMe-OF 타켓을 생성합니다. 개별적으로 하나 타겟만 만드는 API",
                 "consumes": [
                     "application/x-www-form-urlencoded"
                 ],
@@ -4851,7 +4073,7 @@ const docTemplate = `{
                     {
                         "type": "string",
                         "description": "RGW Service Name",
-                        "name": "service_name",
+                        "name": "service_id",
                         "in": "formData",
                         "required": true
                     },
@@ -4980,6 +4202,278 @@ const docTemplate = `{
                         "schema": {
                             "type": "string"
                         }
+                    },
+                    "400": {
+                        "description": "Bad Request",
+                        "schema": {
+                            "$ref": "#/definitions/HTTP400BadRequest"
+                        }
+                    },
+                    "404": {
+                        "description": "Not Found",
+                        "schema": {
+                            "$ref": "#/definitions/HTTP404NotFound"
+                        }
+                    },
+                    "500": {
+                        "description": "Internal Server Error",
+                        "schema": {
+                            "$ref": "#/definitions/HTTP500InternalServerError"
+                        }
+                    }
+                }
+            }
+        },
+        "/api/v1/rgw/bucket": {
+            "get": {
+                "description": "RADOS Gateway 버킷을 리스트를 보여줍니다.",
+                "consumes": [
+                    "application/x-www-form-urlencoded"
+                ],
+                "produces": [
+                    "application/json"
+                ],
+                "tags": [
+                    "RGW-Bucket"
+                ],
+                "summary": "Show List of RADOS Gateway Bucket",
+                "parameters": [
+                    {
+                        "type": "string",
+                        "description": "RGW Bucket Name",
+                        "name": "bucket_name",
+                        "in": "query"
+                    },
+                    {
+                        "enum": [
+                            "true",
+                            "false"
+                        ],
+                        "type": "string",
+                        "default": "false",
+                        "description": "RGW Bucket List Detail",
+                        "name": "detail",
+                        "in": "query",
+                        "required": true
+                    }
+                ],
+                "responses": {
+                    "200": {
+                        "description": "OK",
+                        "schema": {}
+                    },
+                    "400": {
+                        "description": "Bad Request",
+                        "schema": {
+                            "$ref": "#/definitions/HTTP400BadRequest"
+                        }
+                    },
+                    "404": {
+                        "description": "Not Found",
+                        "schema": {
+                            "$ref": "#/definitions/HTTP404NotFound"
+                        }
+                    },
+                    "500": {
+                        "description": "Internal Server Error",
+                        "schema": {
+                            "$ref": "#/definitions/HTTP500InternalServerError"
+                        }
+                    }
+                }
+            },
+            "put": {
+                "description": "RADOS Gateway 버킷을 수정합니다.",
+                "consumes": [
+                    "application/x-www-form-urlencoded"
+                ],
+                "produces": [
+                    "application/json"
+                ],
+                "tags": [
+                    "RGW-Bucket"
+                ],
+                "summary": "Update of RADOS Gateway Bucket",
+                "parameters": [
+                    {
+                        "type": "string",
+                        "description": "RGW Bucket Name",
+                        "name": "bucket_name",
+                        "in": "formData",
+                        "required": true
+                    },
+                    {
+                        "type": "string",
+                        "description": "RGW Bucket ID",
+                        "name": "bucket_id",
+                        "in": "formData",
+                        "required": true
+                    },
+                    {
+                        "type": "string",
+                        "description": "RGW User Name",
+                        "name": "username",
+                        "in": "formData",
+                        "required": true
+                    },
+                    {
+                        "enum": [
+                            "Enabled",
+                            "Suspended"
+                        ],
+                        "type": "string",
+                        "description": "RGW Bucket Lock Enabled",
+                        "name": "versioning",
+                        "in": "formData"
+                    },
+                    {
+                        "enum": [
+                            "compliance",
+                            "governance"
+                        ],
+                        "type": "string",
+                        "description": "RGW Bucket Lock Mode(Required value if the lock box is checked)",
+                        "name": "lock_mode",
+                        "in": "formData"
+                    },
+                    {
+                        "type": "integer",
+                        "description": "RGW Bucket Lock Period(Required value if the lock box is checked)",
+                        "name": "lock_retention_period_days",
+                        "in": "formData"
+                    }
+                ],
+                "responses": {
+                    "200": {
+                        "description": "OK",
+                        "schema": {}
+                    },
+                    "400": {
+                        "description": "Bad Request",
+                        "schema": {
+                            "$ref": "#/definitions/HTTP400BadRequest"
+                        }
+                    },
+                    "404": {
+                        "description": "Not Found",
+                        "schema": {
+                            "$ref": "#/definitions/HTTP404NotFound"
+                        }
+                    },
+                    "500": {
+                        "description": "Internal Server Error",
+                        "schema": {
+                            "$ref": "#/definitions/HTTP500InternalServerError"
+                        }
+                    }
+                }
+            },
+            "post": {
+                "description": "RADOS Gateway 버킷을 생성합니다.",
+                "consumes": [
+                    "application/x-www-form-urlencoded"
+                ],
+                "produces": [
+                    "application/json"
+                ],
+                "tags": [
+                    "RGW-Bucket"
+                ],
+                "summary": "Create of RADOS Gateway Bucket",
+                "parameters": [
+                    {
+                        "type": "string",
+                        "description": "RGW Bucket Name",
+                        "name": "bucket_name",
+                        "in": "formData",
+                        "required": true
+                    },
+                    {
+                        "type": "string",
+                        "description": "RGW User Name",
+                        "name": "username",
+                        "in": "formData",
+                        "required": true
+                    },
+                    {
+                        "enum": [
+                            true,
+                            false
+                        ],
+                        "type": "boolean",
+                        "default": false,
+                        "description": "RGW Bucket Lock Enabled",
+                        "name": "lock_enabled",
+                        "in": "formData",
+                        "required": true
+                    },
+                    {
+                        "enum": [
+                            "compliance",
+                            "governance"
+                        ],
+                        "type": "string",
+                        "description": "RGW Bucket Lock Mode",
+                        "name": "lock_mode",
+                        "in": "formData"
+                    },
+                    {
+                        "type": "integer",
+                        "description": "RGW Bucket Lock Period",
+                        "name": "lock_retention_period_days",
+                        "in": "formData"
+                    }
+                ],
+                "responses": {
+                    "200": {
+                        "description": "OK",
+                        "schema": {}
+                    },
+                    "400": {
+                        "description": "Bad Request",
+                        "schema": {
+                            "$ref": "#/definitions/HTTP400BadRequest"
+                        }
+                    },
+                    "404": {
+                        "description": "Not Found",
+                        "schema": {
+                            "$ref": "#/definitions/HTTP404NotFound"
+                        }
+                    },
+                    "500": {
+                        "description": "Internal Server Error",
+                        "schema": {
+                            "$ref": "#/definitions/HTTP500InternalServerError"
+                        }
+                    }
+                }
+            },
+            "delete": {
+                "description": "RADOS Gateway 버킷을 삭제합니다.",
+                "consumes": [
+                    "application/x-www-form-urlencoded"
+                ],
+                "produces": [
+                    "application/json"
+                ],
+                "tags": [
+                    "RGW-Bucket"
+                ],
+                "summary": "Delete of RADOS Gateway Bucket",
+                "parameters": [
+                    {
+                        "type": "string",
+                        "description": "RGW Bucket Name",
+                        "name": "bucket_name",
+                        "in": "query",
+                        "required": true
+                    }
+                ],
+                "responses": {
+                    "200": {
+                        "description": "OK",
+                        "schema": {}
                     },
                     "400": {
                         "description": "Bad Request",
@@ -6587,112 +6081,6 @@ const docTemplate = `{
                 }
             }
         },
-        "NvmeOfList": {
-            "type": "object",
-            "properties": {
-                "Devices": {
-                    "type": "array",
-                    "items": {
-                        "type": "object",
-                        "properties": {
-                            "HostID": {
-                                "type": "string"
-                            },
-                            "HostNQN": {
-                                "type": "string"
-                            },
-                            "Subsystems": {
-                                "type": "array",
-                                "items": {
-                                    "type": "object",
-                                    "properties": {
-                                        "Controllers": {
-                                            "type": "array",
-                                            "items": {
-                                                "type": "object",
-                                                "properties": {
-                                                    "Address": {
-                                                        "type": "string"
-                                                    },
-                                                    "Controller": {
-                                                        "type": "string"
-                                                    },
-                                                    "Firmware": {
-                                                        "type": "string"
-                                                    },
-                                                    "ModelNumber": {
-                                                        "type": "string"
-                                                    },
-                                                    "Namespaces": {
-                                                        "type": "array",
-                                                        "items": {}
-                                                    },
-                                                    "Paths": {
-                                                        "type": "array",
-                                                        "items": {
-                                                            "type": "object",
-                                                            "properties": {
-                                                                "ANAState": {
-                                                                    "type": "string"
-                                                                },
-                                                                "Path": {
-                                                                    "type": "string"
-                                                                }
-                                                            }
-                                                        }
-                                                    },
-                                                    "SerialNumber": {
-                                                        "type": "string"
-                                                    },
-                                                    "Transport": {
-                                                        "type": "string"
-                                                    }
-                                                }
-                                            }
-                                        },
-                                        "Namespaces": {
-                                            "type": "array",
-                                            "items": {
-                                                "type": "object",
-                                                "properties": {
-                                                    "Generic": {
-                                                        "type": "string"
-                                                    },
-                                                    "MaximumLBA": {
-                                                        "type": "integer"
-                                                    },
-                                                    "NSID": {
-                                                        "type": "integer"
-                                                    },
-                                                    "NameSpace": {
-                                                        "type": "string"
-                                                    },
-                                                    "PhysicalSize": {
-                                                        "type": "integer"
-                                                    },
-                                                    "SectorSize": {
-                                                        "type": "integer"
-                                                    },
-                                                    "UsedBytes": {
-                                                        "type": "integer"
-                                                    }
-                                                }
-                                            }
-                                        },
-                                        "Subsystem": {
-                                            "type": "string"
-                                        },
-                                        "SubsystemNQN": {
-                                            "type": "string"
-                                        }
-                                    }
-                                }
-                            }
-                        }
-                    }
-                }
-            }
-        },
         "NvmeOfNameSpaceList": {
             "type": "object",
             "properties": {
@@ -6787,52 +6175,6 @@ const docTemplate = `{
                                 "type": "string"
                             },
                             "subtype": {
-                                "type": "string"
-                            }
-                        }
-                    }
-                }
-            }
-        },
-        "NvmeOfTargetVerify": {
-            "type": "object",
-            "properties": {
-                "genctr": {
-                    "type": "integer"
-                },
-                "records": {
-                    "type": "array",
-                    "items": {
-                        "type": "object",
-                        "properties": {
-                            "adrfam": {
-                                "type": "string"
-                            },
-                            "eflags": {
-                                "type": "string"
-                            },
-                            "portid": {
-                                "type": "integer"
-                            },
-                            "sectype": {
-                                "type": "string"
-                            },
-                            "subnqn": {
-                                "type": "string"
-                            },
-                            "subtype": {
-                                "type": "string"
-                            },
-                            "traddr": {
-                                "type": "string"
-                            },
-                            "treq": {
-                                "type": "string"
-                            },
-                            "trsvcid": {
-                                "type": "string"
-                            },
-                            "trtype": {
                                 "type": "string"
                             }
                         }
@@ -7054,85 +6396,6 @@ const docTemplate = `{
                     "type": "string"
                 },
                 "path": {
-                    "type": "string"
-                },
-                "snapshot": {
-                    "type": "array",
-                    "items": {
-                        "type": "string"
-                    }
-                }
-            }
-        },
-        "SubVolumeInfo": {
-            "type": "object",
-            "properties": {
-                "atime": {
-                    "type": "string"
-                },
-                "bytes_pcent": {
-                    "type": "string"
-                },
-                "bytes_quota": {
-                    "type": "integer"
-                },
-                "bytes_used": {
-                    "type": "integer"
-                },
-                "created_at": {
-                    "type": "string"
-                },
-                "ctime": {
-                    "type": "string"
-                },
-                "data_pool": {
-                    "type": "string"
-                },
-                "features": {
-                    "type": "array",
-                    "items": {
-                        "type": "string"
-                    }
-                },
-                "gid": {
-                    "type": "integer"
-                },
-                "mode": {
-                    "type": "integer"
-                },
-                "mon_addrs": {
-                    "type": "array",
-                    "items": {
-                        "type": "string"
-                    }
-                },
-                "mtime": {
-                    "type": "string"
-                },
-                "path": {
-                    "type": "string"
-                },
-                "pool_namespace": {
-                    "type": "string"
-                },
-                "state": {
-                    "type": "string"
-                },
-                "type": {
-                    "type": "string"
-                },
-                "uid": {
-                    "type": "integer"
-                }
-            }
-        },
-        "SubVolumeList": {
-            "type": "object",
-            "properties": {
-                "info": {
-                    "$ref": "#/definitions/SubVolumeInfo"
-                },
-                "name": {
                     "type": "string"
                 },
                 "snapshot": {

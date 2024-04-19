@@ -42,6 +42,7 @@ func main() {
 	docs.SwaggerInfo.BasePath = "/"
 	docs.SwaggerInfo.Schemes = []string{"https", "http"}
 	log.SetFlags(log.LstdFlags | log.Lshortfile)
+	controller.LogSetting()
 	r := gin.Default()
 	r.ForwardedByClientIP = true
 	r.SetTrustedProxies(nil)
@@ -93,11 +94,11 @@ func main() {
 
 			subvolume := fs.Group("/subvolume")
 			{
-				subvolume.GET("", c.SubVolumeList)
-				subvolume.POST("", c.SubVolumeCreate)
-				subvolume.DELETE("", c.SubVolumeDelete)
-				subvolume.PUT("", c.SubVolumeResize)
-				subvolume.OPTIONS("", c.SubVolumeOption)
+				// subvolume.GET("", c.SubVolumeList)
+				// subvolume.POST("", c.SubVolumeCreate)
+				// subvolume.DELETE("", c.SubVolumeDelete)
+				// subvolume.PUT("", c.SubVolumeResize)
+				// subvolume.OPTIONS("", c.SubVolumeOption)
 
 				group := subvolume.Group("/group")
 				{
@@ -105,18 +106,17 @@ func main() {
 					group.POST("", c.SubVolumeGroupCreate)
 					group.DELETE("", c.SubVolumeGroupDelete)
 					group.PUT("", c.SubVolumeGroupResize)
+					group.OPTIONS("", c.SubVolumeGroupOption)
 
-					group.DELETE("/snapshot", c.SubVolumeGroupSnapDelete)
-
-					group.OPTIONS("", c.SubVolumeOption)
+					// group.DELETE("/snapshot", c.SubVolumeGroupSnapDelete
 				}
-				snapshot := subvolume.Group("/snapshot")
-				{
-					snapshot.GET("", c.SubVolumeSnapList)
-					snapshot.POST("", c.SubVolumeSnapCreate)
-					snapshot.DELETE("", c.SubVolumeSnapDelete)
-					snapshot.OPTIONS("", c.SubVolumeOption)
-				}
+				// snapshot := subvolume.Group("/snapshot")
+				// {
+				// 	snapshot.GET("", c.SubVolumeSnapList)
+				// 	snapshot.POST("", c.SubVolumeSnapCreate)
+				// 	snapshot.DELETE("", c.SubVolumeSnapDelete)
+				// 	snapshot.OPTIONS("", c.SubVolumeOption)
+				// }
 			}
 		}
 		nfs := v1.Group("/nfs")
@@ -163,6 +163,9 @@ func main() {
 				iscsi_target.POST("", c.IscsiTargetCreate)
 				iscsi_target.PUT("", c.IscsiTargetUpdate)
 				iscsi_target.OPTIONS("", c.IscsiOption)
+
+				iscsi_target.DELETE("/purge", c.IscsiTargetPurge)
+				iscsi_target.OPTIONS("/purge", c.IscsiOption)
 			}
 
 		}
@@ -197,21 +200,22 @@ func main() {
 				user.PUT("", c.RgwUserUpdate)
 				user.OPTIONS("", c.RgwOption)
 			}
+			bucket := rgw.Group("/bucket")
+			{
+				bucket.GET("", c.RgwBucketList)
+				bucket.POST("", c.RgwBucketCreate)
+				bucket.PUT("", c.RgwBucketUpdate)
+				bucket.DELETE("", c.RgwBucketDelete)
+				bucket.OPTIONS("", c.RgwOption)
+			}
 		}
 		nvmeof := v1.Group("/nvmeof")
 		{
 			nvmeof.POST("", c.NvmeOfServiceCreate)
 
-			nvmeof.GET("/list", c.NvmeOfList)
-			nvmeof.GET("/target", c.NvmeOfTargetVerify)
-
 			nvmeof.POST("/image/download", c.NvmeOfImageDownload)
 
 			nvmeof.POST("/target", c.NvmeOfTargetCreate)
-			nvmeof.POST("/target2", c.NvmeOfTargetCreate2)
-
-			nvmeof.POST("/connect", c.NvmeOfConnect)
-			nvmeof.POST("/disconnect", c.NvmeOfDisConnect)
 
 			subsystem := nvmeof.Group("/subsystem")
 			{

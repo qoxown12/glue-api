@@ -197,8 +197,8 @@ func VmDelete(hypervisorType string) (output string, err error) {
 				err = err_val
 				utils.FancyHandleError(err_val)
 				return
-
 			}
+
 			stdoutVmDelete, err = sshcmd.CombinedOutput()
 		} else {
 			output = "This hypervisor type is not supported."

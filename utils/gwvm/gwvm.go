@@ -191,8 +191,7 @@ func VmDelete(hypervisorType string) (output string, err error) {
 			//// Defer closing the network connection.
 			defer client.Close()
 			//// Execute your command.
-
-			sshcmd, err_val := client.Command("python3", "/usr/share/cockpit/ablestack/python/pcs/main.py", "remove", "--resource", "gateway_res")
+			sshcmd, err_val := client.Command("python3", "/usr/share/cockpit/ablestack/python/gwvm/gwvm_remove.py")
 			if err_val != nil {
 				err = err_val
 				utils.FancyHandleError(err_val)

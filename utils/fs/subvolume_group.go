@@ -74,7 +74,7 @@ func SubVolumeGroupGetPath(vol_name string, group_name string) (output string, e
 }
 func SubVolumeGroupDelete(vol_name string, group_name string, path string) (output string, err error) {
 	var stdout []byte
-	cmd := exec.Command("mkdir", "-p", "/gluefs/not")
+	cmd := exec.Command("mkdir", "-p", "/fs/not")
 	_, _ = cmd.CombinedOutput()
 	if path == "" {
 		cmd := exec.Command("mount", "-t", "ceph", "admin@."+vol_name)
@@ -87,7 +87,7 @@ func SubVolumeGroupDelete(vol_name string, group_name string, path string) (outp
 		}
 		return
 	} else {
-		cmd := exec.Command("mount", "-t", "ceph", "admin@."+vol_name+"="+path, "/gluefs/not")
+		cmd := exec.Command("mount", "-t", "ceph", "admin@."+vol_name+"="+path, "/fs/not")
 		stdout, err = cmd.CombinedOutput()
 		if err != nil {
 			err_str := strings.ReplaceAll(string(stdout), "\n", "")
@@ -95,7 +95,7 @@ func SubVolumeGroupDelete(vol_name string, group_name string, path string) (outp
 			utils.FancyHandleError(err)
 			return
 		} else {
-			cmd := exec.Command("sh", "-c", "rm -rf /gluefs/not/*")
+			cmd := exec.Command("sh", "-c", "rm -rf /fs/not/*")
 			stdout, err = cmd.CombinedOutput()
 			if err != nil {
 				err_str := strings.ReplaceAll(string(stdout), "\n", "")
@@ -103,7 +103,7 @@ func SubVolumeGroupDelete(vol_name string, group_name string, path string) (outp
 				utils.FancyHandleError(err)
 				return
 			} else {
-				cmd := exec.Command("umount", "-l", "-f", "/gluefs/not")
+				cmd := exec.Command("umount", "-l", "-f", "/fs/not")
 				stdout, err = cmd.CombinedOutput()
 				if err != nil {
 					err_str := strings.ReplaceAll(string(stdout), "\n", "")

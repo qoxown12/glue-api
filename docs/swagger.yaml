@@ -450,75 +450,6 @@ definitions:
       states:
         description: 이미지 상세
     type: object
-  NvmeOfList:
-    properties:
-      Devices:
-        items:
-          properties:
-            HostID:
-              type: string
-            HostNQN:
-              type: string
-            Subsystems:
-              items:
-                properties:
-                  Controllers:
-                    items:
-                      properties:
-                        Address:
-                          type: string
-                        Controller:
-                          type: string
-                        Firmware:
-                          type: string
-                        ModelNumber:
-                          type: string
-                        Namespaces:
-                          items: {}
-                          type: array
-                        Paths:
-                          items:
-                            properties:
-                              ANAState:
-                                type: string
-                              Path:
-                                type: string
-                            type: object
-                          type: array
-                        SerialNumber:
-                          type: string
-                        Transport:
-                          type: string
-                      type: object
-                    type: array
-                  Namespaces:
-                    items:
-                      properties:
-                        Generic:
-                          type: string
-                        MaximumLBA:
-                          type: integer
-                        NSID:
-                          type: integer
-                        NameSpace:
-                          type: string
-                        PhysicalSize:
-                          type: integer
-                        SectorSize:
-                          type: integer
-                        UsedBytes:
-                          type: integer
-                      type: object
-                    type: array
-                  Subsystem:
-                    type: string
-                  SubsystemNQN:
-                    type: string
-                type: object
-              type: array
-          type: object
-        type: array
-    type: object
   NvmeOfNameSpaceList:
     properties:
       error_message:
@@ -581,36 +512,6 @@ definitions:
             serial_number:
               type: string
             subtype:
-              type: string
-          type: object
-        type: array
-    type: object
-  NvmeOfTargetVerify:
-    properties:
-      genctr:
-        type: integer
-      records:
-        items:
-          properties:
-            adrfam:
-              type: string
-            eflags:
-              type: string
-            portid:
-              type: integer
-            sectype:
-              type: string
-            subnqn:
-              type: string
-            subtype:
-              type: string
-            traddr:
-              type: string
-            treq:
-              type: string
-            trsvcid:
-              type: string
-            trtype:
               type: string
           type: object
         type: array
@@ -758,58 +659,6 @@ definitions:
       name:
         type: string
       path:
-        type: string
-      snapshot:
-        items:
-          type: string
-        type: array
-    type: object
-  SubVolumeInfo:
-    properties:
-      atime:
-        type: string
-      bytes_pcent:
-        type: string
-      bytes_quota:
-        type: integer
-      bytes_used:
-        type: integer
-      created_at:
-        type: string
-      ctime:
-        type: string
-      data_pool:
-        type: string
-      features:
-        items:
-          type: string
-        type: array
-      gid:
-        type: integer
-      mode:
-        type: integer
-      mon_addrs:
-        items:
-          type: string
-        type: array
-      mtime:
-        type: string
-      path:
-        type: string
-      pool_namespace:
-        type: string
-      state:
-        type: string
-      type:
-        type: string
-      uid:
-        type: integer
-    type: object
-  SubVolumeList:
-    properties:
-      info:
-        $ref: '#/definitions/SubVolumeInfo'
-      name:
         type: string
       snapshot:
         items:
@@ -1096,186 +945,6 @@ paths:
       summary: Detail Info of Glue FS
       tags:
       - GlueFS
-  /api/v1/gluefs/subvolume:
-    delete:
-      consumes:
-      - application/x-www-form-urlencoded
-      description: GlueFS 하위 볼륨을 삭제합니다.
-      parameters:
-      - description: Glue FS Volume Name
-        in: query
-        name: vol_name
-        required: true
-        type: string
-      - description: Glue FS Sub Volume Name
-        in: query
-        name: subvol_name
-        required: true
-        type: string
-      - description: Glue FS Volume Group Name
-        in: query
-        name: group_name
-        type: string
-      produces:
-      - application/json
-      responses:
-        "200":
-          description: Success
-          schema:
-            type: string
-        "400":
-          description: Bad Request
-          schema:
-            $ref: '#/definitions/HTTP400BadRequest'
-        "404":
-          description: Not Found
-          schema:
-            $ref: '#/definitions/HTTP404NotFound'
-        "500":
-          description: Internal Server Error
-          schema:
-            $ref: '#/definitions/HTTP500InternalServerError'
-      summary: Delete of Glue FS Volume
-      tags:
-      - GlueFS-SubVolume
-    get:
-      consumes:
-      - application/x-www-form-urlencoded
-      description: GlueFS의 하위 볼륨에 대한 상세 정보 및 리스트를 보여줍니다.
-      parameters:
-      - description: Glue FS Sub Volume Name
-        in: query
-        name: vol_name
-        required: true
-        type: string
-      - description: Glue FS Sub Volume Group Name
-        in: query
-        name: group_name
-        type: string
-      produces:
-      - application/json
-      responses:
-        "200":
-          description: OK
-          schema:
-            $ref: '#/definitions/SubVolumeList'
-        "400":
-          description: Bad Request
-          schema:
-            $ref: '#/definitions/HTTP400BadRequest'
-        "404":
-          description: Not Found
-          schema:
-            $ref: '#/definitions/HTTP404NotFound'
-        "500":
-          description: Internal Server Error
-          schema:
-            $ref: '#/definitions/HTTP500InternalServerError'
-      summary: Detail Info and List of Glue FS Sub Volumes
-      tags:
-      - GlueFS-SubVolume
-    post:
-      consumes:
-      - application/x-www-form-urlencoded
-      description: GlueFS의 하위 볼륨을 생성합니다.
-      parameters:
-      - description: Glue FS Volume Name
-        in: formData
-        name: vol_name
-        required: true
-        type: string
-      - description: Glue FS Sub Volume Name
-        in: formData
-        name: subvol_name
-        required: true
-        type: string
-      - description: Glue FS Sub Volume Group Name
-        in: formData
-        name: group_name
-        type: string
-      - description: Glue FS Sub Volume Size(default GB)
-        in: formData
-        name: size
-        required: true
-        type: integer
-      - description: Glue FS Sub Volume Data Pool Name
-        in: formData
-        name: data_pool_name
-        required: true
-        type: string
-      - description: Glue FS Sub Volume Permissions
-        in: formData
-        name: mode
-        required: true
-        type: integer
-      produces:
-      - application/json
-      responses:
-        "200":
-          description: Success
-          schema:
-            type: string
-        "400":
-          description: Bad Request
-          schema:
-            $ref: '#/definitions/HTTP400BadRequest'
-        "404":
-          description: Not Found
-          schema:
-            $ref: '#/definitions/HTTP404NotFound'
-        "500":
-          description: Internal Server Error
-          schema:
-            $ref: '#/definitions/HTTP500InternalServerError'
-      summary: Create of Glue FS Sub Volume
-      tags:
-      - GlueFS-SubVolume
-    put:
-      consumes:
-      - application/x-www-form-urlencoded
-      description: GlueFS 볼륨의 할당된 사이즈를 수정합니다.
-      parameters:
-      - description: Glue FS Volume Name
-        in: formData
-        name: vol_name
-        required: true
-        type: string
-      - description: Glue FS Sub Volume Name
-        in: formData
-        name: subvol_name
-        required: true
-        type: string
-      - description: Glue FS Volume Group Name
-        in: formData
-        name: group_name
-        type: string
-      - description: Glue FS Sub Volume New Size(default GB)
-        in: formData
-        name: new_size
-        required: true
-        type: string
-      produces:
-      - application/json
-      responses:
-        "200":
-          description: Success
-          schema:
-            type: string
-        "400":
-          description: Bad Request
-          schema:
-            $ref: '#/definitions/HTTP400BadRequest'
-        "404":
-          description: Not Found
-          schema:
-            $ref: '#/definitions/HTTP404NotFound'
-        "500":
-          description: Internal Server Error
-          schema:
-            $ref: '#/definitions/HTTP500InternalServerError'
-      summary: Update Size of Glue FS Volume
-      tags:
-      - GlueFS-SubVolume
   /api/v1/gluefs/subvolume/group:
     delete:
       consumes:
@@ -1445,181 +1114,6 @@ paths:
       summary: Update Size of Glue FS Volume Group
       tags:
       - GlueFS-SubVolume-Group
-  /api/v1/gluefs/subvolume/group/snapshot:
-    delete:
-      consumes:
-      - application/x-www-form-urlencoded
-      description: GlueFS 볼륨의 그룹의 스냅샷을 삭제합니다.
-      parameters:
-      - description: Glue FS Volume Name
-        in: query
-        name: vol_name
-        required: true
-        type: string
-      - description: Glue FS Volume Group Name
-        in: query
-        name: group_name
-        required: true
-        type: string
-      - description: Glue FS Volume Group SnapShot Name
-        in: query
-        name: snap_name
-        required: true
-        type: string
-      produces:
-      - application/json
-      responses:
-        "200":
-          description: Success
-          schema:
-            type: string
-        "400":
-          description: Bad Request
-          schema:
-            $ref: '#/definitions/HTTP400BadRequest'
-        "404":
-          description: Not Found
-          schema:
-            $ref: '#/definitions/HTTP404NotFound'
-        "500":
-          description: Internal Server Error
-          schema:
-            $ref: '#/definitions/HTTP500InternalServerError'
-      summary: Delete of Glue FS Volume Group Snapshot
-      tags:
-      - GlueFS-SubVolume-Group
-  /api/v1/gluefs/subvolume/snapshot:
-    delete:
-      consumes:
-      - application/x-www-form-urlencoded
-      description: GlueFS 볼륨의 스냅샷을 삭제합니다.
-      parameters:
-      - description: Glue FS Volume Name
-        in: query
-        name: vol_name
-        required: true
-        type: string
-      - description: Glue FS Volume Sub Volume Name
-        in: query
-        name: subvol_name
-        required: true
-        type: string
-      - description: Glue FS Volume Group Name
-        in: query
-        name: group_name
-        type: string
-      - description: Glue FS Volume Group SnapShot Name
-        in: query
-        name: snap_name
-        required: true
-        type: string
-      produces:
-      - application/json
-      responses:
-        "200":
-          description: Success
-          schema:
-            type: string
-        "400":
-          description: Bad Request
-          schema:
-            $ref: '#/definitions/HTTP400BadRequest'
-        "404":
-          description: Not Found
-          schema:
-            $ref: '#/definitions/HTTP404NotFound'
-        "500":
-          description: Internal Server Error
-          schema:
-            $ref: '#/definitions/HTTP500InternalServerError'
-      summary: Delete of Glue FS Volume Snapshot
-      tags:
-      - GlueFS-SubVolume-Snapshot
-    get:
-      consumes:
-      - application/x-www-form-urlencoded
-      description: GlueFS의 하위 볼륨 스냅샷의 리스트 및 상세 정보를 보여줍니다.
-      parameters:
-      - description: Glue FS Sub Volume Name
-        in: query
-        name: vol_name
-        required: true
-        type: string
-      - description: Glue FS Volume Sub Volume Name
-        in: query
-        name: subvol_name
-        required: true
-        type: string
-      - description: Glue FS Volume Group Name
-        in: query
-        name: group_name
-        type: string
-      - description: Glue FS Volume SnapShot Name
-        in: query
-        name: snap_name
-        type: string
-      produces:
-      - application/json
-      responses:
-        "200":
-          description: OK
-          schema: {}
-        "400":
-          description: Bad Request
-          schema:
-            $ref: '#/definitions/HTTP400BadRequest'
-        "404":
-          description: Not Found
-          schema:
-            $ref: '#/definitions/HTTP404NotFound'
-        "500":
-          description: Internal Server Error
-          schema:
-            $ref: '#/definitions/HTTP500InternalServerError'
-      summary: Show List or Info of Glue FS Sub Volume Snapshot
-      tags:
-      - GlueFS-SubVolume-Snapshot
-    post:
-      consumes:
-      - application/x-www-form-urlencoded
-      description: GlueFS의 하위 볼륨의 그룹의 스냅샷을 생성합니다.
-      parameters:
-      - description: Glue FS Sub Volume Name
-        in: formData
-        name: vol_name
-        required: true
-        type: string
-      - description: Glue FS Volume Sub Volume Name
-        in: formData
-        name: subvol_name
-        required: true
-        type: string
-      - description: Glue FS Volume Group Name
-        in: formData
-        name: group_name
-        type: string
-      produces:
-      - application/json
-      responses:
-        "200":
-          description: Success
-          schema:
-            type: string
-        "400":
-          description: Bad Request
-          schema:
-            $ref: '#/definitions/HTTP400BadRequest'
-        "404":
-          description: Not Found
-          schema:
-            $ref: '#/definitions/HTTP404NotFound'
-        "500":
-          description: Internal Server Error
-          schema:
-            $ref: '#/definitions/HTTP500InternalServerError'
-      summary: Create of Glue FS Sub Volume Group Snapshot
-      tags:
-      - GlueFS-SubVolume-Snapshot
   /api/v1/gwvm/{hypervisorType}:
     get:
       consumes:
@@ -2449,6 +1943,39 @@ paths:
       summary: Update of Iscsi Target
       tags:
       - IscsiTarget
+  /api/v1/iscsi/target/purge:
+    delete:
+      consumes:
+      - application/x-www-form-urlencoded
+      description: Iscsi 타겟을 파괴합니다.
+      parameters:
+      - description: Iscsi Target IQN Name
+        in: query
+        name: iqn_id
+        required: true
+        type: string
+      produces:
+      - application/json
+      responses:
+        "200":
+          description: Success
+          schema:
+            type: string
+        "400":
+          description: Bad Request
+          schema:
+            $ref: '#/definitions/HTTP400BadRequest'
+        "404":
+          description: Not Found
+          schema:
+            $ref: '#/definitions/HTTP404NotFound'
+        "500":
+          description: Internal Server Error
+          schema:
+            $ref: '#/definitions/HTTP500InternalServerError'
+      summary: Purge of Iscsi Target
+      tags:
+      - IscsiTarget
   /api/v1/mirror:
     delete:
       consumes:
@@ -3078,18 +2605,19 @@ paths:
         name: access_type
         required: true
         type: string
-      - description: FS Name
+      - description: FS Name(if stroage_name is CEPH Required value)
         in: formData
         name: fs_name
-        required: true
         type: string
-      - default: CEPH
-        description: NFS Storage Name
+      - description: NFS Storage Name
+        enum:
+        - CEPH
+        - RGW
         in: formData
         name: storage_name
         required: true
         type: string
-      - description: Glue FS Path
+      - description: Glue FS Path or Glue RGW Bucket Name
         in: formData
         name: path
         required: true
@@ -3171,18 +2699,19 @@ paths:
         name: access_type
         required: true
         type: string
-      - description: FS Name
+      - description: FS Name(if stroage_name is CEPH Required value)
         in: formData
         name: fs_name
-        required: true
         type: string
-      - default: CEPH
-        description: NFS Storage Name
+      - description: NFS Storage Name
+        enum:
+        - CEPH
+        - RGW
         in: formData
         name: storage_name
         required: true
         type: string
-      - description: Glue FS Path
+      - description: Glue FS Path or Glue RGW Bucket Name
         in: formData
         name: path
         required: true
@@ -3457,103 +2986,17 @@ paths:
       summary: Create of NVMe-OF Service
       tags:
       - NVMe-OF
-  /api/v1/nvmeof/connect:
-    post:
-      consumes:
-      - application/x-www-form-urlencoded
-      description: NVMe-OF 하위 시스템에 연결합니다.
-      parameters:
-      - description: Glue NVMe-OF Run Host Name
-        in: formData
-        name: hostname
-        required: true
-        type: string
-      - description: Glue NVMe-OF Sub System NQN ID
-        in: formData
-        name: subsystem_nqn_id
-        type: string
-      - default: false
-        description: Glue NVMe-OF Full Connection Check
-        enum:
-        - true
-        - false
-        in: formData
-        name: full_connection
-        required: true
-        type: boolean
-      produces:
-      - application/json
-      responses:
-        "200":
-          description: Success
-          schema:
-            type: string
-        "400":
-          description: Bad Request
-          schema:
-            $ref: '#/definitions/HTTP400BadRequest'
-        "404":
-          description: Not Found
-          schema:
-            $ref: '#/definitions/HTTP404NotFound'
-        "500":
-          description: Internal Server Error
-          schema:
-            $ref: '#/definitions/HTTP500InternalServerError'
-      summary: Connect of NVMe-OF Sub System
-      tags:
-      - NVMe-OF
-  /api/v1/nvmeof/disconnect:
-    post:
-      consumes:
-      - application/x-www-form-urlencoded
-      description: NVMe-OF 하위 시스템에 연결을 해제합니다.
-      parameters:
-      - description: Glue NVMe-OF Run Host Name
-        in: formData
-        name: hostname
-        required: true
-        type: string
-      - description: Glue NVMe-OF Sub System NQN ID
-        in: formData
-        name: subsystem_nqn_id
-        type: string
-      - default: false
-        description: Glue NVMe-OF Full DisConnection Check
-        enum:
-        - true
-        - false
-        in: formData
-        name: full_DisConnection
-        required: true
-        type: boolean
-      produces:
-      - application/json
-      responses:
-        "200":
-          description: Success
-          schema:
-            type: string
-        "400":
-          description: Bad Request
-          schema:
-            $ref: '#/definitions/HTTP400BadRequest'
-        "404":
-          description: Not Found
-          schema:
-            $ref: '#/definitions/HTTP404NotFound'
-        "500":
-          description: Internal Server Error
-          schema:
-            $ref: '#/definitions/HTTP500InternalServerError'
-      summary: DisConnect of NVMe-OF Sub System
-      tags:
-      - NVMe-OF
   /api/v1/nvmeof/image/download:
     post:
       consumes:
       - application/x-www-form-urlencoded
       description: NVMe-OF 이미지를 최신으로 다운받습니다.
+      parameters:
+      - description: Glue NVMe-OF Gateway IP
+        in: formData
+        name: gateway_ip
+        required: true
+        type: string
       produces:
       - application/json
       responses:
@@ -3574,47 +3017,6 @@ paths:
           schema:
             $ref: '#/definitions/HTTP500InternalServerError'
       summary: Download of NVMe-OF Image
-      tags:
-      - NVMe-OF
-  /api/v1/nvmeof/list:
-    get:
-      consumes:
-      - application/x-www-form-urlencoded
-      description: 연결된 NVMe-OF의 상세정보 및 리스트를 보여줍니다.
-      parameters:
-      - default: "true"
-        description: Glue NVMe-OF List detail
-        enum:
-        - "true"
-        - "false"
-        in: query
-        name: detail
-        required: true
-        type: string
-      - description: Glue NVMe-OF Run Host Name
-        in: query
-        name: hostname
-        type: string
-      produces:
-      - application/json
-      responses:
-        "200":
-          description: OK
-          schema:
-            $ref: '#/definitions/NvmeOfList'
-        "400":
-          description: Bad Request
-          schema:
-            $ref: '#/definitions/HTTP400BadRequest'
-        "404":
-          description: Not Found
-          schema:
-            $ref: '#/definitions/HTTP404NotFound'
-        "500":
-          description: Internal Server Error
-          schema:
-            $ref: '#/definitions/HTTP500InternalServerError'
-      summary: Show Detail and List of Connected NVMe-OF Infomation
       tags:
       - NVMe-OF
   /api/v1/nvmeof/namespace:
@@ -3709,11 +3111,6 @@ paths:
       - application/x-www-form-urlencoded
       description: NVMe-OF의 네임스페이스를 생성합니다.
       parameters:
-      - description: Glue NVMe-OF Gateway IP
-        in: formData
-        name: gateway_ip
-        required: true
-        type: string
       - description: Glue NVMe-OF Sub System NQN ID
         in: formData
         name: subsystem_nqn_id
@@ -3858,84 +3255,10 @@ paths:
       tags:
       - NVMe-OF-SubSystem
   /api/v1/nvmeof/target:
-    get:
-      consumes:
-      - application/x-www-form-urlencoded
-      description: NVMe-OF의 타겟에 연결 할 수 있는지에 대한 리스트를 보여줍니다.
-      produces:
-      - application/json
-      responses:
-        "200":
-          description: OK
-          schema:
-            $ref: '#/definitions/NvmeOfTargetVerify'
-        "400":
-          description: Bad Request
-          schema:
-            $ref: '#/definitions/HTTP400BadRequest'
-        "404":
-          description: Not Found
-          schema:
-            $ref: '#/definitions/HTTP404NotFound'
-        "500":
-          description: Internal Server Error
-          schema:
-            $ref: '#/definitions/HTTP500InternalServerError'
-      summary: Show List of Verify the NVMe-OF Target is Reachable
-      tags:
-      - NVMe-OF
     post:
       consumes:
       - application/x-www-form-urlencoded
       description: NVMe-OF 타켓을 생성합니다.
-      parameters:
-      - description: Glue NVMe-OF Sub System NQN ID
-        in: formData
-        name: subsystem_nqn_id
-        required: true
-        type: string
-      - description: Glue NVMe-OF Use Image Pool Name
-        in: formData
-        name: pool_name
-        required: true
-        type: string
-      - description: Glue NVMe-OF Use Image Name
-        in: formData
-        name: image_name
-        required: true
-        type: string
-      - description: Glue NVMe-OF Image Size(default GB)
-        in: formData
-        name: size
-        required: true
-        type: integer
-      produces:
-      - application/json
-      responses:
-        "200":
-          description: Success
-          schema:
-            type: string
-        "400":
-          description: Bad Request
-          schema:
-            $ref: '#/definitions/HTTP400BadRequest'
-        "404":
-          description: Not Found
-          schema:
-            $ref: '#/definitions/HTTP404NotFound'
-        "500":
-          description: Internal Server Error
-          schema:
-            $ref: '#/definitions/HTTP500InternalServerError'
-      summary: Create of NVMe-OF Target
-      tags:
-      - NVMe-OF
-  /api/v1/nvmeof/target2:
-    post:
-      consumes:
-      - application/x-www-form-urlencoded
-      description: NVMe-OF 타켓을 생성합니다. 개별적으로 하나 타겟만 만드는 API
       parameters:
       - description: Glue NVMe-OF Gateway IP
         in: formData
@@ -4159,7 +3482,7 @@ paths:
       parameters:
       - description: RGW Service Name
         in: formData
-        name: service_name
+        name: service_id
         required: true
         type: string
       - description: RGW Realm Name
@@ -4208,6 +3531,192 @@ paths:
       summary: Update of RADOS Gateway Service
       tags:
       - RGW
+  /api/v1/rgw/bucket:
+    delete:
+      consumes:
+      - application/x-www-form-urlencoded
+      description: RADOS Gateway 버킷을 삭제합니다.
+      parameters:
+      - description: RGW Bucket Name
+        in: query
+        name: bucket_name
+        required: true
+        type: string
+      produces:
+      - application/json
+      responses:
+        "200":
+          description: OK
+          schema: {}
+        "400":
+          description: Bad Request
+          schema:
+            $ref: '#/definitions/HTTP400BadRequest'
+        "404":
+          description: Not Found
+          schema:
+            $ref: '#/definitions/HTTP404NotFound'
+        "500":
+          description: Internal Server Error
+          schema:
+            $ref: '#/definitions/HTTP500InternalServerError'
+      summary: Delete of RADOS Gateway Bucket
+      tags:
+      - RGW-Bucket
+    get:
+      consumes:
+      - application/x-www-form-urlencoded
+      description: RADOS Gateway 버킷을 리스트를 보여줍니다.
+      parameters:
+      - description: RGW Bucket Name
+        in: query
+        name: bucket_name
+        type: string
+      - default: "false"
+        description: RGW Bucket List Detail
+        enum:
+        - "true"
+        - "false"
+        in: query
+        name: detail
+        required: true
+        type: string
+      produces:
+      - application/json
+      responses:
+        "200":
+          description: OK
+          schema: {}
+        "400":
+          description: Bad Request
+          schema:
+            $ref: '#/definitions/HTTP400BadRequest'
+        "404":
+          description: Not Found
+          schema:
+            $ref: '#/definitions/HTTP404NotFound'
+        "500":
+          description: Internal Server Error
+          schema:
+            $ref: '#/definitions/HTTP500InternalServerError'
+      summary: Show List of RADOS Gateway Bucket
+      tags:
+      - RGW-Bucket
+    post:
+      consumes:
+      - application/x-www-form-urlencoded
+      description: RADOS Gateway 버킷을 생성합니다.
+      parameters:
+      - description: RGW Bucket Name
+        in: formData
+        name: bucket_name
+        required: true
+        type: string
+      - description: RGW User Name
+        in: formData
+        name: username
+        required: true
+        type: string
+      - default: false
+        description: RGW Bucket Lock Enabled
+        enum:
+        - true
+        - false
+        in: formData
+        name: lock_enabled
+        required: true
+        type: boolean
+      - description: RGW Bucket Lock Mode
+        enum:
+        - compliance
+        - governance
+        in: formData
+        name: lock_mode
+        type: string
+      - description: RGW Bucket Lock Period
+        in: formData
+        name: lock_retention_period_days
+        type: integer
+      produces:
+      - application/json
+      responses:
+        "200":
+          description: OK
+          schema: {}
+        "400":
+          description: Bad Request
+          schema:
+            $ref: '#/definitions/HTTP400BadRequest'
+        "404":
+          description: Not Found
+          schema:
+            $ref: '#/definitions/HTTP404NotFound'
+        "500":
+          description: Internal Server Error
+          schema:
+            $ref: '#/definitions/HTTP500InternalServerError'
+      summary: Create of RADOS Gateway Bucket
+      tags:
+      - RGW-Bucket
+    put:
+      consumes:
+      - application/x-www-form-urlencoded
+      description: RADOS Gateway 버킷을 수정합니다.
+      parameters:
+      - description: RGW Bucket Name
+        in: formData
+        name: bucket_name
+        required: true
+        type: string
+      - description: RGW Bucket ID
+        in: formData
+        name: bucket_id
+        required: true
+        type: string
+      - description: RGW User Name
+        in: formData
+        name: username
+        required: true
+        type: string
+      - description: RGW Bucket Lock Enabled
+        enum:
+        - Enabled
+        - Suspended
+        in: formData
+        name: versioning
+        type: string
+      - description: RGW Bucket Lock Mode(Required value if the lock box is checked)
+        enum:
+        - compliance
+        - governance
+        in: formData
+        name: lock_mode
+        type: string
+      - description: RGW Bucket Lock Period(Required value if the lock box is checked)
+        in: formData
+        name: lock_retention_period_days
+        type: integer
+      produces:
+      - application/json
+      responses:
+        "200":
+          description: OK
+          schema: {}
+        "400":
+          description: Bad Request
+          schema:
+            $ref: '#/definitions/HTTP400BadRequest'
+        "404":
+          description: Not Found
+          schema:
+            $ref: '#/definitions/HTTP404NotFound'
+        "500":
+          description: Internal Server Error
+          schema:
+            $ref: '#/definitions/HTTP500InternalServerError'
+      summary: Update of RADOS Gateway Bucket
+      tags:
+      - RGW-Bucket
   /api/v1/rgw/quota:
     post:
       consumes:

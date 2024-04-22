@@ -428,3 +428,34 @@ func PoolReplicatedSize(pool_name string) (output string, err error) {
 	output = "Success"
 	return
 }
+func ServiceReDeploy(service_name string) (output string, err error) {
+	var stdout []byte
+	cmd := exec.Command("ceph", "orch", "redeploy", service_name)
+	stdout, err = cmd.CombinedOutput()
+	if err != nil {
+		err_str := strings.ReplaceAll(string(stdout), "\n", "")
+		err = errors.New(err_str)
+		utils.FancyHandleError(err)
+		return
+	}
+	output = "Success"
+	return
+}
+func GlueUrl() (dat model.GlueUrl, err error) {
+	var stdout []byte
+	cmd := exec.Command("ceph", "mgr", "stat")
+	stdout, err = cmd.CombinedOutput()
+	if err != nil {
+		err_str := strings.ReplaceAll(string(stdout), "\n", "")
+		err = errors.New(err_str)
+		utils.FancyHandleError(err)
+		return
+	}
+	if err = json.Unmarshal(stdout, &dat); err != nil {
+		err_str := strings.ReplaceAll(string(stdout), "\n", "")
+		err = errors.New(err_str)
+		utils.FancyHandleError(err)
+		return
+	}
+	return
+}

@@ -114,3 +114,21 @@ type RgwUpdateSpec struct {
 	Rgw_zone          string `yaml:"rgw_zone"`
 	Rgw_frontend_port string `yaml:"rgw_frontend_port"`
 }
+
+type RgwBucketCreate struct {
+	Bucket                     string `json:"bucket"`
+	Uid                        string `json:"uid"`
+	Lock_enabled               string `json:"lock_enabled"`
+	Lock_mode                  string `json:"lock_mode"`
+	Lock_retention_period_days string `json:"lock_retention_period_days"`
+}
+
+type RGwCommon interface{} //@name RgwCommon
+
+type RgwBucketUpdate struct {
+	Bucket_id                  string `json:"bucket_id"`
+	Uid                        string `json:"uid"`
+	Versioning_state           string `json:"versioning_state"`
+	Lock_mode                  string `json:"lock_mode"`
+	Lock_retention_period_days string `json:"lock_retention_period_days"`
+}

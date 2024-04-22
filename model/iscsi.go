@@ -116,3 +116,9 @@ type Auth struct {
 	Mutual_User     string `json:"mutual_user"`
 	Mutual_Password string `json:"mutual_password"`
 } //@name Auth
+
+type Iscsihosts []struct {
+	Placement struct {
+		Hosts []string `json:"hosts"`
+	} `json:"placement"`
+}

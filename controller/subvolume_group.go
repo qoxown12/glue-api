@@ -11,6 +11,11 @@ import (
 	"github.com/gin-gonic/gin"
 )
 
+func (c *Controller) SubVolumeGroupOption(ctx *gin.Context) {
+	SetOptionHeader(ctx)
+	ctx.IndentedJSON(http.StatusOK, nil)
+}
+
 // SubVolumeGroupList godoc
 //
 //	@Summary		Detail Info and List of Glue FS Volume Groups
@@ -185,33 +190,33 @@ func (c *Controller) SubVolumeGroupResize(ctx *gin.Context) {
 	ctx.IndentedJSON(http.StatusOK, dat)
 }
 
-// SubVolumeGroupSnapDelete godoc
-//
-//	@Summary		Delete of Glue FS Volume Group Snapshot
-//	@Description	GlueFS 볼륨의 그룹의 스냅샷을 삭제합니다.
-//	@param			vol_name 	query	string	true	"Glue FS Volume Name"
-//	@param			group_name 	query	string	true	"Glue FS Volume Group Name"
-//	@param			snap_name 	query	string	true	"Glue FS Volume Group SnapShot Name"
-//	@Tags			GlueFS-SubVolume-Group
-//	@Accept			x-www-form-urlencoded
-//	@Produce		json
-//	@Success		200	{string}	string "Success"
-//	@Failure		400	{object}	httputil.HTTP400BadRequest
-//	@Failure		404	{object}	httputil.HTTP404NotFound
-//	@Failure		500	{object}	httputil.HTTP500InternalServerError
-//	@Router			/api/v1/gluefs/subvolume/group/snapshot  [delete]
-func (c *Controller) SubVolumeGroupSnapDelete(ctx *gin.Context) {
-	vol_name := ctx.Request.URL.Query().Get("vol_name")
-	group_name := ctx.Request.URL.Query().Get("group_name")
-	snap_name := ctx.Request.URL.Query().Get("snap_name")
+// // SubVolumeGroupSnapDelete godoc
+// //
+// //	@Summary		Delete of Glue FS Volume Group Snapshot
+// //	@Description	GlueFS 볼륨의 그룹의 스냅샷을 삭제합니다.
+// //	@param			vol_name 	query	string	true	"Glue FS Volume Name"
+// //	@param			group_name 	query	string	true	"Glue FS Volume Group Name"
+// //	@param			snap_name 	query	string	true	"Glue FS Volume Group SnapShot Name"
+// //	@Tags			GlueFS-SubVolume-Group
+// //	@Accept			x-www-form-urlencoded
+// //	@Produce		json
+// //	@Success		200	{string}	string "Success"
+// //	@Failure		400	{object}	httputil.HTTP400BadRequest
+// //	@Failure		404	{object}	httputil.HTTP404NotFound
+// //	@Failure		500	{object}	httputil.HTTP500InternalServerError
+// //	@Router			/api/v1/gluefs/subvolume/group/snapshot  [delete]
+// func (c *Controller) SubVolumeGroupSnapDelete(ctx *gin.Context) {
+// 	vol_name := ctx.Request.URL.Query().Get("vol_name")
+// 	group_name := ctx.Request.URL.Query().Get("group_name")
+// 	snap_name := ctx.Request.URL.Query().Get("snap_name")
 
-	dat, err := fs.SubVolumeGroupSnapDelete(vol_name, group_name, snap_name)
-	if err != nil {
-		utils.FancyHandleError(err)
-		httputil.NewError(ctx, http.StatusInternalServerError, err)
-		return
-	}
-	// Print the output
-	ctx.Header("Access-Control-Allow-Origin", "*")
-	ctx.IndentedJSON(http.StatusOK, dat)
-}
+// 	dat, err := fs.SubVolumeGroupSnapDelete(vol_name, group_name, snap_name)
+// 	if err != nil {
+// 		utils.FancyHandleError(err)
+// 		httputil.NewError(ctx, http.StatusInternalServerError, err)
+// 		return
+// 	}
+// 	// Print the output
+// 	ctx.Header("Access-Control-Allow-Origin", "*")
+// 	ctx.IndentedJSON(http.StatusOK, dat)
+// }

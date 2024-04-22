@@ -31,7 +31,9 @@ then
                                 chmod 777 $path
                         fi
                                 mount -t ceph admin@.$fs_name=$volume_path $path
-                                sed -i "$ a mount -t ceph admin@.$fs_name=$volume_path $path" /etc/fstab
+                                fsid=$(cat /etc/ceph/ceph.conf | grep 'fsid' | awk '{print $3}')
+                                admin_key=$(cat /etc/ceph/ceph.client.admin.keyring | grep 'key' | awk '{print $3}')
+                                sed -i "$ a admin@$fsid.$fs_name=$volume_path $path ceph name=admin,secret=$admin_key,rw,relatime,seclabel,defaults 0 0" /etc/fstab
 
                         if [ ${#user_id} -ne 0 ] && [ ${#user_pw} -ne 0 ] && [ ${#folder} -ne 0 ] && [ ${#path} -ne 0 ]
                         then
@@ -121,10 +123,12 @@ then
         elif [ $action == "delete" ]
         then
                 path=$(/usr/bin/cat /usr/local/samba/etc/smb.conf | grep path | awk '{print $3}')
-                umount $path
+                umount -l -f $path
                 sed '$ d' -i /etc/fstab
 
                 user=$(/usr/local/samba/bin/pdbedit -L | grep -v 'root' | grep -v 'ablecloud' | cut -d ':' -f1)
+                allow_ip=$(cat /etc/hosts | grep 'ccvm' | awk '{print $1}' | cut -d '.' -f1,2)
+
                 for list in $user
                 do
                         /usr/local/samba/bin/smbpasswd -x $list > /dev/null 2>&1
@@ -134,7 +138,7 @@ then
                         echo -e "[global]" >> /usr/local/samba/etc/smb.conf
                         echo -e "\tworkgroup = WORKGROUP" >> /usr/local/samba/etc/smb.conf
                         echo -e "\tsecurity = user" >> /usr/local/samba/etc/smb.conf
-                        echo -e "\thosts allow = 100.100." >> /usr/local/samba/etc/smb.conf
+                        echo -e "\thosts allow = $allow_ip." >> /usr/local/samba/etc/smb.conf
 
                         systemctl stop smb > /dev/null 2>&1
                         systemctl disable smb > /dev/null 2>&1

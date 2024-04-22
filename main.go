@@ -3,6 +3,7 @@ package main
 import (
 	"Glue-API/controller"
 	"Glue-API/docs"
+	"Glue-API/httputil"
 	"log"
 
 	"github.com/gin-gonic/gin"
@@ -41,6 +42,7 @@ func main() {
 	//docs.SwaggerInfo.Host = ".swagger.io"
 	docs.SwaggerInfo.BasePath = "/"
 	docs.SwaggerInfo.Schemes = []string{"https", "http"}
+	httputil.Certify("cert.pem")
 	log.SetFlags(log.LstdFlags | log.Lshortfile)
 	controller.LogSetting()
 	r := gin.Default()
@@ -275,7 +277,7 @@ func main() {
 		r.Any("/version", c.Version)
 	}
 	r.GET("/swagger/*any", ginSwagger.WrapHandler(swaggerFiles.Handler))
-	r.RunTLS(":8080", "/root/ssl/server.crt", "/root/ssl/server.key")
+	r.RunTLS(":8080", "cert.pem", "key.pem")
 	// r.Run(":8080")
 }
 

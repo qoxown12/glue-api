@@ -3082,7 +3082,6 @@ paths:
       - description: Glue NVMe-OF Sub System NQN ID
         in: query
         name: subsystem_nqn_id
-        required: true
         type: string
       produces:
       - application/json
@@ -3255,6 +3254,99 @@ paths:
       tags:
       - NVMe-OF-SubSystem
   /api/v1/nvmeof/target:
+    get:
+      consumes:
+      - application/x-www-form-urlencoded
+      description: NVMe-OF의 타겟 리스트를 보여줍니다.
+      parameters:
+      - description: Glue NVMe-OF Sub System NQN ID
+        in: query
+        name: subsystem_nqn_id
+        type: string
+      produces:
+      - application/json
+      responses:
+        "200":
+          description: OK
+          schema:
+            items:
+              properties:
+                allow_any_host:
+                  type: boolean
+                hosts:
+                  items: {}
+                  type: array
+                listen_addresses:
+                  items:
+                    properties:
+                      adrfam:
+                        type: string
+                      traddr:
+                        type: string
+                      transport:
+                        type: string
+                      trsvcid:
+                        type: string
+                      trtype:
+                        type: string
+                    type: object
+                  type: array
+                max_cntlid:
+                  type: integer
+                max_namespaces:
+                  type: integer
+                min_cntlid:
+                  type: integer
+                model_number:
+                  type: string
+                namespaces:
+                  items:
+                    properties:
+                      bdev_name:
+                        type: string
+                      block_size:
+                        type: integer
+                      name:
+                        type: string
+                      nguid:
+                        type: string
+                      nsid:
+                        type: integer
+                      rbd_image_name:
+                        type: string
+                      rbd_image_size:
+                        type: string
+                      rbd_pool_name:
+                        type: string
+                      uuid:
+                        type: string
+                    type: object
+                  type: array
+                nqn:
+                  type: string
+                serial_number:
+                  type: string
+                session:
+                  type: integer
+                subtype:
+                  type: string
+              type: object
+            type: array
+        "400":
+          description: Bad Request
+          schema:
+            $ref: '#/definitions/HTTP400BadRequest'
+        "404":
+          description: Not Found
+          schema:
+            $ref: '#/definitions/HTTP404NotFound'
+        "500":
+          description: Internal Server Error
+          schema:
+            $ref: '#/definitions/HTTP500InternalServerError'
+      summary: Show List of NVMe-OF Target
+      tags:
+      - NVMe-OF
     post:
       consumes:
       - application/x-www-form-urlencoded

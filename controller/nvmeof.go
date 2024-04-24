@@ -432,7 +432,7 @@ func (c *Controller) NvmeOfSubSystemDelete(ctx *gin.Context) {
 //
 //	@Summary		Show List of NVMe-OF Sub Systems
 //	@Description	NVMe-OF의 Sub System 리스트를 보여줍니다.
-//	@param			subsystem_nqn_id	query	string	true	"Glue NVMe-OF Sub System NQN ID"
+//	@param			subsystem_nqn_id	query	string	false	"Glue NVMe-OF Sub System NQN ID"
 //	@Tags			NVMe-OF-NameSpace
 //	@Accept			x-www-form-urlencoded
 //	@Produce		json
@@ -591,4 +591,62 @@ func (c *Controller) NvmeOfNameSpaceDelete(ctx *gin.Context) {
 		ctx.Header("Access-Control-Allow-Origin", "*")
 		ctx.IndentedJSON(http.StatusOK, dat)
 	}
+}
+
+// NvmeOfTargetList godoc
+//
+//	@Summary		Show List of NVMe-OF Target
+//	@Description	NVMe-OF의 타겟 리스트를 보여줍니다.
+//	@param			subsystem_nqn_id	query	string	false	"Glue NVMe-OF Sub System NQN ID"
+//	@Tags			NVMe-OF
+//	@Accept			x-www-form-urlencoded
+//	@Produce		json
+//	@Success		200	{object}	NvmeOfTarget
+//	@Failure		400	{object}	httputil.HTTP400BadRequest
+//	@Failure		404	{object}	httputil.HTTP404NotFound
+//	@Failure		500	{object}	httputil.HTTP500InternalServerError
+//	@Router			/api/v1/nvmeof/target [get]
+func (c *Controller) NvmeOfTargetList(ctx *gin.Context) {
+	subsystem_nqn_id := ctx.Request.URL.Query().Get("subsystem_nqn_id")
+	server_gateway_ip, port, err := NvmeOfServerIPandPort()
+	if err != nil {
+		utils.FancyHandleError(err)
+		httputil.NewError(ctx, http.StatusInternalServerError, err)
+		return
+	}
+	container_id, err := nvmeof.Container()
+	if err != nil {
+		utils.FancyHandleError(err)
+		httputil.NewError(ctx, http.StatusInternalServerError, err)
+		return
+	}
+	var list model.NvmeOfTarget
+	list, err = nvmeof.NvmeOfTarget(server_gateway_ip, container_id, subsystem_nqn_id)
+	if err != nil {
+		utils.FancyHandleError(err)
+		httputil.NewError(ctx, http.StatusInternalServerError, err)
+		return
+	}
+	for i := 0; i < len(list); i++ {
+		con, err := nvmeof.NvmeOfConnection(server_gateway_ip, container_id, list[i].Nqn)
+		if err != nil {
+			utils.FancyHandleError(err)
+			httputil.NewError(ctx, http.StatusInternalServerError, err)
+			return
+		}
+		list[i].Session = len(con)
+
+		image, err := nvmeof.NvmeOfNameSpaceList(server_gateway_ip, server_gateway_ip, port, list[i].Nqn)
+		if err != nil {
+			utils.FancyHandleError(err)
+			httputil.NewError(ctx, http.StatusInternalServerError, err)
+			return
+		}
+		list[i].Namespaces[0].Block_size = image.Namespaces[0].BlockSize
+		list[i].Namespaces[0].Rbd_image_name = image.Namespaces[0].RbdImageName
+		list[i].Namespaces[0].Rbd_image_size = image.Namespaces[0].RbdImageSize
+		list[i].Namespaces[0].Rbd_pool_name = image.Namespaces[0].RbdPoolName
+	}
+	ctx.Header("Access-Control-Allow-Origin", "*")
+	ctx.IndentedJSON(http.StatusOK, list)
 }

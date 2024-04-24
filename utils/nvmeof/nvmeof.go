@@ -9,6 +9,19 @@ import (
 	"strings"
 )
 
+func Container() (output string, err error) {
+	var stdout []byte
+	cmd := exec.Command("sh", "-c", "podman ps | grep 'nvmeof' | awk '{print $1}'")
+	stdout, err = cmd.CombinedOutput()
+	if err != nil {
+		err_str := strings.ReplaceAll(string(stdout), "\n", "")
+		err = errors.New(err_str)
+		utils.FancyHandleError(err)
+		return
+	}
+	output = strings.Split(string(stdout), "\n")[0]
+	return
+}
 func ServerGatewayIp(hostname string) (output string, err error) {
 	var stdout []byte
 	cmd := exec.Command("sh", "-c", "cat /etc/hosts | grep -v '-'| grep -w '"+hostname+"' | awk '{print $1}'")
@@ -236,5 +249,59 @@ func NvmeOfNameSpaceDelete(hostname string, server_gateway_ip string, server_gat
 		return
 	}
 	output = "Success"
+	return
+}
+
+func NvmeOfConnection(hostname string, container_id string, subsystem_nqn_id string) (output model.NvmeOfConnection, err error) {
+	var stdout []byte
+	cmd := exec.Command("ssh", "-o", "StrictHostKeyChecking=no", hostname, "podman", "exec", "-i", container_id, "python3", "/usr/libexec/spdk/scripts/rpc.py", "nvmf_subsystem_get_controllers", subsystem_nqn_id)
+	stdout, err = cmd.CombinedOutput()
+	if err != nil {
+		err_str := strings.ReplaceAll(string(stdout), "\n", "")
+		err = errors.New(err_str)
+		utils.FancyHandleError(err)
+		return
+	}
+	if err = json.Unmarshal(stdout, &output); err != nil {
+		err_str := strings.ReplaceAll(string(stdout), "\n", "")
+		err = errors.New(err_str)
+		utils.FancyHandleError(err)
+		return
+	}
+	return
+}
+func NvmeOfTarget(hostname string, container_id string, subsystem_nqn_id string) (output model.NvmeOfTarget, err error) {
+	var stdout []byte
+	if subsystem_nqn_id == "" {
+		cmd := exec.Command("ssh", "-o", "StrictHostKeyChecking=no", hostname, "podman", "exec", "-i", container_id, "python3", "/usr/libexec/spdk/scripts/rpc.py", "nvmf_get_subsystems")
+		stdout, err = cmd.CombinedOutput()
+		if err != nil {
+			err_str := strings.ReplaceAll(string(stdout), "\n", "")
+			err = errors.New(err_str)
+			utils.FancyHandleError(err)
+			return
+		}
+		if err = json.Unmarshal(stdout, &output); err != nil {
+			err_str := strings.ReplaceAll(string(stdout), "\n", "")
+			err = errors.New(err_str)
+			utils.FancyHandleError(err)
+			return
+		}
+	} else {
+		cmd := exec.Command("ssh", "-o", "StrictHostKeyChecking=no", hostname, "podman", "exec", "-i", container_id, "python3", "/usr/libexec/spdk/scripts/rpc.py", "nvmf_get_subsystems", subsystem_nqn_id)
+		stdout, err = cmd.CombinedOutput()
+		if err != nil {
+			err_str := strings.ReplaceAll(string(stdout), "\n", "")
+			err = errors.New(err_str)
+			utils.FancyHandleError(err)
+			return
+		}
+		if err = json.Unmarshal(stdout, &output); err != nil {
+			err_str := strings.ReplaceAll(string(stdout), "\n", "")
+			err = errors.New(err_str)
+			utils.FancyHandleError(err)
+			return
+		}
+	}
 	return
 }

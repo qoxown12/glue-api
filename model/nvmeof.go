@@ -122,6 +122,12 @@ type NvmeOfSpec struct {
 	Pool            string `yaml:"pool"`
 	TgtCmdExtraArgs string `yaml:"tgt_cmd_extra_args"`
 }
+type NvmeOfConnection []struct {
+	Cntlid      int    `json:"cntlid"`
+	Hostnqn     string `json:"hostnqn"`
+	Hostid      string `json:"hostid"`
+	NumIoQpairs int    `json:"num_io_qpairs"`
+}
 type NvmeOfTarget []struct {
 	Nqn             string `json:"nqn"`
 	Subtype         string `json:"subtype"`

@@ -9,9 +9,9 @@ import (
 	"strings"
 )
 
-func Container() (output string, err error) {
+func Container(hostname string) (output string, err error) {
 	var stdout []byte
-	cmd := exec.Command("sh", "-c", "podman ps | grep 'nvmeof' | awk '{print $1}'")
+	cmd := exec.Command("ssh", "-o", "StrictHostKeyChecking=no", hostname, "podman ps | grep 'nvmeof' | awk '{print $1}'")
 	stdout, err = cmd.CombinedOutput()
 	if err != nil {
 		err_str := strings.ReplaceAll(string(stdout), "\n", "")
@@ -37,7 +37,7 @@ func ServerGatewayIp(hostname string) (output string, err error) {
 }
 func Hostname(ip_address string) (output string, err error) {
 	var stdout []byte
-	cmd := exec.Command("sh", "-c", "cat /etc/hosts | grep -v '-'| grep -w '"+ip_address+"' | awk '{print $2}'")
+	cmd := exec.Command("sh", "-c", "cat /etc/hosts | grep -w '"+ip_address+"' | awk '{print $2}' | cut -d '-' -f1")
 	stdout, err = cmd.CombinedOutput()
 	if err != nil {
 		err_str := strings.ReplaceAll(string(stdout), "\n", "")

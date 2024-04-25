@@ -648,10 +648,12 @@ func (c *Controller) NvmeOfTargetList(ctx *gin.Context) {
 			httputil.NewError(ctx, http.StatusInternalServerError, err)
 			return
 		}
-		list[i].Namespaces[0].Block_size = image.Namespaces[0].BlockSize
-		list[i].Namespaces[0].Rbd_image_name = image.Namespaces[0].RbdImageName
-		list[i].Namespaces[0].Rbd_image_size = image.Namespaces[0].RbdImageSize
-		list[i].Namespaces[0].Rbd_pool_name = image.Namespaces[0].RbdPoolName
+		if len(image.Namespaces) != 0 {
+			list[i].Namespaces[0].Block_size = image.Namespaces[0].BlockSize
+			list[i].Namespaces[0].Rbd_image_name = image.Namespaces[0].RbdImageName
+			list[i].Namespaces[0].Rbd_image_size = image.Namespaces[0].RbdImageSize
+			list[i].Namespaces[0].Rbd_pool_name = image.Namespaces[0].RbdPoolName
+		}
 	}
 	ctx.Header("Access-Control-Allow-Origin", "*")
 	ctx.IndentedJSON(http.StatusOK, list)

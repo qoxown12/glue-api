@@ -122,3 +122,39 @@ type NvmeOfSpec struct {
 	Pool            string `yaml:"pool"`
 	TgtCmdExtraArgs string `yaml:"tgt_cmd_extra_args"`
 }
+type NvmeOfConnection []struct {
+	Cntlid      int    `json:"cntlid"`
+	Hostnqn     string `json:"hostnqn"`
+	Hostid      string `json:"hostid"`
+	NumIoQpairs int    `json:"num_io_qpairs"`
+}
+type NvmeOfTarget []struct {
+	Nqn             string `json:"nqn"`
+	Subtype         string `json:"subtype"`
+	ListenAddresses []struct {
+		Transport string `json:"transport"`
+		Trtype    string `json:"trtype"`
+		Adrfam    string `json:"adrfam"`
+		Traddr    string `json:"traddr"`
+		Trsvcid   string `json:"trsvcid"`
+	} `json:"listen_addresses"`
+	AllowAnyHost  bool   `json:"allow_any_host"`
+	Hosts         []any  `json:"hosts"`
+	SerialNumber  string `json:"serial_number"`
+	ModelNumber   string `json:"model_number"`
+	MaxNamespaces int    `json:"max_namespaces"`
+	MinCntlid     int    `json:"min_cntlid"`
+	MaxCntlid     int    `json:"max_cntlid"`
+	Namespaces    []struct {
+		Nsid           int    `json:"nsid"`
+		BdevName       string `json:"bdev_name"`
+		Name           string `json:"name"`
+		Nguid          string `json:"nguid"`
+		UUID           string `json:"uuid"`
+		Rbd_image_name string `json:"rbd_image_name"`
+		Rbd_pool_name  string `json:"rbd_pool_name"`
+		Block_size     int    `json:"block_size"`
+		Rbd_image_size string `json:"rbd_image_size"`
+	} `json:"namespaces"`
+	Session int `json:"session"`
+} //@name NvmeOfTarget

@@ -217,6 +217,7 @@ func main() {
 
 			nvmeof.POST("/image/download", c.NvmeOfImageDownload)
 
+			nvmeof.GET("/target", c.NvmeOfTargetList)
 			nvmeof.POST("/target", c.NvmeOfTargetCreate)
 
 			subsystem := nvmeof.Group("/subsystem")

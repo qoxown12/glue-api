@@ -3478,8 +3478,7 @@ const docTemplate = `{
                         "type": "string",
                         "description": "Glue NVMe-OF Sub System NQN ID",
                         "name": "subsystem_nqn_id",
-                        "in": "query",
-                        "required": true
+                        "in": "query"
                     }
                 ],
                 "responses": {
@@ -3811,6 +3810,147 @@ const docTemplate = `{
             }
         },
         "/api/v1/nvmeof/target": {
+            "get": {
+                "description": "NVMe-OF의 타겟 리스트를 보여줍니다.",
+                "consumes": [
+                    "application/x-www-form-urlencoded"
+                ],
+                "produces": [
+                    "application/json"
+                ],
+                "tags": [
+                    "NVMe-OF"
+                ],
+                "summary": "Show List of NVMe-OF Target",
+                "parameters": [
+                    {
+                        "type": "string",
+                        "description": "Glue NVMe-OF Sub System NQN ID",
+                        "name": "subsystem_nqn_id",
+                        "in": "query"
+                    }
+                ],
+                "responses": {
+                    "200": {
+                        "description": "OK",
+                        "schema": {
+                            "type": "array",
+                            "items": {
+                                "type": "object",
+                                "properties": {
+                                    "allow_any_host": {
+                                        "type": "boolean"
+                                    },
+                                    "hosts": {
+                                        "type": "array",
+                                        "items": {}
+                                    },
+                                    "listen_addresses": {
+                                        "type": "array",
+                                        "items": {
+                                            "type": "object",
+                                            "properties": {
+                                                "adrfam": {
+                                                    "type": "string"
+                                                },
+                                                "traddr": {
+                                                    "type": "string"
+                                                },
+                                                "transport": {
+                                                    "type": "string"
+                                                },
+                                                "trsvcid": {
+                                                    "type": "string"
+                                                },
+                                                "trtype": {
+                                                    "type": "string"
+                                                }
+                                            }
+                                        }
+                                    },
+                                    "max_cntlid": {
+                                        "type": "integer"
+                                    },
+                                    "max_namespaces": {
+                                        "type": "integer"
+                                    },
+                                    "min_cntlid": {
+                                        "type": "integer"
+                                    },
+                                    "model_number": {
+                                        "type": "string"
+                                    },
+                                    "namespaces": {
+                                        "type": "array",
+                                        "items": {
+                                            "type": "object",
+                                            "properties": {
+                                                "bdev_name": {
+                                                    "type": "string"
+                                                },
+                                                "block_size": {
+                                                    "type": "integer"
+                                                },
+                                                "name": {
+                                                    "type": "string"
+                                                },
+                                                "nguid": {
+                                                    "type": "string"
+                                                },
+                                                "nsid": {
+                                                    "type": "integer"
+                                                },
+                                                "rbd_image_name": {
+                                                    "type": "string"
+                                                },
+                                                "rbd_image_size": {
+                                                    "type": "string"
+                                                },
+                                                "rbd_pool_name": {
+                                                    "type": "string"
+                                                },
+                                                "uuid": {
+                                                    "type": "string"
+                                                }
+                                            }
+                                        }
+                                    },
+                                    "nqn": {
+                                        "type": "string"
+                                    },
+                                    "serial_number": {
+                                        "type": "string"
+                                    },
+                                    "session": {
+                                        "type": "integer"
+                                    },
+                                    "subtype": {
+                                        "type": "string"
+                                    }
+                                }
+                            }
+                        }
+                    },
+                    "400": {
+                        "description": "Bad Request",
+                        "schema": {
+                            "$ref": "#/definitions/HTTP400BadRequest"
+                        }
+                    },
+                    "404": {
+                        "description": "Not Found",
+                        "schema": {
+                            "$ref": "#/definitions/HTTP404NotFound"
+                        }
+                    },
+                    "500": {
+                        "description": "Internal Server Error",
+                        "schema": {
+                            "$ref": "#/definitions/HTTP500InternalServerError"
+                        }
+                    }
+                }
+            },
             "post": {
                 "description": "NVMe-OF 타켓을 생성합니다.",
                 "consumes": [

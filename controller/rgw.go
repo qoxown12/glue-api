@@ -448,16 +448,6 @@ func (c *Controller) RgwBucketList(ctx *gin.Context) {
 		ctx.Header("Access-Control-Allow-Origin", "*")
 		ctx.IndentedJSON(http.StatusOK, dat)
 	} else {
-		if bucket_name != "" {
-			dat, err := rgw.RgwBucketDetail(bucket_name)
-			if err != nil {
-				utils.FancyHandleError(err)
-				httputil.NewError(ctx, http.StatusInternalServerError, err)
-				return
-			}
-			ctx.Header("Access-Control-Allow-Origin", "*")
-			ctx.IndentedJSON(http.StatusOK, dat)
-		}
 		dat, err := rgw.RgwBucketList()
 		if err != nil {
 			utils.FancyHandleError(err)

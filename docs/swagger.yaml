@@ -2650,7 +2650,6 @@ paths:
         description: Security Label
         in: formData
         name: security_label
-        required: true
         type: boolean
       produces:
       - application/json
@@ -2744,7 +2743,6 @@ paths:
         description: Security Label
         in: formData
         name: security_label
-        required: true
         type: boolean
       produces:
       - application/json

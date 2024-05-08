@@ -124,11 +124,15 @@ func NvmeOfGatewayName() (output model.NvmeOfGatewayName, err error) {
 		utils.FancyHandleError(err)
 		return
 	}
-	if err = json.Unmarshal(stdout, &output); err != nil {
-		err_str := strings.ReplaceAll(string(stdout), "\n", "")
-		err = errors.New(err_str)
-		utils.FancyHandleError(err)
-		return
+	if len(stdout) == 4 {
+		output = make(model.NvmeOfGatewayName, 0)
+	} else {
+		if err = json.Unmarshal(stdout, &output); err != nil {
+			err_str := strings.ReplaceAll(string(stdout), "\n", "")
+			err = errors.New(err_str)
+			utils.FancyHandleError(err)
+			return
+		}
 	}
 	return
 }

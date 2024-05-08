@@ -10,6 +10,7 @@ import (
 	"net/http"
 	"os"
 	"strconv"
+	"time"
 
 	"github.com/gin-gonic/gin"
 	"gopkg.in/yaml.v2"
@@ -103,6 +104,7 @@ func (c *Controller) NfsClusterCreate(ctx *gin.Context) {
 				utils.FancyHandleError(err)
 				httputil.NewError(ctx, http.StatusInternalServerError, err)
 			}
+			time.Sleep(3 * time.Second)
 			pool, err := glue.PoolReplicatedList("nfs")
 			if err != nil {
 				utils.FancyHandleError(err)
@@ -154,11 +156,25 @@ func (c *Controller) NfsClusterCreate(ctx *gin.Context) {
 				utils.FancyHandleError(err)
 				httputil.NewError(ctx, http.StatusInternalServerError, err)
 			}
+			time.Sleep(3 * time.Second)
+			pool, err := glue.PoolReplicatedList("nfs")
+			if err != nil {
+				utils.FancyHandleError(err)
+				httputil.NewError(ctx, http.StatusInternalServerError, err)
+				return
+			}
+			for i := 0; i < len(pool); i++ {
+				_, err := glue.PoolReplicatedSize(pool[i])
+				if err != nil {
+					utils.FancyHandleError(err)
+					httputil.NewError(ctx, http.StatusInternalServerError, err)
+					return
+				}
+			}
 		}
 		ctx.Header("Access-Control-Allow-Origin", "*")
 		ctx.IndentedJSON(http.StatusOK, dat)
 	}
-
 }
 
 // NfsClusterUpdate godoc
@@ -218,7 +234,7 @@ func (c *Controller) NfsClusterUpdate(ctx *gin.Context) {
 				utils.FancyHandleError(err)
 				httputil.NewError(ctx, http.StatusInternalServerError, err)
 			}
-			dat, err := glue.ServiceReDeploy("nfs" + cluster_id)
+			dat, err := glue.ServiceReDeploy("nfs." + cluster_id)
 			if err != nil {
 				utils.FancyHandleError(err)
 				httputil.NewError(ctx, http.StatusInternalServerError, err)
@@ -261,7 +277,7 @@ func (c *Controller) NfsClusterUpdate(ctx *gin.Context) {
 				utils.FancyHandleError(err)
 				httputil.NewError(ctx, http.StatusInternalServerError, err)
 			}
-			dat, err := glue.ServiceReDeploy("nfs" + cluster_id)
+			dat, err := glue.ServiceReDeploy("nfs." + cluster_id)
 			if err != nil {
 				utils.FancyHandleError(err)
 				httputil.NewError(ctx, http.StatusInternalServerError, err)
@@ -312,7 +328,7 @@ func (c *Controller) NfsClusterDelete(ctx *gin.Context) {
 //	@param			pseudo     formData   string	true    "NFS Export Path"
 //	@param			squash     formData   string	true    "Squash"	Enums(no_root_squash, root_id_squash, all_squash, root_squash) default(no_root_squash)
 //	@param			transports     formData   []string	false    "Transports" collectionFormat(multi) default(TCP)
-//	@param			security_label     formData   boolean	true    "Security Label" default(false)
+//	@param			security_label     formData   boolean	false    "Security Label" default(false)
 //	@Tags			NFS
 //	@Accept			x-www-form-urlencoded
 //	@Produce		json
@@ -403,7 +419,7 @@ func (c *Controller) NfsExportCreate(ctx *gin.Context) {
 //	@param			pseudo     formData   string	true    "NFS Export Path"
 //	@param			squash     formData   string	true    "Squash"	Enums(no_root_squash, root_id_squash, all_squash, root_squash) default(no_root_squash)
 //	@param			transports     formData   []string	false    "Transports" collectionFormat(multi) default(TCP)
-//	@param			security_label     formData   boolean	true    "Security Label" default(false)
+//	@param			security_label     formData   boolean	false    "Security Label" default(false)
 //	@Tags			NFS
 //	@Accept			x-www-form-urlencoded
 //	@Produce		json
@@ -513,6 +529,7 @@ func (c *Controller) NfsExportDelete(ctx *gin.Context) {
 		httputil.NewError(ctx, http.StatusInternalServerError, err)
 		return
 	}
+
 	for i := 0; i < len(detail); i++ {
 		if detail[i].ExportID == export_id {
 			dat, err := nfs.NfsExportDelete(cluster_id, detail[i].Pseudo)
@@ -520,7 +537,9 @@ func (c *Controller) NfsExportDelete(ctx *gin.Context) {
 				utils.FancyHandleError(err)
 				httputil.NewError(ctx, http.StatusInternalServerError, err)
 				return
+
 			}
+
 			ctx.Header("Access-Control-Allow-Origin", "*")
 			ctx.IndentedJSON(http.StatusOK, dat)
 		}

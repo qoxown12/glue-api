@@ -142,7 +142,7 @@ func (c *Controller) FsDelete(ctx *gin.Context) {
 		for i := 0; i < len(list); i++ {
 			if list[i].Name != "" {
 				ctx.Header("Access-Control-Allow-Origin", "*")
-				ctx.IndentedJSON(http.StatusBadRequest, "Please Subvolume Group Check")
+				ctx.IndentedJSON(http.StatusOK, "Please Subvolume Group Check")
 			}
 		}
 	} else {

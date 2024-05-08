@@ -2739,8 +2739,7 @@ const docTemplate = `{
                         "default": false,
                         "description": "Security Label",
                         "name": "security_label",
-                        "in": "formData",
-                        "required": true
+                        "in": "formData"
                     }
                 ],
                 "responses": {
@@ -2864,8 +2863,7 @@ const docTemplate = `{
                         "default": false,
                         "description": "Security Label",
                         "name": "security_label",
-                        "in": "formData",
-                        "required": true
+                        "in": "formData"
                     }
                 ],
                 "responses": {

@@ -569,7 +569,7 @@ func (c *Controller) NvmeOfNameSpaceDelete(ctx *gin.Context) {
 	if image_del_check == "true" {
 		if image_name == "" || pool_name == "" {
 			ctx.Header("Access-Control-Allow-Origin", "*")
-			ctx.IndentedJSON(http.StatusBadRequest, "Please Check Image Name and Pool Name")
+			ctx.IndentedJSON(http.StatusOK, "Please Check Image Name and Pool Name")
 		} else {
 			dat, err := nvmeof.NvmeOfNameSpaceDelete(server_gateway_ip, server_gateway_ip, port, subsystem_nqn_id, namespace_uuid)
 			if err != nil {
@@ -648,10 +648,12 @@ func (c *Controller) NvmeOfTargetList(ctx *gin.Context) {
 			httputil.NewError(ctx, http.StatusInternalServerError, err)
 			return
 		}
-		list[i].Namespaces[0].Block_size = image.Namespaces[0].BlockSize
-		list[i].Namespaces[0].Rbd_image_name = image.Namespaces[0].RbdImageName
-		list[i].Namespaces[0].Rbd_image_size = image.Namespaces[0].RbdImageSize
-		list[i].Namespaces[0].Rbd_pool_name = image.Namespaces[0].RbdPoolName
+		if len(image.Namespaces) != 0 {
+			list[i].Namespaces[0].Block_size = image.Namespaces[0].BlockSize
+			list[i].Namespaces[0].Rbd_image_name = image.Namespaces[0].RbdImageName
+			list[i].Namespaces[0].Rbd_image_size = image.Namespaces[0].RbdImageSize
+			list[i].Namespaces[0].Rbd_pool_name = image.Namespaces[0].RbdPoolName
+		}
 	}
 	ctx.Header("Access-Control-Allow-Origin", "*")
 	ctx.IndentedJSON(http.StatusOK, list)

@@ -30,6 +30,7 @@ func Certify(cert_file string) {
 			Organization:       []string{"Certificate File"},
 			OrganizationalUnit: []string{"File"},
 			CommonName:         "Glue API",
+			Country:            []string{"KR"},
 		}
 		template := x509.Certificate{
 			SerialNumber: serialNumber,

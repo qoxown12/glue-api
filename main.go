@@ -49,7 +49,6 @@ func main() {
 	r.ForwardedByClientIP = true
 	r.SetTrustedProxies(nil)
 	c := controller.NewController()
-
 	v1 := r.Group("/api/v1")
 	{
 		glue := v1.Group("/glue")
@@ -279,7 +278,6 @@ func main() {
 	}
 	r.GET("/swagger/*any", ginSwagger.WrapHandler(swaggerFiles.Handler))
 	r.RunTLS(":8080", "cert.pem", "key.pem")
-	// r.Run(":8080")
 }
 
 /*

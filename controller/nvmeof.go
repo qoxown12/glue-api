@@ -569,7 +569,7 @@ func (c *Controller) NvmeOfNameSpaceDelete(ctx *gin.Context) {
 	if image_del_check == "true" {
 		if image_name == "" || pool_name == "" {
 			ctx.Header("Access-Control-Allow-Origin", "*")
-			ctx.IndentedJSON(http.StatusBadRequest, "Please Check Image Name and Pool Name")
+			ctx.IndentedJSON(http.StatusOK, "Please Check Image Name and Pool Name")
 		} else {
 			dat, err := nvmeof.NvmeOfNameSpaceDelete(server_gateway_ip, server_gateway_ip, port, subsystem_nqn_id, namespace_uuid)
 			if err != nil {

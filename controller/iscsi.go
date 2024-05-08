@@ -268,7 +268,6 @@ func (c *Controller) IscsiServiceUpdate(ctx *gin.Context) {
 			httputil.NewError(ctx, http.StatusInternalServerError, err)
 			return
 		}
-
 		dat, err := iscsi.IscsiServiceCreate(iscsi_yaml)
 		if err != nil {
 			utils.FancyHandleError(err)

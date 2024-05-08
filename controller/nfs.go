@@ -104,7 +104,7 @@ func (c *Controller) NfsClusterCreate(ctx *gin.Context) {
 				utils.FancyHandleError(err)
 				httputil.NewError(ctx, http.StatusInternalServerError, err)
 			}
-			time.Sleep(2 * time.Second)
+			time.Sleep(3 * time.Second)
 			pool, err := glue.PoolReplicatedList("nfs")
 			if err != nil {
 				utils.FancyHandleError(err)
@@ -156,7 +156,7 @@ func (c *Controller) NfsClusterCreate(ctx *gin.Context) {
 				utils.FancyHandleError(err)
 				httputil.NewError(ctx, http.StatusInternalServerError, err)
 			}
-			time.Sleep(2 * time.Second)
+			time.Sleep(3 * time.Second)
 			pool, err := glue.PoolReplicatedList("nfs")
 			if err != nil {
 				utils.FancyHandleError(err)

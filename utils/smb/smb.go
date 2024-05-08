@@ -9,7 +9,7 @@ import (
 	"strings"
 )
 
-var Samba_Execute_sh = "/usr/local/samba/sbin/Samba-Execute.sh"
+var Samba_Execute_sh = "/usr/local/glue-api/shell/Samba-Execute.sh"
 
 func SmbStatus(hostname string, name string) (dat model.SmbStatus, err error) {
 	var stdout []byte

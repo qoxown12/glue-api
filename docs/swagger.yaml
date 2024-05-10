@@ -1265,6 +1265,39 @@ paths:
       summary: Delete to Gateway VM
       tags:
       - Gwvm
+  /api/v1/gwvm/detail/{hypervisorType}:
+    get:
+      consumes:
+      - application/x-www-form-urlencoded
+      description: gwvm의 상세정보 상태를 보여줍니다.
+      parameters:
+      - description: Hypervisor Type
+        in: path
+        name: hypervisorType
+        required: true
+        type: string
+      produces:
+      - application/json
+      responses:
+        "200":
+          description: OK
+          schema:
+            $ref: '#/definitions/model.GwvmMgmt'
+        "400":
+          description: Bad Request
+          schema:
+            $ref: '#/definitions/HTTP400BadRequest'
+        "404":
+          description: Not Found
+          schema:
+            $ref: '#/definitions/HTTP404NotFound'
+        "500":
+          description: Internal Server Error
+          schema:
+            $ref: '#/definitions/HTTP500InternalServerError'
+      summary: Detail of Gateway VM
+      tags:
+      - Gwvm
   /api/v1/gwvm/migrate/{hypervisorType}:
     put:
       consumes:

@@ -758,6 +758,56 @@ const docTemplate = `{
                 }
             }
         },
+        "/api/v1/gwvm/detail/{hypervisorType}": {
+            "get": {
+                "description": "gwvm의 상세정보 상태를 보여줍니다.",
+                "consumes": [
+                    "application/x-www-form-urlencoded"
+                ],
+                "produces": [
+                    "application/json"
+                ],
+                "tags": [
+                    "Gwvm"
+                ],
+                "summary": "Detail of Gateway VM",
+                "parameters": [
+                    {
+                        "type": "string",
+                        "description": "Hypervisor Type",
+                        "name": "hypervisorType",
+                        "in": "path",
+                        "required": true
+                    }
+                ],
+                "responses": {
+                    "200": {
+                        "description": "OK",
+                        "schema": {
+                            "$ref": "#/definitions/model.GwvmMgmt"
+                        }
+                    },
+                    "400": {
+                        "description": "Bad Request",
+                        "schema": {
+                            "$ref": "#/definitions/HTTP400BadRequest"
+                        }
+                    },
+                    "404": {
+                        "description": "Not Found",
+                        "schema": {
+                            "$ref": "#/definitions/HTTP404NotFound"
+                        }
+                    },
+                    "500": {
+                        "description": "Internal Server Error",
+                        "schema": {
+                            "$ref": "#/definitions/HTTP500InternalServerError"
+                        }
+                    }
+                }
+            }
+        },
         "/api/v1/gwvm/migrate/{hypervisorType}": {
             "put": {
                 "description": "Gateway VM을 Pcs cluster내 다른 호스트로 마이그레이션 합니다.",

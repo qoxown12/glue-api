@@ -36,13 +36,50 @@ func VmState(hypervisorType string) (output string, err error) {
 	return
 }
 
-func VmSetup(hypervisorType string, gwvmMngtNicParen string, gwvmMngtNicIp string, gwvmStorageNicParent string, gwvmStorageNicIp string) (output string, err error) {
+func VmDetail(hypervisorType string) (output string, err error) {
+
+	var stdoutVmStart []byte
+
+	if gin.IsDebugging() == true {
+		if hypervisorType == "cell" {
+			//  For Remote
+			settings, _ := utils.ReadConfFile()
+			client, err_val := utils.ConnectSSH(settings.RemoteHostIp, settings.RemoteRootRsaIdPath)
+			if err_val != nil {
+				err = err_val
+				utils.FancyHandleError(err_val)
+				return
+			}
+			//// Defer closing the network connection.
+			defer client.Close()
+			//// Execute your command.
+
+			sshcmd, err_val := client.Command("python3", "/usr/share/cockpit/ablestack/python/pcs/main.py", "status", "--resource", "gateway_res")
+			if err_val != nil {
+				err = err_val
+				utils.FancyHandleError(err_val)
+				return
+
+			}
+			stdoutVmStart, err = sshcmd.CombinedOutput()
+		} else {
+			output = "This hypervisor type is not supported."
+			return
+		}
+	} else {
+		stdoutVmStart = []byte("{\"debug\": false, \"Message\": \"{\n    \"code\": 200,\n    \"val\": {\n        \"clustered_host\": [\n            \"100.100.2.1\",\n            \"100.100.2.2\",\n            \"100.100.2.3\"\n        ],\n        \"nodes\": [\n            {\n                \"host\": \"100.100.2.1\",\n                \"online\": \"true\",\n                \"resources_running\": \"1\",\n                \"standby\": \"false\",\n                \"standby_onfail\": \"false\",\n                \"maintenance\": \"false\",\n                \"pending\": \"false\",\n                \"unclean\": \"false\",\n                \"shutdown\": \"false\",\n                \"expected_up\": \"true\",\n                \"is_dc\": \"true\",\n                \"type\": \"member\"\n            },\n            {\n                \"host\": \"100.100.2.2\",\n                \"online\": \"true\",\n                \"resources_running\": \"0\",\n                \"standby\": \"false\",\n                \"standby_onfail\": \"false\",\n                \"maintenance\": \"false\",\n                \"pending\": \"false\",\n                \"unclean\": \"false\",\n                \"shutdown\": \"false\",\n                \"expected_up\": \"true\",\n                \"is_dc\": \"false\",\n                \"type\": \"member\"\n            },\n            {\n                \"host\": \"100.100.2.3\",\n                \"online\": \"true\",\n                \"resources_running\": \"1\",\n                \"standby\": \"false\",\n                \"standby_onfail\": \"false\",\n                \"maintenance\": \"false\",\n                \"pending\": \"false\",\n                \"unclean\": \"false\",\n                \"shutdown\": \"false\",\n                \"expected_up\": \"true\",\n                \"is_dc\": \"false\",\n                \"type\": \"member\"\n            }\n        ],\n        \"started\": \"100.100.2.3\",\n        \"role\": \"Started\",\n        \"active\": \"true\",\n        \"blocked\": \"false\",\n        \"failed\": \"false\"\n    },\n    \"name\": \"statusResource\",\n    \"type\": \"dict\"\n}\n\"}")
+	}
+	output = string(stdoutVmStart)
+	return
+}
+
+func VmSetup(hypervisorType string, gwvmMngtNicParent string, gwvmMngtNicIp string, gwvmStorageNicParent string, gwvmStorageNicIp string) (output string, err error) {
 
 	var stdoutVmSetup []byte
 
 	if gin.IsDebugging() == true {
 		if hypervisorType == "cell" {
-			strVmSetupOutput := exec.Command("python3", "/usr/share/cockpit/ablestack/python/gwvm/gwvm_create.py", "create", "-mnb", gwvmMngtNicParen, "-mi", gwvmMngtNicIp, "-snb", gwvmStorageNicParent, "-si", gwvmStorageNicIp)
+			strVmSetupOutput := exec.Command("python3", "/usr/share/cockpit/ablestack/python/gwvm/gwvm_create.py", "create", "-mnb", gwvmMngtNicParent, "-mi", gwvmMngtNicIp, "-snb", gwvmStorageNicParent, "-si", gwvmStorageNicIp)
 
 			stdoutVmSetup, err = strVmSetupOutput.CombinedOutput()
 			if err != nil {
@@ -154,14 +191,13 @@ func VmDelete(hypervisorType string) (output string, err error) {
 			//// Defer closing the network connection.
 			defer client.Close()
 			//// Execute your command.
-
-			sshcmd, err_val := client.Command("python3", "/usr/share/cockpit/ablestack/python/pcs/main.py", "remove", "--resource", "gateway_res")
+			sshcmd, err_val := client.Command("python3", "/usr/share/cockpit/ablestack/python/gwvm/gwvm_remove.py")
 			if err_val != nil {
 				err = err_val
 				utils.FancyHandleError(err_val)
 				return
-
 			}
+
 			stdoutVmDelete, err = sshcmd.CombinedOutput()
 		} else {
 			output = "This hypervisor type is not supported."

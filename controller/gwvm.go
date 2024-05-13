@@ -74,7 +74,7 @@ func (c *Controller) VmDetail(ctx *gin.Context) {
 //	@Summary		Setup Gateway Vm
 //	@Description	gwvm을 생성합니다.
 //	@param			hypervisorType			path		string	true	"Hypervisor Type"
-//	@param			gwvmMngtNicParen		formData	string	true	"Gwvm Management Nic Paren"
+//	@param			gwvmMngtNicParent		formData	string	true	"Gwvm Management Nic Parent"
 //	@param			gwvmMngtNicIp			formData	string	true	"Gwvm Management Nic Ip"
 //	@param			gwvmStorageNicParent	formData	string	true	"Gwvm Storage Nic Parent"
 //	@param			gwvmStorageNicIp		formData	string	true	"Gwvm Storage Nic Ip"
@@ -90,12 +90,12 @@ func (c *Controller) VmSetup(ctx *gin.Context) {
 	var dat model.GwvmMgmt
 
 	hypervisorType := ctx.Param("hypervisorType")
-	gwvmMngtNicParen, _ := ctx.GetPostForm("gwvmMngtNicParen")
+	gwvmMngtNicParent, _ := ctx.GetPostForm("gwvmMngtNicParent")
 	gwvmMngtNicIp, _ := ctx.GetPostForm("gwvmMngtNicIp")
 	gwvmStorageNicParent, _ := ctx.GetPostForm("gwvmStorageNicParent")
 	gwvmStorageNicIp, _ := ctx.GetPostForm("gwvmStorageNicIp")
 
-	message, err := gluevm.VmSetup(hypervisorType, gwvmMngtNicParen, gwvmMngtNicIp, gwvmStorageNicParent, gwvmStorageNicIp)
+	message, err := gluevm.VmSetup(hypervisorType, gwvmMngtNicParent, gwvmMngtNicIp, gwvmStorageNicParent, gwvmStorageNicIp)
 
 	if err != nil {
 		httputil.NewError(ctx, http.StatusInternalServerError, err)

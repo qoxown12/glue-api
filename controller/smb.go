@@ -71,6 +71,8 @@ func (c *Controller) SmbStatus(ctx *gin.Context) {
 //	@param			path    formData   string	true    "SMB Server Actual Shared Path"
 //	@param			fs_name     formData   string	true    "Glue File System Name"
 //	@param			volume_path    formData   string	true    "Glue File System Volume Path"
+//	@param			realm    formData   string	true    "Samba AD Domain Name"
+//	@param			workgroup    formData   string	true    "Samba AD Workgroup Name"
 //	@Accept			x-www-form-urlencoded
 //	@Produce		json
 //	@Success		200	{string}	string "Success"
@@ -86,9 +88,11 @@ func (c *Controller) SmbCreate(ctx *gin.Context) {
 	path, _ := ctx.GetPostForm("path")
 	fs_name, _ := ctx.GetPostForm("fs_name")
 	volume_path, _ := ctx.GetPostForm("volume_path")
+	realm, _ := ctx.GetPostForm("realm")
+	workgroup, _ := ctx.GetPostForm("workgroup")
 
 	for i := 0; i < len(hostname); i++ {
-		dat, err := smb.SmbCreate(hostname[i], username, password, folder, path, fs_name, volume_path)
+		dat, err := smb.SmbCreate(hostname[i], username, password, folder, path, fs_name, volume_path, realm, workgroup)
 		if err != nil {
 			utils.FancyHandleError(err)
 			httputil.NewError(ctx, http.StatusInternalServerError, err)

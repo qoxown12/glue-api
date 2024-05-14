@@ -1036,8 +1036,8 @@ const docTemplate = `{
                     },
                     {
                         "type": "string",
-                        "description": "Gwvm Management Nic Paren",
-                        "name": "gwvmMngtNicParen",
+                        "description": "Gwvm Management Nic Parent",
+                        "name": "gwvmMngtNicParent",
                         "in": "formData",
                         "required": true
                     },
@@ -5276,6 +5276,20 @@ const docTemplate = `{
                         "type": "string",
                         "description": "Glue File System Volume Path",
                         "name": "volume_path",
+                        "in": "formData",
+                        "required": true
+                    },
+                    {
+                        "type": "string",
+                        "description": "Samba AD Domain Name",
+                        "name": "realm",
+                        "in": "formData",
+                        "required": true
+                    },
+                    {
+                        "type": "string",
+                        "description": "Samba AD Workgroup Name",
+                        "name": "workgroup",
                         "in": "formData",
                         "required": true
                     }

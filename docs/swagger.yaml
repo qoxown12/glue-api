@@ -1157,9 +1157,9 @@ paths:
         name: hypervisorType
         required: true
         type: string
-      - description: Gwvm Management Nic Paren
+      - description: Gwvm Management Nic Parent
         in: formData
-        name: gwvmMngtNicParen
+        name: gwvmMngtNicParent
         required: true
         type: string
       - description: Gwvm Management Nic Ip
@@ -4271,6 +4271,16 @@ paths:
       - description: Glue File System Volume Path
         in: formData
         name: volume_path
+        required: true
+        type: string
+      - description: Samba AD Domain Name
+        in: formData
+        name: realm
+        required: true
+        type: string
+      - description: Samba AD Workgroup Name
+        in: formData
+        name: workgroup
         required: true
         type: string
       produces:

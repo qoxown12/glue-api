@@ -7,8 +7,10 @@
 #최초작성자 : 정민철 주임(mcjeong@ablecloud.io)
 #최초작성일 : 2024-02-20
 #########################################
+smb_conf="/usr/local/samba/etc/smb.conf"
+
 after_host=$(cat /etc/hosts | grep 'gwvm-mngt' | awk '{print $1}')
-before_host=$(grep 'hosts' /usr/local/samba/etc/smb.conf | awk '{print $4}')
+before_host=$(grep 'hosts' $smb_conf | awk '{print $4}')
 host_ip="${after_host:0:6}"
 action=$1
 user_id=$3
@@ -17,6 +19,8 @@ folder=$7
 path=$9
 fs_name=${11}
 volume_path=${13}
+realm=${15}
+workgroup=${17}
 
 if [ -n $action ]
 then
@@ -37,14 +41,20 @@ then
 
                         if [ ${#user_id} -ne 0 ] && [ ${#user_pw} -ne 0 ] && [ ${#folder} -ne 0 ] && [ ${#path} -ne 0 ]
                         then
-                                sed -i "s/$before_host/$host_ip/g" /usr/local/samba/etc/smb.conf
+                                sed -i "s/$before_host/$host_ip/g" $smb_conf
+                                sed -i "s/realm =/realm = $realm/g" $smb_conf
+                                sed -i "s/workgroup =/workgroup = $workgroup/g" $smb_conf
 
-                                echo -e "\n[$folder]" >> /usr/local/samba/etc/smb.conf
-                                echo -e "\tpath = $path" >> /usr/local/samba/etc/smb.conf
-                                echo -e "\twritable = yes" >> /usr/local/samba/etc/smb.conf
-                                echo -e "\tpublic = yes" >> /usr/local/samba/etc/smb.conf
-                                echo -e "\tcreate mask = 0777" >> /usr/local/samba/etc/smb.conf
-                                echo -e "\tdirectory mask = 0777" >> /usr/local/samba/etc/smb.conf
+                                echo -e "\n[$folder]" >> $smb_conf
+                                echo -e "comment = Share Directories" >> $smb_conf
+                                echo -e "path = $path" >> $smb_conf
+                                echo -e "writable = yes" >> $smb_conf
+                                echo -e "public = yes" >> $smb_conf
+                                echo -e "create mask = 0777" >> $smb_conf
+                                echo -e "directory mask = 0777" >> $smb_conf
+                                echo -e "keyring = /etc/ceph/ceph.client.admin.keyring" >> $smb_conf
+                                echo -e "vfs objects = fake_compression" >> $smb_conf
+                                echo -e "csc policy = programs" >> $smb_conf
 
                                 # 사용자 추가를 위한 expect 스크립트
                                 useradd $user_id > /dev/null 2>&1
@@ -122,7 +132,7 @@ then
                 done
         elif [ $action == "delete" ]
         then
-                path=$(/usr/bin/cat /usr/local/samba/etc/smb.conf | grep path | awk '{print $3}')
+                path=$(/usr/bin/cat $smb_conf | grep path | awk '{print $3}')
                 umount -l -f $path
                 sed '$ d' -i /etc/fstab
 
@@ -134,11 +144,40 @@ then
                         /usr/local/samba/bin/smbpasswd -x $list > /dev/null 2>&1
                         /usr/sbin/userdel -r $list > /dev/null 2>&1
                 done
-                        cat /dev/null > /usr/local/samba/etc/smb.conf
-                        echo -e "[global]" >> /usr/local/samba/etc/smb.conf
-                        echo -e "\tworkgroup = WORKGROUP" >> /usr/local/samba/etc/smb.conf
-                        echo -e "\tsecurity = user" >> /usr/local/samba/etc/smb.conf
-                        echo -e "\thosts allow = $allow_ip." >> /usr/local/samba/etc/smb.conf
+                        cat /dev/null > $smb_conf
+                        echo -e "[global]" >> $smb_conf
+                        echo -e "hosts allow = 0.0.0.0/0.0.0.0" >> $smb_conf
+                        echo -e "usershare allow guests = yes" >>$smb_conf
+                        echo -e "usershare owner only = no" >> $smb_conf
+                        echo -e "guest account = root" >> $smb_conf
+                        echo -e "guest ok = yes" >>$smb_conf
+                        echo -e "force user = root" >> $smb_conf
+
+                        echo -e "\nsecurity = ads" >> $smb_conf
+                        echo -e "winbind enum users = Yes" >> $smb_conf
+                        echo -e "winbind enum groups = Yes" >> $smb_conf
+                        echo -e "winbind user default domain = true" >> $smb_conf
+                        echo -e "winbind separator = +" >> $smb_conf
+                        echo -e "template shell = /bin/bash" >> $smb_conf
+                        echo -e "realm = " >> $smb_conf
+                        echo -e "workgroup = " >> $smb_conf
+                        echo -e "idmap config * : backend = tdb" >> $smb_conf
+                        echo -e "idmap config * : range = 1000000-9999999999" >> $smb_conf
+                        echo -e "idmap config * : unix_nss_info = yes" >> $smb_conf
+
+                        echo -e "\nwinbind refresh tickets = Yes" >> $smb_conf
+                        echo -e "vfs objects = acl_xattr" >> $smb_conf
+                        echo -e "map acl inherit = Yes" >> $smb_conf
+                        echo -e "store dos attributes = Yes" >> $smb_conf
+
+                        echo -e "\ndedicated keytab file = /etc/krb5.keytab" >> $smb_conf
+                        echo -e "kerberos method = secrets and keytab" >> $smb_conf
+
+                        echo -e "\nserver min protocol = SMB3" >> $smb_conf
+                        echo -e "server max protocol = SMB3" >> $smb_conf
+
+                        echo -e "\nlog file = /var/log/samba/%m.log" >> $smb_conf
+                        echo -e "log level = 10" >> $smb_conf
 
                         systemctl stop smb > /dev/null 2>&1
                         systemctl disable smb > /dev/null 2>&1
@@ -148,13 +187,13 @@ then
         then
                 hostname=$(/usr/bin/hostname)
                 ip_address=$(/usr/bin/cat /etc/hosts | grep $hostname-mngt | awk '{print $1}')
-                folder_name=$(/usr/bin/grep -F '[' /usr/local/samba/etc/smb.conf | grep -v 'global' | tr -d '[]')
-                path=$(/usr/bin/cat /usr/local/samba/etc/smb.conf | grep path | awk '{print $3}')
+                folder_name=$(/usr/bin/grep -F '[' $smb_conf | grep -v 'global' | tr -d '[]')
+                path=$(/usr/bin/cat $smb_conf | grep path | awk '{print $3}')
                 port_data=$(/usr/bin/netstat -ltnp | grep  smb | grep -v tcp6 | awk '{print $4}' | cut -d ':' -f2 | tr "\n" ",")
                 names=$(/usr/bin/systemctl show --no-pager smb | grep -w 'Names' | cut -d "=" -f2)
                 status=$(/usr/bin/systemctl show --no-pager smb | grep -w 'ActiveState' | cut -d "=" -f2)
                 state=$(/usr/bin/systemctl show --no-pager smb | grep -w 'UnitFileState' | cut -d "=" -f2)
-                users_data=$(/usr/local/samba/bin/pdbedit -L | grep -v 'root' | grep -v 'ablecloud'| cut -d ':' -f1)
+                users_data=$(/usr/local/samba/bin/pdbedit -L --debuglevel=1 | grep -v 'root' | grep -v 'ablecloud'| cut -d ':' -f1)
                 fs_name=$(/usr/bin/mount | grep admin | cut -d "." -f2 | cut -d "=" -f1)
                 volume_path=$(/usr/bin/mount | grep admin | cut -d "=" -f2 | cut -d " " -f1)
                 user=()

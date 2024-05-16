@@ -42,8 +42,9 @@ then
                         if [ ${#user_id} -ne 0 ] && [ ${#user_pw} -ne 0 ] && [ ${#folder} -ne 0 ] && [ ${#path} -ne 0 ]
                         then
                                 sed -i "s/$before_host/$host_ip/g" $smb_conf
-                                sed -i "s/realm =/realm = $realm/g" $smb_conf
-                                sed -i "s/workgroup =/workgroup = $workgroup/g" $smb_conf
+                                sed -i "s/realm = example.com/realm = $realm/g" $smb_conf
+                                sed -i "s/workgroup = example/workgroup = $workgroup/g" $smb_conf
+                                echo -e "winbind use default domain = true" >> $smb_conf
 
                                 echo -e "\n[$folder]" >> $smb_conf
                                 echo -e "comment = Share Directories" >> $smb_conf
@@ -156,11 +157,10 @@ then
                         echo -e "\nsecurity = ads" >> $smb_conf
                         echo -e "winbind enum users = Yes" >> $smb_conf
                         echo -e "winbind enum groups = Yes" >> $smb_conf
-                        echo -e "winbind user default domain = true" >> $smb_conf
                         echo -e "winbind separator = +" >> $smb_conf
                         echo -e "template shell = /bin/bash" >> $smb_conf
-                        echo -e "realm = " >> $smb_conf
-                        echo -e "workgroup = " >> $smb_conf
+                        echo -e "realm = example.com" >> $smb_conf
+                        echo -e "workgroup = example" >> $smb_conf
                         echo -e "idmap config * : backend = tdb" >> $smb_conf
                         echo -e "idmap config * : range = 1000000-9999999999" >> $smb_conf
                         echo -e "idmap config * : unix_nss_info = yes" >> $smb_conf
@@ -197,6 +197,7 @@ then
                 fs_name=$(/usr/bin/mount | grep admin | cut -d "." -f2 | cut -d "=" -f1)
                 volume_path=$(/usr/bin/mount | grep admin | cut -d "=" -f2 | cut -d " " -f1)
                 user=()
+
                 for list in $users_data
                 do
                        user+=\"$list\"\,

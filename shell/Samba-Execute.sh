@@ -7,7 +7,7 @@
 #최초작성자 : 정민철 주임(mcjeong@ablecloud.io)
 #최초작성일 : 2024-02-20
 #########################################
-smb_conf="/usr/local/samba/etc/smb.conf"
+smb_conf="/etc/samba/smb.conf"
 
 after_host=$(cat /etc/hosts | grep 'gwvm-mngt' | awk '{print $1}')
 before_host=$(grep 'hosts' $smb_conf | awk '{print $4}')
@@ -19,8 +19,6 @@ folder=$7
 path=$9
 fs_name=${11}
 volume_path=${13}
-realm=${15}
-workgroup=${17}
 
 if [ -n $action ]
 then
@@ -41,10 +39,22 @@ then
 
                         if [ ${#user_id} -ne 0 ] && [ ${#user_pw} -ne 0 ] && [ ${#folder} -ne 0 ] && [ ${#path} -ne 0 ]
                         then
-                                sed -i "s/$before_host/$host_ip/g" $smb_conf
-                                sed -i "s/realm = example.com/realm = $realm/g" $smb_conf
-                                sed -i "s/workgroup = example/workgroup = $workgroup/g" $smb_conf
-                                echo -e "winbind use default domain = true" >> $smb_conf
+                                cat /dev/null > $smb_conf
+
+                                echo -e "[global]" >> $smb_conf
+                                echo -e "workgroup = WORKGROUP" >> $smb_conf
+                                echo -e "hosts allow = 0.0.0.0/0.0.0.0" >> $smb_conf
+                                echo -e "security = user" >> $smb_conf
+                                echo -e "passdb backend = tdbsam" >> $smb_conf
+                                echo -e "usershare allow guests = yes" >> $smb_conf
+                                echo -e "guest account = root" >> $smb_conf
+                                echo -e "guest ok = yes" >>$smb_conf
+
+                                echo -e "\nlog file = /var/log/samba/%m.log" >> $smb_conf
+                                echo -e "log level = 10" >> $smb_conf
+
+                                echo -e "\nforce user = root" >> $smb_conf
+                                echo -e "csc policy = programs" >> $smb_conf
 
                                 echo -e "\n[$folder]" >> $smb_conf
                                 echo -e "comment = Share Directories" >> $smb_conf
@@ -53,9 +63,6 @@ then
                                 echo -e "public = yes" >> $smb_conf
                                 echo -e "create mask = 0777" >> $smb_conf
                                 echo -e "directory mask = 0777" >> $smb_conf
-                                echo -e "keyring = /etc/ceph/ceph.client.admin.keyring" >> $smb_conf
-                                echo -e "vfs objects = fake_compression" >> $smb_conf
-                                echo -e "csc policy = programs" >> $smb_conf
 
                                 # 사용자 추가를 위한 expect 스크립트
                                 useradd $user_id > /dev/null 2>&1
@@ -147,37 +154,19 @@ then
                 done
                         cat /dev/null > $smb_conf
                         echo -e "[global]" >> $smb_conf
+                        echo -e "workgroup = WORKGROUP" >> $smb_conf
                         echo -e "hosts allow = 0.0.0.0/0.0.0.0" >> $smb_conf
-                        echo -e "usershare allow guests = yes" >>$smb_conf
-                        echo -e "usershare owner only = no" >> $smb_conf
+                        echo -e "security = user" >> $smb_conf
+                        echo -e "passdb backend = tdbsam" >> $smb_conf
+                        echo -e "usershare allow guests = yes" >> $smb_conf
                         echo -e "guest account = root" >> $smb_conf
                         echo -e "guest ok = yes" >>$smb_conf
-                        echo -e "force user = root" >> $smb_conf
-
-                        echo -e "\nsecurity = ads" >> $smb_conf
-                        echo -e "winbind enum users = Yes" >> $smb_conf
-                        echo -e "winbind enum groups = Yes" >> $smb_conf
-                        echo -e "winbind separator = +" >> $smb_conf
-                        echo -e "template shell = /bin/bash" >> $smb_conf
-                        echo -e "realm = example.com" >> $smb_conf
-                        echo -e "workgroup = example" >> $smb_conf
-                        echo -e "idmap config * : backend = tdb" >> $smb_conf
-                        echo -e "idmap config * : range = 1000000-9999999999" >> $smb_conf
-                        echo -e "idmap config * : unix_nss_info = yes" >> $smb_conf
-
-                        echo -e "\nwinbind refresh tickets = Yes" >> $smb_conf
-                        echo -e "vfs objects = acl_xattr" >> $smb_conf
-                        echo -e "map acl inherit = Yes" >> $smb_conf
-                        echo -e "store dos attributes = Yes" >> $smb_conf
-
-                        echo -e "\ndedicated keytab file = /etc/krb5.keytab" >> $smb_conf
-                        echo -e "kerberos method = secrets and keytab" >> $smb_conf
-
-                        echo -e "\nserver min protocol = SMB3" >> $smb_conf
-                        echo -e "server max protocol = SMB3" >> $smb_conf
 
                         echo -e "\nlog file = /var/log/samba/%m.log" >> $smb_conf
                         echo -e "log level = 10" >> $smb_conf
+
+                        echo -e "force user = root" >> $smb_conf
+                        echo -e "csc policy = programs" >> $smb_conf
 
                         systemctl stop smb > /dev/null 2>&1
                         systemctl disable smb > /dev/null 2>&1

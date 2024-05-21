@@ -11,12 +11,10 @@ import (
 	"encoding/json"
 	"io"
 	"net/http"
-	"os"
 	"strings"
 	"time"
 
 	"github.com/gin-gonic/gin"
-	"gopkg.in/yaml.v2"
 )
 
 func (c *Controller) RgwOption(ctx *gin.Context) {
@@ -118,7 +116,7 @@ func (c *Controller) RgwServiceCreate(ctx *gin.Context) {
 	if port == "" {
 		port = "80"
 	}
-	dat, err := rgw.RgwServiceCreate(service_name, realm_name, zonegroup_name, zone_name, hosts_str, port)
+	dat, err := rgw.RgwServiceCreateandUpdate(service_name, realm_name, zonegroup_name, zone_name, hosts_str, port)
 	if err != nil {
 		utils.FancyHandleError(err)
 		httputil.NewError(ctx, http.StatusInternalServerError, err)
@@ -169,53 +167,16 @@ func (c *Controller) RgwServiceUpdate(ctx *gin.Context) {
 	port, _ := ctx.GetPostForm("port")
 	hosts, _ := ctx.GetPostFormArray("hosts")
 
-	value := model.RgwUpdate{
-		Service_type: "rgw",
-		Service_id:   service_id,
-		Placement: model.RgwUpdatePlacement{
-			Hosts: hosts,
-		},
-		Spec: model.RgwUpdateSpec{
-			Rgw_realm:         realm_name,
-			Rgw_zonegroup:     zonegroup_name,
-			Rgw_zone:          zone_name,
-			Rgw_frontend_port: port,
-		},
-	}
-	yaml_data, err := yaml.Marshal(value)
+	hosts_str := strings.Join(hosts, ",")
+
+	dat, err := rgw.RgwServiceCreateandUpdate(service_id, realm_name, zonegroup_name, zone_name, hosts_str, port)
 	if err != nil {
 		utils.FancyHandleError(err)
 		httputil.NewError(ctx, http.StatusInternalServerError, err)
 		return
 	}
-	rgw_conf := "/etc/ceph/rgw.conf"
-	err = os.WriteFile(rgw_conf, yaml_data, 0644)
-	if err != nil {
-		utils.FancyHandleError(err)
-		httputil.NewError(ctx, http.StatusInternalServerError, err)
-		return
-	} else {
-		_, err := rgw.RgwServiceUpdate(rgw_conf)
-		if err != nil {
-			utils.FancyHandleError(err)
-			httputil.NewError(ctx, http.StatusInternalServerError, err)
-			return
-		} else {
-			if err := os.Remove(rgw_conf); err != nil {
-				utils.FancyHandleError(err)
-				httputil.NewError(ctx, http.StatusInternalServerError, err)
-				return
-			}
-			dat, err := glue.ServiceReDeploy("rgw." + service_id)
-			if err != nil {
-				utils.FancyHandleError(err)
-				httputil.NewError(ctx, http.StatusInternalServerError, err)
-				return
-			}
-			ctx.Header("Access-Control-Allow-Origin", "*")
-			ctx.IndentedJSON(http.StatusOK, dat)
-		}
-	}
+	ctx.Header("Access-Control-Allow-Origin", "*")
+	ctx.IndentedJSON(http.StatusOK, dat)
 }
 
 // RgwUserList godoc

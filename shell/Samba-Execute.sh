@@ -68,7 +68,7 @@ then
                                 useradd $user_id > /dev/null 2>&1
 
                                 expect -c "
-                                spawn /usr/local/samba/bin/smbpasswd -a $user_id
+                                spawn smbpasswd -a $user_id
                                 expect "password:"
                                         send \"$user_pw\\r\"
                                         expect "password"
@@ -93,7 +93,7 @@ then
                 fi
         elif [ $action == "user_create" ]
         then
-                user=$(/usr/local/samba/bin/pdbedit -L | grep -v 'root' | grep -v 'ablecloud' | cut -d ':' -f1 )
+                user=$(pdbedit -L | grep -v 'root' | grep -v 'ablecloud' | cut -d ':' -f1 )
                 for list in $user
                 do
                         if [ $user_id == $list ]
@@ -103,7 +103,7 @@ then
                                 useradd $user_id > /dev/null 2>&1
 
                                 expect -c "
-                                spawn /usr/local/samba/bin/smbpasswd -a $user_id
+                                spawn smbpasswd -a $user_id
                                 expect "password:"
                                         send \"$user_pw\\r\"
                                         expect "password"
@@ -114,20 +114,20 @@ then
                 done
         elif [ $action == "user_delete" ]
         then
-                user_del=$(/usr/local/samba/bin/smbpasswd -x $user_id > /dev/null 2>&1; echo $?)
+                user_del=$(smbpasswd -x $user_id > /dev/null 2>&1; echo $?)
                 if [ $user_del -eq 0 ]
                 then
-                        /usr/sbin/userdel -r $user_id > /dev/null 2>&1
+                        userdel -r $user_id > /dev/null 2>&1
                 fi
         elif [ $action == "update" ]
         then
-                user=$(/usr/local/samba/bin/pdbedit -L | grep -v 'root' | grep -v 'ablecloud'| cut -d ':' -f1 )
+                user=$(pdbedit -L | grep -v 'root' | grep -v 'ablecloud'| cut -d ':' -f1 )
                 for list in $user
                 do
                         if [ $user_id == $list ]
                         then
                                 expect -c "
-                                spawn /usr/local/samba/bin/smbpasswd -U $user_id
+                                spawn smbpasswd -U $user_id
                                 expect "password:"
                                         send \"$user_pw\\r\"
                                         expect "password"
@@ -140,17 +140,17 @@ then
                 done
         elif [ $action == "delete" ]
         then
-                path=$(/usr/bin/cat $smb_conf | grep path | awk '{print $3}')
+                path=$(cat $smb_conf | grep path | awk '{print $3}')
                 umount -l -f $path
                 sed '$ d' -i /etc/fstab
 
-                user=$(/usr/local/samba/bin/pdbedit -L | grep -v 'root' | grep -v 'ablecloud' | cut -d ':' -f1)
+                user=$(pdbedit -L | grep -v 'root' | grep -v 'ablecloud' | cut -d ':' -f1)
                 allow_ip=$(cat /etc/hosts | grep 'ccvm' | awk '{print $1}' | cut -d '.' -f1,2)
 
                 for list in $user
                 do
-                        /usr/local/samba/bin/smbpasswd -x $list > /dev/null 2>&1
-                        /usr/sbin/userdel -r $list > /dev/null 2>&1
+                        smbpasswd -x $list > /dev/null 2>&1
+                        userdel -r $list > /dev/null 2>&1
                 done
                         cat /dev/null > $smb_conf
                         echo -e "[global]" >> $smb_conf
@@ -174,17 +174,17 @@ then
                         firewall-cmd --reload > /dev/null 2>&1
         elif [ $action == "select" ]
         then
-                hostname=$(/usr/bin/hostname)
-                ip_address=$(/usr/bin/cat /etc/hosts | grep $hostname-mngt | awk '{print $1}')
-                folder_name=$(/usr/bin/grep -F '[' $smb_conf | grep -v 'global' | tr -d '[]')
-                path=$(/usr/bin/cat $smb_conf | grep path | awk '{print $3}')
-                port_data=$(/usr/bin/netstat -ltnp | grep  smb | grep -v tcp6 | awk '{print $4}' | cut -d ':' -f2 | tr "\n" ",")
-                names=$(/usr/bin/systemctl show --no-pager smb | grep -w 'Names' | cut -d "=" -f2)
-                status=$(/usr/bin/systemctl show --no-pager smb | grep -w 'ActiveState' | cut -d "=" -f2)
-                state=$(/usr/bin/systemctl show --no-pager smb | grep -w 'UnitFileState' | cut -d "=" -f2)
-                users_data=$(/usr/local/samba/bin/pdbedit -L --debuglevel=1 | grep -v 'root' | grep -v 'ablecloud'| cut -d ':' -f1)
-                fs_name=$(/usr/bin/mount | grep admin | cut -d "." -f2 | cut -d "=" -f1)
-                volume_path=$(/usr/bin/mount | grep admin | cut -d "=" -f2 | cut -d " " -f1)
+                hostname=$(hostname)
+                ip_address=$(cat /etc/hosts | grep $hostname-mngt | awk '{print $1}')
+                folder_name=$(grep -F '[' $smb_conf | grep -v 'global' | tr -d '[]')
+                path=$(cat $smb_conf | grep path | awk '{print $3}')
+                port_data=$(netstat -ltnp | grep  smb | grep -v tcp6 | awk '{print $4}' | cut -d ':' -f2 | tr "\n" ",")
+                names=$(systemctl show --no-pager smb | grep -w 'Names' | cut -d "=" -f2)
+                status=$(systemctl show --no-pager smb | grep -w 'ActiveState' | cut -d "=" -f2)
+                state=$(systemctl show --no-pager smb | grep -w 'UnitFileState' | cut -d "=" -f2)
+                users_data=$(pdbedit -L --debuglevel=1 | grep -v 'root' | grep -v 'ablecloud'| cut -d ':' -f1)
+                fs_name=$(mount | grep admin | cut -d "." -f2 | cut -d "=" -f1)
+                volume_path=$(mount | grep admin | cut -d "=" -f2 | cut -d " " -f1)
                 user=()
 
                 for list in $users_data

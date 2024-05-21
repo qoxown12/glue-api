@@ -4044,8 +4044,7 @@ const docTemplate = `{
                         "type": "integer",
                         "description": "Glue NVMe-OF Image Size(default GB)",
                         "name": "size",
-                        "in": "formData",
-                        "required": true
+                        "in": "formData"
                     }
                 ],
                 "responses": {
@@ -5276,20 +5275,6 @@ const docTemplate = `{
                         "type": "string",
                         "description": "Glue File System Volume Path",
                         "name": "volume_path",
-                        "in": "formData",
-                        "required": true
-                    },
-                    {
-                        "type": "string",
-                        "description": "Samba AD Domain Name",
-                        "name": "realm",
-                        "in": "formData",
-                        "required": true
-                    },
-                    {
-                        "type": "string",
-                        "description": "Samba AD Workgroup Name",
-                        "name": "workgroup",
                         "in": "formData",
                         "required": true
                     }

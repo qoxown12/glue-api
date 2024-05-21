@@ -218,7 +218,7 @@ func (c *Controller) NvmeOfImageDownload(ctx *gin.Context) {
 //	@param			subsystem_nqn_id	formData	string	true	"Glue NVMe-OF Sub System NQN ID"
 //	@param			pool_name 	formData	string	true	"Glue NVMe-OF Use Image Pool Name"
 //	@param			image_name 	formData	string	true	"Glue NVMe-OF Use Image Name"
-//	@param			size 	formData	int	true	"Glue NVMe-OF Image Size(default GB)"
+//	@param			size 	formData	int	false	"Glue NVMe-OF Image Size(default GB)"
 //	@Tags			NVMe-OF
 //	@Accept			x-www-form-urlencoded
 //	@Produce		json
@@ -261,10 +261,56 @@ func (c *Controller) NvmeOfTargetCreate(ctx *gin.Context) {
 			httputil.NewError(ctx, http.StatusInternalServerError, err)
 			return
 		}
-		image, _ := glue.ListAndInfoImage(image_name, pool_name)
-		if image != nil {
-			ctx.Header("Access-Control-Allow-Origin", "*")
-			ctx.IndentedJSON(http.StatusOK, "The Image Name exists. Please Check.")
+		if size != "0" {
+			image, _ := glue.ListAndInfoImage(image_name, pool_name)
+			if image != nil {
+				ctx.Header("Access-Control-Allow-Origin", "*")
+				ctx.IndentedJSON(http.StatusOK, "The Image Name exists. Please Check.")
+			} else {
+				_, err = nvmeof.NvmeOfSubSystemCreate(server_gateway_ip, server_gateway_ip, port, subsystem_nqn_id)
+				if err != nil {
+					utils.FancyHandleError(err)
+					httputil.NewError(ctx, http.StatusInternalServerError, err)
+					return
+				} else {
+					var gateway_name string
+					for i := 0; i < len(gat_name); i++ {
+						if strings.Contains(gat_name[i].Daemon_name, hostname) {
+							gateway_name = string("client.") + gat_name[i].Daemon_name
+						}
+					}
+					dat, err = nvmeof.NvmeOfDefineGateway(server_gateway_ip, server_gateway_ip, port, subsystem_nqn_id, gateway_name, gateway_ip)
+					if err != nil {
+						utils.FancyHandleError(err)
+						httputil.NewError(ctx, http.StatusInternalServerError, err)
+						return
+					}
+					if dat == "Success" {
+						_, err = nvmeof.NvmeOfHostAdd(server_gateway_ip, server_gateway_ip, port, subsystem_nqn_id)
+						if err != nil {
+							utils.FancyHandleError(err)
+							httputil.NewError(ctx, http.StatusInternalServerError, err)
+							return
+						} else {
+							_, err = glue.CreateImage(image_name, pool_name, size)
+							if err != nil {
+								utils.FancyHandleError(err)
+								httputil.NewError(ctx, http.StatusInternalServerError, err)
+								return
+							} else {
+								dat, err = nvmeof.NvmeOfNameSpaceCreate(server_gateway_ip, server_gateway_ip, port, subsystem_nqn_id, pool_name, image_name)
+								if err != nil {
+									utils.FancyHandleError(err)
+									httputil.NewError(ctx, http.StatusInternalServerError, err)
+									return
+								}
+								ctx.Header("Access-Control-Allow-Origin", "*")
+								ctx.IndentedJSON(http.StatusOK, dat)
+							}
+						}
+					}
+				}
+			}
 		} else {
 			_, err = nvmeof.NvmeOfSubSystemCreate(server_gateway_ip, server_gateway_ip, port, subsystem_nqn_id)
 			if err != nil {
@@ -291,21 +337,14 @@ func (c *Controller) NvmeOfTargetCreate(ctx *gin.Context) {
 						httputil.NewError(ctx, http.StatusInternalServerError, err)
 						return
 					} else {
-						_, err = glue.CreateImage(image_name, pool_name, size)
+						dat, err = nvmeof.NvmeOfNameSpaceCreate(server_gateway_ip, server_gateway_ip, port, subsystem_nqn_id, pool_name, image_name)
 						if err != nil {
 							utils.FancyHandleError(err)
 							httputil.NewError(ctx, http.StatusInternalServerError, err)
 							return
-						} else {
-							dat, err = nvmeof.NvmeOfNameSpaceCreate(server_gateway_ip, server_gateway_ip, port, subsystem_nqn_id, pool_name, image_name)
-							if err != nil {
-								utils.FancyHandleError(err)
-								httputil.NewError(ctx, http.StatusInternalServerError, err)
-								return
-							}
-							ctx.Header("Access-Control-Allow-Origin", "*")
-							ctx.IndentedJSON(http.StatusOK, dat)
 						}
+						ctx.Header("Access-Control-Allow-Origin", "*")
+						ctx.IndentedJSON(http.StatusOK, dat)
 					}
 				}
 			}

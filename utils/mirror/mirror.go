@@ -157,7 +157,11 @@ func Status() (mirrorStatus model.MirrorStatus, err error) {
 	stdout, err = cmd.CombinedOutput()
 
 	if err != nil {
-		err = errors.Join(err, errors.New(out.String()))
+		if strings.Contains(string(stdout), "mirroring not enabled on the pool") {
+			err = errors.New(string(stdout))
+		} else  {
+			err = errors.Join(err, errors.New(out.String()))
+		}
 		utils.FancyHandleError(err)
 		return
 	}

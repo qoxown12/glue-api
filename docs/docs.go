@@ -2015,6 +2015,82 @@ const docTemplate = `{
                     }
                 }
             },
+            "post": {
+                "description": "Glue 의 미러링 클러스터를 설정합니다.",
+                "consumes": [
+                    "multipart/form-data"
+                ],
+                "produces": [
+                    "application/json"
+                ],
+                "tags": [
+                    "Mirror"
+                ],
+                "summary": "Setup Mirroring Cluster",
+                "parameters": [
+                    {
+                        "type": "string",
+                        "description": "Local Cluster Name",
+                        "name": "localClusterName",
+                        "in": "formData",
+                        "required": true
+                    },
+                    {
+                        "type": "string",
+                        "description": "Remote Cluster Name",
+                        "name": "remoteClusterName",
+                        "in": "formData",
+                        "required": true
+                    },
+                    {
+                        "type": "string",
+                        "description": "Remote Cluster Host Address",
+                        "name": "host",
+                        "in": "formData",
+                        "required": true
+                    },
+                    {
+                        "type": "file",
+                        "description": "Remote Cluster PrivateKey",
+                        "name": "privateKeyFile",
+                        "in": "formData",
+                        "required": true
+                    },
+                    {
+                        "type": "string",
+                        "description": "Pool Name for Mirroring",
+                        "name": "mirrorPool",
+                        "in": "formData",
+                        "required": true
+                    }
+                ],
+                "responses": {
+                    "200": {
+                        "description": "OK",
+                        "schema": {
+                            "$ref": "#/definitions/MirrorSetup"
+                        }
+                    },
+                    "400": {
+                        "description": "Bad Request",
+                        "schema": {
+                            "$ref": "#/definitions/HTTP400BadRequest"
+                        }
+                    },
+                    "404": {
+                        "description": "Not Found",
+                        "schema": {
+                            "$ref": "#/definitions/HTTP404NotFound"
+                        }
+                    },
+                    "500": {
+                        "description": "Internal Server Error",
+                        "schema": {
+                            "$ref": "#/definitions/HTTP500InternalServerError"
+                        }
+                    }
+                }
+            },
             "delete": {
                 "description": "Glue 의 미러링 클러스터를 제거합니다.",
                 "consumes": [

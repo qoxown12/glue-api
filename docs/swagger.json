@@ -2008,6 +2008,56 @@
                     }
                 }
             },
+            "post": {
+                "description": "Glue 의 미러링 클러스터를 설정합니다.",
+                "consumes": [
+                    "multipart/form-data"
+                ],
+                "produces": [
+                    "application/json"
+                ],
+                "tags": [
+                    "Mirror"
+                ],
+                "summary": "Setup Mirroring Cluster",
+                "parameters": [
+                    {
+                        "type": "string",
+                        "description": "Local Cluster Name",
+                        "name": "localClusterName",
+                        "in": "formData",
+                        "required": true
+                    },
+                    {
+                        "type": "string",
+                        "description": "Remote Cluster Name",
+                        "name": "remoteClusterName",
+                        "in": "formData",
+                        "required": true
+                    },
+                    {
+                        "type": "string",
+                        "description": "Remote Cluster Host Address",
+                        "name": "host",
+                        "in": "formData",
+                        "required": true
+                    },
+                    {
+                        "type": "file",
+                        "description": "Remote Cluster PrivateKey",
+                        "name": "privateKeyFile",
+                        "in": "formData",
+                        "required": true
+                    },
+                    {
+                        "type": "string",
+                        "description": "Pool Name for Mirroring",
+                        "name": "mirrorPool",
+                        "in": "formData",
+                        "required": true
+                    }
+                ]
+            },
             "delete": {
                 "description": "Glue 의 미러링 클러스터를 제거합니다.",
                 "consumes": [

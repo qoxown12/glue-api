@@ -43,7 +43,7 @@ func NvmeOfServerIPandPort() (server_gateway_ip string, port string, err error) 
 //	@Summary		Create of NVMe-OF Service
 //	@Description	NVMe-OF 서비스를 생성합니다.
 //	@param			pool_name 	formData	string	true	"Glue NVMe-OF Store Data In Pool Name"
-//	@param			hostname	formData	[]string	true	"Glue NVMe-OF Service Placement Hosts" collectionFormat(multi)
+//	@param			hosts	formData	[]string	true	"Glue NVMe-OF Service Placement Hosts" collectionFormat(multi)
 //	@Tags			NVMe-OF
 //	@Accept			x-www-form-urlencoded
 //	@Produce		json
@@ -54,7 +54,7 @@ func NvmeOfServerIPandPort() (server_gateway_ip string, port string, err error) 
 //	@Router			/api/v1/nvmeof [post]
 func (c *Controller) NvmeOfServiceCreate(ctx *gin.Context) {
 	pool_name, _ := ctx.GetPostForm("pool_name")
-	hosts, _ := ctx.GetPostFormArray("hostname")
+	hosts, _ := ctx.GetPostFormArray("hosts")
 
 	value := model.NvmeOfServiceCreate{
 		ServiceType: "nvmeof",

@@ -55,6 +55,7 @@ func (c *Controller) FsStatus(ctx *gin.Context) {
 //	@Summary		Create of Glue FS
 //	@Description	GlueFS를 생성합니다.
 //	@param			fs_name 	path	string	true	"Glue FS Name"
+//	@param			hosts 	formData	[]string	true	"Glue FS Service Host Name" collectionFormat(multi)
 //	@Tags			GlueFS
 //	@Accept			x-www-form-urlencoded
 //	@Produce		json
@@ -65,18 +66,8 @@ func (c *Controller) FsStatus(ctx *gin.Context) {
 //	@Router			/api/v1/gluefs/{fs_name} [post]
 func (c *Controller) FsCreate(ctx *gin.Context) {
 	fs_name := ctx.Param("fs_name")
-	host, err := fs.CephHost()
-	if err != nil {
-		utils.FancyHandleError(err)
-		httputil.NewError(ctx, http.StatusInternalServerError, err)
-		return
-	}
-	var hosts []string
-	for i := 0; i < len(host); i++ {
-		if strings.Contains(host[i].Hostname, "scvm") {
-			hosts = append(hosts, host[i].Hostname)
-		}
-	}
+	hosts, _ := ctx.GetPostFormArray("hosts")
+
 	hosts_str := strings.Join(hosts, ",")
 	dat, err := fs.FsCreate(fs_name, hosts_str)
 	if err != nil {
@@ -95,6 +86,7 @@ func (c *Controller) FsCreate(ctx *gin.Context) {
 //	@Description	GlueFS를 수정합니다.
 //	@param			old_name 	formData	string	true	"Glue FS Old Name"
 //	@param			new_name 	formData	string	true	"Glue FS New Name"
+//	@param			hosts 	formData	[]string	true	"Glue FS Service Host Name" collectionFormat(multi)
 //	@Tags			GlueFS
 //	@Accept			x-www-form-urlencoded
 //	@Produce		json
@@ -106,7 +98,10 @@ func (c *Controller) FsCreate(ctx *gin.Context) {
 func (c *Controller) FsUpdate(ctx *gin.Context) {
 	old_name, _ := ctx.GetPostForm("old_name")
 	new_name, _ := ctx.GetPostForm("new_name")
-	dat, err := fs.FsUpdate(old_name, new_name)
+	hosts, _ := ctx.GetPostFormArray("hosts")
+
+	hosts_str := strings.Join(hosts, ",")
+	dat, err := fs.FsUpdate(old_name, new_name, hosts_str)
 	if err != nil {
 		utils.FancyHandleError(err)
 		httputil.NewError(ctx, http.StatusInternalServerError, err)

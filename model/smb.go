@@ -1,6 +1,6 @@
 package model
 
-type SmbStatus struct {
+type SmbNormalStatus struct {
 	Names       string   `json:"names"`
 	Hostname    string   `json:"hostname"`
 	IpAddress   string   `json:"ip_address"`
@@ -12,4 +12,6 @@ type SmbStatus struct {
 	FsName      string   `json:"fs_name"`
 	VolumePath  string   `json:"volume_path"`
 	Users       []string `json:"users"`
-} //@name SmbStatus
+} //@name SmbNormalStatus
+
+type SmbStatus interface{} //@name SmbStatus

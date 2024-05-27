@@ -594,35 +594,6 @@ definitions:
             type: integer
         type: object
     type: object
-  SmbStatus:
-    properties:
-      folder_name:
-        type: string
-      fs_name:
-        type: string
-      hostname:
-        type: string
-      ip_address:
-        type: string
-      names:
-        type: string
-      path:
-        type: string
-      port:
-        items:
-          type: integer
-        type: array
-      state:
-        type: string
-      status:
-        type: string
-      users:
-        items:
-          type: string
-        type: array
-      volume_path:
-        type: string
-    type: object
   SubVolumeGroupInfo:
     properties:
       atime:
@@ -825,6 +796,14 @@ paths:
         name: new_name
         required: true
         type: string
+      - collectionFormat: multi
+        description: Glue FS Service Host Name
+        in: formData
+        items:
+          type: string
+        name: hosts
+        required: true
+        type: array
       produces:
       - application/json
       responses:
@@ -890,6 +869,14 @@ paths:
         name: fs_name
         required: true
         type: string
+      - collectionFormat: multi
+        description: Glue FS Service Host Name
+        in: formData
+        items:
+          type: string
+        name: hosts
+        required: true
+        type: array
       produces:
       - application/json
       responses:
@@ -1516,6 +1503,145 @@ paths:
       summary: Create Images of Pool
       tags:
       - Image
+  /api/v1/ingress:
+    post:
+      consumes:
+      - application/x-www-form-urlencoded
+      description: Glue Ingress Service를 생성합니다.
+      parameters:
+      - description: NFS or RGW Ingress Service Name
+        in: formData
+        name: service_id
+        required: true
+        type: string
+      - collectionFormat: multi
+        description: NFS or RGW Ingress Host Name
+        in: formData
+        items:
+          type: string
+        name: hosts
+        required: true
+        type: array
+      - description: NFS or RGW Cluster Type
+        in: formData
+        name: backend_service
+        required: true
+        type: string
+      - description: NFS or RGW Ingress Virtual Ip
+        in: formData
+        name: virtual_ip
+        required: true
+        type: string
+      - description: NFS or RGW Ingress Access Port
+        in: formData
+        maximum: 65535
+        name: frontend_port
+        required: true
+        type: integer
+      - description: NFS or RGW Ingress HA Proxy for Load Balancer Port
+        in: formData
+        maximum: 65535
+        name: monitor_port
+        required: true
+        type: integer
+      - collectionFormat: multi
+        description: NFS or RGW Ingress Vitual IP of CIDR Networks
+        in: formData
+        items:
+          type: string
+        name: virtual_interface_networks
+        type: array
+      produces:
+      - application/json
+      responses:
+        "200":
+          description: Success
+          schema:
+            type: string
+        "400":
+          description: Bad Request
+          schema:
+            $ref: '#/definitions/HTTP400BadRequest'
+        "404":
+          description: Not Found
+          schema:
+            $ref: '#/definitions/HTTP404NotFound'
+        "500":
+          description: Internal Server Error
+          schema:
+            $ref: '#/definitions/HTTP500InternalServerError'
+      summary: Create of Glue Ingress Service
+      tags:
+      - Ingress
+    put:
+      consumes:
+      - application/x-www-form-urlencoded
+      description: Glue Ingress Service를 수정합니다.
+      parameters:
+      - description: NFS or RGW Ingress Service Name
+        in: formData
+        name: service_id
+        required: true
+        type: string
+      - collectionFormat: multi
+        description: NFS or RGW Ingress Host Name
+        in: formData
+        items:
+          type: string
+        name: hosts
+        required: true
+        type: array
+      - description: NFS or RGW Cluster Type
+        in: formData
+        name: backend_service
+        required: true
+        type: string
+      - description: NFS or RGW Ingress Virtual Ip
+        in: formData
+        name: virtual_ip
+        required: true
+        type: string
+      - description: NFS or RGW Ingress Access Port
+        in: formData
+        maximum: 65535
+        name: frontend_port
+        required: true
+        type: integer
+      - description: NFS or RGW Ingress HA Proxy for Load Balancer Port
+        in: formData
+        maximum: 65535
+        name: monitor_port
+        required: true
+        type: integer
+      - collectionFormat: multi
+        description: NFS or RGW Ingress Vitual IP of CIDR Networks
+        in: formData
+        items:
+          type: string
+        name: virtual_interface_networks
+        type: array
+      produces:
+      - application/json
+      responses:
+        "200":
+          description: Success
+          schema:
+            type: string
+        "400":
+          description: Bad Request
+          schema:
+            $ref: '#/definitions/HTTP400BadRequest'
+        "404":
+          description: Not Found
+          schema:
+            $ref: '#/definitions/HTTP404NotFound'
+        "500":
+          description: Internal Server Error
+          schema:
+            $ref: '#/definitions/HTTP500InternalServerError'
+      summary: Update of Glue Ingress Service
+      tags:
+      - Ingress
   /api/v1/iscsi:
     post:
       consumes:
@@ -1803,7 +1929,7 @@ paths:
         in: formData
         items:
           type: string
-        name: hostname
+        name: hosts
         required: true
         type: array
       - collectionFormat: multi
@@ -1900,7 +2026,7 @@ paths:
         in: formData
         items:
           type: string
-        name: hostname
+        name: hosts
         required: true
         type: array
       - collectionFormat: multi
@@ -2469,7 +2595,7 @@ paths:
         in: formData
         items:
           type: string
-        name: hostname
+        name: hosts
         required: true
         type: array
       - description: Cluster Daemon Service Count
@@ -2518,7 +2644,7 @@ paths:
         in: formData
         items:
           type: string
-        name: hostname
+        name: hosts
         required: true
         type: array
       - description: Cluster Daemon Service Count
@@ -2837,145 +2963,6 @@ paths:
       summary: Delete of Glue NFS Export
       tags:
       - NFS
-  /api/v1/nfs/ingress:
-    post:
-      consumes:
-      - application/x-www-form-urlencoded
-      description: Glue NFS Ingress Service를 생성합니다.
-      parameters:
-      - description: NFS Ingress Service Name
-        in: formData
-        name: service_id
-        required: true
-        type: string
-      - collectionFormat: multi
-        description: NFS Ingress Host Name
-        in: formData
-        items:
-          type: string
-        name: hostname
-        required: true
-        type: array
-      - description: NFS Cluster Type
-        in: formData
-        name: backend_service
-        required: true
-        type: string
-      - description: NFS Ingress Virtual Ip
-        in: formData
-        name: virtual_ip
-        required: true
-        type: string
-      - description: NFS Ingress Access Port
-        in: formData
-        maximum: 65535
-        name: frontend_port
-        required: true
-        type: integer
-      - description: NFS Ingress HA Proxy for Load Balancer Port
-        in: formData
-        maximum: 65535
-        name: monitor_port
-        required: true
-        type: integer
-      - collectionFormat: multi
-        description: NFS Ingress Vitual IP of CIDR Networks
-        in: formData
-        items:
-          type: string
-        name: virtual_interface_networks
-        type: array
-      produces:
-      - application/json
-      responses:
-        "200":
-          description: Success
-          schema:
-            type: string
-        "400":
-          description: Bad Request
-          schema:
-            $ref: '#/definitions/HTTP400BadRequest'
-        "404":
-          description: Not Found
-          schema:
-            $ref: '#/definitions/HTTP404NotFound'
-        "500":
-          description: Internal Server Error
-          schema:
-            $ref: '#/definitions/HTTP500InternalServerError'
-      summary: Create of Glue NFS Ingress Service
-      tags:
-      - NFS-Ingress
-    put:
-      consumes:
-      - application/x-www-form-urlencoded
-      description: Glue NFS Ingress Service를 수정합니다.
-      parameters:
-      - description: NFS Ingress Service Name
-        in: formData
-        name: service_id
-        required: true
-        type: string
-      - collectionFormat: multi
-        description: NFS Ingress Host Name
-        in: formData
-        items:
-          type: string
-        name: hostname
-        required: true
-        type: array
-      - description: NFS Cluster Type
-        in: formData
-        name: backend_service
-        required: true
-        type: string
-      - description: NFS Ingress Virtual Ip
-        in: formData
-        name: virtual_ip
-        required: true
-        type: string
-      - description: NFS Ingress Access Port
-        in: formData
-        maximum: 65535
-        name: frontend_port
-        required: true
-        type: integer
-      - description: NFS Ingress HA Proxy for Load Balancer Port
-        in: formData
-        maximum: 65535
-        name: monitor_port
-        required: true
-        type: integer
-      - collectionFormat: multi
-        description: NFS Ingress Vitual IP of CIDR Networks
-        in: formData
-        items:
-          type: string
-        name: virtual_interface_networks
-        type: array
-      produces:
-      - application/json
-      responses:
-        "200":
-          description: Success
-          schema:
-            type: string
-        "400":
-          description: Bad Request
-          schema:
-            $ref: '#/definitions/HTTP400BadRequest'
-        "404":
-          description: Not Found
-          schema:
-            $ref: '#/definitions/HTTP404NotFound'
-        "500":
-          description: Internal Server Error
-          schema:
-            $ref: '#/definitions/HTTP500InternalServerError'
-      summary: Update of Glue NFS Ingress Service
-      tags:
-      - NFS-Ingress
   /api/v1/nvmeof:
     post:
       consumes:
@@ -2992,7 +2979,7 @@ paths:
         in: formData
         items:
           type: string
-        name: hostname
+        name: hosts
         required: true
         type: array
       produces:
@@ -3572,7 +3559,7 @@ paths:
         in: formData
         items:
           type: string
-        name: hostname
+        name: hosts
         required: true
         type: array
       produces:
@@ -4178,7 +4165,7 @@ paths:
         in: query
         items:
           type: string
-        name: hostname
+        name: hosts
         required: true
         type: array
       produces:
@@ -4212,8 +4199,7 @@ paths:
       responses:
         "200":
           description: OK
-          schema:
-            $ref: '#/definitions/SmbStatus'
+          schema: {}
         "400":
           description: Bad Request
           schema:
@@ -4239,17 +4225,16 @@ paths:
         in: formData
         items:
           type: string
-        name: hostname
+        name: hosts
         required: true
         type: array
-      - description: SMB Username
+      - default: normal
+        description: Samba Security Type
+        enum:
+        - normal
+        - ads
         in: formData
-        name: username
-        required: true
-        type: string
-      - description: SMB Password
-        in: formData
-        name: password
+        name: sec_type
         required: true
         type: string
       - description: SMB Share Folder Name
@@ -4271,6 +4256,24 @@ paths:
         in: formData
         name: volume_path
         required: true
+        type: string
+      - description: SMB Username or Active Directory Username
+        in: formData
+        name: username
+        required: true
+        type: string
+      - description: SMB Password or Active Directory Password
+        in: formData
+        name: password
+        required: true
+        type: string
+      - description: Active Directory Domain
+        in: formData
+        name: realm
+        type: string
+      - description: Active Directory Server IP
+        in: formData
+        name: dns
         type: string
       produces:
       - application/json
@@ -4305,7 +4308,7 @@ paths:
         in: query
         items:
           type: string
-        name: hostname
+        name: hosts
         required: true
         type: array
       - description: SMB Username
@@ -4345,7 +4348,7 @@ paths:
         in: formData
         items:
           type: string
-        name: hostname
+        name: hosts
         required: true
         type: array
       - description: SMB Username
@@ -4390,7 +4393,7 @@ paths:
         in: formData
         items:
           type: string
-        name: hostname
+        name: hosts
         required: true
         type: array
       - description: SMB Username

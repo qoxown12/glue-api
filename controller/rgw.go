@@ -96,7 +96,7 @@ func (c *Controller) RgwDaemon(ctx *gin.Context) {
 //	@param			zonegroup_name     formData   string	false    "RGW Zone Group Name"
 //	@param			zone_name     formData   string	false    "RGW Zone Name"
 //	@param			port     formData   int	false    "Service Port(default: 80)"
-//	@param			hostname     formData   []string	true    "Service Placement Host Name" collectionFormat(multi)
+//	@param			hosts     formData   []string	true    "Service Placement Host Name" collectionFormat(multi)
 //	@Accept			x-www-form-urlencoded
 //	@Produce		json
 //	@Success		200	{string}	string ""
@@ -110,9 +110,9 @@ func (c *Controller) RgwServiceCreate(ctx *gin.Context) {
 	zonegroup_name, _ := ctx.GetPostForm("zonegroup_name")
 	zone_name, _ := ctx.GetPostForm("zone_name")
 	port, _ := ctx.GetPostForm("port")
-	hostname, _ := ctx.GetPostFormArray("hostname")
+	hosts, _ := ctx.GetPostFormArray("hosts")
 
-	hosts_str := strings.Join(hostname, ",")
+	hosts_str := strings.Join(hosts, ",")
 	if port == "" {
 		port = "80"
 	}

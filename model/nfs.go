@@ -111,13 +111,13 @@ type NfsPlacement struct {
 type NfsSpec struct {
 	Port int `yaml:"port"`
 }
-type NfsIngress struct {
-	ServiceType string         `yaml:"service_type"`
-	ServiceID   string         `yaml:"service_id"`
-	Placement   NfsPlacement   `yaml:"placement"`
-	Spec        NfsIngressSpec `yaml:"spec"`
+type Ingress struct {
+	ServiceType string       `yaml:"service_type"`
+	ServiceID   string       `yaml:"service_id"`
+	Placement   NfsPlacement `yaml:"placement"`
+	Spec        IngressSpec  `yaml:"spec"`
 }
-type NfsIngressSpec struct {
+type IngressSpec struct {
 	BackendService           string   `yaml:"backend_service"`
 	VirtualIp                string   `yaml:"virtual_ip"`
 	FrontendPort             int      `yaml:"frontend_port"`

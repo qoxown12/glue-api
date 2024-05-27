@@ -437,7 +437,7 @@ func (c *Controller) IscsiTargetDelete(ctx *gin.Context) {
 //	@Description	Iscsi 타겟을 생성합니다.
 //	@Tags			IscsiTarget
 //	@param			iqn_id	formData	string	true	"Iscsi Target IQN Name"
-//	@param			hostname 	formData	[]string	true	"Gateway Host Name" collectionFormat(multi)
+//	@param			hosts 	formData	[]string	true	"Gateway Host Name" collectionFormat(multi)
 //	@param			ip_address 	formData	[]string	true	"Gateway Host IP Address" collectionFormat(multi)
 //	@param			pool_name 	formData	[]string	false	"Glue Pool Name" collectionFormat(multi)
 //	@param			image_name 	formData	[]string	false	"Glue Image Name" collectionFormat(multi)
@@ -455,7 +455,7 @@ func (c *Controller) IscsiTargetDelete(ctx *gin.Context) {
 //	@Router			/api/v1/iscsi/target [post]
 func (c *Controller) IscsiTargetCreate(ctx *gin.Context) {
 	iqn_id, _ := ctx.GetPostForm("iqn_id")
-	hostname, _ := ctx.GetPostFormArray("hostname")
+	hosts, _ := ctx.GetPostFormArray("hosts")
 	ip_address, _ := ctx.GetPostFormArray("ip_address")
 	image_name, _ := ctx.GetPostFormArray("image_name")
 	pool_name, _ := ctx.GetPostFormArray("pool_name")
@@ -467,9 +467,9 @@ func (c *Controller) IscsiTargetCreate(ctx *gin.Context) {
 
 	var portal model.Portals
 	portals := make([]model.Portals, 0)
-	for i := 0; i < len(hostname); i++ {
+	for i := 0; i < len(hosts); i++ {
 		portal = model.Portals{
-			Host: hostname[i],
+			Host: hosts[i],
 			Ip:   ip_address[i],
 		}
 		portals = append(portals, portal)
@@ -570,7 +570,7 @@ func (c *Controller) IscsiTargetCreate(ctx *gin.Context) {
 //	@Tags			IscsiTarget
 //	@param			iqn_id	formData	string	true	"Iscsi Target Old IQN Name"
 //	@param			new_iqn_id	formData	string	true	"Iscsi Target New IQN Name"
-//	@param			hostname 	formData	[]string	true	"Gateway Host Name" collectionFormat(multi)
+//	@param			hosts	formData	[]string	true	"Gateway Host Name" collectionFormat(multi)
 //	@param			ip_address 	formData	[]string	true	"Gateway Host IP Address" collectionFormat(multi)
 //	@param			pool_name 	formData	[]string	false	"Glue Pool Name" collectionFormat(multi)
 //	@param			image_name 	formData	[]string	false	"Glue Image Name" collectionFormat(multi)
@@ -589,7 +589,7 @@ func (c *Controller) IscsiTargetCreate(ctx *gin.Context) {
 func (c *Controller) IscsiTargetUpdate(ctx *gin.Context) {
 	iqn_id, _ := ctx.GetPostForm("iqn_id")
 	new_iqn_id, _ := ctx.GetPostForm("new_iqn_id")
-	hostname, _ := ctx.GetPostFormArray("hostname")
+	hosts, _ := ctx.GetPostFormArray("hosts")
 	ip_address, _ := ctx.GetPostFormArray("ip_address")
 	image_name, _ := ctx.GetPostFormArray("image_name")
 	pool_name, _ := ctx.GetPostFormArray("pool_name")
@@ -601,9 +601,9 @@ func (c *Controller) IscsiTargetUpdate(ctx *gin.Context) {
 
 	var portal model.Portals
 	portals := make([]model.Portals, 0)
-	for i := 0; i < len(hostname); i++ {
+	for i := 0; i < len(hosts); i++ {
 		portal = model.Portals{
-			Host: hostname[i],
+			Host: hosts[i],
 			Ip:   ip_address[i],
 		}
 		portals = append(portals, portal)

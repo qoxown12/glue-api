@@ -360,6 +360,6 @@ func RgwBucketDelete(bucket_name string) (output string, err error) {
 		utils.FancyHandleError(err)
 		return
 	}
-	output = "Success"
+	output = strings.ReplaceAll(string(stdout), "\n", "")
 	return
 }

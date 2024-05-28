@@ -265,8 +265,19 @@ then
 
                                 systemctl stop winbind.service > /dev/null 2>&1
                                 systemctl disable winbind.service > /dev/null 2>&1
+
+                                user=$(pdbedit -L --debuglevel=1 | grep -v 'root' | grep -v 'ablecloud' | cut -d ':' -f1)
+
+                                if [ $user ]
+                                then
+                                        for list in $user
+                                        do
+                                                smbpasswd -x $list > /dev/null 2>&1
+                                                userdel -r $list > /dev/null 2>&1
+                                        done
+                                fi
                         else
-                                user=$(pdbedit -L | grep -v 'root' | grep -v 'ablecloud' | cut -d ':' -f1)
+                                user=$(pdbedit -L  | grep -v 'root' | grep -v 'ablecloud' | cut -d ':' -f1)
 
                                 for list in $user
                                 do

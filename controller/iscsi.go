@@ -45,6 +45,8 @@ func (c *Controller) IscsiOption(ctx *gin.Context) {
 //	@Failure		500	{object}	httputil.HTTP500InternalServerError
 //	@Router			/api/v1/iscsi [post]
 func (c *Controller) IscsiServiceCreate(ctx *gin.Context) {
+	ctx.Header("Access-Control-Allow-Origin", "*")
+
 	service_id, _ := ctx.GetPostForm("service_id")
 	hosts, _ := ctx.GetPostFormArray("hosts")
 	pool, _ := ctx.GetPostForm("pool")
@@ -106,7 +108,6 @@ func (c *Controller) IscsiServiceCreate(ctx *gin.Context) {
 			}
 		}
 		// Print the output
-		ctx.Header("Access-Control-Allow-Origin", "*")
 		ctx.IndentedJSON(http.StatusOK, dat)
 	} else {
 		value := model.IscsiServiceCreateCount{
@@ -148,7 +149,6 @@ func (c *Controller) IscsiServiceCreate(ctx *gin.Context) {
 			}
 		}
 		// Print the output
-		ctx.Header("Access-Control-Allow-Origin", "*")
 		ctx.IndentedJSON(http.StatusOK, dat)
 	}
 }
@@ -173,6 +173,8 @@ func (c *Controller) IscsiServiceCreate(ctx *gin.Context) {
 //	@Failure		500	{object}	httputil.HTTP500InternalServerError
 //	@Router			/api/v1/iscsi [put]
 func (c *Controller) IscsiServiceUpdate(ctx *gin.Context) {
+	ctx.Header("Access-Control-Allow-Origin", "*")
+
 	service_id, _ := ctx.GetPostForm("service_id")
 	hosts, _ := ctx.GetPostFormArray("hosts")
 	pool, _ := ctx.GetPostForm("pool")
@@ -215,14 +217,10 @@ func (c *Controller) IscsiServiceUpdate(ctx *gin.Context) {
 			return
 		}
 		iscsi_yaml := "/etc/ceph/iscsi.yaml"
-		err = os.WriteFile(iscsi_yaml, yaml_data, 0644)
-		if err != nil {
-			utils.FancyHandleError(err)
-			httputil.NewError(ctx, http.StatusInternalServerError, err)
-			return
-		}
 
-		dat, err := iscsi.IscsiServiceCreate(iscsi_yaml)
+		os.WriteFile(iscsi_yaml, yaml_data, 0644)
+
+		_, err = iscsi.IscsiServiceCreate(iscsi_yaml)
 		if err != nil {
 			utils.FancyHandleError(err)
 			httputil.NewError(ctx, http.StatusInternalServerError, err)
@@ -232,13 +230,12 @@ func (c *Controller) IscsiServiceUpdate(ctx *gin.Context) {
 				utils.FancyHandleError(err)
 				httputil.NewError(ctx, http.StatusInternalServerError, err)
 			}
-			dat, err = glue.ServiceReDeploy("iscsi." + service_id)
+			dat, err := glue.ServiceReDeploy("iscsi." + service_id)
 			if err != nil {
 				utils.FancyHandleError(err)
 				httputil.NewError(ctx, http.StatusInternalServerError, err)
 				return
 			}
-			ctx.Header("Access-Control-Allow-Origin", "*")
 			ctx.IndentedJSON(http.StatusOK, dat)
 		}
 	} else {
@@ -262,13 +259,10 @@ func (c *Controller) IscsiServiceUpdate(ctx *gin.Context) {
 			return
 		}
 		iscsi_yaml := "/etc/ceph/iscsi.yaml"
-		err = os.WriteFile(iscsi_yaml, yaml_data, 0644)
-		if err != nil {
-			utils.FancyHandleError(err)
-			httputil.NewError(ctx, http.StatusInternalServerError, err)
-			return
-		}
-		dat, err := iscsi.IscsiServiceCreate(iscsi_yaml)
+
+		os.WriteFile(iscsi_yaml, yaml_data, 0644)
+
+		_, err = iscsi.IscsiServiceCreate(iscsi_yaml)
 		if err != nil {
 			utils.FancyHandleError(err)
 			httputil.NewError(ctx, http.StatusInternalServerError, err)
@@ -278,13 +272,12 @@ func (c *Controller) IscsiServiceUpdate(ctx *gin.Context) {
 				utils.FancyHandleError(err)
 				httputil.NewError(ctx, http.StatusInternalServerError, err)
 			}
-			dat, err = glue.ServiceReDeploy("iscsi." + service_id)
+			dat, err := glue.ServiceReDeploy("iscsi." + service_id)
 			if err != nil {
 				utils.FancyHandleError(err)
 				httputil.NewError(ctx, http.StatusInternalServerError, err)
 				return
 			}
-			ctx.Header("Access-Control-Allow-Origin", "*")
 			ctx.IndentedJSON(http.StatusOK, dat)
 		}
 	}
@@ -304,6 +297,8 @@ func (c *Controller) IscsiServiceUpdate(ctx *gin.Context) {
 //	@Failure		500	{object}	httputil.HTTP500InternalServerError
 //	@Router			/api/v1/iscsi/target [get]
 func (c *Controller) IscsiTargetList(ctx *gin.Context) {
+	ctx.Header("Access-Control-Allow-Origin", "*")
+
 	var request *http.Request
 	var responseBody []byte
 	var err error
@@ -354,9 +349,7 @@ func (c *Controller) IscsiTargetList(ctx *gin.Context) {
 		httputil.NewError(ctx, http.StatusInternalServerError, err)
 		return
 	}
-
 	// Print the output
-	ctx.Header("Access-Control-Allow-Origin", "*")
 	ctx.IndentedJSON(http.StatusOK, dat)
 
 }
@@ -375,6 +368,8 @@ func (c *Controller) IscsiTargetList(ctx *gin.Context) {
 //	@Failure		500	{object}	httputil.HTTP500InternalServerError
 //	@Router			/api/v1/iscsi/target [delete]
 func (c *Controller) IscsiTargetDelete(ctx *gin.Context) {
+	ctx.Header("Access-Control-Allow-Origin", "*")
+
 	var request *http.Request
 	var responseBody []byte
 	var err error
@@ -427,7 +422,6 @@ func (c *Controller) IscsiTargetDelete(ctx *gin.Context) {
 		}
 	}
 	// Print the output
-	ctx.Header("Access-Control-Allow-Origin", "*")
 	ctx.IndentedJSON(http.StatusOK, dat)
 }
 
@@ -454,6 +448,8 @@ func (c *Controller) IscsiTargetDelete(ctx *gin.Context) {
 //	@Failure		500	{object}	httputil.HTTP500InternalServerError
 //	@Router			/api/v1/iscsi/target [post]
 func (c *Controller) IscsiTargetCreate(ctx *gin.Context) {
+	ctx.Header("Access-Control-Allow-Origin", "*")
+
 	iqn_id, _ := ctx.GetPostForm("iqn_id")
 	hosts, _ := ctx.GetPostFormArray("hosts")
 	ip_address, _ := ctx.GetPostFormArray("ip_address")
@@ -559,7 +555,6 @@ func (c *Controller) IscsiTargetCreate(ctx *gin.Context) {
 		}
 	}
 	// Print the output
-	ctx.Header("Access-Control-Allow-Origin", "*")
 	ctx.IndentedJSON(http.StatusOK, dat)
 }
 
@@ -587,6 +582,8 @@ func (c *Controller) IscsiTargetCreate(ctx *gin.Context) {
 //	@Failure		500	{object}	httputil.HTTP500InternalServerError
 //	@Router			/api/v1/iscsi/target [put]
 func (c *Controller) IscsiTargetUpdate(ctx *gin.Context) {
+	ctx.Header("Access-Control-Allow-Origin", "*")
+
 	iqn_id, _ := ctx.GetPostForm("iqn_id")
 	new_iqn_id, _ := ctx.GetPostForm("new_iqn_id")
 	hosts, _ := ctx.GetPostFormArray("hosts")
@@ -687,9 +684,7 @@ func (c *Controller) IscsiTargetUpdate(ctx *gin.Context) {
 		httputil.NewError(ctx, http.StatusInternalServerError, err)
 		return
 	}
-
 	// Print the output
-	ctx.Header("Access-Control-Allow-Origin", "*")
 	ctx.IndentedJSON(http.StatusOK, dat)
 }
 
@@ -706,6 +701,8 @@ func (c *Controller) IscsiTargetUpdate(ctx *gin.Context) {
 //	@Failure		500	{object}	httputil.HTTP500InternalServerError
 //	@Router			/api/v1/iscsi/discovery [get]
 func (c *Controller) IscsiGetDiscoveryAuth(ctx *gin.Context) {
+	ctx.Header("Access-Control-Allow-Origin", "*")
+
 	var request *http.Request
 	var responseBody []byte
 	var err error
@@ -751,7 +748,6 @@ func (c *Controller) IscsiGetDiscoveryAuth(ctx *gin.Context) {
 		return
 	}
 	// Print the output
-	ctx.Header("Access-Control-Allow-Origin", "*")
 	ctx.IndentedJSON(http.StatusOK, dat)
 }
 
@@ -772,6 +768,8 @@ func (c *Controller) IscsiGetDiscoveryAuth(ctx *gin.Context) {
 //	@Failure		500	{object}	httputil.HTTP500InternalServerError
 //	@Router			/api/v1/iscsi/discovery [put]
 func (c *Controller) IscsiUpdateDiscoveryAuth(ctx *gin.Context) {
+	ctx.Header("Access-Control-Allow-Origin", "*")
+
 	user, _ := ctx.GetPostForm("user")
 	password, _ := ctx.GetPostForm("password")
 	mutual_user, _ := ctx.GetPostForm("mutual_user")
@@ -832,7 +830,6 @@ func (c *Controller) IscsiUpdateDiscoveryAuth(ctx *gin.Context) {
 		return
 	}
 	// Print the output
-	ctx.Header("Access-Control-Allow-Origin", "*")
 	ctx.IndentedJSON(http.StatusOK, dat)
 }
 
@@ -850,6 +847,8 @@ func (c *Controller) IscsiUpdateDiscoveryAuth(ctx *gin.Context) {
 //	@Failure		500	{object}	httputil.HTTP500InternalServerError
 //	@Router			/api/v1/iscsi/target/purge [delete]
 func (c *Controller) IscsiTargetPurge(ctx *gin.Context) {
+	ctx.Header("Access-Control-Allow-Origin", "*")
+
 	iqn_id := ctx.Request.URL.Query().Get("iqn_id")
 
 	hostname, err := iscsi.IscsiHost()
@@ -870,6 +869,5 @@ func (c *Controller) IscsiTargetPurge(ctx *gin.Context) {
 		httputil.NewError(ctx, http.StatusInternalServerError, err)
 		return
 	}
-	ctx.Header("Access-Control-Allow-Origin", "*")
 	ctx.IndentedJSON(http.StatusOK, dat)
 }

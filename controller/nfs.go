@@ -35,6 +35,8 @@ func (c *Controller) NfsOption(ctx *gin.Context) {
 //	@Failure		500	{object}	httputil.HTTP500InternalServerError
 //	@Router			/api/v1/nfs [get]
 func (c *Controller) NfsClusterList(ctx *gin.Context) {
+	ctx.Header("Access-Control-Allow-Origin", "*")
+
 	cluster_id := ctx.Request.URL.Query().Get("cluster_id")
 	dat, err := nfs.NfsClusterList(cluster_id)
 	if err != nil {
@@ -43,7 +45,6 @@ func (c *Controller) NfsClusterList(ctx *gin.Context) {
 		return
 	}
 	// Print the output
-	ctx.Header("Access-Control-Allow-Origin", "*")
 	ctx.IndentedJSON(http.StatusOK, dat)
 }
 
@@ -64,6 +65,8 @@ func (c *Controller) NfsClusterList(ctx *gin.Context) {
 //	@Failure		500	{object}	httputil.HTTP500InternalServerError
 //	@Router			/api/v1/nfs/{cluster_id}/{port} [post]
 func (c *Controller) NfsClusterCreate(ctx *gin.Context) {
+	ctx.Header("Access-Control-Allow-Origin", "*")
+
 	cluster_id := ctx.Param("cluster_id")
 	hosts, _ := ctx.GetPostFormArray("hosts")
 	service_count, _ := ctx.GetPostForm("service_count")
@@ -120,7 +123,6 @@ func (c *Controller) NfsClusterCreate(ctx *gin.Context) {
 				}
 			}
 		}
-		ctx.Header("Access-Control-Allow-Origin", "*")
 		ctx.IndentedJSON(http.StatusOK, dat)
 	} else {
 		value := model.NfsClusterCreateCount{
@@ -172,7 +174,6 @@ func (c *Controller) NfsClusterCreate(ctx *gin.Context) {
 				}
 			}
 		}
-		ctx.Header("Access-Control-Allow-Origin", "*")
 		ctx.IndentedJSON(http.StatusOK, dat)
 	}
 }
@@ -194,6 +195,8 @@ func (c *Controller) NfsClusterCreate(ctx *gin.Context) {
 //	@Failure		500	{object}	httputil.HTTP500InternalServerError
 //	@Router			/api/v1/nfs/{cluster_id}/{port} [put]
 func (c *Controller) NfsClusterUpdate(ctx *gin.Context) {
+	ctx.Header("Access-Control-Allow-Origin", "*")
+
 	cluster_id := ctx.Param("cluster_id")
 	hosts, _ := ctx.GetPostFormArray("hosts")
 	service_count, _ := ctx.GetPostForm("service_count")
@@ -240,7 +243,6 @@ func (c *Controller) NfsClusterUpdate(ctx *gin.Context) {
 				httputil.NewError(ctx, http.StatusInternalServerError, err)
 				return
 			}
-			ctx.Header("Access-Control-Allow-Origin", "*")
 			ctx.IndentedJSON(http.StatusOK, dat)
 		}
 	} else {
@@ -283,7 +285,6 @@ func (c *Controller) NfsClusterUpdate(ctx *gin.Context) {
 				httputil.NewError(ctx, http.StatusInternalServerError, err)
 				return
 			}
-			ctx.Header("Access-Control-Allow-Origin", "*")
 			ctx.IndentedJSON(http.StatusOK, dat)
 		}
 	}
@@ -304,6 +305,8 @@ func (c *Controller) NfsClusterUpdate(ctx *gin.Context) {
 //	@Failure		500	{object}	httputil.HTTP500InternalServerError
 //	@Router			/api/v1/nfs/{cluster_id} [delete]
 func (c *Controller) NfsClusterDelete(ctx *gin.Context) {
+	ctx.Header("Access-Control-Allow-Origin", "*")
+
 	cluster_id := ctx.Param("cluster_id")
 	dat, err := nfs.NfsClusterDelete(cluster_id)
 	if err != nil {
@@ -312,7 +315,6 @@ func (c *Controller) NfsClusterDelete(ctx *gin.Context) {
 		return
 	}
 	// Print the output
-	ctx.Header("Access-Control-Allow-Origin", "*")
 	ctx.IndentedJSON(http.StatusOK, dat)
 }
 
@@ -338,6 +340,7 @@ func (c *Controller) NfsClusterDelete(ctx *gin.Context) {
 //	@Failure		500	{object}	httputil.HTTP500InternalServerError
 //	@Router			/api/v1/nfs/export/{cluster_id} [post]
 func (c *Controller) NfsExportCreate(ctx *gin.Context) {
+	ctx.Header("Access-Control-Allow-Origin", "*")
 
 	access_type, _ := ctx.GetPostForm("access_type")
 	fs_name, _ := ctx.GetPostForm("fs_name")
@@ -401,7 +404,6 @@ func (c *Controller) NfsExportCreate(ctx *gin.Context) {
 				return
 			}
 		}
-		ctx.Header("Access-Control-Allow-Origin", "*")
 		ctx.IndentedJSON(http.StatusOK, dat)
 	}
 }
@@ -429,6 +431,8 @@ func (c *Controller) NfsExportCreate(ctx *gin.Context) {
 //	@Failure		500	{object}	httputil.HTTP500InternalServerError
 //	@Router			/api/v1/nfs/export/{cluster_id} [put]
 func (c *Controller) NfsExportUpdate(ctx *gin.Context) {
+	ctx.Header("Access-Control-Allow-Origin", "*")
+
 	cluster_id := ctx.Param("cluster_id")
 	export_id_data, _ := ctx.GetPostForm("export_id")
 	access_type, _ := ctx.GetPostForm("access_type")
@@ -496,7 +500,6 @@ func (c *Controller) NfsExportUpdate(ctx *gin.Context) {
 				return
 			}
 		}
-		ctx.Header("Access-Control-Allow-Origin", "*")
 		ctx.IndentedJSON(http.StatusOK, dat)
 	}
 }
@@ -516,6 +519,8 @@ func (c *Controller) NfsExportUpdate(ctx *gin.Context) {
 //	@Failure		500	{object}	httputil.HTTP500InternalServerError
 //	@Router			/api/v1/nfs/export/{cluster_id}/{export_id} [delete]
 func (c *Controller) NfsExportDelete(ctx *gin.Context) {
+	ctx.Header("Access-Control-Allow-Origin", "*")
+
 	cluster_id := ctx.Param("cluster_id")
 	export_id, err := strconv.Atoi(ctx.Param("export_id"))
 	if err != nil {
@@ -539,8 +544,6 @@ func (c *Controller) NfsExportDelete(ctx *gin.Context) {
 				return
 
 			}
-
-			ctx.Header("Access-Control-Allow-Origin", "*")
 			ctx.IndentedJSON(http.StatusOK, dat)
 		}
 	}
@@ -561,6 +564,8 @@ func (c *Controller) NfsExportDelete(ctx *gin.Context) {
 //	@Failure		500	{object}	httputil.HTTP500InternalServerError
 //	@Router			/api/v1/nfs/export [get]
 func (c *Controller) NfsExportDetailed(ctx *gin.Context) {
+	ctx.Header("Access-Control-Allow-Origin", "*")
+
 	cluster_id := ctx.Request.URL.Query().Get("cluster_id")
 	if cluster_id != "" {
 		dat, err := nfs.NfsExportDetailed(cluster_id)
@@ -569,7 +574,6 @@ func (c *Controller) NfsExportDetailed(ctx *gin.Context) {
 			httputil.NewError(ctx, http.StatusInternalServerError, err)
 			return
 		}
-		ctx.Header("Access-Control-Allow-Origin", "*")
 		ctx.IndentedJSON(http.StatusOK, dat)
 	} else {
 		var output model.NfsExportDetailed
@@ -588,7 +592,6 @@ func (c *Controller) NfsExportDetailed(ctx *gin.Context) {
 			httputil.NewError(ctx, http.StatusInternalServerError, err)
 			return
 		}
-		ctx.Header("Access-Control-Allow-Origin", "*")
 		ctx.IndentedJSON(http.StatusOK, output)
 	}
 }
@@ -613,6 +616,7 @@ func (c *Controller) NfsExportDetailed(ctx *gin.Context) {
 //	@Failure		500	{object}	httputil.HTTP500InternalServerError
 //	@Router			/api/v1/ingress [post]
 func (c *Controller) IngressCreate(ctx *gin.Context) {
+	ctx.Header("Access-Control-Allow-Origin", "*")
 
 	service_id, _ := ctx.GetPostForm("service_id")
 	hosts, _ := ctx.GetPostFormArray("hosts")
@@ -665,7 +669,6 @@ func (c *Controller) IngressCreate(ctx *gin.Context) {
 				return
 			}
 		}
-		ctx.Header("Access-Control-Allow-Origin", "*")
 		ctx.IndentedJSON(http.StatusOK, dat)
 	}
 }
@@ -690,6 +693,7 @@ func (c *Controller) IngressCreate(ctx *gin.Context) {
 //	@Failure		500	{object}	httputil.HTTP500InternalServerError
 //	@Router			/api/v1/ingress [put]
 func (c *Controller) IngressUpdate(ctx *gin.Context) {
+	ctx.Header("Access-Control-Allow-Origin", "*")
 
 	service_id, _ := ctx.GetPostForm("service_id")
 	hosts, _ := ctx.GetPostFormArray("hosts")
@@ -747,7 +751,6 @@ func (c *Controller) IngressUpdate(ctx *gin.Context) {
 				httputil.NewError(ctx, http.StatusInternalServerError, err)
 				return
 			}
-			ctx.Header("Access-Control-Allow-Origin", "*")
 			ctx.IndentedJSON(http.StatusOK, dat)
 		}
 	}

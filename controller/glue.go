@@ -32,6 +32,7 @@ func (c *Controller) GlueOption(ctx *gin.Context) {
 //	@Failure		500	{object}	httputil.HTTP500InternalServerError
 //	@Router			/api/v1/glue [get]
 func (c *Controller) GlueStatus(ctx *gin.Context) {
+	ctx.Header("Access-Control-Allow-Origin", "*")
 
 	dat, err := glue.Status()
 	if err != nil {
@@ -40,7 +41,6 @@ func (c *Controller) GlueStatus(ctx *gin.Context) {
 		return
 	}
 	// Print the output
-	ctx.Header("Access-Control-Allow-Origin", "*")
 	ctx.IndentedJSON(http.StatusOK, dat)
 }
 
@@ -57,6 +57,8 @@ func (c *Controller) GlueStatus(ctx *gin.Context) {
 //	@Failure		500	{object}	httputil.HTTP500InternalServerError
 //	@Router			/api/v1/glue/version [get]
 func (c *Controller) GlueVersion(ctx *gin.Context) {
+	ctx.Header("Access-Control-Allow-Origin", "*")
+
 	var dat model.GlueVersion
 
 	cmd := exec.Command("ceph", "versions")
@@ -71,7 +73,6 @@ func (c *Controller) GlueVersion(ctx *gin.Context) {
 		httputil.NewError(ctx, http.StatusInternalServerError, err)
 		return
 	}
-	ctx.Header("Access-Control-Allow-Origin", "*")
 	ctx.IndentedJSON(http.StatusOK, dat)
 }
 
@@ -89,6 +90,8 @@ func (c *Controller) GlueVersion(ctx *gin.Context) {
 //	@Failure		500	{object}	httputil.HTTP500InternalServerError
 //	@Router			/api/v1/pool [get]
 func (c *Controller) ListPools(ctx *gin.Context) {
+	ctx.Header("Access-Control-Allow-Origin", "*")
+
 	pool_type := ctx.Request.URL.Query().Get("pool_type")
 	dat, err := glue.ListPool(pool_type)
 	if err != nil {
@@ -96,7 +99,6 @@ func (c *Controller) ListPools(ctx *gin.Context) {
 		httputil.NewError(ctx, http.StatusInternalServerError, err)
 		return
 	}
-	ctx.Header("Access-Control-Allow-Origin", "*")
 	ctx.IndentedJSON(http.StatusOK, dat)
 }
 
@@ -114,6 +116,8 @@ func (c *Controller) ListPools(ctx *gin.Context) {
 //	@Failure		500	{object}	httputil.HTTP500InternalServerError
 //	@Router			/api/v1/pool/{pool_name} [delete]
 func (c *Controller) PoolDelete(ctx *gin.Context) {
+	ctx.Header("Access-Control-Allow-Origin", "*")
+
 	pool_name := ctx.Param("pool_name")
 	dat, err := glue.PoolDelete(pool_name)
 	if err != nil {
@@ -122,7 +126,6 @@ func (c *Controller) PoolDelete(ctx *gin.Context) {
 		return
 	}
 	// Print the output
-	ctx.Header("Access-Control-Allow-Origin", "*")
 	ctx.IndentedJSON(http.StatusOK, dat)
 }
 
@@ -141,6 +144,8 @@ func (c *Controller) PoolDelete(ctx *gin.Context) {
 //	@Failure		500	{object}	httputil.HTTP500InternalServerError
 //	@Router			/api/v1/image [get]
 func (c *Controller) ListAndInfoImage(ctx *gin.Context) {
+	ctx.Header("Access-Control-Allow-Origin", "*")
+
 	pool_name := ctx.Request.URL.Query().Get("pool_name")
 	image_name := ctx.Request.URL.Query().Get("image_name")
 
@@ -164,7 +169,6 @@ func (c *Controller) ListAndInfoImage(ctx *gin.Context) {
 				pools = append(pools, name)
 			}
 		}
-		ctx.Header("Access-Control-Allow-Origin", "*")
 		ctx.IndentedJSON(http.StatusOK, pools)
 	} else if image_name == "" && pool_name != "" {
 		dat, err := glue.InfoImage(pool_name)
@@ -173,7 +177,6 @@ func (c *Controller) ListAndInfoImage(ctx *gin.Context) {
 			httputil.NewError(ctx, http.StatusInternalServerError, err)
 			return
 		}
-		ctx.Header("Access-Control-Allow-Origin", "*")
 		ctx.IndentedJSON(http.StatusOK, dat)
 	} else {
 		dat, err := glue.ListAndInfoImage(image_name, pool_name)
@@ -182,7 +185,6 @@ func (c *Controller) ListAndInfoImage(ctx *gin.Context) {
 			httputil.NewError(ctx, http.StatusInternalServerError, err)
 			return
 		}
-		ctx.Header("Access-Control-Allow-Origin", "*")
 		ctx.IndentedJSON(http.StatusOK, dat)
 	}
 }
@@ -203,6 +205,8 @@ func (c *Controller) ListAndInfoImage(ctx *gin.Context) {
 //	@Failure		500	{object}	httputil.HTTP500InternalServerError
 //	@Router			/api/v1/image [post]
 func (c *Controller) CreateImage(ctx *gin.Context) {
+	ctx.Header("Access-Control-Allow-Origin", "*")
+
 	image_name, _ := ctx.GetPostForm("image_name")
 	pool_name, _ := ctx.GetPostForm("pool_name")
 	size, _ := ctx.GetPostForm("size")
@@ -220,7 +224,6 @@ func (c *Controller) CreateImage(ctx *gin.Context) {
 		httputil.NewError(ctx, http.StatusInternalServerError, err)
 		return
 	}
-	ctx.Header("Access-Control-Allow-Origin", "*")
 	ctx.IndentedJSON(http.StatusOK, dat)
 }
 
@@ -239,6 +242,8 @@ func (c *Controller) CreateImage(ctx *gin.Context) {
 //	@Failure		500	{object}	httputil.HTTP500InternalServerError
 //	@Router			/api/v1/image [delete]
 func (c *Controller) DeleteImage(ctx *gin.Context) {
+	ctx.Header("Access-Control-Allow-Origin", "*")
+
 	image_name := ctx.Request.URL.Query().Get("image_name")
 	pool_name := ctx.Request.URL.Query().Get("pool_name")
 	dat, err := glue.DeleteImage(image_name, pool_name)
@@ -247,7 +252,6 @@ func (c *Controller) DeleteImage(ctx *gin.Context) {
 		httputil.NewError(ctx, http.StatusInternalServerError, err)
 		return
 	}
-	ctx.Header("Access-Control-Allow-Origin", "*")
 	ctx.IndentedJSON(http.StatusOK, dat)
 }
 
@@ -266,6 +270,8 @@ func (c *Controller) DeleteImage(ctx *gin.Context) {
 //	@Failure		500	{object}	httputil.HTTP500InternalServerError
 //	@Router			/api/v1/service [get]
 func (c *Controller) ServiceLs(ctx *gin.Context) {
+	ctx.Header("Access-Control-Allow-Origin", "*")
+
 	service_name := ctx.Request.URL.Query().Get("service_name")
 	service_type := ctx.Request.URL.Query().Get("service_type")
 	dat, err := glue.ServiceLs(service_name, service_type)
@@ -276,7 +282,6 @@ func (c *Controller) ServiceLs(ctx *gin.Context) {
 	}
 
 	// Print the output
-	ctx.Header("Access-Control-Allow-Origin", "*")
 	ctx.IndentedJSON(http.StatusOK, dat)
 }
 
@@ -295,6 +300,8 @@ func (c *Controller) ServiceLs(ctx *gin.Context) {
 //	@Failure		500	{object}	httputil.HTTP500InternalServerError
 //	@Router			/api/v1/service/{service_name} [post]
 func (c *Controller) ServiceControl(ctx *gin.Context) {
+	ctx.Header("Access-Control-Allow-Origin", "*")
+
 	service_name := ctx.Param("service_name")
 	control := ctx.Request.URL.Query().Get("control")
 	dat, err := glue.ServiceControl(control, service_name)
@@ -304,7 +311,6 @@ func (c *Controller) ServiceControl(ctx *gin.Context) {
 		return
 	}
 	// Print the output
-	ctx.Header("Access-Control-Allow-Origin", "*")
 	ctx.IndentedJSON(http.StatusOK, dat)
 }
 
@@ -322,6 +328,8 @@ func (c *Controller) ServiceControl(ctx *gin.Context) {
 //	@Failure		500	{object}	httputil.HTTP500InternalServerError
 //	@Router			/api/v1/service/{service_name} [delete]
 func (c *Controller) ServiceDelete(ctx *gin.Context) {
+	ctx.Header("Access-Control-Allow-Origin", "*")
+
 	service_name := ctx.Param("service_name")
 	// if strings.Contains(service_name, "rgw") {
 	// 	rgw_dat, err := glue.RgwPool()
@@ -339,7 +347,6 @@ func (c *Controller) ServiceDelete(ctx *gin.Context) {
 	// 		}
 	// 		fmt.Print(a)
 	// 		if i == len(rgw_dat)-1 {
-	// 			ctx.Header("Access-Control-Allow-Origin", "*")
 	// 			ctx.IndentedJSON(http.StatusOK, "Success")
 	// 		}
 	// 	}
@@ -351,7 +358,6 @@ func (c *Controller) ServiceDelete(ctx *gin.Context) {
 		return
 	}
 	// Print the output
-	ctx.Header("Access-Control-Allow-Origin", "*")
 	ctx.IndentedJSON(http.StatusOK, dat)
 }
 
@@ -368,6 +374,8 @@ func (c *Controller) ServiceDelete(ctx *gin.Context) {
 //	@Failure		500	{object}	httputil.HTTP500InternalServerError
 //	@Router			/api/v1/glue/hosts [get]
 func (c *Controller) HostList(ctx *gin.Context) {
+	ctx.Header("Access-Control-Allow-Origin", "*")
+
 	dat, err := glue.HostList()
 	if err != nil {
 		utils.FancyHandleError(err)
@@ -393,6 +401,5 @@ func (c *Controller) HostList(ctx *gin.Context) {
 		dat[i].Ip_Address = str[i]
 	}
 	// Print the output
-	ctx.Header("Access-Control-Allow-Origin", "*")
 	ctx.IndentedJSON(http.StatusOK, dat)
 }

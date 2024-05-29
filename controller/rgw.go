@@ -35,6 +35,8 @@ func (c *Controller) RgwOption(ctx *gin.Context) {
 //	@Failure		500	{object}	httputil.HTTP500InternalServerError
 //	@Router			/api/v1/rgw [get]
 func (c *Controller) RgwDaemon(ctx *gin.Context) {
+	ctx.Header("Access-Control-Allow-Origin", "*")
+
 	var request *http.Request
 	var responseBody []byte
 	var err error
@@ -82,7 +84,6 @@ func (c *Controller) RgwDaemon(ctx *gin.Context) {
 	}
 
 	// Print the output
-	ctx.Header("Access-Control-Allow-Origin", "*")
 	ctx.IndentedJSON(http.StatusOK, dat)
 }
 
@@ -105,6 +106,8 @@ func (c *Controller) RgwDaemon(ctx *gin.Context) {
 //	@Failure		500	{object}	httputil.HTTP500InternalServerError
 //	@Router			/api/v1/rgw [post]
 func (c *Controller) RgwServiceCreate(ctx *gin.Context) {
+	ctx.Header("Access-Control-Allow-Origin", "*")
+
 	service_name, _ := ctx.GetPostForm("service_name")
 	realm_name, _ := ctx.GetPostForm("realm_name")
 	zonegroup_name, _ := ctx.GetPostForm("zonegroup_name")
@@ -137,7 +140,6 @@ func (c *Controller) RgwServiceCreate(ctx *gin.Context) {
 			}
 		}
 	}
-	ctx.Header("Access-Control-Allow-Origin", "*")
 	ctx.IndentedJSON(http.StatusOK, dat)
 }
 
@@ -160,6 +162,8 @@ func (c *Controller) RgwServiceCreate(ctx *gin.Context) {
 //	@Failure		500	{object}	httputil.HTTP500InternalServerError
 //	@Router			/api/v1/rgw [put]
 func (c *Controller) RgwServiceUpdate(ctx *gin.Context) {
+	ctx.Header("Access-Control-Allow-Origin", "*")
+
 	service_id, _ := ctx.GetPostForm("service_id")
 	realm_name, _ := ctx.GetPostForm("realm_name")
 	zonegroup_name, _ := ctx.GetPostForm("zonegroup_name")
@@ -175,7 +179,6 @@ func (c *Controller) RgwServiceUpdate(ctx *gin.Context) {
 		httputil.NewError(ctx, http.StatusInternalServerError, err)
 		return
 	}
-	ctx.Header("Access-Control-Allow-Origin", "*")
 	ctx.IndentedJSON(http.StatusOK, dat)
 }
 
@@ -193,6 +196,8 @@ func (c *Controller) RgwServiceUpdate(ctx *gin.Context) {
 //	@Failure		500	{object}	httputil.HTTP500InternalServerError
 //	@Router			/api/v1/rgw/user [get]
 func (c *Controller) RgwUserList(ctx *gin.Context) {
+	ctx.Header("Access-Control-Allow-Origin", "*")
+
 	username := ctx.Request.URL.Query().Get("username")
 
 	if username != "" {
@@ -202,7 +207,6 @@ func (c *Controller) RgwUserList(ctx *gin.Context) {
 			httputil.NewError(ctx, http.StatusInternalServerError, err)
 			return
 		}
-		ctx.Header("Access-Control-Allow-Origin", "*")
 		ctx.IndentedJSON(http.StatusOK, dat)
 	} else {
 		var userInfo []model.RgwUserInfoAndStat
@@ -251,7 +255,6 @@ func (c *Controller) RgwUserList(ctx *gin.Context) {
 			}
 			userInfo = append(userInfo, value)
 		}
-		ctx.Header("Access-Control-Allow-Origin", "*")
 		ctx.IndentedJSON(http.StatusOK, userInfo)
 	}
 }
@@ -272,6 +275,8 @@ func (c *Controller) RgwUserList(ctx *gin.Context) {
 //	@Failure		500	{object}	httputil.HTTP500InternalServerError
 //	@Router			/api/v1/rgw/user [post]
 func (c *Controller) RgwUserCreate(ctx *gin.Context) {
+	ctx.Header("Access-Control-Allow-Origin", "*")
+
 	username, _ := ctx.GetPostForm("username")
 	display_name, _ := ctx.GetPostForm("display_name")
 	email, _ := ctx.GetPostForm("email")
@@ -282,7 +287,6 @@ func (c *Controller) RgwUserCreate(ctx *gin.Context) {
 		httputil.NewError(ctx, http.StatusInternalServerError, err)
 		return
 	}
-	ctx.Header("Access-Control-Allow-Origin", "*")
 	ctx.IndentedJSON(http.StatusOK, dat)
 }
 
@@ -300,6 +304,8 @@ func (c *Controller) RgwUserCreate(ctx *gin.Context) {
 //	@Failure		500	{object}	httputil.HTTP500InternalServerError
 //	@Router			/api/v1/rgw/user [delete]
 func (c *Controller) RgwUserDelete(ctx *gin.Context) {
+	ctx.Header("Access-Control-Allow-Origin", "*")
+
 	username := ctx.Request.URL.Query().Get("username")
 
 	dat, err := rgw.RgwUserDelete(username)
@@ -308,7 +314,6 @@ func (c *Controller) RgwUserDelete(ctx *gin.Context) {
 		httputil.NewError(ctx, http.StatusInternalServerError, err)
 		return
 	}
-	ctx.Header("Access-Control-Allow-Origin", "*")
 	ctx.IndentedJSON(http.StatusOK, dat)
 }
 
@@ -331,6 +336,8 @@ func (c *Controller) RgwUserDelete(ctx *gin.Context) {
 //	@Failure		500	{object}	httputil.HTTP500InternalServerError
 //	@Router			/api/v1/rgw/user [put]
 func (c *Controller) RgwUserUpdate(ctx *gin.Context) {
+	ctx.Header("Access-Control-Allow-Origin", "*")
+
 	username, _ := ctx.GetPostForm("username")
 	display_name, _ := ctx.GetPostForm("display_name")
 	email, _ := ctx.GetPostForm("email")
@@ -344,7 +351,6 @@ func (c *Controller) RgwUserUpdate(ctx *gin.Context) {
 		httputil.NewError(ctx, http.StatusInternalServerError, err)
 		return
 	}
-	ctx.Header("Access-Control-Allow-Origin", "*")
 	ctx.IndentedJSON(http.StatusOK, dat)
 }
 
@@ -366,6 +372,8 @@ func (c *Controller) RgwUserUpdate(ctx *gin.Context) {
 //	@Failure		500	{object}	httputil.HTTP500InternalServerError
 //	@Router			/api/v1/rgw/quota [post]
 func (c *Controller) RgwQuota(ctx *gin.Context) {
+	ctx.Header("Access-Control-Allow-Origin", "*")
+
 	username, _ := ctx.GetPostForm("username")
 	scope, _ := ctx.GetPostForm("scope")
 	max_objects, _ := ctx.GetPostForm("max_objects")
@@ -378,7 +386,6 @@ func (c *Controller) RgwQuota(ctx *gin.Context) {
 		httputil.NewError(ctx, http.StatusInternalServerError, err)
 		return
 	}
-	ctx.Header("Access-Control-Allow-Origin", "*")
 	ctx.IndentedJSON(http.StatusOK, dat)
 }
 
@@ -397,6 +404,8 @@ func (c *Controller) RgwQuota(ctx *gin.Context) {
 //		@Failure		500	{object}	httputil.HTTP500InternalServerError
 //		@Router			/api/v1/rgw/bucket [get]
 func (c *Controller) RgwBucketList(ctx *gin.Context) {
+	ctx.Header("Access-Control-Allow-Origin", "*")
+
 	bucket_name := ctx.Request.URL.Query().Get("bucket_name")
 	detail := ctx.Request.URL.Query().Get("detail")
 	if detail == "true" {
@@ -406,7 +415,6 @@ func (c *Controller) RgwBucketList(ctx *gin.Context) {
 			httputil.NewError(ctx, http.StatusInternalServerError, err)
 			return
 		}
-		ctx.Header("Access-Control-Allow-Origin", "*")
 		ctx.IndentedJSON(http.StatusOK, dat)
 	} else {
 		dat, err := rgw.RgwBucketList()
@@ -415,7 +423,6 @@ func (c *Controller) RgwBucketList(ctx *gin.Context) {
 			httputil.NewError(ctx, http.StatusInternalServerError, err)
 			return
 		}
-		ctx.Header("Access-Control-Allow-Origin", "*")
 		ctx.IndentedJSON(http.StatusOK, dat)
 	}
 }
@@ -438,6 +445,8 @@ func (c *Controller) RgwBucketList(ctx *gin.Context) {
 //	@Failure		500	{object}	httputil.HTTP500InternalServerError
 //	@Router			/api/v1/rgw/bucket [post]
 func (c *Controller) RgwBucketCreate(ctx *gin.Context) {
+	ctx.Header("Access-Control-Allow-Origin", "*")
+
 	bucket_name, _ := ctx.GetPostForm("bucket_name")
 	username, _ := ctx.GetPostForm("username")
 	lock_enabled, _ := ctx.GetPostForm("lock_enabled")
@@ -502,7 +511,6 @@ func (c *Controller) RgwBucketCreate(ctx *gin.Context) {
 		return
 	}
 	// Print the output
-	ctx.Header("Access-Control-Allow-Origin", "*")
 	ctx.IndentedJSON(http.StatusOK, "Success")
 }
 
@@ -525,6 +533,8 @@ func (c *Controller) RgwBucketCreate(ctx *gin.Context) {
 //	@Failure		500	{object}	httputil.HTTP500InternalServerError
 //	@Router			/api/v1/rgw/bucket [put]
 func (c *Controller) RgwBucketUpdate(ctx *gin.Context) {
+	ctx.Header("Access-Control-Allow-Origin", "*")
+
 	bucket_name, _ := ctx.GetPostForm("bucket_name")
 	bucket_id, _ := ctx.GetPostForm("bucket_id")
 	username, _ := ctx.GetPostForm("username")
@@ -590,7 +600,6 @@ func (c *Controller) RgwBucketUpdate(ctx *gin.Context) {
 		return
 	}
 	// Print the output
-	ctx.Header("Access-Control-Allow-Origin", "*")
 	ctx.IndentedJSON(http.StatusOK, "Success")
 }
 
@@ -608,6 +617,8 @@ func (c *Controller) RgwBucketUpdate(ctx *gin.Context) {
 //	@Failure		500	{object}	httputil.HTTP500InternalServerError
 //	@Router			/api/v1/rgw/bucket [delete]
 func (c *Controller) RgwBucketDelete(ctx *gin.Context) {
+	ctx.Header("Access-Control-Allow-Origin", "*")
+
 	bucket_name := ctx.Request.URL.Query().Get("bucket_name")
 	dat, err := rgw.RgwBucketDelete(bucket_name)
 	if err != nil {
@@ -615,6 +626,5 @@ func (c *Controller) RgwBucketDelete(ctx *gin.Context) {
 		httputil.NewError(ctx, http.StatusInternalServerError, err)
 		return
 	}
-	ctx.Header("Access-Control-Allow-Origin", "*")
 	ctx.IndentedJSON(http.StatusOK, dat)
 }

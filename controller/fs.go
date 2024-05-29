@@ -29,6 +29,8 @@ func (c *Controller) FsOption(ctx *gin.Context) {
 //	@Failure		500	{object}	httputil.HTTP500InternalServerError
 //	@Router			/api/v1/gluefs [get]
 func (c *Controller) FsStatus(ctx *gin.Context) {
+	ctx.Header("Access-Control-Allow-Origin", "*")
+
 	dat, err := fs.FsStatus()
 	if err != nil {
 		utils.FancyHandleError(err)
@@ -46,7 +48,6 @@ func (c *Controller) FsStatus(ctx *gin.Context) {
 		return
 	}
 	// Print the output
-	ctx.Header("Access-Control-Allow-Origin", "*")
 	ctx.IndentedJSON(http.StatusOK, value)
 }
 
@@ -65,6 +66,8 @@ func (c *Controller) FsStatus(ctx *gin.Context) {
 //	@Failure		500	{object}	httputil.HTTP500InternalServerError
 //	@Router			/api/v1/gluefs/{fs_name} [post]
 func (c *Controller) FsCreate(ctx *gin.Context) {
+	ctx.Header("Access-Control-Allow-Origin", "*")
+
 	fs_name := ctx.Param("fs_name")
 	hosts, _ := ctx.GetPostFormArray("hosts")
 
@@ -76,7 +79,6 @@ func (c *Controller) FsCreate(ctx *gin.Context) {
 		return
 	}
 	// Print the output
-	ctx.Header("Access-Control-Allow-Origin", "*")
 	ctx.IndentedJSON(http.StatusOK, dat)
 }
 
@@ -96,6 +98,8 @@ func (c *Controller) FsCreate(ctx *gin.Context) {
 //	@Failure		500	{object}	httputil.HTTP500InternalServerError
 //	@Router			/api/v1/gluefs [put]
 func (c *Controller) FsUpdate(ctx *gin.Context) {
+	ctx.Header("Access-Control-Allow-Origin", "*")
+
 	old_name, _ := ctx.GetPostForm("old_name")
 	new_name, _ := ctx.GetPostForm("new_name")
 	hosts, _ := ctx.GetPostFormArray("hosts")
@@ -108,7 +112,6 @@ func (c *Controller) FsUpdate(ctx *gin.Context) {
 		return
 	}
 	// Print the output
-	ctx.Header("Access-Control-Allow-Origin", "*")
 	ctx.IndentedJSON(http.StatusOK, dat)
 }
 
@@ -126,6 +129,8 @@ func (c *Controller) FsUpdate(ctx *gin.Context) {
 //	@Failure		500	{object}	httputil.HTTP500InternalServerError
 //	@Router			/api/v1/gluefs/{fs_name} [delete]
 func (c *Controller) FsDelete(ctx *gin.Context) {
+	ctx.Header("Access-Control-Allow-Origin", "*")
+
 	fs_name := ctx.Param("fs_name")
 	list, err := fs.SubVolumeGroupLs(fs_name)
 	if err != nil {
@@ -134,7 +139,6 @@ func (c *Controller) FsDelete(ctx *gin.Context) {
 		return
 	}
 	if len(list) != 0 {
-		ctx.Header("Access-Control-Allow-Origin", "*")
 		ctx.IndentedJSON(http.StatusOK, "Please Subvolume Group Check")
 	} else {
 		dat, err := fs.FsDelete(fs_name)
@@ -143,7 +147,6 @@ func (c *Controller) FsDelete(ctx *gin.Context) {
 			httputil.NewError(ctx, http.StatusInternalServerError, err)
 			return
 		}
-		ctx.Header("Access-Control-Allow-Origin", "*")
 		ctx.IndentedJSON(http.StatusOK, dat)
 	}
 
@@ -163,6 +166,8 @@ func (c *Controller) FsDelete(ctx *gin.Context) {
 //	@Failure		500	{object}	httputil.HTTP500InternalServerError
 //	@Router			/api/v1/gluefs/info/{fs_name} [get]
 func (c *Controller) FsGetInfo(ctx *gin.Context) {
+	ctx.Header("Access-Control-Allow-Origin", "*")
+
 	fs_name := ctx.Param("fs_name")
 	dat, err := fs.FsGetInfo(fs_name)
 	if err != nil {
@@ -171,6 +176,5 @@ func (c *Controller) FsGetInfo(ctx *gin.Context) {
 		return
 	}
 	// Print the output
-	ctx.Header("Access-Control-Allow-Origin", "*")
 	ctx.IndentedJSON(http.StatusOK, dat)
 }

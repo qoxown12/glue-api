@@ -32,6 +32,8 @@ func (c *Controller) SmbOption(ctx *gin.Context) {
 //	@Failure		500	{object}	httputil.HTTP500InternalServerError
 //	@Router			/api/v1/smb [get]
 func (c *Controller) SmbStatus(ctx *gin.Context) {
+	ctx.Header("Access-Control-Allow-Origin", "*")
+
 	hosts_data, err := smb.Hosts()
 	if err != nil {
 		utils.FancyHandleError(err)
@@ -53,7 +55,6 @@ func (c *Controller) SmbStatus(ctx *gin.Context) {
 		status, _ := smb.SmbStatus(hosts[i], hostname[0])
 		smb_status = append(smb_status, status)
 		if i == len(hosts)-1 {
-			ctx.Header("Access-Control-Allow-Origin", "*")
 			ctx.IndentedJSON(http.StatusOK, smb_status)
 		}
 
@@ -83,6 +84,8 @@ func (c *Controller) SmbStatus(ctx *gin.Context) {
 //	@Failure		500	{object}	httputil.HTTP500InternalServerError
 //	@Router			/api/v1/smb [post]
 func (c *Controller) SmbCreate(ctx *gin.Context) {
+	ctx.Header("Access-Control-Allow-Origin", "*")
+
 	hosts, _ := ctx.GetPostFormArray("hosts")
 	sec_type, _ := ctx.GetPostForm("sec_type")
 	username, _ := ctx.GetPostForm("username")
@@ -98,16 +101,17 @@ func (c *Controller) SmbCreate(ctx *gin.Context) {
 
 	json_file, _ := json.MarshalIndent(dat, "", " ")
 	os.WriteFile("/root/glue-api/conf.json", json_file, 0644)
+
 	if sec_type == "normal" {
 		for i := 0; i < len(hosts); i++ {
 			dat, err := smb.SmbCreate(hosts[i], sec_type, username, password, folder, path, fs_name, volume_path, realm, dns)
 			if err != nil {
 				utils.FancyHandleError(err)
 				httputil.NewError(ctx, http.StatusInternalServerError, err)
+				_, _ = smb.SmbDelete(hosts[i])
 				return
 			}
 			if i == len(hosts)-1 {
-				ctx.Header("Access-Control-Allow-Origin", "*")
 				ctx.IndentedJSON(http.StatusOK, dat)
 			}
 		}
@@ -117,10 +121,10 @@ func (c *Controller) SmbCreate(ctx *gin.Context) {
 			if err != nil {
 				utils.FancyHandleError(err)
 				httputil.NewError(ctx, http.StatusInternalServerError, err)
+				_, _ = smb.SmbDelete(hosts[i])
 				return
 			}
 			if i == len(hosts)-1 {
-				ctx.Header("Access-Control-Allow-Origin", "*")
 				ctx.IndentedJSON(http.StatusOK, dat)
 			}
 		}
@@ -143,6 +147,8 @@ func (c *Controller) SmbCreate(ctx *gin.Context) {
 //	@Failure		500	{object}	httputil.HTTP500InternalServerError
 //	@Router			/api/v1/smb/user [post]
 func (c *Controller) SmbUserCreate(ctx *gin.Context) {
+	ctx.Header("Access-Control-Allow-Origin", "*")
+
 	hosts, _ := ctx.GetPostFormArray("hosts")
 	username, _ := ctx.GetPostForm("username")
 	password, _ := ctx.GetPostForm("password")
@@ -155,7 +161,6 @@ func (c *Controller) SmbUserCreate(ctx *gin.Context) {
 			return
 		}
 		if i == len(hosts)-1 {
-			ctx.Header("Access-Control-Allow-Origin", "*")
 			ctx.IndentedJSON(http.StatusOK, dat)
 		}
 	}
@@ -177,6 +182,8 @@ func (c *Controller) SmbUserCreate(ctx *gin.Context) {
 //	@Failure		500	{object}	httputil.HTTP500InternalServerError
 //	@Router			/api/v1/smb/user [put]
 func (c *Controller) SmbUserUpdate(ctx *gin.Context) {
+	ctx.Header("Access-Control-Allow-Origin", "*")
+
 	hosts, _ := ctx.GetPostFormArray("hosts")
 	username, _ := ctx.GetPostForm("username")
 	password, _ := ctx.GetPostForm("password")
@@ -189,7 +196,6 @@ func (c *Controller) SmbUserUpdate(ctx *gin.Context) {
 			return
 		}
 		if i == len(hosts)-1 {
-			ctx.Header("Access-Control-Allow-Origin", "*")
 			ctx.IndentedJSON(http.StatusOK, dat)
 		}
 	}
@@ -209,6 +215,8 @@ func (c *Controller) SmbUserUpdate(ctx *gin.Context) {
 //	@Failure		500	{object}	httputil.HTTP500InternalServerError
 //	@Router			/api/v1/smb [delete]
 func (c *Controller) SmbDelete(ctx *gin.Context) {
+	ctx.Header("Access-Control-Allow-Origin", "*")
+
 	hosts := ctx.QueryArray("hosts")
 	for i := 0; i < len(hosts); i++ {
 		dat, err := smb.SmbDelete(hosts[i])
@@ -218,7 +226,6 @@ func (c *Controller) SmbDelete(ctx *gin.Context) {
 			return
 		}
 		if i == len(hosts)-1 {
-			ctx.Header("Access-Control-Allow-Origin", "*")
 			ctx.IndentedJSON(http.StatusOK, dat)
 		}
 	}
@@ -239,6 +246,8 @@ func (c *Controller) SmbDelete(ctx *gin.Context) {
 //	@Failure		500	{object}	httputil.HTTP500InternalServerError
 //	@Router			/api/v1/smb/user [delete]
 func (c *Controller) SmbUserDelete(ctx *gin.Context) {
+	ctx.Header("Access-Control-Allow-Origin", "*")
+
 	hosts := ctx.QueryArray("hosts")
 	username := ctx.Request.URL.Query().Get("username")
 
@@ -250,7 +259,6 @@ func (c *Controller) SmbUserDelete(ctx *gin.Context) {
 			return
 		}
 		if i == len(hosts)-1 {
-			ctx.Header("Access-Control-Allow-Origin", "*")
 			ctx.IndentedJSON(http.StatusOK, dat)
 		}
 	}

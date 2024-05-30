@@ -9,6 +9,8 @@ import (
 	"strings"
 )
 
+var nvme_image_version = "quay.io/ceph/nvmeof-cli:1.2.13"
+
 func Container(hostname string) (output string, err error) {
 	var stdout []byte
 	cmd := exec.Command("ssh", "-o", "StrictHostKeyChecking=no", hostname, "podman ps | grep 'nvmeof' | awk '{print $1}'")
@@ -90,7 +92,7 @@ func NvmeOfServiceCreate(yaml_file string, pool_name string) (output string, err
 }
 func NvmeOfCliDownload(hostname string) (output string, err error) {
 	var stdout []byte
-	cmd := exec.Command("ssh", "-o", "StrictHostKeyChecking=no", hostname, "podman", "pull", "quay.io/ceph/nvmeof-cli:latest")
+	cmd := exec.Command("ssh", "-o", "StrictHostKeyChecking=no", hostname, "podman", "pull", nvme_image_version)
 	stdout, err = cmd.CombinedOutput()
 	if err != nil {
 		err_str := strings.ReplaceAll(string(stdout), "\n", "")
@@ -103,7 +105,7 @@ func NvmeOfCliDownload(hostname string) (output string, err error) {
 }
 func NvmeOfSubSystemCreate(hostname string, server_gateway_ip string, server_gateway_port string, subsystem_nqn_id string) (output string, err error) {
 	var stdout []byte
-	cmd := exec.Command("ssh", "-o", "StrictHostKeyChecking=no", hostname, "podman", "run", "-i", "quay.io/ceph/nvmeof-cli:latest", "--server-address", server_gateway_ip, "--server-port", server_gateway_port, "subsystem", "add", "--subsystem", subsystem_nqn_id)
+	cmd := exec.Command("ssh", "-o", "StrictHostKeyChecking=no", hostname, "podman", "run", "-i", nvme_image_version, "--server-address", server_gateway_ip, "--server-port", server_gateway_port, "subsystem", "add", "--subsystem", subsystem_nqn_id)
 	stdout, err = cmd.CombinedOutput()
 	if err != nil {
 		err_str := strings.ReplaceAll(string(stdout), "\n", "")
@@ -138,7 +140,7 @@ func NvmeOfGatewayName() (output model.NvmeOfGatewayName, err error) {
 }
 func NvmeOfDefineGateway(hostname string, server_gateway_ip string, server_gateway_port, subsystem_nqn_id string, gateway_name string, gateway_ip string) (output string, err error) {
 	var stdout []byte
-	cmd := exec.Command("ssh", "-o", "StrictHostKeyChecking=no", hostname, "podman", "run", "-i", "quay.io/ceph/nvmeof-cli:latest", "--server-address", server_gateway_ip, "--server-port", server_gateway_port, "listener", "add", "--subsystem", subsystem_nqn_id, "--gateway-name", gateway_name, "--traddr", gateway_ip, "--trsvcid", "4420")
+	cmd := exec.Command("ssh", "-o", "StrictHostKeyChecking=no", hostname, "podman", "run", "-i", nvme_image_version, "--server-address", server_gateway_ip, "--server-port", server_gateway_port, "listener", "add", "--subsystem", subsystem_nqn_id, "--host-name", gateway_name, "--traddr", gateway_ip, "--trsvcid", "4420")
 	stdout, err = cmd.CombinedOutput()
 	if err != nil {
 		err_str := strings.ReplaceAll(string(stdout), "\n", "")
@@ -151,7 +153,7 @@ func NvmeOfDefineGateway(hostname string, server_gateway_ip string, server_gatew
 }
 func NvmeOfHostAdd(hostname string, server_gateway_ip string, server_gateway_port string, subsystem_nqn_id string) (output string, err error) {
 	var stdout []byte
-	cmd := exec.Command("ssh", "-o", "StrictHostKeyChecking=no", hostname, "podman", "run", "-i", "quay.io/ceph/nvmeof-cli:latest", "--server-address", server_gateway_ip, "--server-port", server_gateway_port, "host", "add", "--subsystem", subsystem_nqn_id, "--host", "'*'")
+	cmd := exec.Command("ssh", "-o", "StrictHostKeyChecking=no", hostname, "podman", "run", "-i", nvme_image_version, "--server-address", server_gateway_ip, "--server-port", server_gateway_port, "host", "add", "--subsystem", subsystem_nqn_id, "--host", "'*'")
 	stdout, err = cmd.CombinedOutput()
 	if err != nil {
 		err_str := strings.ReplaceAll(string(stdout), "\n", "")
@@ -164,7 +166,7 @@ func NvmeOfHostAdd(hostname string, server_gateway_ip string, server_gateway_por
 }
 func NvmeOfNameSpaceCreate(hostname string, server_gateway_ip string, server_gateway_port string, subsystem_nqn_id string, pool_name string, image_name string) (output string, err error) {
 	var stdout []byte
-	cmd := exec.Command("ssh", "-o", "StrictHostKeyChecking=no", hostname, "podman", "run", "-i", "quay.io/ceph/nvmeof-cli:latest", "--server-address", server_gateway_ip, "--server-port", server_gateway_port, "namespace", "add", "--subsystem", subsystem_nqn_id, "--rbd-pool", pool_name, "--rbd-image", image_name)
+	cmd := exec.Command("ssh", "-o", "StrictHostKeyChecking=no", hostname, "podman", "run", "-i", nvme_image_version, "--server-address", server_gateway_ip, "--server-port", server_gateway_port, "namespace", "add", "--subsystem", subsystem_nqn_id, "--rbd-pool", pool_name, "--rbd-image", image_name)
 	stdout, err = cmd.CombinedOutput()
 	if err != nil {
 		err_str := strings.ReplaceAll(string(stdout), "\n", "")
@@ -178,7 +180,7 @@ func NvmeOfNameSpaceCreate(hostname string, server_gateway_ip string, server_gat
 func NvmeOfSubSystemList(hostname string, server_gateway_ip string, server_gateway_port string, subsystem_nqn_id string) (output model.NvmeOfSubSystemList, err error) {
 	var stdout []byte
 	if subsystem_nqn_id == "" {
-		cmd := exec.Command("ssh", "-o", "StrictHostKeyChecking=no", hostname, "podman", "run", "-i", "quay.io/ceph/nvmeof-cli:latest", "--format", "json", "--server-address", server_gateway_ip, "--server-port", server_gateway_port, "subsystem", "list")
+		cmd := exec.Command("ssh", "-o", "StrictHostKeyChecking=no", hostname, "podman", "run", "-i", nvme_image_version, "--format", "json", "--server-address", server_gateway_ip, "--server-port", server_gateway_port, "subsystem", "list")
 		stdout, err = cmd.CombinedOutput()
 		if err != nil {
 			err_str := strings.ReplaceAll(string(stdout), "\n", "")
@@ -194,7 +196,7 @@ func NvmeOfSubSystemList(hostname string, server_gateway_ip string, server_gatew
 		}
 		return
 	} else {
-		cmd := exec.Command("ssh", "-o", "StrictHostKeyChecking=no", hostname, "podman", "run", "-i", "quay.io/ceph/nvmeof-cli:latest", "--format", "json", "--server-address", server_gateway_ip, "--server-port", server_gateway_port, "subsystem", "list", "--subsystem", subsystem_nqn_id)
+		cmd := exec.Command("ssh", "-o", "StrictHostKeyChecking=no", hostname, "podman", "run", "-i", nvme_image_version, "--format", "json", "--server-address", server_gateway_ip, "--server-port", server_gateway_port, "subsystem", "list", "--subsystem", subsystem_nqn_id)
 		stdout, err = cmd.CombinedOutput()
 		if err != nil {
 			err_str := strings.ReplaceAll(string(stdout), "\n", "")
@@ -213,7 +215,7 @@ func NvmeOfSubSystemList(hostname string, server_gateway_ip string, server_gatew
 }
 func NvmeOfNameSpaceList(hostname string, server_gateway_ip string, server_gateway_port string, subsystem_nqn_id string) (output model.NvmeOfNameSpaceList, err error) {
 	var stdout []byte
-	cmd := exec.Command("ssh", "-o", "StrictHostKeyChecking=no", hostname, "podman", "run", "-i", "quay.io/ceph/nvmeof-cli:latest", "--format", "json", "--server-address", server_gateway_ip, "--server-port", server_gateway_port, "namespace", "list", "--subsystem", subsystem_nqn_id)
+	cmd := exec.Command("ssh", "-o", "StrictHostKeyChecking=no", hostname, "podman", "run", "-i", nvme_image_version, "--format", "json", "--server-address", server_gateway_ip, "--server-port", server_gateway_port, "namespace", "list", "--subsystem", subsystem_nqn_id)
 	stdout, err = cmd.CombinedOutput()
 	if err != nil {
 		err_str := strings.ReplaceAll(string(stdout), "\n", "")
@@ -231,7 +233,7 @@ func NvmeOfNameSpaceList(hostname string, server_gateway_ip string, server_gatew
 }
 func NvmeOfSubSystemDelete(hostname string, server_gateway_ip string, server_gateway_port string, subsystem_nqn_id string) (output string, err error) {
 	var stdout []byte
-	cmd := exec.Command("ssh", "-o", "StrictHostKeyChecking=no", hostname, "podman", "run", "-i", "quay.io/ceph/nvmeof-cli:latest", "--server-address", server_gateway_ip, "--server-port", server_gateway_port, "subsystem", "del", "--subsystem", subsystem_nqn_id)
+	cmd := exec.Command("ssh", "-o", "StrictHostKeyChecking=no", hostname, "podman", "run", "-i", nvme_image_version, "--server-address", server_gateway_ip, "--server-port", server_gateway_port, "subsystem", "del", "--subsystem", subsystem_nqn_id)
 	stdout, err = cmd.CombinedOutput()
 	if err != nil {
 		err_str := strings.ReplaceAll(string(stdout), "\n", "")
@@ -244,7 +246,7 @@ func NvmeOfSubSystemDelete(hostname string, server_gateway_ip string, server_gat
 }
 func NvmeOfNameSpaceDelete(hostname string, server_gateway_ip string, server_gateway_port string, subsystem_nqn_id string, uuid string) (output string, err error) {
 	var stdout []byte
-	cmd := exec.Command("ssh", "-o", "StrictHostKeyChecking=no", hostname, "podman", "run", "-i", "quay.io/ceph/nvmeof-cli:latest", "--server-address", server_gateway_ip, "--server-port", server_gateway_port, "namespace", "del", "--subsystem", subsystem_nqn_id, "--uuid", uuid)
+	cmd := exec.Command("ssh", "-o", "StrictHostKeyChecking=no", hostname, "podman", "run", "-i", nvme_image_version, "--server-address", server_gateway_ip, "--server-port", server_gateway_port, "namespace", "del", "--subsystem", subsystem_nqn_id, "--uuid", uuid)
 	stdout, err = cmd.CombinedOutput()
 	if err != nil {
 		err_str := strings.ReplaceAll(string(stdout), "\n", "")

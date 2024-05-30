@@ -11,12 +11,10 @@ import (
 	"encoding/json"
 	"io"
 	"net/http"
-	"os"
 	"strings"
 	"time"
 
 	"github.com/gin-gonic/gin"
-	"gopkg.in/yaml.v2"
 )
 
 func (c *Controller) RgwOption(ctx *gin.Context) {
@@ -37,6 +35,8 @@ func (c *Controller) RgwOption(ctx *gin.Context) {
 //	@Failure		500	{object}	httputil.HTTP500InternalServerError
 //	@Router			/api/v1/rgw [get]
 func (c *Controller) RgwDaemon(ctx *gin.Context) {
+	ctx.Header("Access-Control-Allow-Origin", "*")
+
 	var request *http.Request
 	var responseBody []byte
 	var err error
@@ -84,7 +84,6 @@ func (c *Controller) RgwDaemon(ctx *gin.Context) {
 	}
 
 	// Print the output
-	ctx.Header("Access-Control-Allow-Origin", "*")
 	ctx.IndentedJSON(http.StatusOK, dat)
 }
 
@@ -98,7 +97,7 @@ func (c *Controller) RgwDaemon(ctx *gin.Context) {
 //	@param			zonegroup_name     formData   string	false    "RGW Zone Group Name"
 //	@param			zone_name     formData   string	false    "RGW Zone Name"
 //	@param			port     formData   int	false    "Service Port(default: 80)"
-//	@param			hostname     formData   []string	true    "Service Placement Host Name" collectionFormat(multi)
+//	@param			hosts     formData   []string	true    "Service Placement Host Name" collectionFormat(multi)
 //	@Accept			x-www-form-urlencoded
 //	@Produce		json
 //	@Success		200	{string}	string ""
@@ -107,18 +106,20 @@ func (c *Controller) RgwDaemon(ctx *gin.Context) {
 //	@Failure		500	{object}	httputil.HTTP500InternalServerError
 //	@Router			/api/v1/rgw [post]
 func (c *Controller) RgwServiceCreate(ctx *gin.Context) {
+	ctx.Header("Access-Control-Allow-Origin", "*")
+
 	service_name, _ := ctx.GetPostForm("service_name")
 	realm_name, _ := ctx.GetPostForm("realm_name")
 	zonegroup_name, _ := ctx.GetPostForm("zonegroup_name")
 	zone_name, _ := ctx.GetPostForm("zone_name")
 	port, _ := ctx.GetPostForm("port")
-	hostname, _ := ctx.GetPostFormArray("hostname")
+	hosts, _ := ctx.GetPostFormArray("hosts")
 
-	hosts_str := strings.Join(hostname, ",")
+	hosts_str := strings.Join(hosts, ",")
 	if port == "" {
 		port = "80"
 	}
-	dat, err := rgw.RgwServiceCreate(service_name, realm_name, zonegroup_name, zone_name, hosts_str, port)
+	dat, err := rgw.RgwServiceCreateandUpdate(service_name, realm_name, zonegroup_name, zone_name, hosts_str, port)
 	if err != nil {
 		utils.FancyHandleError(err)
 		httputil.NewError(ctx, http.StatusInternalServerError, err)
@@ -139,7 +140,6 @@ func (c *Controller) RgwServiceCreate(ctx *gin.Context) {
 			}
 		}
 	}
-	ctx.Header("Access-Control-Allow-Origin", "*")
 	ctx.IndentedJSON(http.StatusOK, dat)
 }
 
@@ -162,6 +162,8 @@ func (c *Controller) RgwServiceCreate(ctx *gin.Context) {
 //	@Failure		500	{object}	httputil.HTTP500InternalServerError
 //	@Router			/api/v1/rgw [put]
 func (c *Controller) RgwServiceUpdate(ctx *gin.Context) {
+	ctx.Header("Access-Control-Allow-Origin", "*")
+
 	service_id, _ := ctx.GetPostForm("service_id")
 	realm_name, _ := ctx.GetPostForm("realm_name")
 	zonegroup_name, _ := ctx.GetPostForm("zonegroup_name")
@@ -169,53 +171,15 @@ func (c *Controller) RgwServiceUpdate(ctx *gin.Context) {
 	port, _ := ctx.GetPostForm("port")
 	hosts, _ := ctx.GetPostFormArray("hosts")
 
-	value := model.RgwUpdate{
-		Service_type: "rgw",
-		Service_id:   service_id,
-		Placement: model.RgwUpdatePlacement{
-			Hosts: hosts,
-		},
-		Spec: model.RgwUpdateSpec{
-			Rgw_realm:         realm_name,
-			Rgw_zonegroup:     zonegroup_name,
-			Rgw_zone:          zone_name,
-			Rgw_frontend_port: port,
-		},
-	}
-	yaml_data, err := yaml.Marshal(value)
+	hosts_str := strings.Join(hosts, ",")
+
+	dat, err := rgw.RgwServiceCreateandUpdate(service_id, realm_name, zonegroup_name, zone_name, hosts_str, port)
 	if err != nil {
 		utils.FancyHandleError(err)
 		httputil.NewError(ctx, http.StatusInternalServerError, err)
 		return
 	}
-	rgw_conf := "/etc/ceph/rgw.conf"
-	err = os.WriteFile(rgw_conf, yaml_data, 0644)
-	if err != nil {
-		utils.FancyHandleError(err)
-		httputil.NewError(ctx, http.StatusInternalServerError, err)
-		return
-	} else {
-		_, err := rgw.RgwServiceUpdate(rgw_conf)
-		if err != nil {
-			utils.FancyHandleError(err)
-			httputil.NewError(ctx, http.StatusInternalServerError, err)
-			return
-		} else {
-			if err := os.Remove(rgw_conf); err != nil {
-				utils.FancyHandleError(err)
-				httputil.NewError(ctx, http.StatusInternalServerError, err)
-				return
-			}
-			dat, err := glue.ServiceReDeploy("rgw." + service_id)
-			if err != nil {
-				utils.FancyHandleError(err)
-				httputil.NewError(ctx, http.StatusInternalServerError, err)
-				return
-			}
-			ctx.Header("Access-Control-Allow-Origin", "*")
-			ctx.IndentedJSON(http.StatusOK, dat)
-		}
-	}
+	ctx.IndentedJSON(http.StatusOK, dat)
 }
 
 // RgwUserList godoc
@@ -232,6 +196,8 @@ func (c *Controller) RgwServiceUpdate(ctx *gin.Context) {
 //	@Failure		500	{object}	httputil.HTTP500InternalServerError
 //	@Router			/api/v1/rgw/user [get]
 func (c *Controller) RgwUserList(ctx *gin.Context) {
+	ctx.Header("Access-Control-Allow-Origin", "*")
+
 	username := ctx.Request.URL.Query().Get("username")
 
 	if username != "" {
@@ -241,7 +207,6 @@ func (c *Controller) RgwUserList(ctx *gin.Context) {
 			httputil.NewError(ctx, http.StatusInternalServerError, err)
 			return
 		}
-		ctx.Header("Access-Control-Allow-Origin", "*")
 		ctx.IndentedJSON(http.StatusOK, dat)
 	} else {
 		var userInfo []model.RgwUserInfoAndStat
@@ -290,7 +255,6 @@ func (c *Controller) RgwUserList(ctx *gin.Context) {
 			}
 			userInfo = append(userInfo, value)
 		}
-		ctx.Header("Access-Control-Allow-Origin", "*")
 		ctx.IndentedJSON(http.StatusOK, userInfo)
 	}
 }
@@ -311,6 +275,8 @@ func (c *Controller) RgwUserList(ctx *gin.Context) {
 //	@Failure		500	{object}	httputil.HTTP500InternalServerError
 //	@Router			/api/v1/rgw/user [post]
 func (c *Controller) RgwUserCreate(ctx *gin.Context) {
+	ctx.Header("Access-Control-Allow-Origin", "*")
+
 	username, _ := ctx.GetPostForm("username")
 	display_name, _ := ctx.GetPostForm("display_name")
 	email, _ := ctx.GetPostForm("email")
@@ -321,7 +287,6 @@ func (c *Controller) RgwUserCreate(ctx *gin.Context) {
 		httputil.NewError(ctx, http.StatusInternalServerError, err)
 		return
 	}
-	ctx.Header("Access-Control-Allow-Origin", "*")
 	ctx.IndentedJSON(http.StatusOK, dat)
 }
 
@@ -339,6 +304,8 @@ func (c *Controller) RgwUserCreate(ctx *gin.Context) {
 //	@Failure		500	{object}	httputil.HTTP500InternalServerError
 //	@Router			/api/v1/rgw/user [delete]
 func (c *Controller) RgwUserDelete(ctx *gin.Context) {
+	ctx.Header("Access-Control-Allow-Origin", "*")
+
 	username := ctx.Request.URL.Query().Get("username")
 
 	dat, err := rgw.RgwUserDelete(username)
@@ -347,7 +314,6 @@ func (c *Controller) RgwUserDelete(ctx *gin.Context) {
 		httputil.NewError(ctx, http.StatusInternalServerError, err)
 		return
 	}
-	ctx.Header("Access-Control-Allow-Origin", "*")
 	ctx.IndentedJSON(http.StatusOK, dat)
 }
 
@@ -370,6 +336,8 @@ func (c *Controller) RgwUserDelete(ctx *gin.Context) {
 //	@Failure		500	{object}	httputil.HTTP500InternalServerError
 //	@Router			/api/v1/rgw/user [put]
 func (c *Controller) RgwUserUpdate(ctx *gin.Context) {
+	ctx.Header("Access-Control-Allow-Origin", "*")
+
 	username, _ := ctx.GetPostForm("username")
 	display_name, _ := ctx.GetPostForm("display_name")
 	email, _ := ctx.GetPostForm("email")
@@ -383,7 +351,6 @@ func (c *Controller) RgwUserUpdate(ctx *gin.Context) {
 		httputil.NewError(ctx, http.StatusInternalServerError, err)
 		return
 	}
-	ctx.Header("Access-Control-Allow-Origin", "*")
 	ctx.IndentedJSON(http.StatusOK, dat)
 }
 
@@ -405,6 +372,8 @@ func (c *Controller) RgwUserUpdate(ctx *gin.Context) {
 //	@Failure		500	{object}	httputil.HTTP500InternalServerError
 //	@Router			/api/v1/rgw/quota [post]
 func (c *Controller) RgwQuota(ctx *gin.Context) {
+	ctx.Header("Access-Control-Allow-Origin", "*")
+
 	username, _ := ctx.GetPostForm("username")
 	scope, _ := ctx.GetPostForm("scope")
 	max_objects, _ := ctx.GetPostForm("max_objects")
@@ -417,7 +386,6 @@ func (c *Controller) RgwQuota(ctx *gin.Context) {
 		httputil.NewError(ctx, http.StatusInternalServerError, err)
 		return
 	}
-	ctx.Header("Access-Control-Allow-Origin", "*")
 	ctx.IndentedJSON(http.StatusOK, dat)
 }
 
@@ -436,6 +404,8 @@ func (c *Controller) RgwQuota(ctx *gin.Context) {
 //		@Failure		500	{object}	httputil.HTTP500InternalServerError
 //		@Router			/api/v1/rgw/bucket [get]
 func (c *Controller) RgwBucketList(ctx *gin.Context) {
+	ctx.Header("Access-Control-Allow-Origin", "*")
+
 	bucket_name := ctx.Request.URL.Query().Get("bucket_name")
 	detail := ctx.Request.URL.Query().Get("detail")
 	if detail == "true" {
@@ -445,7 +415,6 @@ func (c *Controller) RgwBucketList(ctx *gin.Context) {
 			httputil.NewError(ctx, http.StatusInternalServerError, err)
 			return
 		}
-		ctx.Header("Access-Control-Allow-Origin", "*")
 		ctx.IndentedJSON(http.StatusOK, dat)
 	} else {
 		dat, err := rgw.RgwBucketList()
@@ -454,7 +423,6 @@ func (c *Controller) RgwBucketList(ctx *gin.Context) {
 			httputil.NewError(ctx, http.StatusInternalServerError, err)
 			return
 		}
-		ctx.Header("Access-Control-Allow-Origin", "*")
 		ctx.IndentedJSON(http.StatusOK, dat)
 	}
 }
@@ -477,6 +445,8 @@ func (c *Controller) RgwBucketList(ctx *gin.Context) {
 //	@Failure		500	{object}	httputil.HTTP500InternalServerError
 //	@Router			/api/v1/rgw/bucket [post]
 func (c *Controller) RgwBucketCreate(ctx *gin.Context) {
+	ctx.Header("Access-Control-Allow-Origin", "*")
+
 	bucket_name, _ := ctx.GetPostForm("bucket_name")
 	username, _ := ctx.GetPostForm("username")
 	lock_enabled, _ := ctx.GetPostForm("lock_enabled")
@@ -541,7 +511,6 @@ func (c *Controller) RgwBucketCreate(ctx *gin.Context) {
 		return
 	}
 	// Print the output
-	ctx.Header("Access-Control-Allow-Origin", "*")
 	ctx.IndentedJSON(http.StatusOK, "Success")
 }
 
@@ -564,6 +533,8 @@ func (c *Controller) RgwBucketCreate(ctx *gin.Context) {
 //	@Failure		500	{object}	httputil.HTTP500InternalServerError
 //	@Router			/api/v1/rgw/bucket [put]
 func (c *Controller) RgwBucketUpdate(ctx *gin.Context) {
+	ctx.Header("Access-Control-Allow-Origin", "*")
+
 	bucket_name, _ := ctx.GetPostForm("bucket_name")
 	bucket_id, _ := ctx.GetPostForm("bucket_id")
 	username, _ := ctx.GetPostForm("username")
@@ -629,7 +600,6 @@ func (c *Controller) RgwBucketUpdate(ctx *gin.Context) {
 		return
 	}
 	// Print the output
-	ctx.Header("Access-Control-Allow-Origin", "*")
 	ctx.IndentedJSON(http.StatusOK, "Success")
 }
 
@@ -647,6 +617,8 @@ func (c *Controller) RgwBucketUpdate(ctx *gin.Context) {
 //	@Failure		500	{object}	httputil.HTTP500InternalServerError
 //	@Router			/api/v1/rgw/bucket [delete]
 func (c *Controller) RgwBucketDelete(ctx *gin.Context) {
+	ctx.Header("Access-Control-Allow-Origin", "*")
+
 	bucket_name := ctx.Request.URL.Query().Get("bucket_name")
 	dat, err := rgw.RgwBucketDelete(bucket_name)
 	if err != nil {
@@ -654,6 +626,5 @@ func (c *Controller) RgwBucketDelete(ctx *gin.Context) {
 		httputil.NewError(ctx, http.StatusInternalServerError, err)
 		return
 	}
-	ctx.Header("Access-Control-Allow-Origin", "*")
 	ctx.IndentedJSON(http.StatusOK, dat)
 }

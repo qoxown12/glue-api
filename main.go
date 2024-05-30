@@ -122,6 +122,10 @@ func main() {
 				// }
 			}
 		}
+		v1.POST("/ingress", c.IngressCreate)
+		v1.PUT("/ingress", c.IngressUpdate)
+		v1.OPTIONS("/ingress", c.NfsOption)
+
 		nfs := v1.Group("/nfs")
 		{
 			nfs.GET("", c.NfsClusterList)
@@ -133,8 +137,8 @@ func main() {
 			nfs.DELETE("/:cluster_id", c.NfsClusterDelete)
 			nfs.OPTIONS("/:cluster_id", c.NfsOption)
 
-			nfs.POST("/ingress", c.NfsIngressCreate)
-			nfs.PUT("/ingress", c.NfsIngressUpdate)
+			nfs.POST("/ingress", c.IngressCreate)
+			nfs.PUT("/ingress", c.IngressUpdate)
 			nfs.OPTIONS("/ingress", c.NfsOption)
 
 			nfs_export := nfs.Group("/export")

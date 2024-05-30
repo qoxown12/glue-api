@@ -25,6 +25,8 @@ import (
 //	@Failure		500	{object}	httputil.HTTP500InternalServerError
 //	@Router			/api/v1/gwvm/{hypervisorType} [get]
 func (c *Controller) VmState(ctx *gin.Context) {
+	ctx.Header("Access-Control-Allow-Origin", "*")
+
 	var dat model.GwvmMgmt
 	hypervisorType := ctx.Param("hypervisorType")
 
@@ -36,7 +38,6 @@ func (c *Controller) VmState(ctx *gin.Context) {
 	}
 
 	dat.Message = message
-	ctx.Header("Access-Control-Allow-Origin", "*")
 	ctx.IndentedJSON(http.StatusOK, dat)
 }
 
@@ -54,6 +55,8 @@ func (c *Controller) VmState(ctx *gin.Context) {
 //	@Failure		500	{object}	httputil.HTTP500InternalServerError
 //	@Router			/api/v1/gwvm/detail/{hypervisorType} [get]
 func (c *Controller) VmDetail(ctx *gin.Context) {
+	ctx.Header("Access-Control-Allow-Origin", "*")
+
 	var dat model.GwvmMgmt
 	hypervisorType := ctx.Param("hypervisorType")
 
@@ -65,7 +68,6 @@ func (c *Controller) VmDetail(ctx *gin.Context) {
 	}
 
 	dat.Message = message
-	ctx.Header("Access-Control-Allow-Origin", "*")
 	ctx.IndentedJSON(http.StatusOK, dat)
 }
 
@@ -87,6 +89,8 @@ func (c *Controller) VmDetail(ctx *gin.Context) {
 //	@Failure		500	{object}	httputil.HTTP500InternalServerError
 //	@Router			/api/v1/gwvm/{hypervisorType} [post]
 func (c *Controller) VmSetup(ctx *gin.Context) {
+	ctx.Header("Access-Control-Allow-Origin", "*")
+
 	var dat model.GwvmMgmt
 
 	hypervisorType := ctx.Param("hypervisorType")
@@ -103,7 +107,6 @@ func (c *Controller) VmSetup(ctx *gin.Context) {
 	}
 
 	dat.Message = message
-	ctx.Header("Access-Control-Allow-Origin", "*")
 	ctx.IndentedJSON(http.StatusOK, dat)
 }
 
@@ -121,6 +124,8 @@ func (c *Controller) VmSetup(ctx *gin.Context) {
 //	@Failure		500	{object}	httputil.HTTP500InternalServerError
 //	@Router			/api/v1/gwvm/start/{hypervisorType} [put]
 func (c *Controller) VmStart(ctx *gin.Context) {
+	ctx.Header("Access-Control-Allow-Origin", "*")
+
 	var dat model.GwvmMgmt
 
 	hypervisorType := ctx.Param("hypervisorType")
@@ -133,7 +138,6 @@ func (c *Controller) VmStart(ctx *gin.Context) {
 	}
 
 	dat.Message = message
-	ctx.Header("Access-Control-Allow-Origin", "*")
 	ctx.IndentedJSON(http.StatusOK, dat)
 }
 
@@ -156,6 +160,8 @@ func (c *Controller) VmStartOptions(ctx *gin.Context) {
 //	@Failure		500	{object}	httputil.HTTP500InternalServerError
 //	@Router			/api/v1/gwvm/stop/{hypervisorType} [put]
 func (c *Controller) VmStop(ctx *gin.Context) {
+	ctx.Header("Access-Control-Allow-Origin", "*")
+
 	var dat model.GwvmMgmt
 
 	hypervisorType := ctx.Param("hypervisorType")
@@ -168,7 +174,6 @@ func (c *Controller) VmStop(ctx *gin.Context) {
 	}
 
 	dat.Message = message
-	ctx.Header("Access-Control-Allow-Origin", "*")
 	ctx.IndentedJSON(http.StatusOK, dat)
 }
 
@@ -191,6 +196,8 @@ func (c *Controller) VmStopOptions(ctx *gin.Context) {
 //	@Failure		500	{object}	httputil.HTTP500InternalServerError
 //	@Router			/api/v1/gwvm/delete/{hypervisorType} [delete]
 func (c *Controller) VmDelete(ctx *gin.Context) {
+	ctx.Header("Access-Control-Allow-Origin", "*")
+
 	var dat model.GwvmMgmt
 
 	hypervisorType := ctx.Param("hypervisorType")
@@ -203,7 +210,6 @@ func (c *Controller) VmDelete(ctx *gin.Context) {
 	}
 
 	dat.Message = message
-	ctx.Header("Access-Control-Allow-Origin", "*")
 	ctx.IndentedJSON(http.StatusOK, dat)
 }
 
@@ -226,6 +232,8 @@ func (c *Controller) VmDeleteOptions(ctx *gin.Context) {
 //	@Failure		500	{object}	httputil.HTTP500InternalServerError
 //	@Router			/api/v1/gwvm/cleanup/{hypervisorType} [put]
 func (c *Controller) VmCleanup(ctx *gin.Context) {
+	ctx.Header("Access-Control-Allow-Origin", "*")
+
 	var dat = struct {
 		Message string
 	}{}
@@ -239,7 +247,6 @@ func (c *Controller) VmCleanup(ctx *gin.Context) {
 	}
 
 	dat.Message = message
-	ctx.Header("Access-Control-Allow-Origin", "*")
 	ctx.IndentedJSON(http.StatusOK, dat)
 }
 
@@ -263,6 +270,8 @@ func (c *Controller) VmCleanupOptions(ctx *gin.Context) {
 //	@Failure		500	{object}	httputil.HTTP500InternalServerError
 //	@Router			/api/v1/gwvm/migrate/{hypervisorType} [put]
 func (c *Controller) VmMigrate(ctx *gin.Context) {
+	ctx.Header("Access-Control-Allow-Origin", "*")
+
 	var dat model.GwvmMgmt
 
 	hypervisorType := ctx.Param("hypervisorType")
@@ -276,7 +285,6 @@ func (c *Controller) VmMigrate(ctx *gin.Context) {
 	}
 
 	dat.Message = message
-	ctx.Header("Access-Control-Allow-Origin", "*")
 	ctx.IndentedJSON(http.StatusOK, dat)
 }
 

@@ -12,14 +12,15 @@ conf_json_file="/usr/local/glue-api/conf.json"
 
 action=$1
 sec_type=$2
-user_id=$4
-user_pw=$6
-folder=$8
-path=${10}
-fs_name=${12}
-volume_path=${14}
-realm=${16}
-dns=${18}
+cache=$4
+user_id=$6
+user_pw=$8
+folder=${10}
+path=${12}
+fs_name=${14}
+volume_path=${16}
+realm=${18}
+dns=${20}
 
 if [ $action ]
 then
@@ -64,7 +65,11 @@ then
                                         echo -e "public = yes" >> $smb_conf
                                         echo -e "create mask = 0777" >> $smb_conf
                                         echo -e "directory mask = 0777" >> $smb_conf
-                                        echo -e "csc policy = programs" >> $smb_conf
+
+                                        if [ $cache == "true" ]
+                                        then
+                                                echo -e "csc policy = programs" >> $smb_conf
+                                        fi
 
                                         # 사용자 추가를 위한 expect 스크립트
                                         useradd $user_id > /dev/null 2>&1
@@ -149,7 +154,10 @@ then
                                 echo -e "create mask = 0777" >> $smb_conf
                                 echo -e "directory mask = 0777" >> $smb_conf
                                 #echo -e "vfs objects = fake_compression" >> $smb_conf
-                                echo -e "csc policy = programs" >> $smb_conf
+                                if [ $cache == "true" ]
+                                then
+                                        echo -e "csc policy = programs" >> $smb_conf
+                                fi
 
                                 #DNS 설정
                                 sed -i 's/DNS1/DNS2/g' /etc/sysconfig/network-scripts/ifcfg-enp0s20

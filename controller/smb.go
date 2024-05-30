@@ -76,6 +76,7 @@ func (c *Controller) SmbStatus(ctx *gin.Context) {
 //	@param			password     formData   string	true   "SMB Password or Active Directory Password"
 //	@param			realm    formData   string	false    "Active Directory Domain"
 //	@param			dns    formData   string	false    "Active Directory Server IP"
+//	@param			cache_policy   formData   boolean	true    "Active Directory Client Side Caching Policy" Enums(true, false) default(true)
 //	@Accept			x-www-form-urlencoded
 //	@Produce		json
 //	@Success		200	{string}	string "Success"
@@ -96,6 +97,7 @@ func (c *Controller) SmbCreate(ctx *gin.Context) {
 	volume_path, _ := ctx.GetPostForm("volume_path")
 	realm, _ := ctx.GetPostForm("realm")
 	dns, _ := ctx.GetPostForm("dns")
+	cache_policy, _ := ctx.GetPostForm("cache_policy")
 
 	dat := model.Settings{RemoteHostIp: "ablecube", RemoteRootRsaIdPath: "/root/.ssh/id_rsa", Samba_Security_Type: sec_type}
 
@@ -104,7 +106,7 @@ func (c *Controller) SmbCreate(ctx *gin.Context) {
 
 	if sec_type == "normal" {
 		for i := 0; i < len(hosts); i++ {
-			dat, err := smb.SmbCreate(hosts[i], sec_type, username, password, folder, path, fs_name, volume_path, realm, dns)
+			dat, err := smb.SmbCreate(hosts[i], sec_type, cache_policy, username, password, folder, path, fs_name, volume_path, realm, dns)
 			if err != nil {
 				utils.FancyHandleError(err)
 				httputil.NewError(ctx, http.StatusInternalServerError, err)
@@ -117,7 +119,7 @@ func (c *Controller) SmbCreate(ctx *gin.Context) {
 		}
 	} else {
 		for i := 0; i < len(hosts); i++ {
-			dat, err := smb.SmbCreate(hosts[i], sec_type, username, password, folder, path, fs_name, volume_path, realm, dns)
+			dat, err := smb.SmbCreate(hosts[i], sec_type, cache_policy, username, password, folder, path, fs_name, volume_path, realm, dns)
 			if err != nil {
 				utils.FancyHandleError(err)
 				httputil.NewError(ctx, http.StatusInternalServerError, err)

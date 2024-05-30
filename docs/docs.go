@@ -5321,6 +5321,18 @@ const docTemplate = `{
                         "description": "Active Directory Server IP",
                         "name": "dns",
                         "in": "formData"
+                    },
+                    {
+                        "enum": [
+                            true,
+                            false
+                        ],
+                        "type": "boolean",
+                        "default": true,
+                        "description": "Active Directory Client Side Caching Policy",
+                        "name": "cache_policy",
+                        "in": "formData",
+                        "required": true
                     }
                 ],
                 "responses": {

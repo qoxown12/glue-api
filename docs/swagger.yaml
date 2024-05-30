@@ -4275,6 +4275,15 @@ paths:
         in: formData
         name: dns
         type: string
+      - default: true
+        description: Active Directory Client Side Caching Policy
+        enum:
+        - true
+        - false
+        in: formData
+        name: cache_policy
+        required: true
+        type: boolean
       produces:
       - application/json
       responses:

@@ -1,4 +1,4 @@
-#!/bin/bash
+#!/bin/sh
 #########################################
 #Copyright (c) 2024 ABLECLOUD Co. Ltd.
 #
@@ -157,13 +157,16 @@ then
 
                                 systemctl restart NetworkManager
 
+                                sleep 2
+
                                 expect -c "
                                 spawn realm join --membership-software=samba --client-software=winbind $realm -U $user_id
                                 expect "password:"
                                         send \"$user_pw\\r\"
+                                        expect "password"
+                                                send \"$user_pw\\r\"
                                 expect eof
-                                " > /dev/null
-
+                                "
                                 state=$(systemctl is-enabled smb)
 
                                 if [ $state == "disabled" ]
@@ -196,7 +199,7 @@ then
                                         expect "password"
                                                 send \"$user_pw\\r\"
                                 expect eof
-                                "
+                                " > /dev/null
                         fi
                 done
         elif [ $action == "user_delete" ]
@@ -206,7 +209,7 @@ then
                 then
                         userdel -r $user_id > /dev/null 2>&1
                 fi
-        elif [ $action == "update" ]
+        elif [ $action == "user_update" ]
         then
                 user=$(pdbedit -L | grep -v 'root' | grep -v 'ablecloud'| cut -d ':' -f1 )
                 for list in $user

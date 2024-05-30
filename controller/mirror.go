@@ -133,13 +133,14 @@ func (c *Controller) MirrorSetup(ctx *gin.Context) {
 	dat.MirrorPool, _ = ctx.GetPostForm("mirrorPool")
 	file, _ := ctx.FormFile("privateKeyFile")
 	privkey, err := os.CreateTemp("", "id_rsa-")
-	defer privkey.Close()
-	defer os.Remove(privkey.Name())
+	// defer privkey.Close()
+	// defer os.Remove(privkey.Name())
 	privkeyname := privkey.Name()
 
 	// Upload the file to specific dst.
 	err = ctx.SaveUploadedFile(file, privkeyname)
 	if err != nil {
+		utils.FancyHandleError(err)
 		httputil.NewError(ctx, http.StatusInternalServerError, err)
 		return
 	}

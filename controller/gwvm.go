@@ -94,12 +94,14 @@ func (c *Controller) VmSetup(ctx *gin.Context) {
 	var dat model.GwvmMgmt
 
 	hypervisorType := ctx.Param("hypervisorType")
+	gwvmCpu, _ := ctx.GetPostForm("gwvmCpu")
+	gwvmMemory, _ := ctx.GetPostForm("gwvmMemory")
 	gwvmMngtNicParent, _ := ctx.GetPostForm("gwvmMngtNicParent")
 	gwvmMngtNicIp, _ := ctx.GetPostForm("gwvmMngtNicIp")
 	gwvmStorageNicParent, _ := ctx.GetPostForm("gwvmStorageNicParent")
 	gwvmStorageNicIp, _ := ctx.GetPostForm("gwvmStorageNicIp")
 
-	message, err := gluevm.VmSetup(hypervisorType, gwvmMngtNicParent, gwvmMngtNicIp, gwvmStorageNicParent, gwvmStorageNicIp)
+	message, err := gluevm.VmSetup(hypervisorType, gwvmCpu, gwvmMemory, gwvmMngtNicParent, gwvmMngtNicIp, gwvmStorageNicParent, gwvmStorageNicIp)
 
 	if err != nil {
 		httputil.NewError(ctx, http.StatusInternalServerError, err)

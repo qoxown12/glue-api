@@ -73,13 +73,13 @@ func VmDetail(hypervisorType string) (output string, err error) {
 	return
 }
 
-func VmSetup(hypervisorType string, gwvmMngtNicParent string, gwvmMngtNicIp string, gwvmStorageNicParent string, gwvmStorageNicIp string) (output string, err error) {
+func VmSetup(hypervisorType string, gwvmCpu string, gwvmMemory string, gwvmMngtNicParent string, gwvmMngtNicIp string, gwvmStorageNicParent string, gwvmStorageNicIp string) (output string, err error) {
 
 	var stdoutVmSetup []byte
 
 	if gin.IsDebugging() == true {
 		if hypervisorType == "cell" {
-			strVmSetupOutput := exec.Command("python3", "/usr/share/cockpit/ablestack/python/gwvm/gwvm_create.py", "create", "-mnb", gwvmMngtNicParent, "-mi", gwvmMngtNicIp, "-snb", gwvmStorageNicParent, "-si", gwvmStorageNicIp)
+			strVmSetupOutput := exec.Command("python3", "/usr/share/cockpit/ablestack/python/gwvm/gwvm_create.py", "create", "-c", gwvmCpu, "-m", gwvmMemory, "-mnb", gwvmMngtNicParent, "-mi", gwvmMngtNicIp, "-snb", gwvmStorageNicParent, "-si", gwvmStorageNicIp)
 
 			stdoutVmSetup, err = strVmSetupOutput.CombinedOutput()
 			if err != nil {

@@ -381,7 +381,6 @@ func ConfigMirror(dat model.MirrorSetup, privkeyname string) (EncodedLocalToken 
 	}
 
 	// Mirror Bootstrap
-	println("ConfigMirror :: Mirror For Remote Mirror Bootstrap")
 	sshcmd, err = client.Command("rbd", "mirror", "pool", "peer", "bootstrap", "create", "--site-name", dat.RemoteClusterName, "-p", dat.MirrorPool)
 	if err != nil {
 		utils.FancyHandleError(err)

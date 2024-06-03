@@ -740,16 +740,17 @@ func (c *Controller) IngressUpdate(ctx *gin.Context) {
 			httputil.NewError(ctx, http.StatusInternalServerError, err)
 			return
 		} else {
-			if err := os.Remove(ingress_conf); err != nil {
-				utils.FancyHandleError(err)
-				httputil.NewError(ctx, http.StatusInternalServerError, err)
-				return
-			}
 			dat, err := glue.ServiceReDeploy("ingress." + service_id)
 			if err != nil {
 				utils.FancyHandleError(err)
 				httputil.NewError(ctx, http.StatusInternalServerError, err)
 				return
+			} else {
+				if err := os.Remove(ingress_conf); err != nil {
+					utils.FancyHandleError(err)
+					httputil.NewError(ctx, http.StatusInternalServerError, err)
+					return
+				}
 			}
 			ctx.IndentedJSON(http.StatusOK, dat)
 		}

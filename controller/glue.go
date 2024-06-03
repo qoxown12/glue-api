@@ -345,7 +345,6 @@ func (c *Controller) ServiceDelete(ctx *gin.Context) {
 	// 			httputil.NewError(ctx, http.StatusInternalServerError, err)
 	// 			return
 	// 		}
-	// 		fmt.Print(a)
 	// 		if i == len(rgw_dat)-1 {
 	// 			ctx.IndentedJSON(http.StatusOK, "Success")
 	// 		}

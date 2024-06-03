@@ -133,8 +133,8 @@ func (c *Controller) MirrorSetup(ctx *gin.Context) {
 	dat.MirrorPool, _ = ctx.GetPostForm("mirrorPool")
 	file, _ := ctx.FormFile("privateKeyFile")
 	privkey, err := os.CreateTemp("", "id_rsa-")
-	// defer privkey.Close()
-	// defer os.Remove(privkey.Name())
+	defer privkey.Close()
+	defer os.Remove(privkey.Name())
 	privkeyname := privkey.Name()
 
 	// Upload the file to specific dst.
@@ -192,6 +192,7 @@ func (c *Controller) MirrorDelete(ctx *gin.Context) {
 	// Upload the file to specific dst.
 	err = ctx.SaveUploadedFile(file, privkeyname)
 	if err != nil {
+		utils.FancyHandleError(err)
 		httputil.NewError(ctx, http.StatusInternalServerError, err)
 		return
 	}
@@ -232,11 +233,13 @@ func (c *Controller) MirrorDelete(ctx *gin.Context) {
 	if len(mirrorStatus.Peers) > 0 {
 		peerUUID := mirrorStatus.Peers[0].Uuid
 		cmd := exec.Command("rbd", "mirror", "pool", "peer", "remove", "--pool", dat.MirrorPool, peerUUID)
-		cmd.Stderr = &out
+		// cmd.Stderr = &out
 		stdout, err = cmd.CombinedOutput()
 		println("out: " + string(stdout))
 		println("err: " + out.String())
-		if err != nil || (out.String() != "" && out.String() != "rbd: mirroring is already configured for image mode") {
+		// if err != nil || (out.String() != "" && out.String() != "rbd: mirroring is already configured for image mode") {
+		if err != nil {
+			cmd.Stderr = &out
 			err = errors.Join(err, errors.New(out.String()))
 			utils.FancyHandleError(err)
 			httputil.NewError(ctx, http.StatusInternalServerError, err)
@@ -246,11 +249,10 @@ func (c *Controller) MirrorDelete(ctx *gin.Context) {
 
 	// Mirror Disable
 	cmd := exec.Command("rbd", "mirror", "pool", "disable")
-	cmd.Stderr = &out
+	// cmd.Stderr = &out
 	stdout, err = cmd.CombinedOutput()
-	println("out: " + string(stdout))
-	println("err: " + out.String())
-	if err != nil || (out.String() != "" && out.String() != "rbd: mirroring is already configured for image mode") {
+	if err != nil {
+		cmd.Stderr = &out
 		err = errors.Join(err, errors.New(out.String()))
 		utils.FancyHandleError(err)
 		httputil.NewError(ctx, http.StatusInternalServerError, err)
@@ -259,9 +261,10 @@ func (c *Controller) MirrorDelete(ctx *gin.Context) {
 
 	// Mirror Daemon Destroy
 	cmd = exec.Command("ceph", "orch", "rm", "rbd-mirror")
-	cmd.Stderr = &out
+	// cmd.Stderr = &out
 	stdout, err = cmd.CombinedOutput()
 	if err != nil {
+		cmd.Stderr = &out
 		err = errors.Join(err, errors.New(out.String()))
 		utils.FancyHandleError(err)
 		httputil.NewError(ctx, http.StatusInternalServerError, err)
@@ -284,11 +287,16 @@ func (c *Controller) MirrorDelete(ctx *gin.Context) {
 	if len(remoteMirrorStatus.Peers) > 0 {
 		peerUUID := remoteMirrorStatus.Peers[0].Uuid
 		sshcmd, err := client.Command("rbd", "mirror", "pool", "peer", "remove", "--pool", dat.MirrorPool, peerUUID)
-		sshcmd.Stderr = &out
+		if err != nil {
+			sshcmd.Stderr = &out
+			err = errors.Join(err, errors.New(out.String()))
+			utils.FancyHandleError(err)
+			return
+		}
+		// sshcmd.Stderr = &out
 		stdout, err = sshcmd.CombinedOutput()
-		println("out: " + string(stdout))
-		println("err: " + out.String())
-		if err != nil || (out.String() != "" && out.String() != "rbd: mirroring is already configured for image mode") {
+		if err != nil {
+			cmd.Stderr = &out
 			err = errors.Join(err, errors.New(out.String()))
 			utils.FancyHandleError(err)
 			httputil.NewError(ctx, http.StatusInternalServerError, err)
@@ -298,11 +306,15 @@ func (c *Controller) MirrorDelete(ctx *gin.Context) {
 
 	// Mirror Disable
 	sshcmd, err := client.Command("rbd", "mirror", "pool", "disable")
-	sshcmd.Stderr = &out
+	if err != nil {
+		sshcmd.Stderr = &out
+		err = errors.Join(err, errors.New(out.String()))
+		utils.FancyHandleError(err)
+		return
+	}
 	stdout, err = sshcmd.CombinedOutput()
-	println("out: " + string(stdout))
-	println("err: " + out.String())
-	if err != nil || (out.String() != "" && out.String() != "rbd: mirroring is already configured for image mode") {
+	if err != nil {
+		cmd.Stderr = &out
 		err = errors.Join(err, errors.New(out.String()))
 		utils.FancyHandleError(err)
 		httputil.NewError(ctx, http.StatusInternalServerError, err)
@@ -311,9 +323,15 @@ func (c *Controller) MirrorDelete(ctx *gin.Context) {
 
 	// Mirror Daemon Destroy
 	sshcmd, err = client.Command("ceph", "orch", "rm", "rbd-mirror")
-	sshcmd.Stderr = &out
+	if err != nil {
+		sshcmd.Stderr = &out
+		err = errors.Join(err, errors.New(out.String()))
+		utils.FancyHandleError(err)
+		return
+	}
 	stdout, err = sshcmd.CombinedOutput()
 	if err != nil {
+		sshcmd.Stderr = &out
 		err = errors.Join(err, errors.New(out.String()))
 		utils.FancyHandleError(err)
 		httputil.NewError(ctx, http.StatusInternalServerError, err)

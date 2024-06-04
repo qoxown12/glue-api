@@ -310,8 +310,8 @@ then
                 smb_status=$(systemctl show --no-pager smb | grep -w 'ActiveState' | cut -d "=" -f2)
                 smb_state=$(systemctl show --no-pager smb | grep -w 'UnitFileState' | cut -d "=" -f2)
                 users_data=$(pdbedit -L --debuglevel=1 | grep -v 'root' | grep -v 'ablecloud'| cut -d ':' -f1)
-                fs_name=$(mount | grep admin | cut -d "." -f2 | cut -d "=" -f1)
-                volume_path=$(mount | grep admin | cut -d "=" -f2 | cut -d " " -f1)
+                fs_name=$(mount | grep admin | grep smb | cut -d "." -f2 | cut -d "=" -f1)
+                volume_path=$(mount | grep admin | grep smb | cut -d "=" -f2 | cut -d " " -f1)
                 security_type=$(grep "samba" $conf_json_file | cut -d ':' -f2 | tr -d ' ' | sed 's/\"//g')
 
                 if [[ "$(grep samba $conf_json_file | cut -d ':' -f2)" =~ ads ]]

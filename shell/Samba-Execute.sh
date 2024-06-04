@@ -12,9 +12,9 @@ conf_json_file="/usr/local/glue-api/conf.json"
 
 action=$1
 sec_type=$2
-cache=$4
-user_id=$6
-user_pw=$8
+user_id=$4
+user_pw=$6
+cache=$8
 folder=${10}
 path=${12}
 fs_name=${14}
@@ -191,7 +191,7 @@ then
                 fi
         elif [ $action == "user_create" ]
         then
-                user=$(pdbedit -L | grep -v 'root' | grep -v 'ablecloud' | cut -d ':' -f1 )
+                user=$(pdbedit -L --debuglevel=1 | grep -v 'root' | grep -v 'ablecloud' | cut -d ':' -f1)
                 for list in $user
                 do
                         if [ $user_id == $list ]
@@ -219,7 +219,7 @@ then
                 fi
         elif [ $action == "user_update" ]
         then
-                user=$(pdbedit -L | grep -v 'root' | grep -v 'ablecloud'| cut -d ':' -f1 )
+                user=$(pdbedit -L --debuglevel=1 | grep -v 'root' | grep -v 'ablecloud'| cut -d ':' -f1)
                 for list in $user
                 do
                         if [ $user_id == $list ]
@@ -288,7 +288,7 @@ then
                                         done
                                 fi
                         else
-                                user=$(pdbedit -L  | grep -v 'root' | grep -v 'ablecloud' | cut -d ':' -f1)
+                                user=$(pdbedit -L --debuglevel=1 | grep -v 'root' | grep -v 'ablecloud' | cut -d ':' -f1)
 
                                 for list in $user
                                 do

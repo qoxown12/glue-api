@@ -65,7 +65,7 @@ func SmbCreate(hostname string, sec_type string, cache_policy string, username s
 			utils.FancyHandleError(err)
 			return
 		} else {
-			cmd := exec.Command("ssh", "-o", "StrictHostKeyChecking=no", hostname, "sh", Samba_Execute_sh, "create", sec_type, "--cache_policy", cache_policy, "--username", username, "--password", password, "--folder", folder, "--path", path, "--fs_name", fs_name, "--volume_path", volume_path)
+			cmd := exec.Command("ssh", "-o", "StrictHostKeyChecking=no", hostname, "sh", Samba_Execute_sh, "create", sec_type, "--username", username, "--password", password, "--cache_policy", cache_policy, "--folder", folder, "--path", path, "--fs_name", fs_name, "--volume_path", volume_path)
 			stdout, err = cmd.CombinedOutput()
 			if err != nil {
 				err = errors.New(string("(") + hostname + string(") ") + string(stdout))
@@ -82,7 +82,7 @@ func SmbCreate(hostname string, sec_type string, cache_policy string, username s
 			utils.FancyHandleError(err)
 			return
 		} else {
-			cmd := exec.Command("ssh", "-o", "StrictHostKeyChecking=no", hostname, "sh", Samba_Execute_sh, "create", sec_type, "--cache_policy", cache_policy, "--username", username, "--password", password, "--folder", folder, "--path", path, "--fs_name", fs_name, "--volume_path", volume_path, "--realm", realm, "--dns", dns)
+			cmd := exec.Command("ssh", "-o", "StrictHostKeyChecking=no", hostname, "sh", Samba_Execute_sh, "create", sec_type, "--username", username, "--password", password, "--cache_policy", cache_policy, "--folder", folder, "--path", path, "--fs_name", fs_name, "--volume_path", volume_path, "--realm", realm, "--dns", dns)
 			stdout, err = cmd.CombinedOutput()
 			if err != nil {
 				err = errors.New(string("(") + hostname + string(") ") + string(stdout))

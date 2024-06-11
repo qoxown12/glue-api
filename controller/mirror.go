@@ -428,9 +428,9 @@ func (c *Controller) MirrorImageUpdate(ctx *gin.Context) {
 	ctx.IndentedJSON(http.StatusOK, dat)
 }
 
-// MirrorImagestatus godoc
+// MirrorImageStatus godoc
 //
-//	@Summary		Patch Image Mirroring
+//	@Summary		Show Mirroring Image Status
 //	@Description	Glue 의 이미지에 미러링상태를 확인합니다.
 //	@param			mirrorPool	path	string	true	"Pool Name for Mirroring"
 //	@param			imageName	path	string	true	"Image Name for Mirroring"
@@ -441,8 +441,8 @@ func (c *Controller) MirrorImageUpdate(ctx *gin.Context) {
 //	@Failure		400	{object}	HTTP400BadRequest
 //	@Failure		404	{object}	HTTP404NotFound
 //	@Failure		500	{object}	HTTP500InternalServerError
-//	@Router			/api/v1/mirror/image/promote/{mirrorPool}/{imageName} [get]
-func (c *Controller) MirrorImagestatus(ctx *gin.Context) {
+//	@Router			/api/v1/mirror/image/status/{mirrorPool}/{imageName} [get]
+func (c *Controller) MirrorImageStatus(ctx *gin.Context) {
 
 	var dat model.ImageStatus
 
@@ -463,7 +463,7 @@ func (c *Controller) MirrorImagestatus(ctx *gin.Context) {
 // MirrorImagePromote godoc
 //
 //	@Summary		Promote Image Mirroring
-//	@Description	Glue 의 이미지를 활성화 합니다.
+//	@Description	Glue 의 이미지를 Promote 합니다.
 //	@param			mirrorPool	path	string	true	"Pool Name for Mirroring"
 //	@param			imageName	path	string	true	"Image Name for Mirroring"
 //	@Tags			Mirror
@@ -506,8 +506,8 @@ func (c *Controller) MirrorImagePromote(ctx *gin.Context) {
 
 // MirrorImageDemote godoc
 //
-//	@Summary		Promote Image Mirroring
-//	@Description	Glue 의 이미지를 활성화 합니다.
+//	@Summary		Demote Image Mirroring
+//	@Description	Glue 의 이미지를 Demote 합니다.
 //	@param			mirrorPool	path	string	true	"Pool Name for Mirroring"
 //	@param			imageName	path	string	true	"Image Name for Mirroring"
 //	@Tags			Mirror
@@ -517,7 +517,7 @@ func (c *Controller) MirrorImagePromote(ctx *gin.Context) {
 //	@Failure		400	{object}	httputil.HTTP400BadRequest
 //	@Failure		404	{object}	httputil.HTTP404NotFound
 //	@Failure		500	{object}	httputil.HTTP500InternalServerError
-//	@Router			/api/v1/mirror/image/promote/{mirrorPool}/{imageName} [delete]
+//	@Router			/api/v1/mirror/image/demote/{mirrorPool}/{imageName} [delete]
 func (c *Controller) MirrorImageDemote(ctx *gin.Context) {
 
 	var (
@@ -544,5 +544,199 @@ func (c *Controller) MirrorImageDemote(ctx *gin.Context) {
 		httputil.NewError(ctx, http.StatusInternalServerError, err)
 		return
 	}
+	ctx.IndentedJSON(http.StatusOK, dat)
+}
+
+func (c *Controller) MirrorPoolEnable(ctx *gin.Context) {
+
+	var dat model.MirrorSetup
+
+	dat.LocalClusterName, _ = ctx.GetPostForm("localClusterName")
+	dat.RemoteClusterName, _ = ctx.GetPostForm("remoteClusterName")
+	dat.Host, _ = ctx.GetPostForm("host")
+	dat.MirrorPool, _ = ctx.GetPostForm("mirrorPool")
+	file, _ := ctx.FormFile("privateKeyFile")
+	privkey, err := os.CreateTemp("", "id_rsa-")
+	defer privkey.Close()
+	defer os.Remove(privkey.Name())
+	privkeyname := privkey.Name()
+
+	// Upload the file to specific dst.
+	err = ctx.SaveUploadedFile(file, privkeyname)
+	if err != nil {
+		utils.FancyHandleError(err)
+		httputil.NewError(ctx, http.StatusInternalServerError, err)
+		return
+	}
+
+	EncodedLocalToken, EncodedRemoteToken, err := mirror.EnableMirror(dat, privkeyname)
+	if err != nil {
+		utils.FancyHandleError(err)
+		httputil.NewError(ctx, http.StatusInternalServerError, err)
+		return
+	}
+
+	dat.LocalToken = EncodedLocalToken
+	dat.RemoteToken = EncodedRemoteToken
+
+	ctx.IndentedJSON(http.StatusOK, dat)
+
+}
+
+// MirrorPoolDisable godoc
+//
+//	@Summary		Disable Mirroring
+//	@Description	Glue 의 미러링 클러스터를 비활성화합니다.
+//	@param			host			formData	string	true	"Remote Cluster Host Address"
+//	@param			privateKeyFile	formData	file	true	"Remote Cluster PrivateKey"
+//	@param			mirrorPool		formData	string	true	"Pool Name for Mirroring"
+//	@Tags			Mirror
+//	@Accept			x-www-form-urlencoded
+//	@Produce		json
+//	@Success		200	{object}	model.ImageStatus
+//	@Failure		400	{object}	httputil.HTTP400BadRequest
+//	@Failure		404	{object}	httputil.HTTP404NotFound
+//	@Failure		500	{object}	httputil.HTTP500InternalServerError
+//	@Router			/api/v1/mirror/pool/{mirrorPool} [delete]
+func (c *Controller) MirrorPoolDisable(ctx *gin.Context) {
+
+	var dat model.MirrorSetup
+	var EncodedLocalToken string
+	var EncodedRemoteToken string
+	var stdout []byte
+
+	var out strings.Builder
+	dat.Host, _ = ctx.GetPostForm("host")
+	dat.MirrorPool, _ = ctx.GetPostForm("mirrorPool")
+	file, _ := ctx.FormFile("privateKeyFile")
+
+	privkey, err := os.CreateTemp("", "id_rsa-")
+	defer privkey.Close()
+	defer os.Remove(privkey.Name())
+	privkeyname := privkey.Name()
+
+	// Upload the file to specific dst.
+	err = ctx.SaveUploadedFile(file, privkeyname)
+	if err != nil {
+		utils.FancyHandleError(err)
+		httputil.NewError(ctx, http.StatusInternalServerError, err)
+		return
+	}
+
+	// Get Mirroring Images
+	MirroredImage, err := mirror.ImageList()
+	if err != nil {
+		utils.FancyHandleError(err)
+		httputil.NewError(ctx, http.StatusInternalServerError, err)
+		return
+	}
+	for _, image := range MirroredImage.Local {
+		_, errt := mirror.ImageDelete(image.Pool, image.Image)
+		if errt != nil {
+			err = errors.Join(err, errt)
+		}
+	}
+	if err != nil {
+		utils.FancyHandleError(err)
+		httputil.NewError(ctx, http.StatusInternalServerError, err)
+		return
+	}
+	for _, image := range MirroredImage.Remote {
+		_, errt := mirror.ImageDelete(image.Pool, image.Image)
+		if errt != nil {
+			err = errors.Join(err, errt)
+		}
+	}
+	if err != nil {
+		utils.FancyHandleError(err)
+		httputil.NewError(ctx, http.StatusInternalServerError, err)
+		return
+	}
+
+	//remote local peer
+	mirrorStatus, err := mirror.GetConfigure()
+
+	if len(mirrorStatus.Peers) > 0 {
+		peerUUID := mirrorStatus.Peers[0].Uuid
+		cmd := exec.Command("rbd", "mirror", "pool", "peer", "remove", "--pool", dat.MirrorPool, peerUUID)
+		// cmd.Stderr = &out
+		stdout, err = cmd.CombinedOutput()
+		println("out: " + string(stdout))
+		println("err: " + out.String())
+		// if err != nil || (out.String() != "" && out.String() != "rbd: mirroring is already configured for image mode") {
+		if err != nil {
+			cmd.Stderr = &out
+			err = errors.Join(err, errors.New(out.String()))
+			utils.FancyHandleError(err)
+			httputil.NewError(ctx, http.StatusInternalServerError, err)
+			return
+		}
+	}
+
+	// Mirror Disable
+	cmd := exec.Command("rbd", "mirror", "pool", "disable")
+	// cmd.Stderr = &out
+	stdout, err = cmd.CombinedOutput()
+	if err != nil {
+		cmd.Stderr = &out
+		err = errors.Join(err, errors.New(out.String()))
+		utils.FancyHandleError(err)
+		httputil.NewError(ctx, http.StatusInternalServerError, err)
+		return
+	}
+
+	//remote local peer
+	out.Reset()
+	client, err := utils.ConnectSSH(dat.Host, privkeyname)
+	defer func(client *goph.Client) {
+		err := client.Close()
+		if err != nil {
+			utils.FancyHandleError(err)
+			httputil.NewError(ctx, http.StatusInternalServerError, err)
+			return
+		}
+	}(client)
+	remoteMirrorStatus, err := mirror.GetRemoteConfigure(client)
+
+	if len(remoteMirrorStatus.Peers) > 0 {
+		peerUUID := remoteMirrorStatus.Peers[0].Uuid
+		sshcmd, err := client.Command("rbd", "mirror", "pool", "peer", "remove", "--pool", dat.MirrorPool, peerUUID)
+		if err != nil {
+			sshcmd.Stderr = &out
+			err = errors.Join(err, errors.New(out.String()))
+			utils.FancyHandleError(err)
+			return
+		}
+		// sshcmd.Stderr = &out
+		stdout, err = sshcmd.CombinedOutput()
+		if err != nil {
+			cmd.Stderr = &out
+			err = errors.Join(err, errors.New(out.String()))
+			utils.FancyHandleError(err)
+			httputil.NewError(ctx, http.StatusInternalServerError, err)
+			return
+		}
+	}
+
+	// Mirror Disable
+	sshcmd, err := client.Command("rbd", "mirror", "pool", "disable")
+	if err != nil {
+		sshcmd.Stderr = &out
+		err = errors.Join(err, errors.New(out.String()))
+		utils.FancyHandleError(err)
+		return
+	}
+	stdout, err = sshcmd.CombinedOutput()
+	if err != nil {
+		cmd.Stderr = &out
+		err = errors.Join(err, errors.New(out.String()))
+		utils.FancyHandleError(err)
+		httputil.NewError(ctx, http.StatusInternalServerError, err)
+		return
+	}
+
+	// Print the output
+	dat.LocalToken = EncodedLocalToken
+	dat.RemoteToken = EncodedRemoteToken
 	ctx.IndentedJSON(http.StatusOK, dat)
 }

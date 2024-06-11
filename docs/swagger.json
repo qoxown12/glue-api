@@ -2121,7 +2121,7 @@
                 }
             }
         },
-        "/api/v1/mirror/pool/{mirrorPool}": {
+        "/api/v1/mirror/{mirrorPool}": {
             "post": {
                 "description": "Glue 의 미러링 클러스터를 활성화합니다.",
                 "consumes": [
@@ -2133,7 +2133,7 @@
                 "tags": [
                     "Mirror"
                 ],
-                "summary": "Enable Mirroring",
+                "summary": "Enable Mirroring Cluster",
                 "parameters": [
                     {
                         "type": "string",
@@ -2209,7 +2209,7 @@
                 "tags": [
                     "Mirror"
                 ],
-                "summary": "Disable Mirroring",
+                "summary": "Disable Mirroring Cluster",
                 "parameters": [
                     {
                         "type": "string",

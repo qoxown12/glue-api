@@ -241,6 +241,8 @@ func main() {
 			mirror.POST("", c.MirrorSetup) //Setup Mirroring
 			//mirror.PATCH("", c.MirrorUpdate)  //Configure Mirroring
 			mirror.DELETE("", c.MirrorDelete) //Unconfigure Mirroring
+			mirror.POST("/:mirrorPool", c.MirrorPoolEnable) //Enable Mirroring Cluster
+			mirror.DELETE("/:mirrorPool", c.MirrorPoolDisable) //Disable Mirroring Cluster
 			mirrorimage := mirror.Group("/image")
 			{
 				mirrorimage.GET("", c.MirrorImageList)                             //List Mirroring Images
@@ -252,11 +254,6 @@ func main() {
 				mirrorimage.GET("/status/:mirrorPool/:imageName", c.MirrorImageStatus)   //Get Image Mirroring Status
 				mirrorimage.POST("/promote/:mirrorPool/:imageName", c.MirrorImagePromote) //Promote Image
 				mirrorimage.DELETE("/demote/:mirrorPool/:imageName", c.MirrorImageDemote) //Demote Image
-			}
-			mirrorpool := mirror.Group("/pool")
-			{
-				mirrorpool.POST("/:mirrorPool", c.MirrorPoolEnable) //Enable Mirroring
-				mirrorpool.DELETE("/:mirrorPool", c.MirrorPoolDisable) //Disable Mirroring
 			}
 			//
 			//

@@ -2154,7 +2154,7 @@ const docTemplate = `{
                 }
             }
         },
-        "/api/v1/mirror/pool/{mirrorPool}": {
+        "/api/v1/mirror/{mirrorPool}": {
             "post": {
                 "description": "Glue 의 미러링 클러스터를 활성화합니다.",
                 "consumes": [
@@ -2166,7 +2166,7 @@ const docTemplate = `{
                 "tags": [
                     "Mirror"
                 ],
-                "summary": "Enable Mirroring",
+                "summary": "Enable Mirroring Cluster",
                 "parameters": [
                     {
                         "type": "string",
@@ -2242,7 +2242,7 @@ const docTemplate = `{
                 "tags": [
                     "Mirror"
                 ],
-                "summary": "Disable Mirroring",
+                "summary": "Disable Mirroring Cluster",
                 "parameters": [
                     {
                         "type": "string",

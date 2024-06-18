@@ -230,6 +230,17 @@ const docTemplate = `{
                         "name": "new_name",
                         "in": "formData",
                         "required": true
+                    },
+                    {
+                        "type": "array",
+                        "items": {
+                            "type": "string"
+                        },
+                        "collectionFormat": "multi",
+                        "description": "Glue FS Service Host Name",
+                        "name": "hosts",
+                        "in": "formData",
+                        "required": true
                     }
                 ],
                 "responses": {
@@ -579,6 +590,17 @@ const docTemplate = `{
                         "description": "Glue FS Name",
                         "name": "fs_name",
                         "in": "path",
+                        "required": true
+                    },
+                    {
+                        "type": "array",
+                        "items": {
+                            "type": "string"
+                        },
+                        "collectionFormat": "multi",
+                        "description": "Glue FS Service Host Name",
+                        "name": "hosts",
+                        "in": "formData",
                         "required": true
                     }
                 ],
@@ -1036,8 +1058,8 @@ const docTemplate = `{
                     },
                     {
                         "type": "string",
-                        "description": "Gwvm Management Nic Paren",
-                        "name": "gwvmMngtNicParen",
+                        "description": "Gwvm Management Nic Parent",
+                        "name": "gwvmMngtNicParent",
                         "in": "formData",
                         "required": true
                     },
@@ -1231,6 +1253,206 @@ const docTemplate = `{
                         "name": "pool_name",
                         "in": "query",
                         "required": true
+                    }
+                ],
+                "responses": {
+                    "200": {
+                        "description": "Success",
+                        "schema": {
+                            "type": "string"
+                        }
+                    },
+                    "400": {
+                        "description": "Bad Request",
+                        "schema": {
+                            "$ref": "#/definitions/HTTP400BadRequest"
+                        }
+                    },
+                    "404": {
+                        "description": "Not Found",
+                        "schema": {
+                            "$ref": "#/definitions/HTTP404NotFound"
+                        }
+                    },
+                    "500": {
+                        "description": "Internal Server Error",
+                        "schema": {
+                            "$ref": "#/definitions/HTTP500InternalServerError"
+                        }
+                    }
+                }
+            }
+        },
+        "/api/v1/ingress": {
+            "put": {
+                "description": "Glue Ingress Service를 수정합니다.",
+                "consumes": [
+                    "application/x-www-form-urlencoded"
+                ],
+                "produces": [
+                    "application/json"
+                ],
+                "tags": [
+                    "Ingress"
+                ],
+                "summary": "Update of Glue Ingress Service",
+                "parameters": [
+                    {
+                        "type": "string",
+                        "description": "NFS or RGW Ingress Service Name",
+                        "name": "service_id",
+                        "in": "formData",
+                        "required": true
+                    },
+                    {
+                        "type": "array",
+                        "items": {
+                            "type": "string"
+                        },
+                        "collectionFormat": "multi",
+                        "description": "NFS or RGW Ingress Host Name",
+                        "name": "hosts",
+                        "in": "formData",
+                        "required": true
+                    },
+                    {
+                        "type": "string",
+                        "description": "NFS or RGW Cluster Type",
+                        "name": "backend_service",
+                        "in": "formData",
+                        "required": true
+                    },
+                    {
+                        "type": "string",
+                        "description": "NFS or RGW Ingress Virtual Ip",
+                        "name": "virtual_ip",
+                        "in": "formData",
+                        "required": true
+                    },
+                    {
+                        "maximum": 65535,
+                        "type": "integer",
+                        "description": "NFS or RGW Ingress Access Port",
+                        "name": "frontend_port",
+                        "in": "formData",
+                        "required": true
+                    },
+                    {
+                        "maximum": 65535,
+                        "type": "integer",
+                        "description": "NFS or RGW Ingress HA Proxy for Load Balancer Port",
+                        "name": "monitor_port",
+                        "in": "formData",
+                        "required": true
+                    },
+                    {
+                        "type": "array",
+                        "items": {
+                            "type": "string"
+                        },
+                        "collectionFormat": "multi",
+                        "description": "NFS or RGW Ingress Vitual IP of CIDR Networks",
+                        "name": "virtual_interface_networks",
+                        "in": "formData"
+                    }
+                ],
+                "responses": {
+                    "200": {
+                        "description": "Success",
+                        "schema": {
+                            "type": "string"
+                        }
+                    },
+                    "400": {
+                        "description": "Bad Request",
+                        "schema": {
+                            "$ref": "#/definitions/HTTP400BadRequest"
+                        }
+                    },
+                    "404": {
+                        "description": "Not Found",
+                        "schema": {
+                            "$ref": "#/definitions/HTTP404NotFound"
+                        }
+                    },
+                    "500": {
+                        "description": "Internal Server Error",
+                        "schema": {
+                            "$ref": "#/definitions/HTTP500InternalServerError"
+                        }
+                    }
+                }
+            },
+            "post": {
+                "description": "Glue Ingress Service를 생성합니다.",
+                "consumes": [
+                    "application/x-www-form-urlencoded"
+                ],
+                "produces": [
+                    "application/json"
+                ],
+                "tags": [
+                    "Ingress"
+                ],
+                "summary": "Create of Glue Ingress Service",
+                "parameters": [
+                    {
+                        "type": "string",
+                        "description": "NFS or RGW Ingress Service Name",
+                        "name": "service_id",
+                        "in": "formData",
+                        "required": true
+                    },
+                    {
+                        "type": "array",
+                        "items": {
+                            "type": "string"
+                        },
+                        "collectionFormat": "multi",
+                        "description": "NFS or RGW Ingress Host Name",
+                        "name": "hosts",
+                        "in": "formData",
+                        "required": true
+                    },
+                    {
+                        "type": "string",
+                        "description": "NFS or RGW Cluster Type",
+                        "name": "backend_service",
+                        "in": "formData",
+                        "required": true
+                    },
+                    {
+                        "type": "string",
+                        "description": "NFS or RGW Ingress Virtual Ip",
+                        "name": "virtual_ip",
+                        "in": "formData",
+                        "required": true
+                    },
+                    {
+                        "maximum": 65535,
+                        "type": "integer",
+                        "description": "NFS or RGW Ingress Access Port",
+                        "name": "frontend_port",
+                        "in": "formData",
+                        "required": true
+                    },
+                    {
+                        "maximum": 65535,
+                        "type": "integer",
+                        "description": "NFS or RGW Ingress HA Proxy for Load Balancer Port",
+                        "name": "monitor_port",
+                        "in": "formData",
+                        "required": true
+                    },
+                    {
+                        "type": "array",
+                        "items": {
+                            "type": "string"
+                        },
+                        "collectionFormat": "multi",
+                        "description": "NFS or RGW Ingress Vitual IP of CIDR Networks",
+                        "name": "virtual_interface_networks",
+                        "in": "formData"
                     }
                 ],
                 "responses": {
@@ -1645,7 +1867,7 @@ const docTemplate = `{
                         },
                         "collectionFormat": "multi",
                         "description": "Gateway Host Name",
-                        "name": "hostname",
+                        "name": "hosts",
                         "in": "formData",
                         "required": true
                     },
@@ -1773,7 +1995,7 @@ const docTemplate = `{
                         },
                         "collectionFormat": "multi",
                         "description": "Gateway Host Name",
-                        "name": "hostname",
+                        "name": "hosts",
                         "in": "formData",
                         "required": true
                     },
@@ -3001,206 +3223,6 @@ const docTemplate = `{
                 }
             }
         },
-        "/api/v1/nfs/ingress": {
-            "put": {
-                "description": "Glue NFS Ingress Service를 수정합니다.",
-                "consumes": [
-                    "application/x-www-form-urlencoded"
-                ],
-                "produces": [
-                    "application/json"
-                ],
-                "tags": [
-                    "NFS-Ingress"
-                ],
-                "summary": "Update of Glue NFS Ingress Service",
-                "parameters": [
-                    {
-                        "type": "string",
-                        "description": "NFS Ingress Service Name",
-                        "name": "service_id",
-                        "in": "formData",
-                        "required": true
-                    },
-                    {
-                        "type": "array",
-                        "items": {
-                            "type": "string"
-                        },
-                        "collectionFormat": "multi",
-                        "description": "NFS Ingress Host Name",
-                        "name": "hostname",
-                        "in": "formData",
-                        "required": true
-                    },
-                    {
-                        "type": "string",
-                        "description": "NFS Cluster Type",
-                        "name": "backend_service",
-                        "in": "formData",
-                        "required": true
-                    },
-                    {
-                        "type": "string",
-                        "description": "NFS Ingress Virtual Ip",
-                        "name": "virtual_ip",
-                        "in": "formData",
-                        "required": true
-                    },
-                    {
-                        "maximum": 65535,
-                        "type": "integer",
-                        "description": "NFS Ingress Access Port",
-                        "name": "frontend_port",
-                        "in": "formData",
-                        "required": true
-                    },
-                    {
-                        "maximum": 65535,
-                        "type": "integer",
-                        "description": "NFS Ingress HA Proxy for Load Balancer Port",
-                        "name": "monitor_port",
-                        "in": "formData",
-                        "required": true
-                    },
-                    {
-                        "type": "array",
-                        "items": {
-                            "type": "string"
-                        },
-                        "collectionFormat": "multi",
-                        "description": "NFS Ingress Vitual IP of CIDR Networks",
-                        "name": "virtual_interface_networks",
-                        "in": "formData"
-                    }
-                ],
-                "responses": {
-                    "200": {
-                        "description": "Success",
-                        "schema": {
-                            "type": "string"
-                        }
-                    },
-                    "400": {
-                        "description": "Bad Request",
-                        "schema": {
-                            "$ref": "#/definitions/HTTP400BadRequest"
-                        }
-                    },
-                    "404": {
-                        "description": "Not Found",
-                        "schema": {
-                            "$ref": "#/definitions/HTTP404NotFound"
-                        }
-                    },
-                    "500": {
-                        "description": "Internal Server Error",
-                        "schema": {
-                            "$ref": "#/definitions/HTTP500InternalServerError"
-                        }
-                    }
-                }
-            },
-            "post": {
-                "description": "Glue NFS Ingress Service를 생성합니다.",
-                "consumes": [
-                    "application/x-www-form-urlencoded"
-                ],
-                "produces": [
-                    "application/json"
-                ],
-                "tags": [
-                    "NFS-Ingress"
-                ],
-                "summary": "Create of Glue NFS Ingress Service",
-                "parameters": [
-                    {
-                        "type": "string",
-                        "description": "NFS Ingress Service Name",
-                        "name": "service_id",
-                        "in": "formData",
-                        "required": true
-                    },
-                    {
-                        "type": "array",
-                        "items": {
-                            "type": "string"
-                        },
-                        "collectionFormat": "multi",
-                        "description": "NFS Ingress Host Name",
-                        "name": "hostname",
-                        "in": "formData",
-                        "required": true
-                    },
-                    {
-                        "type": "string",
-                        "description": "NFS Cluster Type",
-                        "name": "backend_service",
-                        "in": "formData",
-                        "required": true
-                    },
-                    {
-                        "type": "string",
-                        "description": "NFS Ingress Virtual Ip",
-                        "name": "virtual_ip",
-                        "in": "formData",
-                        "required": true
-                    },
-                    {
-                        "maximum": 65535,
-                        "type": "integer",
-                        "description": "NFS Ingress Access Port",
-                        "name": "frontend_port",
-                        "in": "formData",
-                        "required": true
-                    },
-                    {
-                        "maximum": 65535,
-                        "type": "integer",
-                        "description": "NFS Ingress HA Proxy for Load Balancer Port",
-                        "name": "monitor_port",
-                        "in": "formData",
-                        "required": true
-                    },
-                    {
-                        "type": "array",
-                        "items": {
-                            "type": "string"
-                        },
-                        "collectionFormat": "multi",
-                        "description": "NFS Ingress Vitual IP of CIDR Networks",
-                        "name": "virtual_interface_networks",
-                        "in": "formData"
-                    }
-                ],
-                "responses": {
-                    "200": {
-                        "description": "Success",
-                        "schema": {
-                            "type": "string"
-                        }
-                    },
-                    "400": {
-                        "description": "Bad Request",
-                        "schema": {
-                            "$ref": "#/definitions/HTTP400BadRequest"
-                        }
-                    },
-                    "404": {
-                        "description": "Not Found",
-                        "schema": {
-                            "$ref": "#/definitions/HTTP404NotFound"
-                        }
-                    },
-                    "500": {
-                        "description": "Internal Server Error",
-                        "schema": {
-                            "$ref": "#/definitions/HTTP500InternalServerError"
-                        }
-                    }
-                }
-            }
-        },
         "/api/v1/nfs/{cluster_id}": {
             "delete": {
                 "description": "Glue NFS Cluster를 삭제합니다.",
@@ -3286,7 +3308,7 @@ const docTemplate = `{
                         },
                         "collectionFormat": "multi",
                         "description": "Cluster Daemon Hostname",
-                        "name": "hostname",
+                        "name": "hosts",
                         "in": "formData",
                         "required": true
                     },
@@ -3358,7 +3380,7 @@ const docTemplate = `{
                         },
                         "collectionFormat": "multi",
                         "description": "Cluster Daemon Hostname",
-                        "name": "hostname",
+                        "name": "hosts",
                         "in": "formData",
                         "required": true
                     },
@@ -3425,7 +3447,7 @@ const docTemplate = `{
                         },
                         "collectionFormat": "multi",
                         "description": "Glue NVMe-OF Service Placement Hosts",
-                        "name": "hostname",
+                        "name": "hosts",
                         "in": "formData",
                         "required": true
                     }
@@ -4044,8 +4066,7 @@ const docTemplate = `{
                         "type": "integer",
                         "description": "Glue NVMe-OF Image Size(default GB)",
                         "name": "size",
-                        "in": "formData",
-                        "required": true
+                        "in": "formData"
                     }
                 ],
                 "responses": {
@@ -4379,7 +4400,7 @@ const docTemplate = `{
                         },
                         "collectionFormat": "multi",
                         "description": "Service Placement Host Name",
-                        "name": "hostname",
+                        "name": "hosts",
                         "in": "formData",
                         "required": true
                     }
@@ -5189,9 +5210,7 @@ const docTemplate = `{
                 "responses": {
                     "200": {
                         "description": "OK",
-                        "schema": {
-                            "$ref": "#/definitions/SmbStatus"
-                        }
+                        "schema": {}
                     },
                     "400": {
                         "description": "Bad Request",
@@ -5233,21 +5252,19 @@ const docTemplate = `{
                         },
                         "collectionFormat": "multi",
                         "description": "SMB Server Host Name",
-                        "name": "hostname",
+                        "name": "hosts",
                         "in": "formData",
                         "required": true
                     },
                     {
+                        "enum": [
+                            "normal",
+                            "ads"
+                        ],
                         "type": "string",
-                        "description": "SMB Username",
-                        "name": "username",
-                        "in": "formData",
-                        "required": true
-                    },
-                    {
-                        "type": "string",
-                        "description": "SMB Password",
-                        "name": "password",
+                        "default": "normal",
+                        "description": "Samba Security Type",
+                        "name": "sec_type",
                         "in": "formData",
                         "required": true
                     },
@@ -5276,6 +5293,44 @@ const docTemplate = `{
                         "type": "string",
                         "description": "Glue File System Volume Path",
                         "name": "volume_path",
+                        "in": "formData",
+                        "required": true
+                    },
+                    {
+                        "type": "string",
+                        "description": "SMB Username or Active Directory Username",
+                        "name": "username",
+                        "in": "formData",
+                        "required": true
+                    },
+                    {
+                        "type": "string",
+                        "description": "SMB Password or Active Directory Password",
+                        "name": "password",
+                        "in": "formData",
+                        "required": true
+                    },
+                    {
+                        "type": "string",
+                        "description": "Active Directory Domain",
+                        "name": "realm",
+                        "in": "formData"
+                    },
+                    {
+                        "type": "string",
+                        "description": "Active Directory Server IP",
+                        "name": "dns",
+                        "in": "formData"
+                    },
+                    {
+                        "enum": [
+                            true,
+                            false
+                        ],
+                        "type": "boolean",
+                        "default": true,
+                        "description": "Active Directory Client Side Caching Policy",
+                        "name": "cache_policy",
                         "in": "formData",
                         "required": true
                     }
@@ -5327,7 +5382,7 @@ const docTemplate = `{
                         },
                         "collectionFormat": "multi",
                         "description": "SMB Server Host Name",
-                        "name": "hostname",
+                        "name": "hosts",
                         "in": "query",
                         "required": true
                     }
@@ -5381,7 +5436,7 @@ const docTemplate = `{
                         },
                         "collectionFormat": "multi",
                         "description": "SMB Server Host Name",
-                        "name": "hostname",
+                        "name": "hosts",
                         "in": "formData",
                         "required": true
                     },
@@ -5447,7 +5502,7 @@ const docTemplate = `{
                         },
                         "collectionFormat": "multi",
                         "description": "SMB Server Host Name",
-                        "name": "hostname",
+                        "name": "hosts",
                         "in": "formData",
                         "required": true
                     },
@@ -5513,7 +5568,7 @@ const docTemplate = `{
                         },
                         "collectionFormat": "multi",
                         "description": "SMB Server Host Name",
-                        "name": "hostname",
+                        "name": "hosts",
                         "in": "query",
                         "required": true
                     },
@@ -6483,50 +6538,6 @@ const docTemplate = `{
                             "type": "integer"
                         }
                     }
-                }
-            }
-        },
-        "SmbStatus": {
-            "type": "object",
-            "properties": {
-                "folder_name": {
-                    "type": "string"
-                },
-                "fs_name": {
-                    "type": "string"
-                },
-                "hostname": {
-                    "type": "string"
-                },
-                "ip_address": {
-                    "type": "string"
-                },
-                "names": {
-                    "type": "string"
-                },
-                "path": {
-                    "type": "string"
-                },
-                "port": {
-                    "type": "array",
-                    "items": {
-                        "type": "integer"
-                    }
-                },
-                "state": {
-                    "type": "string"
-                },
-                "status": {
-                    "type": "string"
-                },
-                "users": {
-                    "type": "array",
-                    "items": {
-                        "type": "string"
-                    }
-                },
-                "volume_path": {
-                    "type": "string"
                 }
             }
         },

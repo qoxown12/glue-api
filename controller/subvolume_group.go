@@ -30,6 +30,8 @@ func (c *Controller) SubVolumeGroupOption(ctx *gin.Context) {
 //	@Failure		500	{object}	httputil.HTTP500InternalServerError
 //	@Router			/api/v1/gluefs/subvolume/group  [get]
 func (c *Controller) SubVolumeGroupList(ctx *gin.Context) {
+	ctx.Header("Access-Control-Allow-Origin", "*")
+
 	vol_name := ctx.Request.URL.Query().Get("vol_name")
 	ls_data, err := fs.SubVolumeGroupLs(vol_name)
 	if err != nil {
@@ -83,7 +85,6 @@ func (c *Controller) SubVolumeGroupList(ctx *gin.Context) {
 		value = append(value, value_data)
 	}
 	// Print the output
-	ctx.Header("Access-Control-Allow-Origin", "*")
 	ctx.IndentedJSON(http.StatusOK, value)
 }
 
@@ -105,6 +106,8 @@ func (c *Controller) SubVolumeGroupList(ctx *gin.Context) {
 //	@Failure		500	{object}	httputil.HTTP500InternalServerError
 //	@Router			/api/v1/gluefs/subvolume/group  [post]
 func (c *Controller) SubVolumeGroupCreate(ctx *gin.Context) {
+	ctx.Header("Access-Control-Allow-Origin", "*")
+
 	vol_name, _ := ctx.GetPostForm("vol_name")
 	group_name, _ := ctx.GetPostForm("group_name")
 	size, _ := ctx.GetPostForm("size")
@@ -121,7 +124,6 @@ func (c *Controller) SubVolumeGroupCreate(ctx *gin.Context) {
 		return
 	}
 	// Print the output
-	ctx.Header("Access-Control-Allow-Origin", "*")
 	ctx.IndentedJSON(http.StatusOK, dat)
 }
 
@@ -141,6 +143,8 @@ func (c *Controller) SubVolumeGroupCreate(ctx *gin.Context) {
 //	@Failure		500	{object}	httputil.HTTP500InternalServerError
 //	@Router			/api/v1/gluefs/subvolume/group  [delete]
 func (c *Controller) SubVolumeGroupDelete(ctx *gin.Context) {
+	ctx.Header("Access-Control-Allow-Origin", "*")
+
 	vol_name := ctx.Request.URL.Query().Get("vol_name")
 	group_name := ctx.Request.URL.Query().Get("group_name")
 	path := ctx.Request.URL.Query().Get("path")
@@ -152,7 +156,6 @@ func (c *Controller) SubVolumeGroupDelete(ctx *gin.Context) {
 		return
 	}
 	// Print the output
-	ctx.Header("Access-Control-Allow-Origin", "*")
 	ctx.IndentedJSON(http.StatusOK, dat)
 }
 
@@ -172,6 +175,8 @@ func (c *Controller) SubVolumeGroupDelete(ctx *gin.Context) {
 //	@Failure		500	{object}	httputil.HTTP500InternalServerError
 //	@Router			/api/v1/gluefs/subvolume/group [put]
 func (c *Controller) SubVolumeGroupResize(ctx *gin.Context) {
+	ctx.Header("Access-Control-Allow-Origin", "*")
+
 	vol_name, _ := ctx.GetPostForm("vol_name")
 	group_name, _ := ctx.GetPostForm("group_name")
 	new_size, _ := ctx.GetPostForm("new_size")
@@ -186,7 +191,6 @@ func (c *Controller) SubVolumeGroupResize(ctx *gin.Context) {
 		return
 	}
 	// Print the output
-	ctx.Header("Access-Control-Allow-Origin", "*")
 	ctx.IndentedJSON(http.StatusOK, dat)
 }
 
@@ -206,6 +210,8 @@ func (c *Controller) SubVolumeGroupResize(ctx *gin.Context) {
 // //	@Failure		500	{object}	httputil.HTTP500InternalServerError
 // //	@Router			/api/v1/gluefs/subvolume/group/snapshot  [delete]
 // func (c *Controller) SubVolumeGroupSnapDelete(ctx *gin.Context) {
+// 	ctx.Header("Access-Control-Allow-Origin", "*")
+
 // 	vol_name := ctx.Request.URL.Query().Get("vol_name")
 // 	group_name := ctx.Request.URL.Query().Get("group_name")
 // 	snap_name := ctx.Request.URL.Query().Get("snap_name")
@@ -217,6 +223,5 @@ func (c *Controller) SubVolumeGroupResize(ctx *gin.Context) {
 // 		return
 // 	}
 // 	// Print the output
-// 	ctx.Header("Access-Control-Allow-Origin", "*")
 // 	ctx.IndentedJSON(http.StatusOK, dat)
 // }

@@ -9,7 +9,7 @@ import (
 	"strings"
 )
 
-func RgwServiceCreate(service_name string, realm_name string, zonegroup_name string, zone_name string, hosts string, port string) (output string, err error) {
+func RgwServiceCreateandUpdate(service_name string, realm_name string, zonegroup_name string, zone_name string, hosts string, port string) (output string, err error) {
 	var stdout []byte
 	if realm_name == "" {
 		cmd := exec.Command("ceph", "orch", "apply", "rgw", service_name, "--placement", hosts, "--port", port)
@@ -360,6 +360,10 @@ func RgwBucketDelete(bucket_name string) (output string, err error) {
 		utils.FancyHandleError(err)
 		return
 	}
-	output = "Success"
+	if strings.Contains(strings.ReplaceAll(string(stdout), "\n", ""), "ERROR") {
+		output = strings.ReplaceAll(string(stdout), "\n", "")
+	} else {
+		output = "Success"
+	}
 	return
 }

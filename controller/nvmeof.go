@@ -43,7 +43,7 @@ func NvmeOfServerIPandPort() (server_gateway_ip string, port string, err error) 
 //	@Summary		Create of NVMe-OF Service
 //	@Description	NVMe-OF 서비스를 생성합니다.
 //	@param			pool_name 	formData	string	true	"Glue NVMe-OF Store Data In Pool Name"
-//	@param			hostname	formData	[]string	true	"Glue NVMe-OF Service Placement Hosts" collectionFormat(multi)
+//	@param			hosts	formData	[]string	true	"Glue NVMe-OF Service Placement Hosts" collectionFormat(multi)
 //	@Tags			NVMe-OF
 //	@Accept			x-www-form-urlencoded
 //	@Produce		json
@@ -53,8 +53,10 @@ func NvmeOfServerIPandPort() (server_gateway_ip string, port string, err error) 
 //	@Failure		500	{object}	httputil.HTTP500InternalServerError
 //	@Router			/api/v1/nvmeof [post]
 func (c *Controller) NvmeOfServiceCreate(ctx *gin.Context) {
+	ctx.Header("Access-Control-Allow-Origin", "*")
+
 	pool_name, _ := ctx.GetPostForm("pool_name")
-	hosts, _ := ctx.GetPostFormArray("hostname")
+	hosts, _ := ctx.GetPostFormArray("hosts")
 
 	value := model.NvmeOfServiceCreate{
 		ServiceType: "nvmeof",
@@ -92,7 +94,6 @@ func (c *Controller) NvmeOfServiceCreate(ctx *gin.Context) {
 				return
 			}
 		}
-		ctx.Header("Access-Control-Allow-Origin", "*")
 		ctx.IndentedJSON(http.StatusOK, dat)
 	}
 }
@@ -111,6 +112,8 @@ func (c *Controller) NvmeOfServiceCreate(ctx *gin.Context) {
 //	@Failure		500	{object}	httputil.HTTP500InternalServerError
 //	@Router			/api/v1/nvmeof/image/download [post]
 func (c *Controller) NvmeOfImageDownload(ctx *gin.Context) {
+	ctx.Header("Access-Control-Allow-Origin", "*")
+
 	gateway_ip, _ := ctx.GetPostForm("gateway_ip")
 
 	dat, err := nvmeof.NvmeOfCliDownload(gateway_ip)
@@ -119,7 +122,6 @@ func (c *Controller) NvmeOfImageDownload(ctx *gin.Context) {
 		httputil.NewError(ctx, http.StatusInternalServerError, err)
 		return
 	}
-	ctx.Header("Access-Control-Allow-Origin", "*")
 	ctx.IndentedJSON(http.StatusOK, dat)
 }
 
@@ -140,6 +142,8 @@ func (c *Controller) NvmeOfImageDownload(ctx *gin.Context) {
 // //	@Failure		500	{object}	httputil.HTTP500InternalServerError
 // //	@Router			/api/v1/nvmeof/target [post]
 // func (c *Controller) NvmeOfTargetCreate(ctx *gin.Context) {
+//	ctx.Header("Access-Control-Allow-Origin", "*")
+
 // 	subsystem_nqn_id, _ := ctx.GetPostForm("subsystem_nqn_id")
 // 	pool_name, _ := ctx.GetPostForm("pool_name")
 // 	image_name, _ := ctx.GetPostForm("image_name")
@@ -202,7 +206,6 @@ func (c *Controller) NvmeOfImageDownload(ctx *gin.Context) {
 // 						httputil.NewError(ctx, http.StatusInternalServerError, err)
 // 						return
 // 					}
-// 					ctx.Header("Access-Control-Allow-Origin", "*")
 // 					ctx.IndentedJSON(http.StatusOK, dat)
 // 				}
 // 			}
@@ -218,7 +221,7 @@ func (c *Controller) NvmeOfImageDownload(ctx *gin.Context) {
 //	@param			subsystem_nqn_id	formData	string	true	"Glue NVMe-OF Sub System NQN ID"
 //	@param			pool_name 	formData	string	true	"Glue NVMe-OF Use Image Pool Name"
 //	@param			image_name 	formData	string	true	"Glue NVMe-OF Use Image Name"
-//	@param			size 	formData	int	true	"Glue NVMe-OF Image Size(default GB)"
+//	@param			size 	formData	int	false	"Glue NVMe-OF Image Size(default GB)"
 //	@Tags			NVMe-OF
 //	@Accept			x-www-form-urlencoded
 //	@Produce		json
@@ -228,6 +231,8 @@ func (c *Controller) NvmeOfImageDownload(ctx *gin.Context) {
 //	@Failure		500	{object}	httputil.HTTP500InternalServerError
 //	@Router			/api/v1/nvmeof/target [post]
 func (c *Controller) NvmeOfTargetCreate(ctx *gin.Context) {
+	ctx.Header("Access-Control-Allow-Origin", "*")
+
 	gateway_ip, _ := ctx.GetPostForm("gateway_ip")
 	subsystem_nqn_id, _ := ctx.GetPostForm("subsystem_nqn_id")
 	pool_name, _ := ctx.GetPostForm("pool_name")
@@ -246,7 +251,6 @@ func (c *Controller) NvmeOfTargetCreate(ctx *gin.Context) {
 		return
 	}
 	if server_gateway_ip == "not" {
-		ctx.Header("Access-Control-Allow-Origin", "*")
 		ctx.IndentedJSON(http.StatusOK, make([]string, 0))
 	} else {
 		gat_name, err := nvmeof.NvmeOfGatewayName()
@@ -261,10 +265,54 @@ func (c *Controller) NvmeOfTargetCreate(ctx *gin.Context) {
 			httputil.NewError(ctx, http.StatusInternalServerError, err)
 			return
 		}
-		image, _ := glue.ListAndInfoImage(image_name, pool_name)
-		if image != nil {
-			ctx.Header("Access-Control-Allow-Origin", "*")
-			ctx.IndentedJSON(http.StatusOK, "The Image Name exists. Please Check.")
+		if size != "0" {
+			image, _ := glue.ListAndInfoImage(image_name, pool_name)
+			if image != nil {
+				ctx.IndentedJSON(http.StatusOK, "The Image Name exists. Please Check.")
+			} else {
+				_, err = nvmeof.NvmeOfSubSystemCreate(server_gateway_ip, server_gateway_ip, port, subsystem_nqn_id)
+				if err != nil {
+					utils.FancyHandleError(err)
+					httputil.NewError(ctx, http.StatusInternalServerError, err)
+					return
+				} else {
+					var gateway_name string
+					for i := 0; i < len(gat_name); i++ {
+						if strings.Contains(gat_name[i].Daemon_name, hostname) {
+							gateway_name = string("client.") + gat_name[i].Daemon_name
+						}
+					}
+					dat, err = nvmeof.NvmeOfDefineGateway(server_gateway_ip, server_gateway_ip, port, subsystem_nqn_id, gateway_name, gateway_ip)
+					if err != nil {
+						utils.FancyHandleError(err)
+						httputil.NewError(ctx, http.StatusInternalServerError, err)
+						return
+					}
+					if dat == "Success" {
+						_, err = nvmeof.NvmeOfHostAdd(server_gateway_ip, server_gateway_ip, port, subsystem_nqn_id)
+						if err != nil {
+							utils.FancyHandleError(err)
+							httputil.NewError(ctx, http.StatusInternalServerError, err)
+							return
+						} else {
+							_, err = glue.CreateImage(image_name, pool_name, size)
+							if err != nil {
+								utils.FancyHandleError(err)
+								httputil.NewError(ctx, http.StatusInternalServerError, err)
+								return
+							} else {
+								dat, err = nvmeof.NvmeOfNameSpaceCreate(server_gateway_ip, server_gateway_ip, port, subsystem_nqn_id, pool_name, image_name)
+								if err != nil {
+									utils.FancyHandleError(err)
+									httputil.NewError(ctx, http.StatusInternalServerError, err)
+									return
+								}
+								ctx.IndentedJSON(http.StatusOK, dat)
+							}
+						}
+					}
+				}
+			}
 		} else {
 			_, err = nvmeof.NvmeOfSubSystemCreate(server_gateway_ip, server_gateway_ip, port, subsystem_nqn_id)
 			if err != nil {
@@ -291,21 +339,13 @@ func (c *Controller) NvmeOfTargetCreate(ctx *gin.Context) {
 						httputil.NewError(ctx, http.StatusInternalServerError, err)
 						return
 					} else {
-						_, err = glue.CreateImage(image_name, pool_name, size)
+						dat, err = nvmeof.NvmeOfNameSpaceCreate(server_gateway_ip, server_gateway_ip, port, subsystem_nqn_id, pool_name, image_name)
 						if err != nil {
 							utils.FancyHandleError(err)
 							httputil.NewError(ctx, http.StatusInternalServerError, err)
 							return
-						} else {
-							dat, err = nvmeof.NvmeOfNameSpaceCreate(server_gateway_ip, server_gateway_ip, port, subsystem_nqn_id, pool_name, image_name)
-							if err != nil {
-								utils.FancyHandleError(err)
-								httputil.NewError(ctx, http.StatusInternalServerError, err)
-								return
-							}
-							ctx.Header("Access-Control-Allow-Origin", "*")
-							ctx.IndentedJSON(http.StatusOK, dat)
 						}
+						ctx.IndentedJSON(http.StatusOK, dat)
 					}
 				}
 			}
@@ -327,6 +367,8 @@ func (c *Controller) NvmeOfTargetCreate(ctx *gin.Context) {
 //	@Failure		500	{object}	httputil.HTTP500InternalServerError
 //	@Router			/api/v1/nvmeof/subsystem [get]
 func (c *Controller) NvmeOfSubSystemList(ctx *gin.Context) {
+	ctx.Header("Access-Control-Allow-Origin", "*")
+
 	subsystem_nqn_id := ctx.Request.URL.Query().Get("subsystem_nqn_id")
 
 	server_gateway_ip, port, err := NvmeOfServerIPandPort()
@@ -336,7 +378,6 @@ func (c *Controller) NvmeOfSubSystemList(ctx *gin.Context) {
 		return
 	}
 	if server_gateway_ip == "not" {
-		ctx.Header("Access-Control-Allow-Origin", "*")
 		ctx.IndentedJSON(http.StatusOK, make([]string, 0))
 	} else {
 		dat, err := nvmeof.NvmeOfSubSystemList(server_gateway_ip, server_gateway_ip, port, subsystem_nqn_id)
@@ -345,7 +386,6 @@ func (c *Controller) NvmeOfSubSystemList(ctx *gin.Context) {
 			httputil.NewError(ctx, http.StatusInternalServerError, err)
 			return
 		}
-		ctx.Header("Access-Control-Allow-Origin", "*")
 		ctx.IndentedJSON(http.StatusOK, dat)
 	}
 }
@@ -365,6 +405,8 @@ func (c *Controller) NvmeOfSubSystemList(ctx *gin.Context) {
 //	@Failure		500	{object}	httputil.HTTP500InternalServerError
 //	@Router			/api/v1/nvmeof/subsystem [post]
 func (c *Controller) NvmeOfSubSystemCreate(ctx *gin.Context) {
+	ctx.Header("Access-Control-Allow-Origin", "*")
+
 	gateway_ip, _ := ctx.GetPostForm("gateway_ip")
 	subsystem_nqn_id, _ := ctx.GetPostForm("subsystem_nqn_id")
 
@@ -375,7 +417,6 @@ func (c *Controller) NvmeOfSubSystemCreate(ctx *gin.Context) {
 		return
 	}
 	if server_gateway_ip == "not" {
-		ctx.Header("Access-Control-Allow-Origin", "*")
 		ctx.IndentedJSON(http.StatusOK, make([]string, 0))
 	} else {
 		gat_name, err := nvmeof.NvmeOfGatewayName()
@@ -414,7 +455,6 @@ func (c *Controller) NvmeOfSubSystemCreate(ctx *gin.Context) {
 					httputil.NewError(ctx, http.StatusInternalServerError, err)
 					return
 				}
-				ctx.Header("Access-Control-Allow-Origin", "*")
 				ctx.IndentedJSON(http.StatusOK, dat)
 			}
 		}
@@ -435,6 +475,8 @@ func (c *Controller) NvmeOfSubSystemCreate(ctx *gin.Context) {
 //	@Failure		500	{object}	httputil.HTTP500InternalServerError
 //	@Router			/api/v1/nvmeof/subsystem [delete]
 func (c *Controller) NvmeOfSubSystemDelete(ctx *gin.Context) {
+	ctx.Header("Access-Control-Allow-Origin", "*")
+
 	subsystem_nqn_id := ctx.Request.URL.Query().Get("subsystem_nqn_id")
 
 	server_gateway_ip, port, err := NvmeOfServerIPandPort()
@@ -444,7 +486,6 @@ func (c *Controller) NvmeOfSubSystemDelete(ctx *gin.Context) {
 		return
 	}
 	if server_gateway_ip == "not" {
-		ctx.Header("Access-Control-Allow-Origin", "*")
 		ctx.IndentedJSON(http.StatusOK, make([]string, 0))
 	} else {
 		dat, err := nvmeof.NvmeOfSubSystemDelete(server_gateway_ip, server_gateway_ip, port, subsystem_nqn_id)
@@ -453,7 +494,6 @@ func (c *Controller) NvmeOfSubSystemDelete(ctx *gin.Context) {
 			httputil.NewError(ctx, http.StatusInternalServerError, err)
 			return
 		}
-		ctx.Header("Access-Control-Allow-Origin", "*")
 		ctx.IndentedJSON(http.StatusOK, dat)
 	}
 }
@@ -472,6 +512,8 @@ func (c *Controller) NvmeOfSubSystemDelete(ctx *gin.Context) {
 //	@Failure		500	{object}	httputil.HTTP500InternalServerError
 //	@Router			/api/v1/nvmeof/namespace [get]
 func (c *Controller) NvmeOfNameSpaceList(ctx *gin.Context) {
+	ctx.Header("Access-Control-Allow-Origin", "*")
+
 	subsystem_nqn_id := ctx.Request.URL.Query().Get("subsystem_nqn_id")
 	server_gateway_ip, port, err := NvmeOfServerIPandPort()
 	if err != nil {
@@ -480,7 +522,6 @@ func (c *Controller) NvmeOfNameSpaceList(ctx *gin.Context) {
 		return
 	}
 	if server_gateway_ip == "not" {
-		ctx.Header("Access-Control-Allow-Origin", "*")
 		ctx.IndentedJSON(http.StatusOK, make([]string, 0))
 	} else {
 		if subsystem_nqn_id == "" {
@@ -500,7 +541,6 @@ func (c *Controller) NvmeOfNameSpaceList(ctx *gin.Context) {
 				}
 				value = append(value, namespace)
 			}
-			ctx.Header("Access-Control-Allow-Origin", "*")
 			ctx.IndentedJSON(http.StatusOK, value)
 		} else {
 			dat, err := nvmeof.NvmeOfNameSpaceList(server_gateway_ip, server_gateway_ip, port, subsystem_nqn_id)
@@ -509,7 +549,6 @@ func (c *Controller) NvmeOfNameSpaceList(ctx *gin.Context) {
 				httputil.NewError(ctx, http.StatusInternalServerError, err)
 				return
 			}
-			ctx.Header("Access-Control-Allow-Origin", "*")
 			ctx.IndentedJSON(http.StatusOK, dat)
 		}
 	}
@@ -532,6 +571,8 @@ func (c *Controller) NvmeOfNameSpaceList(ctx *gin.Context) {
 //	@Failure		500	{object}	httputil.HTTP500InternalServerError
 //	@Router			/api/v1/nvmeof/namespace [post]
 func (c *Controller) NvmeOfNameSpaceCreate(ctx *gin.Context) {
+	ctx.Header("Access-Control-Allow-Origin", "*")
+
 	subsystem_nqn_id, _ := ctx.GetPostForm("subsystem_nqn_id")
 	pool_name, _ := ctx.GetPostForm("pool_name")
 	image_name, _ := ctx.GetPostForm("image_name")
@@ -548,7 +589,6 @@ func (c *Controller) NvmeOfNameSpaceCreate(ctx *gin.Context) {
 		return
 	}
 	if server_gateway_ip == "not" {
-		ctx.Header("Access-Control-Allow-Origin", "*")
 		ctx.IndentedJSON(http.StatusOK, make([]string, 0))
 	} else {
 		_, err = glue.CreateImage(image_name, pool_name, size)
@@ -563,7 +603,6 @@ func (c *Controller) NvmeOfNameSpaceCreate(ctx *gin.Context) {
 				httputil.NewError(ctx, http.StatusInternalServerError, err)
 				return
 			}
-			ctx.Header("Access-Control-Allow-Origin", "*")
 			ctx.IndentedJSON(http.StatusOK, dat)
 		}
 	}
@@ -587,6 +626,8 @@ func (c *Controller) NvmeOfNameSpaceCreate(ctx *gin.Context) {
 //	@Failure		500	{object}	httputil.HTTP500InternalServerError
 //	@Router			/api/v1/nvmeof/namespace [delete]
 func (c *Controller) NvmeOfNameSpaceDelete(ctx *gin.Context) {
+	ctx.Header("Access-Control-Allow-Origin", "*")
+
 	subsystem_nqn_id := ctx.Request.URL.Query().Get("subsystem_nqn_id")
 	namespace_uuid := ctx.Request.URL.Query().Get("namespace_uuid")
 	image_del_check := ctx.Request.URL.Query().Get("image_del_check")
@@ -600,12 +641,10 @@ func (c *Controller) NvmeOfNameSpaceDelete(ctx *gin.Context) {
 		return
 	}
 	if server_gateway_ip == "not" {
-		ctx.Header("Access-Control-Allow-Origin", "*")
 		ctx.IndentedJSON(http.StatusOK, make([]string, 0))
 	} else {
 		if image_del_check == "true" {
 			if image_name == "" || pool_name == "" {
-				ctx.Header("Access-Control-Allow-Origin", "*")
 				ctx.IndentedJSON(http.StatusOK, "Please Check Image Name and Pool Name")
 			} else {
 				dat, err := nvmeof.NvmeOfNameSpaceDelete(server_gateway_ip, server_gateway_ip, port, subsystem_nqn_id, namespace_uuid)
@@ -621,7 +660,6 @@ func (c *Controller) NvmeOfNameSpaceDelete(ctx *gin.Context) {
 						return
 					}
 				}
-				ctx.Header("Access-Control-Allow-Origin", "*")
 				ctx.IndentedJSON(http.StatusOK, dat)
 			}
 		} else {
@@ -631,7 +669,6 @@ func (c *Controller) NvmeOfNameSpaceDelete(ctx *gin.Context) {
 				httputil.NewError(ctx, http.StatusInternalServerError, err)
 				return
 			}
-			ctx.Header("Access-Control-Allow-Origin", "*")
 			ctx.IndentedJSON(http.StatusOK, dat)
 		}
 	}
@@ -651,6 +688,8 @@ func (c *Controller) NvmeOfNameSpaceDelete(ctx *gin.Context) {
 //	@Failure		500	{object}	httputil.HTTP500InternalServerError
 //	@Router			/api/v1/nvmeof/target [get]
 func (c *Controller) NvmeOfTargetList(ctx *gin.Context) {
+	ctx.Header("Access-Control-Allow-Origin", "*")
+
 	subsystem_nqn_id := ctx.Request.URL.Query().Get("subsystem_nqn_id")
 	server_gateway_ip, port, err := NvmeOfServerIPandPort()
 	if err != nil {
@@ -659,7 +698,6 @@ func (c *Controller) NvmeOfTargetList(ctx *gin.Context) {
 		return
 	}
 	if server_gateway_ip == "not" {
-		ctx.Header("Access-Control-Allow-Origin", "*")
 		ctx.IndentedJSON(http.StatusOK, make([]string, 0))
 	} else {
 		container_id, err := nvmeof.Container(server_gateway_ip)
@@ -697,7 +735,6 @@ func (c *Controller) NvmeOfTargetList(ctx *gin.Context) {
 				list[i].Namespaces[0].Rbd_pool_name = image.Namespaces[0].RbdPoolName
 			}
 		}
-		ctx.Header("Access-Control-Allow-Origin", "*")
 		ctx.IndentedJSON(http.StatusOK, list)
 	}
 }

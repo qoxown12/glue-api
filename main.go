@@ -42,7 +42,9 @@ func main() {
 	//docs.SwaggerInfo.Host = ".swagger.io"
 	docs.SwaggerInfo.BasePath = "/"
 	docs.SwaggerInfo.Schemes = []string{"https", "http"}
+
 	httputil.Certify("cert.pem")
+
 	log.SetFlags(log.LstdFlags | log.Lshortfile)
 	controller.LogSetting()
 	r := gin.Default()
@@ -120,6 +122,10 @@ func main() {
 				// }
 			}
 		}
+		v1.POST("/ingress", c.IngressCreate)
+		v1.PUT("/ingress", c.IngressUpdate)
+		v1.OPTIONS("/ingress", c.NfsOption)
+
 		nfs := v1.Group("/nfs")
 		{
 			nfs.GET("", c.NfsClusterList)
@@ -131,8 +137,8 @@ func main() {
 			nfs.DELETE("/:cluster_id", c.NfsClusterDelete)
 			nfs.OPTIONS("/:cluster_id", c.NfsOption)
 
-			nfs.POST("/ingress", c.NfsIngressCreate)
-			nfs.PUT("/ingress", c.NfsIngressUpdate)
+			nfs.POST("/ingress", c.IngressCreate)
+			nfs.PUT("/ingress", c.IngressUpdate)
 			nfs.OPTIONS("/ingress", c.NfsOption)
 
 			nfs_export := nfs.Group("/export")
@@ -262,16 +268,16 @@ func main() {
 		{
 			gwvm.GET("/:hypervisorType", c.VmState)
 			gwvm.GET("/detail/:hypervisorType", c.VmDetail)
-			gwvm.POST("/:hypervisorType", c.VmSetup)           //Setup Gateway VM
-			gwvm.PATCH("/start/:hypervisorType", c.VmStart)      //Start to Gateway VM
+			gwvm.POST("/:hypervisorType", c.VmSetup)        //Setup Gateway VM
+			gwvm.PATCH("/start/:hypervisorType", c.VmStart) //Start to Gateway VM
 			gwvm.OPTIONS("/start/:hypervisorType", c.VmStartOptions)
-			gwvm.PATCH("/stop/:hypervisorType", c.VmStop)        //Stop to Gateway VM
+			gwvm.PATCH("/stop/:hypervisorType", c.VmStop) //Stop to Gateway VM
 			gwvm.OPTIONS("/stop/:hypervisorType", c.VmStopOptions)
 			gwvm.DELETE("/delete/:hypervisorType", c.VmDelete) //Delete to Gateway VM
 			gwvm.OPTIONS("/delete/:hypervisorType", c.VmDeleteOptions)
-			gwvm.PATCH("/cleanup/:hypervisorType", c.VmCleanup)  //Cleanup to Gateway VM
+			gwvm.PATCH("/cleanup/:hypervisorType", c.VmCleanup) //Cleanup to Gateway VM
 			gwvm.OPTIONS("/cleanup/:hypervisorType", c.VmCleanupOptions)
-			gwvm.PATCH("/migrate/:hypervisorType", c.VmMigrate)  //Migrate to Gateway VM
+			gwvm.PATCH("/migrate/:hypervisorType", c.VmMigrate) //Migrate to Gateway VM
 			gwvm.OPTIONS("/migrate/:hypervisorType", c.VmMigrateOptions)
 		}
 		/*

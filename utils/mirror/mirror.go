@@ -115,6 +115,25 @@ func GetRemoteConfigure(client *goph.Client) (clusterConf model.MirrorConf, err 
 	return clusterConf, nil
 }
 
+func ImageInfo(poolName string, imageName string) (imageInfo model.ImageInfo, err error) {
+
+	var stdoutMirrorPreSetup []byte
+
+	strMirrorPreSetupOutput := exec.Command("rbd", "info", "--image", imageName, "--format", "json", "--pretty-format")
+	stdoutMirrorPreSetup, err = strMirrorPreSetupOutput.CombinedOutput()
+	if err != nil {
+		err = errors.New(string(stdoutMirrorPreSetup))
+		utils.FancyHandleError(err)
+		return
+	}
+
+	if err = json.Unmarshal(stdoutMirrorPreSetup, &imageInfo); err != nil {
+		utils.FancyHandleError(err)
+		return
+	}
+	return imageInfo, err
+}
+
 func ImageList() (MirrorList model.MirrorList, err error) {
 
 	var stdRemote []byte
@@ -159,7 +178,7 @@ func Status() (mirrorStatus model.MirrorStatus, err error) {
 	if err != nil {
 		if strings.Contains(string(stdout), "mirroring not enabled on the pool") {
 			err = errors.New(string(stdout))
-		} else  {
+		} else {
 			cmd.Stderr = &out
 			err = errors.Join(err, errors.New(out.String()))
 		}
@@ -197,6 +216,25 @@ func ImageDelete(poolName string, imageName string) (output string, err error) {
 	}
 
 	output = string(stdRemove)
+	return
+}
+
+func ImagePreSetup(poolName string, imageName string) (output string, err error) {
+
+	var stdoutMirrorPreSetupEnable []byte
+
+	info, err := ImageInfo(poolName, imageName)
+	if info.Parent.Image != "" {
+		stdoutMirrorPreSetupEnableOutput := exec.Command("rbd", "mirror", "image", "enable", "--pool", poolName, "--image", info.Parent.Image, "snapshot")
+		stdoutMirrorPreSetupEnable, err = stdoutMirrorPreSetupEnableOutput.CombinedOutput()
+		if err != nil {
+			err = errors.New(string(stdoutMirrorPreSetupEnable))
+			utils.FancyHandleError(err)
+			return
+		}
+	}
+
+	output = string(stdoutMirrorPreSetupEnable)
 	return
 }
 
@@ -449,10 +487,10 @@ func ConfigMirror(dat model.MirrorSetup, privkeyname string) (EncodedLocalToken 
 	}
 	EncodedRemoteToken = base64.StdEncoding.EncodeToString(JsonRemoteKey)
 	remoteTokenFile, err := os.CreateTemp("", "remotetoken")
-    if err != nil {
-        utils.FancyHandleError(err)
-        return
-    }
+	if err != nil {
+		utils.FancyHandleError(err)
+		return
+	}
 	remoteTokenFile.WriteString(EncodedRemoteToken)
 
 	// token import
@@ -795,10 +833,10 @@ func EnableMirror(dat model.MirrorSetup, privkeyname string) (EncodedLocalToken 
 	}
 	EncodedRemoteToken = base64.StdEncoding.EncodeToString(JsonRemoteKey)
 	remoteTokenFile, err := os.CreateTemp("", "remotetoken")
-    if err != nil {
-        utils.FancyHandleError(err)
-        return
-    }
+	if err != nil {
+		utils.FancyHandleError(err)
+		return
+	}
 	remoteTokenFile.WriteString(EncodedRemoteToken)
 
 	// token import

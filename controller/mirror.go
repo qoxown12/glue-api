@@ -373,7 +373,15 @@ func (c *Controller) MirrorImageSetup(ctx *gin.Context) {
 	interval, _ := ctx.GetPostForm("interval")
 	startTime, _ := ctx.GetPostForm("startTime")
 	print(startTime)
-	message, err := mirror.ImageSetup(mirrorPool, imageName)
+
+	message, err := mirror.ImagePreSetup(mirrorPool, imageName)
+	if err != nil {
+		utils.FancyHandleError(err)
+		httputil.NewError(ctx, http.StatusInternalServerError, err)
+		return
+	}
+
+	message, err = mirror.ImageSetup(mirrorPool, imageName)
 	if err != nil {
 		utils.FancyHandleError(err)
 		httputil.NewError(ctx, http.StatusInternalServerError, err)

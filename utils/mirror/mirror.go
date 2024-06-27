@@ -300,18 +300,18 @@ func ImageStatus(poolName string, imageName string) (imageStatus model.ImageStat
 
 	strScheduleOutput := exec.Command("rbd", "mirror", "image", "status", "--pool", poolName, "--image", imageName, "--format", "json")
 	stdoutScheduleEnable, err = strScheduleOutput.CombinedOutput()
-
-	if err = json.Unmarshal(stdoutScheduleEnable, &imageStatus); err != nil {
-		err = errors.Join(err, errors.New(string(stdoutScheduleEnable)))
-		utils.FancyHandleError(err)
-		return
-	}
 	if err != nil {
 		err = errors.Join(err, errors.New(string(stdoutScheduleEnable)))
 		utils.FancyHandleError(err)
 		return
 	}
-	return
+
+	if err = json.Unmarshal(stdoutScheduleEnable, &imageStatus); err != nil {
+		utils.FancyHandleError(err)
+		return
+	}
+
+	return imageStatus, err
 }
 
 func ConfigMirror(dat model.MirrorSetup, privkeyname string) (EncodedLocalToken string, EncodedRemoteToken string, err error) {

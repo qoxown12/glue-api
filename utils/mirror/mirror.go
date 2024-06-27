@@ -193,6 +193,25 @@ func Status() (mirrorStatus model.MirrorStatus, err error) {
 	return
 }
 
+func ImagePreDelete(poolName string, imageName string) (output string, err error) {
+
+	var stdoutMirrorPreDelete []byte
+
+	info, err := ImageInfo(poolName, imageName)
+	if info.Parent.Image != "" {
+		stdoutMirrorPreDeleteOutput := exec.Command("rbd", "mirror", "image", "disable", "--pool", poolName, "--image", info.Parent.Image, "snapshot")
+		stdoutMirrorPreDelete, err = stdoutMirrorPreDeleteOutput.CombinedOutput()
+		if err != nil {
+			err = errors.New(string(stdoutMirrorPreDelete))
+			utils.FancyHandleError(err)
+			return
+		}
+	}
+
+	output = string(stdoutMirrorPreDelete)
+	return
+}
+
 func ImageDelete(poolName string, imageName string) (output string, err error) {
 
 	var stdRemove []byte

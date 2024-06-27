@@ -92,7 +92,15 @@ func (c *Controller) MirrorImageDelete(ctx *gin.Context) {
 	pool := ctx.Param("mirrorPool")
 	var output string
 
-	output, err := mirror.ImageDelete(pool, image)
+	output, err := mirror.ImagePreDelete(pool, image)
+
+	if err != nil {
+		utils.FancyHandleError(err)
+		httputil.NewError(ctx, http.StatusInternalServerError, err)
+		return
+	}
+
+	output, err = mirror.ImageDelete(pool, image)
 
 	if err != nil {
 		utils.FancyHandleError(err)
@@ -205,7 +213,11 @@ func (c *Controller) MirrorDelete(ctx *gin.Context) {
 		return
 	}
 	for _, image := range MirroredImage.Local {
-		_, errt := mirror.ImageDelete(image.Pool, image.Image)
+		_, errt := mirror.ImagePreDelete(image.Pool, image.Image)
+		if errt != nil {
+			err = errors.Join(err, errt)
+		}
+		_, errt = mirror.ImageDelete(image.Pool, image.Image)
 		if errt != nil {
 			err = errors.Join(err, errt)
 		}
@@ -639,7 +651,11 @@ func (c *Controller) MirrorPoolDisable(ctx *gin.Context) {
 		return
 	}
 	for _, image := range MirroredImage.Local {
-		_, errt := mirror.ImageDelete(image.Pool, image.Image)
+		_, errt := mirror.ImagePreDelete(image.Pool, image.Image)
+		if errt != nil {
+			err = errors.Join(err, errt)
+		}
+		_, errt = mirror.ImageDelete(image.Pool, image.Image)
 		if errt != nil {
 			err = errors.Join(err, errt)
 		}

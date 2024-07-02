@@ -202,9 +202,6 @@ func ImagePreDelete(poolName string, imageName string) (output string, err error
 		stdoutMirrorPreDeleteOutput := exec.Command("rbd", "mirror", "image", "disable", "--pool", poolName, "--image", info.Parent.Image, "snapshot")
 		stdoutMirrorPreDelete, err = stdoutMirrorPreDeleteOutput.CombinedOutput()
 		if err != nil {
-			println(stdoutMirrorPreDeleteOutput.Err.Error())
-			println("::::::::::::::::::::::")
-			println(err.Error())
 			err = errors.New(string(stdoutMirrorPreDelete))
 			utils.FancyHandleError(err)
 			return

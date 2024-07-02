@@ -205,12 +205,10 @@ func ImagePreDelete(poolName string, imageName string) (output string, err error
 		if err != nil {
 			stdoutMirrorPreDeleteOutput.Stderr = &out
 			println(out.String())
-			if !strings.Contains(string(out.String()), "mirroring is enabled on one or more children") {
-				println("in")
-				err = errors.New(string(stdoutMirrorPreDelete))
-				utils.FancyHandleError(err)
-				return
-			}
+			fmt.Println(err)
+			err = errors.New(string(stdoutMirrorPreDelete))
+			utils.FancyHandleError(err)
+			return
 		}
 	}
 

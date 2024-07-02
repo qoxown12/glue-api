@@ -153,7 +153,7 @@ then
                                 echo -e "public = yes" >> $smb_conf
                                 echo -e "create mask = 0777" >> $smb_conf
                                 echo -e "directory mask = 0777" >> $smb_conf
-                                #echo -e "vfs objects = fake_compression" >> $smb_conf
+                                echo -e "vfs objects = fake_compression" >> $smb_conf
                                 if [ $cache == "true" ]
                                 then
                                         echo -e "csc policy = programs" >> $smb_conf

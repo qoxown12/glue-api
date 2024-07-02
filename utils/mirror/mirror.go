@@ -196,14 +196,16 @@ func Status() (mirrorStatus model.MirrorStatus, err error) {
 func ImagePreDelete(poolName string, imageName string) (output string, err error) {
 
 	var stdoutMirrorPreDelete []byte
+	var out strings.Builder
 
 	info, err := ImageInfo(poolName, imageName)
 	if info.Parent.Image != "" {
 		stdoutMirrorPreDeleteOutput := exec.Command("rbd", "mirror", "image", "disable", "--pool", poolName, "--image", info.Parent.Image, "snapshot")
 		stdoutMirrorPreDelete, err = stdoutMirrorPreDeleteOutput.CombinedOutput()
 		if err != nil {
-			println(string(stdoutMirrorPreDelete))
-			if !strings.Contains(string(stdoutMirrorPreDelete), "mirroring is enabled on one or more children") {
+			stdoutMirrorPreDeleteOutput.Stderr = &out
+			println(out.String())
+			if !strings.Contains(string(out.String()), "mirroring is enabled on one or more children") {
 				println("in")
 				err = errors.New(string(stdoutMirrorPreDelete))
 				utils.FancyHandleError(err)

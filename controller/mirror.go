@@ -505,10 +505,10 @@ func (c *Controller) MirrorImagePromote(ctx *gin.Context) {
 	mirrorPool := ctx.Param("mirrorPool")
 	imageName := ctx.Param("imageName")
 	dat, err = mirror.RemoteImageDemote(mirrorPool, imageName)
-
+	dat, err = mirror.RemoteImageResync(mirrorPool, imageName)
 	dat, err = mirror.ImageStatus(mirrorPool, imageName)
-
 	dat, err = mirror.ImagePromote(mirrorPool, imageName)
+	dat, err = mirror.ImageResync(mirrorPool, imageName)
 	if err != nil {
 		utils.FancyHandleError(err)
 		httputil.NewError(ctx, http.StatusInternalServerError, err)
@@ -549,9 +549,10 @@ func (c *Controller) MirrorImageDemote(ctx *gin.Context) {
 	mirrorPool := ctx.Param("mirrorPool")
 	imageName := ctx.Param("imageName")
 	dat, err = mirror.ImageDemote(mirrorPool, imageName)
-
+	dat, err = mirror.ImageResync(mirrorPool, imageName)
 	dat, err = mirror.ImageStatus(mirrorPool, imageName)
 	dat, err = mirror.RemoteImagePromote(mirrorPool, imageName)
+	dat, err = mirror.RemoteImageResync(mirrorPool, imageName)
 	if err != nil {
 		utils.FancyHandleError(err)
 		httputil.NewError(ctx, http.StatusInternalServerError, err)

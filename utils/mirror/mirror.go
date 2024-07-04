@@ -646,7 +646,7 @@ func ConfigMirror(dat model.MirrorSetup, privkeyname string) (EncodedLocalToken 
 func ImagePromote(poolName string, imageName string) (imageStatus model.ImageStatus, err error) {
 
 	var stdoutScheduleEnable []byte
-	strScheduleOutput := exec.Command("rbd", "mirror", "image", "promote", "--pool", poolName, "--image", imageName)
+	strScheduleOutput := exec.Command("rbd", "mirror", "image", "promote", "--pool", poolName, "--image", imageName, "--force")
 	stdoutScheduleEnable, err = strScheduleOutput.CombinedOutput()
 
 	if !strings.Contains(string(stdoutScheduleEnable), "Image promoted") {
@@ -664,7 +664,7 @@ func ImageDemote(poolName string, imageName string) (imageStatus model.ImageStat
 
 	var stdoutScheduleEnable []byte
 
-	strScheduleOutput := exec.Command("rbd", "mirror", "image", "demote", "--pool", poolName, "--image", imageName)
+	strScheduleOutput := exec.Command("rbd", "mirror", "image", "demote", "--pool", poolName, "--image", imageName, "--force")
 	stdoutScheduleEnable, err = strScheduleOutput.CombinedOutput()
 	if !strings.Contains(string(stdoutScheduleEnable), "Image demoted") {
 		err = errors.Join(err, errors.New(string(stdoutScheduleEnable)))
@@ -679,7 +679,7 @@ func RemoteImagePromote(poolName string, imageName string) (imageStatus model.Im
 
 	var stdoutScheduleEnable []byte
 	conf, err := GetConfigure()
-	strScheduleOutput := exec.Command("rbd", "-c", conf.ClusterFileName, "--cluster", conf.ClusterName, "--name", conf.Peers[0].ClientName, "--keyfile", conf.KeyFileName, "mirror", "image", "promote", "--pool", poolName, "--image", imageName)
+	strScheduleOutput := exec.Command("rbd", "-c", conf.ClusterFileName, "--cluster", conf.ClusterName, "--name", conf.Peers[0].ClientName, "--keyfile", conf.KeyFileName, "mirror", "image", "promote", "--pool", poolName, "--image", imageName, "--force")
 	stdoutScheduleEnable, err = strScheduleOutput.CombinedOutput()
 	if !strings.Contains(string(stdoutScheduleEnable), "Image promoted") {
 		err = errors.Join(err, errors.New(string(stdoutScheduleEnable)))
@@ -694,12 +694,40 @@ func RemoteImageDemote(poolName string, imageName string) (imageStatus model.Ima
 
 	var stdoutScheduleEnable []byte
 	conf, err := GetConfigure()
-	strScheduleOutput := exec.Command("rbd", "-c", conf.ClusterFileName, "--cluster", conf.ClusterName, "--name", conf.Peers[0].ClientName, "--keyfile", conf.KeyFileName, "mirror", "image", "demote", "--pool", poolName, "--image", imageName)
+	strScheduleOutput := exec.Command("rbd", "-c", conf.ClusterFileName, "--cluster", conf.ClusterName, "--name", conf.Peers[0].ClientName, "--keyfile", conf.KeyFileName, "mirror", "image", "demote", "--pool", poolName, "--image", imageName, "--force")
 	stdoutScheduleEnable, err = strScheduleOutput.CombinedOutput()
 	if !strings.Contains(string(stdoutScheduleEnable), "Image demoted") {
 		err = errors.Join(err, errors.New(string(stdoutScheduleEnable)))
 	}
 	if err != nil {
+		utils.FancyHandleError(err)
+	}
+	return
+}
+
+func RemoteImageResync(poolName string, imageName string) (imageStatus model.ImageStatus, err error) {
+
+	var stdoutScheduleEnable []byte
+	conf, err := GetConfigure()
+	strScheduleOutput := exec.Command("rbd", "-c", conf.ClusterFileName, "--cluster", conf.ClusterName, "--name", conf.Peers[0].ClientName, "--keyfile", conf.KeyFileName, "mirror", "image", "resync", "--pool", poolName, "--image", imageName)
+	stdoutScheduleEnable, err = strScheduleOutput.CombinedOutput()
+
+	if err != nil {
+		err = errors.New(string(stdoutScheduleEnable))
+		utils.FancyHandleError(err)
+	}
+	return
+}
+
+func ImageResync(poolName string, imageName string) (imageStatus model.ImageStatus, err error) {
+
+	var stdoutScheduleEnable []byte
+
+	strScheduleOutput := exec.Command("rbd", "mirror", "image", "resync", "--pool", poolName, "--image", imageName)
+	stdoutScheduleEnable, err = strScheduleOutput.CombinedOutput()
+
+	if err != nil {
+		err = errors.New(string(stdoutScheduleEnable))
 		utils.FancyHandleError(err)
 	}
 	return

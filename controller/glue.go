@@ -402,3 +402,32 @@ func (c *Controller) HostList(ctx *gin.Context) {
 	// Print the output
 	ctx.IndentedJSON(http.StatusOK, dat)
 }
+
+// Password encryption godoc
+//
+//	@Summary		Creates the glue user's password encryption value.
+//	@Description	Glue 사용자의 비밀번호 암호화 값을 생성합니다.
+//	@Tags			Passwd
+//	@param			pass_word 	query	string	true	"Glue User's Password"
+//	@Accept			x-www-form-urlencoded
+//	@Produce		json
+//	@Success		200	{object}	PwEncryption
+//	@Failure		400	{object}	httputil.HTTP400BadRequest
+//	@Failure		404	{object}	httputil.HTTP404NotFound
+//	@Failure		500	{object}	httputil.HTTP500InternalServerError
+//	@Router			/api/v1/glue/pw [get]
+func (c *Controller) PwEncryption(ctx *gin.Context) {
+	ctx.Header("Access-Control-Allow-Origin", "*")
+
+	pass_word := ctx.Request.URL.Query().Get("pass_word")
+
+	pw, err := utils.PasswordEncryption(pass_word)
+
+	if err != nil {
+		utils.FancyHandleError(err)
+		httputil.NewError(ctx, http.StatusInternalServerError, err)
+		return
+	}
+
+	ctx.IndentedJSON(http.StatusOK, pw)
+}

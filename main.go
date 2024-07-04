@@ -56,10 +56,9 @@ func main() {
 		glue := v1.Group("/glue")
 		{
 			glue.GET("", c.GlueStatus)
-
 			glue.GET("/hosts", c.HostList)
-
 			glue.GET("/version", c.GlueVersion)
+			glue.GET("/pw", c.PwEncryption)
 		}
 		pool := v1.Group("/pool")
 		{

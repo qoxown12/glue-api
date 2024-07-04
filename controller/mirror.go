@@ -498,16 +498,34 @@ func (c *Controller) MirrorImageStatus(ctx *gin.Context) {
 func (c *Controller) MirrorImagePromote(ctx *gin.Context) {
 
 	var (
-		dat model.ImageStatus
-		err error
+		dat      model.ImageStatus
+		err      error
+		schedule []model.MirrorImageItem
 	)
 
 	mirrorPool := ctx.Param("mirrorPool")
 	imageName := ctx.Param("imageName")
+
+	MirroredImage, err := mirror.ImageList()
+	if err != nil {
+		utils.FancyHandleError(err)
+		httputil.NewError(ctx, http.StatusInternalServerError, err)
+		return
+	}
+	for _, image := range MirroredImage.Remote {
+		if image.Image == imageName {
+			if len(image.Items) > 0 {
+				schedule = image.Items
+			}
+		}
+	}
 	dat, err = mirror.RemoteImageDemote(mirrorPool, imageName)
 	dat, err = mirror.ImageStatus(mirrorPool, imageName)
+
 	dat, err = mirror.ImagePromote(mirrorPool, imageName)
 	dat, err = mirror.RemoteImageResync(mirrorPool, imageName)
+
+	dat, err = mirror.ImageSchedule(schedule, mirrorPool, imageName)
 	if err != nil {
 		utils.FancyHandleError(err)
 		httputil.NewError(ctx, http.StatusInternalServerError, err)
@@ -541,16 +559,34 @@ func (c *Controller) MirrorImagePromote(ctx *gin.Context) {
 func (c *Controller) MirrorImageDemote(ctx *gin.Context) {
 
 	var (
-		dat model.ImageStatus
-		err error
+		dat      model.ImageStatus
+		err      error
+		schedule []model.MirrorImageItem
 	)
 
 	mirrorPool := ctx.Param("mirrorPool")
 	imageName := ctx.Param("imageName")
+
+	MirroredImage, err := mirror.ImageList()
+	if err != nil {
+		utils.FancyHandleError(err)
+		httputil.NewError(ctx, http.StatusInternalServerError, err)
+		return
+	}
+	for _, image := range MirroredImage.Local {
+		if image.Image == imageName {
+			if len(image.Items) > 0 {
+				schedule = image.Items
+			}
+		}
+	}
 	dat, err = mirror.ImageDemote(mirrorPool, imageName)
 	dat, err = mirror.ImageStatus(mirrorPool, imageName)
+
 	dat, err = mirror.RemoteImagePromote(mirrorPool, imageName)
 	dat, err = mirror.ImageResync(mirrorPool, imageName)
+
+	dat, err = mirror.RemoteImageSchedule(schedule, mirrorPool, imageName)
 	if err != nil {
 		utils.FancyHandleError(err)
 		httputil.NewError(ctx, http.StatusInternalServerError, err)

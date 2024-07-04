@@ -648,7 +648,10 @@ func ImagePromote(poolName string, imageName string) (imageStatus model.ImageSta
 	var stdoutScheduleEnable []byte
 	strScheduleOutput := exec.Command("rbd", "mirror", "image", "promote", "--pool", poolName, "--image", imageName, "--force")
 	stdoutScheduleEnable, err = strScheduleOutput.CombinedOutput()
-
+	if strings.Contains(string(stdoutScheduleEnable), "unrecognised option") {
+		strScheduleOutput = exec.Command("rbd", "mirror", "image", "promote", "--pool", poolName, "--image", imageName)
+		stdoutScheduleEnable, err = strScheduleOutput.CombinedOutput()
+	}
 	if !strings.Contains(string(stdoutScheduleEnable), "Image promoted") {
 		err = errors.Join(err, errors.New(string(stdoutScheduleEnable)))
 	}
@@ -666,14 +669,9 @@ func ImageDemote(poolName string, imageName string) (imageStatus model.ImageStat
 
 	strScheduleOutput := exec.Command("rbd", "mirror", "image", "demote", "--pool", poolName, "--image", imageName, "--force")
 	stdoutScheduleEnable, err = strScheduleOutput.CombinedOutput()
-	println("string(stdoutScheduleEnable):::::::::::::::::::::::::::::::")
-	println(string(stdoutScheduleEnable))
 	if strings.Contains(string(stdoutScheduleEnable), "unrecognised option") {
-		println("in:::::::::::::::::::::::::::::::")
 		strScheduleOutput = exec.Command("rbd", "mirror", "image", "demote", "--pool", poolName, "--image", imageName)
 		stdoutScheduleEnable, err = strScheduleOutput.CombinedOutput()
-		println("out:::::::::::::::::::::::::::::::")
-		println(string(stdoutScheduleEnable))
 	}
 	if !strings.Contains(string(stdoutScheduleEnable), "Image demoted") {
 		err = errors.Join(err, errors.New(string(stdoutScheduleEnable)))
@@ -688,8 +686,12 @@ func RemoteImagePromote(poolName string, imageName string) (imageStatus model.Im
 
 	var stdoutScheduleEnable []byte
 	conf, err := GetConfigure()
-	strScheduleOutput := exec.Command("rbd", "-c", conf.ClusterFileName, "--cluster", conf.ClusterName, "--name", conf.Peers[0].ClientName, "--keyfile", conf.KeyFileName, "mirror", "image", "promote", "--pool", poolName, "--image", imageName)
+	strScheduleOutput := exec.Command("rbd", "-c", conf.ClusterFileName, "--cluster", conf.ClusterName, "--name", conf.Peers[0].ClientName, "--keyfile", conf.KeyFileName, "mirror", "image", "promote", "--pool", poolName, "--image", imageName, "--force")
 	stdoutScheduleEnable, err = strScheduleOutput.CombinedOutput()
+	if strings.Contains(string(stdoutScheduleEnable), "unrecognised option") {
+		strScheduleOutput = exec.Command("rbd", "-c", conf.ClusterFileName, "--cluster", conf.ClusterName, "--name", conf.Peers[0].ClientName, "--keyfile", conf.KeyFileName, "mirror", "image", "promote", "--pool", poolName, "--image", imageName)
+		stdoutScheduleEnable, err = strScheduleOutput.CombinedOutput()
+	}
 	if !strings.Contains(string(stdoutScheduleEnable), "Image promoted") {
 		err = errors.Join(err, errors.New(string(stdoutScheduleEnable)))
 	}
@@ -703,8 +705,12 @@ func RemoteImageDemote(poolName string, imageName string) (imageStatus model.Ima
 
 	var stdoutScheduleEnable []byte
 	conf, err := GetConfigure()
-	strScheduleOutput := exec.Command("rbd", "-c", conf.ClusterFileName, "--cluster", conf.ClusterName, "--name", conf.Peers[0].ClientName, "--keyfile", conf.KeyFileName, "mirror", "image", "demote", "--pool", poolName, "--image", imageName)
+	strScheduleOutput := exec.Command("rbd", "-c", conf.ClusterFileName, "--cluster", conf.ClusterName, "--name", conf.Peers[0].ClientName, "--keyfile", conf.KeyFileName, "mirror", "image", "demote", "--pool", poolName, "--image", imageName, "--force")
 	stdoutScheduleEnable, err = strScheduleOutput.CombinedOutput()
+	if strings.Contains(string(stdoutScheduleEnable), "unrecognised option") {
+		strScheduleOutput = exec.Command("rbd", "-c", conf.ClusterFileName, "--cluster", conf.ClusterName, "--name", conf.Peers[0].ClientName, "--keyfile", conf.KeyFileName, "mirror", "image", "demote", "--pool", poolName, "--image", imageName)
+		stdoutScheduleEnable, err = strScheduleOutput.CombinedOutput()
+	}
 	if !strings.Contains(string(stdoutScheduleEnable), "Image demoted") {
 		err = errors.Join(err, errors.New(string(stdoutScheduleEnable)))
 	}

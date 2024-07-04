@@ -666,6 +666,15 @@ func ImageDemote(poolName string, imageName string) (imageStatus model.ImageStat
 
 	strScheduleOutput := exec.Command("rbd", "mirror", "image", "demote", "--pool", poolName, "--image", imageName, "--force")
 	stdoutScheduleEnable, err = strScheduleOutput.CombinedOutput()
+	println("string(stdoutScheduleEnable):::::::::::::::::::::::::::::::")
+	println(string(stdoutScheduleEnable))
+	if strings.Contains(string(stdoutScheduleEnable), "unrecognised option") {
+		println("in:::::::::::::::::::::::::::::::")
+		strScheduleOutput = exec.Command("rbd", "mirror", "image", "demote", "--pool", poolName, "--image", imageName)
+		stdoutScheduleEnable, err = strScheduleOutput.CombinedOutput()
+		println("out:::::::::::::::::::::::::::::::")
+		println(string(stdoutScheduleEnable))
+	}
 	if !strings.Contains(string(stdoutScheduleEnable), "Image demoted") {
 		err = errors.Join(err, errors.New(string(stdoutScheduleEnable)))
 	}

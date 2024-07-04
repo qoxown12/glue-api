@@ -63,6 +63,7 @@ func GetConfigure() (clusterConf model.MirrorConf, err error) {
 		return clusterConf, err
 	}
 
+	clusterConf.ClusterName = peer.SiteName
 	clusterConf.Name = peer.ClientName
 	clusterConf.ClusterFileName = tfCluster.Name()
 	clusterConf.KeyFileName = tfKey.Name()

@@ -679,7 +679,7 @@ func RemoteImagePromote(poolName string, imageName string) (imageStatus model.Im
 
 	var stdoutScheduleEnable []byte
 	conf, err := GetConfigure()
-	strScheduleOutput := exec.Command("rbd", "-c", conf.ClusterFileName, "--cluster", conf.ClusterName, "--name", conf.Peers[0].ClientName, "--keyfile", conf.KeyFileName, "mirror", "image", "promote", "--pool", poolName, "--image", imageName, "--force")
+	strScheduleOutput := exec.Command("rbd", "-c", conf.ClusterFileName, "--cluster", conf.ClusterName, "--name", conf.Peers[0].ClientName, "--keyfile", conf.KeyFileName, "mirror", "image", "promote", "--pool", poolName, "--image", imageName)
 	stdoutScheduleEnable, err = strScheduleOutput.CombinedOutput()
 	if !strings.Contains(string(stdoutScheduleEnable), "Image promoted") {
 		err = errors.Join(err, errors.New(string(stdoutScheduleEnable)))
@@ -694,7 +694,7 @@ func RemoteImageDemote(poolName string, imageName string) (imageStatus model.Ima
 
 	var stdoutScheduleEnable []byte
 	conf, err := GetConfigure()
-	strScheduleOutput := exec.Command("rbd", "-c", conf.ClusterFileName, "--cluster", conf.ClusterName, "--name", conf.Peers[0].ClientName, "--keyfile", conf.KeyFileName, "mirror", "image", "demote", "--pool", poolName, "--image", imageName, "--force")
+	strScheduleOutput := exec.Command("rbd", "-c", conf.ClusterFileName, "--cluster", conf.ClusterName, "--name", conf.Peers[0].ClientName, "--keyfile", conf.KeyFileName, "mirror", "image", "demote", "--pool", poolName, "--image", imageName)
 	stdoutScheduleEnable, err = strScheduleOutput.CombinedOutput()
 	if !strings.Contains(string(stdoutScheduleEnable), "Image demoted") {
 		err = errors.Join(err, errors.New(string(stdoutScheduleEnable)))

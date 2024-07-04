@@ -147,7 +147,7 @@ func ImageList() (MirrorList model.MirrorList, err error) {
 		return
 	}
 
-	strRemoteStatus := exec.Command("rbd", "mirror", "snapshot", "schedule", "list", "-R", "--format", "json", "--pretty-format", "-c", mirrorConfig.ClusterName, "-K", mirrorConfig.KeyFileName, "-n", mirrorConfig.Name)
+	strRemoteStatus := exec.Command("rbd", "-c", mirrorConfig.ClusterFileName, "--cluster", mirrorConfig.ClusterName, "--name", mirrorConfig.Peers[0].ClientName, "--keyfile", mirrorConfig.KeyFileName, "mirror", "snapshot", "schedule", "list", "-R", "--format", "json", "--pretty-format")
 	stdRemote, err = strRemoteStatus.CombinedOutput()
 	strLocalStatus := exec.Command("rbd", "mirror", "snapshot", "schedule", "list", "-R", "--format", "json", "--pretty-format")
 	stdLocal, err = strLocalStatus.CombinedOutput()

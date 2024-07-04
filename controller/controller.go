@@ -81,8 +81,8 @@ func GlueUrl() (output string) {
 		return
 	}
 	result := strings.Replace(string(stdout), "\n", "", -1)
-
-	output = string("https://") + result + string(":8443/")
+	settings, _ := utils.ReadConfFile()
+	output = string(settings.GlueProtocol+"://") + result + string(":"+settings.GluePort+"/")
 	return
 }
 
@@ -92,9 +92,13 @@ func GetToken() (output string, err error) {
 			TLSClientConfig: &tls.Config{InsecureSkipVerify: true},
 		},
 	}
+	
+	settings, _ := utils.ReadConfFile()
+	pw, err := utils.PasswordDecryption(settings.GluePw)
+	
 	user_json := model.UserInfo{
-		Username: "ablecloud",
-		Password: "Ablecloud1!",
+		Username: settings.GlueUser,
+		Password: pw,
 	}
 	user, err := json.Marshal(user_json)
 	if err != nil {

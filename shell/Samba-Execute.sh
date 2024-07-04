@@ -192,24 +192,38 @@ then
         elif [ $action == "user_create" ]
         then
                 user=$(pdbedit -L --debuglevel=1 | grep -v 'root' | grep -v 'ablecloud' | cut -d ':' -f1)
-                for list in $user
-                do
-                        if [ $user_id == $list ]
-                        then
-                                echo "The same USER_ID exists."
-                        else
-                                useradd $user_id > /dev/null 2>&1
+                if [ !$user]
+                then
+                        useradd $user_id > /dev/null 2>&1
 
-                                expect -c "
-                                spawn smbpasswd -a $user_id
-                                expect "password:"
+                        expect -c "
+                        spawn smbpasswd -a $user_id
+                        expect "password:"
+                                send \"$user_pw\\r\"
+                                expect "password"
                                         send \"$user_pw\\r\"
-                                        expect "password"
+                        expect eof
+                        " > /dev/null
+                else
+                        for list in $user
+                        do
+                                if [ $user_id == $list ]
+                                then
+                                        echo "The same USER_ID exists."
+                                else
+                                        useradd $user_id > /dev/null 2>&1
+
+                                        expect -c "
+                                        spawn smbpasswd -a $user_id
+                                        expect "password:"
                                                 send \"$user_pw\\r\"
-                                expect eof
-                                " > /dev/null
-                        fi
-                done
+                                                expect "password"
+                                                        send \"$user_pw\\r\"
+                                        expect eof
+                                        " > /dev/null
+                                fi
+                        done
+                fi
         elif [ $action == "user_delete" ]
         then
                 user_del=$(smbpasswd -x $user_id > /dev/null 2>&1; echo $?)

@@ -520,11 +520,19 @@ func (c *Controller) MirrorImagePromote(ctx *gin.Context) {
 		}
 	}
 	dat, err = mirror.RemoteImageDemote(mirrorPool, imageName)
+	if err != nil {
+		utils.FancyHandleError(err)
+		httputil.NewError(ctx, http.StatusInternalServerError, err)
+		return
+	}
 	dat, err = mirror.ImageStatus(mirrorPool, imageName)
-
 	dat, err = mirror.ImagePromote(mirrorPool, imageName)
+	if err != nil {
+		utils.FancyHandleError(err)
+		httputil.NewError(ctx, http.StatusInternalServerError, err)
+		return
+	}
 	dat, err = mirror.RemoteImageResync(mirrorPool, imageName)
-
 	dat, err = mirror.ImageSchedule(schedule, mirrorPool, imageName)
 	if err != nil {
 		utils.FancyHandleError(err)
@@ -581,11 +589,19 @@ func (c *Controller) MirrorImageDemote(ctx *gin.Context) {
 		}
 	}
 	dat, err = mirror.ImageDemote(mirrorPool, imageName)
+	if err != nil {
+		utils.FancyHandleError(err)
+		httputil.NewError(ctx, http.StatusInternalServerError, err)
+		return
+	}
 	dat, err = mirror.ImageStatus(mirrorPool, imageName)
-
 	dat, err = mirror.RemoteImagePromote(mirrorPool, imageName)
+	if err != nil {
+		utils.FancyHandleError(err)
+		httputil.NewError(ctx, http.StatusInternalServerError, err)
+		return
+	}
 	dat, err = mirror.ImageResync(mirrorPool, imageName)
-
 	dat, err = mirror.RemoteImageSchedule(schedule, mirrorPool, imageName)
 	if err != nil {
 		utils.FancyHandleError(err)

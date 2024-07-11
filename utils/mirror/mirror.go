@@ -688,7 +688,7 @@ func ConfigMirror(dat model.MirrorSetup, privkeyname string) (EncodedLocalToken 
 	return
 }
 
-func ImagePromote(poolName string, imageName string) (imageStatus model.ImageStatus, err error) {
+func ImagePromote(poolName string, imageName string) (output string, err error) {
 
 	var stdoutScheduleEnable []byte
 	strScheduleOutput := exec.Command("rbd", "mirror", "image", "promote", "--pool", poolName, "--image", imageName, "--force")
@@ -705,10 +705,12 @@ func ImagePromote(poolName string, imageName string) (imageStatus model.ImageSta
 		utils.FancyHandleError(err)
 		return
 	}
+
+	output = string(stdoutScheduleEnable)
 	return
 }
 
-func ImageDemote(poolName string, imageName string) (imageStatus model.ImageStatus, err error) {
+func ImageDemote(poolName string, imageName string) (output string, err error) {
 
 	var stdoutScheduleEnable []byte
 
@@ -724,10 +726,12 @@ func ImageDemote(poolName string, imageName string) (imageStatus model.ImageStat
 	if err != nil {
 		utils.FancyHandleError(err)
 	}
+
+	output = string(stdoutScheduleEnable)
 	return
 }
 
-func RemoteImagePromote(poolName string, imageName string) (imageStatus model.ImageStatus, err error) {
+func RemoteImagePromote(poolName string, imageName string) (output string, err error) {
 
 	var stdoutScheduleEnable []byte
 	conf, err := GetConfigure()
@@ -743,10 +747,12 @@ func RemoteImagePromote(poolName string, imageName string) (imageStatus model.Im
 	if err != nil {
 		utils.FancyHandleError(err)
 	}
+
+	output = string(stdoutScheduleEnable)
 	return
 }
 
-func RemoteImageDemote(poolName string, imageName string) (imageStatus model.ImageStatus, err error) {
+func RemoteImageDemote(poolName string, imageName string) (output string, err error) {
 
 	var stdoutScheduleEnable []byte
 	conf, err := GetConfigure()
@@ -762,10 +768,12 @@ func RemoteImageDemote(poolName string, imageName string) (imageStatus model.Ima
 	if err != nil {
 		utils.FancyHandleError(err)
 	}
+
+	output = string(stdoutScheduleEnable)
 	return
 }
 
-func RemoteImageResync(poolName string, imageName string) (imageStatus model.ImageStatus, err error) {
+func RemoteImageResync(poolName string, imageName string) (output string, err error) {
 
 	var stdoutScheduleEnable []byte
 	conf, err := GetConfigure()
@@ -776,10 +784,12 @@ func RemoteImageResync(poolName string, imageName string) (imageStatus model.Ima
 		err = errors.New(string(stdoutScheduleEnable))
 		utils.FancyHandleError(err)
 	}
+
+	output = string(stdoutScheduleEnable)
 	return
 }
 
-func ImageResync(poolName string, imageName string) (imageStatus model.ImageStatus, err error) {
+func ImageResync(poolName string, imageName string) (output string, err error) {
 
 	var stdoutScheduleEnable []byte
 
@@ -790,6 +800,8 @@ func ImageResync(poolName string, imageName string) (imageStatus model.ImageStat
 		err = errors.New(string(stdoutScheduleEnable))
 		utils.FancyHandleError(err)
 	}
+
+	output = string(stdoutScheduleEnable)
 	return
 }
 

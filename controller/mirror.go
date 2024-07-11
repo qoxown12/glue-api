@@ -497,56 +497,55 @@ func (c *Controller) MirrorImageStatus(ctx *gin.Context) {
 //	@Router			/api/v1/mirror/image/promote/{mirrorPool}/{imageName} [post]
 func (c *Controller) MirrorImagePromote(ctx *gin.Context) {
 
-	var (
-		dat      model.ImageStatus
-		err      error
-		schedule []model.MirrorImageItem
-	)
+	var dat = struct {
+		Message string
+	}{}
 
 	mirrorPool := ctx.Param("mirrorPool")
 	imageName := ctx.Param("imageName")
 
-	MirroredImage, err := mirror.ImageList()
-	if err != nil {
-		utils.FancyHandleError(err)
-		httputil.NewError(ctx, http.StatusInternalServerError, err)
-		return
-	}
-	for _, image := range MirroredImage.Remote {
-		if image.Image == imageName {
-			if len(image.Items) > 0 {
-				schedule = image.Items
-			}
-		}
-	}
-	dat, err = mirror.RemoteImageDemote(mirrorPool, imageName)
-	if err != nil {
-		utils.FancyHandleError(err)
-		httputil.NewError(ctx, http.StatusInternalServerError, err)
-		return
-	}
-	dat, err = mirror.ImageStatus(mirrorPool, imageName)
-	dat, err = mirror.ImagePromote(mirrorPool, imageName)
-	if err != nil {
-		utils.FancyHandleError(err)
-		httputil.NewError(ctx, http.StatusInternalServerError, err)
-		return
-	}
-	dat, err = mirror.RemoteImageResync(mirrorPool, imageName)
-	dat, err = mirror.ImageSchedule(schedule, mirrorPool, imageName)
+	message, err := mirror.ImagePromote(mirrorPool, imageName)
 	if err != nil {
 		utils.FancyHandleError(err)
 		httputil.NewError(ctx, http.StatusInternalServerError, err)
 		return
 	}
 
-	dat, err = mirror.ImageStatus(mirrorPool, imageName)
+	dat.Message = message
+	ctx.IndentedJSON(http.StatusOK, dat)
+}
+
+// MirrorImagePromotePeer godoc
+//
+//	@Summary		Peer Promote Image Mirroring
+//	@Description	Peer Glue 의 이미지를 Promote 합니다.
+//	@param			mirrorPool	path	string	true	"Pool Name for Mirroring"
+//	@param			imageName	path	string	true	"Image Name for Mirroring"
+//	@Tags			Mirror
+//	@Accept			x-www-form-urlencoded
+//	@Produce		json
+//	@Success		200	{object}	model.ImageStatus
+//	@Failure		400	{object}	httputil.HTTP400BadRequest
+//	@Failure		404	{object}	httputil.HTTP404NotFound
+//	@Failure		500	{object}	httputil.HTTP500InternalServerError
+//	@Router			/api/v1/mirror/image/promote/peer/{mirrorPool}/{imageName} [post]
+func (c *Controller) MirrorImagePromotePeer(ctx *gin.Context) {
+
+	var dat = struct {
+		Message string
+	}{}
+
+	mirrorPool := ctx.Param("mirrorPool")
+	imageName := ctx.Param("imageName")
+
+	message, err := mirror.RemoteImagePromote(mirrorPool, imageName)
 	if err != nil {
 		utils.FancyHandleError(err)
-		print(err)
 		httputil.NewError(ctx, http.StatusInternalServerError, err)
 		return
 	}
+
+	dat.Message = message
 	ctx.IndentedJSON(http.StatusOK, dat)
 }
 
@@ -566,56 +565,89 @@ func (c *Controller) MirrorImagePromote(ctx *gin.Context) {
 //	@Router			/api/v1/mirror/image/demote/{mirrorPool}/{imageName} [delete]
 func (c *Controller) MirrorImageDemote(ctx *gin.Context) {
 
-	var (
-		dat      model.ImageStatus
-		err      error
-		schedule []model.MirrorImageItem
-	)
+	var dat = struct {
+		Message string
+	}{}
 
 	mirrorPool := ctx.Param("mirrorPool")
 	imageName := ctx.Param("imageName")
 
-	MirroredImage, err := mirror.ImageList()
-	if err != nil {
-		utils.FancyHandleError(err)
-		httputil.NewError(ctx, http.StatusInternalServerError, err)
-		return
-	}
-	for _, image := range MirroredImage.Local {
-		if image.Image == imageName {
-			if len(image.Items) > 0 {
-				schedule = image.Items
-			}
-		}
-	}
-	dat, err = mirror.ImageDemote(mirrorPool, imageName)
-	if err != nil {
-		utils.FancyHandleError(err)
-		httputil.NewError(ctx, http.StatusInternalServerError, err)
-		return
-	}
-	dat, err = mirror.ImageStatus(mirrorPool, imageName)
-	dat, err = mirror.RemoteImagePromote(mirrorPool, imageName)
-	if err != nil {
-		utils.FancyHandleError(err)
-		httputil.NewError(ctx, http.StatusInternalServerError, err)
-		return
-	}
-	dat, err = mirror.ImageResync(mirrorPool, imageName)
-	dat, err = mirror.RemoteImageSchedule(schedule, mirrorPool, imageName)
+	message, err := mirror.ImageDemote(mirrorPool, imageName)
 	if err != nil {
 		utils.FancyHandleError(err)
 		httputil.NewError(ctx, http.StatusInternalServerError, err)
 		return
 	}
 
-	dat, err = mirror.ImageStatus(mirrorPool, imageName)
+	dat.Message = message
+	ctx.IndentedJSON(http.StatusOK, dat)
+}
+
+// MirrorImageDemotePeer godoc
+//
+//	@Summary		Peer Demote Image Mirroring
+//	@Description	Peer Glue 의 이미지를 Demote 합니다.
+//	@param			mirrorPool	path	string	true	"Pool Name for Mirroring"
+//	@param			imageName	path	string	true	"Image Name for Mirroring"
+//	@Tags			Mirror
+//	@Accept			x-www-form-urlencoded
+//	@Produce		json
+//	@Success		200	{object}	model.ImageStatus
+//	@Failure		400	{object}	httputil.HTTP400BadRequest
+//	@Failure		404	{object}	httputil.HTTP404NotFound
+//	@Failure		500	{object}	httputil.HTTP500InternalServerError
+//	@Router			/api/v1/mirror/image/demote/{mirrorPool}/{imageName} [delete]
+func (c *Controller) MirrorImageDemotePeer(ctx *gin.Context) {
+
+	var dat = struct {
+		Message string
+	}{}
+
+	mirrorPool := ctx.Param("mirrorPool")
+	imageName := ctx.Param("imageName")
+
+	message, err := mirror.RemoteImageDemote(mirrorPool, imageName)
 	if err != nil {
 		utils.FancyHandleError(err)
-		print(err)
 		httputil.NewError(ctx, http.StatusInternalServerError, err)
 		return
 	}
+
+	dat.Message = message
+	ctx.IndentedJSON(http.StatusOK, dat)
+}
+
+// MirrorImageResync godoc
+//
+//	@Summary		Resync Image Mirroring
+//	@Description	Glue 의 이미지를 resync 합니다.
+//	@param			mirrorPool	path	string	true	"Pool Name for Mirroring"
+//	@param			imageName	path	string	true	"Image Name for Mirroring"
+//	@Tags			Mirror
+//	@Accept			x-www-form-urlencoded
+//	@Produce		json
+//	@Success		200	{object}	model.ImageStatus
+//	@Failure		400	{object}	httputil.HTTP400BadRequest
+//	@Failure		404	{object}	httputil.HTTP404NotFound
+//	@Failure		500	{object}	httputil.HTTP500InternalServerError
+//	@Router			/api/v1/mirror/image/resync/{mirrorPool}/{imageName} [put]
+func (c *Controller) MirrorImageResync(ctx *gin.Context) {
+
+	var dat = struct {
+		Message string
+	}{}
+
+	mirrorPool := ctx.Param("mirrorPool")
+	imageName := ctx.Param("imageName")
+
+	message, err := mirror.ImageResync(mirrorPool, imageName)
+	if err != nil {
+		utils.FancyHandleError(err)
+		httputil.NewError(ctx, http.StatusInternalServerError, err)
+		return
+	}
+
+	dat.Message = message
 	ctx.IndentedJSON(http.StatusOK, dat)
 }
 

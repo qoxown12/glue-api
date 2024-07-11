@@ -2621,6 +2621,44 @@ paths:
       summary: Promote Image Mirroring
       tags:
       - Mirror
+  /api/v1/mirror/image/promote/peer/{mirrorPool}/{imageName}:
+    post:
+      consumes:
+      - application/x-www-form-urlencoded
+      description: Peer Glue 의 이미지를 Promote 합니다.
+      parameters:
+      - description: Pool Name for Mirroring
+        in: path
+        name: mirrorPool
+        required: true
+        type: string
+      - description: Image Name for Mirroring
+        in: path
+        name: imageName
+        required: true
+        type: string
+      produces:
+      - application/json
+      responses:
+        "200":
+          description: OK
+          schema:
+            $ref: '#/definitions/ImageStatus'
+        "400":
+          description: Bad Request
+          schema:
+            $ref: '#/definitions/HTTP400BadRequest'
+        "404":
+          description: Not Found
+          schema:
+            $ref: '#/definitions/HTTP404NotFound'
+        "500":
+          description: Internal Server Error
+          schema:
+            $ref: '#/definitions/HTTP500InternalServerError'
+      summary: Promote Peer Image Mirroring
+      tags:
+      - Mirror
   /api/v1/mirror/image/demote/{mirrorPool}/{imageName}:    
     delete:
       consumes:
@@ -2657,6 +2695,120 @@ paths:
           schema:
             $ref: '#/definitions/HTTP500InternalServerError'
       summary: Demote Image Mirroring
+      tags:
+      - Mirror
+  /api/v1/mirror/image/demote/peer/{mirrorPool}/{imageName}:    
+    delete:
+      consumes:
+      - application/x-www-form-urlencoded
+      description: Peer Glue 의 이미지를 Demote 합니다.
+      parameters:
+      - description: Pool Name for Mirroring
+        in: path
+        name: mirrorPool
+        required: true
+        type: string
+      - description: Image Name for Mirroring
+        in: path
+        name: imageName
+        required: true
+        type: string
+      produces:
+      - application/json
+      responses:
+        "200":
+          description: OK
+          schema:
+            $ref: '#/definitions/ImageStatus'
+        "400":
+          description: Bad Request
+          schema:
+            $ref: '#/definitions/HTTP400BadRequest'
+        "404":
+          description: Not Found
+          schema:
+            $ref: '#/definitions/HTTP404NotFound'
+        "500":
+          description: Internal Server Error
+          schema:
+            $ref: '#/definitions/HTTP500InternalServerError'
+      summary: Demote Peer Image Mirroring
+      tags:
+      - Mirror
+  /api/v1/mirror/image/resync/{mirrorPool}/{imageName}:
+    put:
+      consumes:
+      - application/x-www-form-urlencoded
+      description: Glue 의 이미지를 Resync 합니다.
+      parameters:
+      - description: Pool Name for Mirroring
+        in: path
+        name: mirrorPool
+        required: true
+        type: string
+      - description: Image Name for Mirroring
+        in: path
+        name: imageName
+        required: true
+        type: string
+      produces:
+      - application/json
+      responses:
+        "200":
+          description: OK
+          schema:
+            $ref: '#/definitions/ImageStatus'
+        "400":
+          description: Bad Request
+          schema:
+            $ref: '#/definitions/HTTP400BadRequest'
+        "404":
+          description: Not Found
+          schema:
+            $ref: '#/definitions/HTTP404NotFound'
+        "500":
+          description: Internal Server Error
+          schema:
+            $ref: '#/definitions/HTTP500InternalServerError'
+      summary: Resync Image Mirroring
+      tags:
+      - Mirror
+  /api/v1/mirror/image/resync/peer/{mirrorPool}/{imageName}:
+    put:
+      consumes:
+      - application/x-www-form-urlencoded
+      description: Peer Glue 의 이미지를 Resync 합니다.
+      parameters:
+      - description: Pool Name for Mirroring
+        in: path
+        name: mirrorPool
+        required: true
+        type: string
+      - description: Image Name for Mirroring
+        in: path
+        name: imageName
+        required: true
+        type: string
+      produces:
+      - application/json
+      responses:
+        "200":
+          description: OK
+          schema:
+            $ref: '#/definitions/ImageStatus'
+        "400":
+          description: Bad Request
+          schema:
+            $ref: '#/definitions/HTTP400BadRequest'
+        "404":
+          description: Not Found
+          schema:
+            $ref: '#/definitions/HTTP404NotFound'
+        "500":
+          description: Internal Server Error
+          schema:
+            $ref: '#/definitions/HTTP500InternalServerError'
+      summary: Resync Peer Image Mirroring
       tags:
       - Mirror
   /api/v1/nfs:

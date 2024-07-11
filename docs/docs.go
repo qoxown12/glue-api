@@ -2671,6 +2671,63 @@ const docTemplate = `{
                 }
             }
         },
+        "/api/v1/mirror/image/promote/peer/{mirrorPool}/{imageName}": {
+            "post": {
+                "description": "Peer Glue 의 이미지를 Promote 합니다.",
+                "consumes": [
+                    "application/x-www-form-urlencoded"
+                ],
+                "produces": [
+                    "application/json"
+                ],
+                "tags": [
+                    "Mirror"
+                ],
+                "summary": "Promote Peer Image Mirroring",
+                "parameters": [
+                    {
+                        "type": "string",
+                        "description": "Pool Name for Mirroring",
+                        "name": "mirrorPool",
+                        "in": "path",
+                        "required": true
+                    },
+                    {
+                        "type": "string",
+                        "description": "Image Name for Mirroring",
+                        "name": "imageName",
+                        "in": "path",
+                        "required": true
+                    }
+                ],
+                "responses": {
+                    "200": {
+                        "description": "OK",
+                        "schema": {
+                            "$ref": "#/definitions/ImageStatus"
+                        }
+                    },
+                    "400": {
+                        "description": "Bad Request",
+                        "schema": {
+                            "$ref": "#/definitions/HTTP400BadRequest"
+                        }
+                    },
+                    "404": {
+                        "description": "Not Found",
+                        "schema": {
+                            "$ref": "#/definitions/HTTP404NotFound"
+                        }
+                    },
+                    "500": {
+                        "description": "Internal Server Error",
+                        "schema": {
+                            "$ref": "#/definitions/HTTP500InternalServerError"
+                        }
+                    }
+                }
+            }
+        },
         "/api/v1/mirror/image/demote/{mirrorPool}/{imageName}": {
             "delete": {
                 "description": "Glue 의 이미지를 Demote 합니다.",
@@ -2684,6 +2741,177 @@ const docTemplate = `{
                     "Mirror"
                 ],
                 "summary": "Demote Image Mirroring",
+                "parameters": [
+                    {
+                        "type": "string",
+                        "description": "Pool Name for Mirroring",
+                        "name": "mirrorPool",
+                        "in": "path",
+                        "required": true
+                    },
+                    {
+                        "type": "string",
+                        "description": "Image Name for Mirroring",
+                        "name": "imageName",
+                        "in": "path",
+                        "required": true
+                    }
+                ],
+                "responses": {
+                    "200": {
+                        "description": "OK",
+                        "schema": {
+                            "$ref": "#/definitions/ImageStatus"
+                        }
+                    },
+                    "400": {
+                        "description": "Bad Request",
+                        "schema": {
+                            "$ref": "#/definitions/HTTP400BadRequest"
+                        }
+                    },
+                    "404": {
+                        "description": "Not Found",
+                        "schema": {
+                            "$ref": "#/definitions/HTTP404NotFound"
+                        }
+                    },
+                    "500": {
+                        "description": "Internal Server Error",
+                        "schema": {
+                            "$ref": "#/definitions/HTTP500InternalServerError"
+                        }
+                    }
+                }
+            }
+        },
+        "/api/v1/mirror/image/demote/peer/{mirrorPool}/{imageName}": {
+            "delete": {
+                "description": "Peer Glue 의 이미지를 Demote 합니다.",
+                "consumes": [
+                    "application/x-www-form-urlencoded"
+                ],
+                "produces": [
+                    "application/json"
+                ],
+                "tags": [
+                    "Mirror"
+                ],
+                "summary": "Demote Peer Image Mirroring",
+                "parameters": [
+                    {
+                        "type": "string",
+                        "description": "Pool Name for Mirroring",
+                        "name": "mirrorPool",
+                        "in": "path",
+                        "required": true
+                    },
+                    {
+                        "type": "string",
+                        "description": "Image Name for Mirroring",
+                        "name": "imageName",
+                        "in": "path",
+                        "required": true
+                    }
+                ],
+                "responses": {
+                    "200": {
+                        "description": "OK",
+                        "schema": {
+                            "$ref": "#/definitions/ImageStatus"
+                        }
+                    },
+                    "400": {
+                        "description": "Bad Request",
+                        "schema": {
+                            "$ref": "#/definitions/HTTP400BadRequest"
+                        }
+                    },
+                    "404": {
+                        "description": "Not Found",
+                        "schema": {
+                            "$ref": "#/definitions/HTTP404NotFound"
+                        }
+                    },
+                    "500": {
+                        "description": "Internal Server Error",
+                        "schema": {
+                            "$ref": "#/definitions/HTTP500InternalServerError"
+                        }
+                    }
+                }
+            }
+        },
+        "/api/v1/mirror/image/resync/{mirrorPool}/{imageName}": {
+            "put": {
+                "description": "Glue 의 이미지를 Resync 합니다.",
+                "consumes": [
+                    "application/x-www-form-urlencoded"
+                ],
+                "produces": [
+                    "application/json"
+                ],
+                "tags": [
+                    "Mirror"
+                ],
+                "summary": "Resync Image Mirroring",
+                "parameters": [
+                    {
+                        "type": "string",
+                        "description": "Pool Name for Mirroring",
+                        "name": "mirrorPool",
+                        "in": "path",
+                        "required": true
+                    },
+                    {
+                        "type": "string",
+                        "description": "Image Name for Mirroring",
+                        "name": "imageName",
+                        "in": "path",
+                        "required": true
+                    }
+                ],
+                "responses": {
+                    "200": {
+                        "description": "OK",
+                        "schema": {
+                            "$ref": "#/definitions/ImageStatus"
+                        }
+                    },
+                    "400": {
+                        "description": "Bad Request",
+                        "schema": {
+                            "$ref": "#/definitions/HTTP400BadRequest"
+                        }
+                    },
+                    "404": {
+                        "description": "Not Found",
+                        "schema": {
+                            "$ref": "#/definitions/HTTP404NotFound"
+                        }
+                    },
+                    "500": {
+                        "description": "Internal Server Error",
+                        "schema": {
+                            "$ref": "#/definitions/HTTP500InternalServerError"
+                        }
+                    }
+                }
+            }
+        },
+        "/api/v1/mirror/image/resync/peer/{mirrorPool}/{imageName}": {
+            "put": {
+                "description": "Peer Glue 의 이미지를 Resync 합니다.",
+                "consumes": [
+                    "application/x-www-form-urlencoded"
+                ],
+                "produces": [
+                    "application/json"
+                ],
+                "tags": [
+                    "Mirror"
+                ],
+                "summary": "Resync Peer Image Mirroring",
                 "parameters": [
                     {
                         "type": "string",

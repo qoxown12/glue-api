@@ -651,6 +651,40 @@ func (c *Controller) MirrorImageResync(ctx *gin.Context) {
 	ctx.IndentedJSON(http.StatusOK, dat)
 }
 
+// MirrorImageResyncPeer godoc
+//
+//	@Summary		Peer Resync Image Mirroring
+//	@Description	Peer Glue 의 이미지를 resync 합니다.
+//	@param			mirrorPool	path	string	true	"Pool Name for Mirroring"
+//	@param			imageName	path	string	true	"Image Name for Mirroring"
+//	@Tags			Mirror
+//	@Accept			x-www-form-urlencoded
+//	@Produce		json
+//	@Success		200	{object}	model.ImageStatus
+//	@Failure		400	{object}	httputil.HTTP400BadRequest
+//	@Failure		404	{object}	httputil.HTTP404NotFound
+//	@Failure		500	{object}	httputil.HTTP500InternalServerError
+//	@Router			/api/v1/mirror/image/resync/peer/{mirrorPool}/{imageName} [put]
+func (c *Controller) MirrorImageResyncPeer(ctx *gin.Context) {
+
+	var dat = struct {
+		Message string
+	}{}
+
+	mirrorPool := ctx.Param("mirrorPool")
+	imageName := ctx.Param("imageName")
+
+	message, err := mirror.RemoteImageResync(mirrorPool, imageName)
+	if err != nil {
+		utils.FancyHandleError(err)
+		httputil.NewError(ctx, http.StatusInternalServerError, err)
+		return
+	}
+
+	dat.Message = message
+	ctx.IndentedJSON(http.StatusOK, dat)
+}
+
 func (c *Controller) MirrorPoolEnable(ctx *gin.Context) {
 
 	var dat model.MirrorSetup

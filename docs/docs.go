@@ -3135,7 +3135,7 @@ const docTemplate = `{
                     }
                 }
             },
-            "patch": {
+            "put": {
                 "description": "Glue 의 이미지에 미러링의 설정을 변경합니다.",
                 "consumes": [
                     "application/x-www-form-urlencoded"
@@ -3146,7 +3146,7 @@ const docTemplate = `{
                 "tags": [
                     "Mirror"
                 ],
-                "summary": "Patch Image Mirroring",
+                "summary": "Put Image Mirroring",
                 "parameters": [
                     {
                         "type": "string",

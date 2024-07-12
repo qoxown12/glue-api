@@ -2453,7 +2453,7 @@ paths:
       summary: Show Infomation of Mirrored Snapshot
       tags:
       - Mirror
-    patch:
+    put:
       consumes:
       - application/x-www-form-urlencoded
       description: Glue 의 이미지에 미러링의 설정을 변경합니다.
@@ -2496,7 +2496,7 @@ paths:
           description: Internal Server Error
           schema:
             $ref: '#/definitions/HTTP500InternalServerError'
-      summary: Patch Image Mirroring
+      summary: Put Image Mirroring
       tags:
       - Mirror
     post:

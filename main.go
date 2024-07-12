@@ -254,7 +254,7 @@ func main() {
 				mirrorimage.GET("", c.MirrorImageList)                             //List Mirroring Images
 				mirrorimage.GET("/:mirrorPool/:imageName", c.MirrorImageInfo)      //Get Image Mirroring Info
 				mirrorimage.POST("/:mirrorPool/:imageName", c.MirrorImageSetup)    //Setup Image Mirroring
-				mirrorimage.PATCH("/:mirrorPool/:imageName", c.MirrorImageUpdate)  //Config Image Mirroring
+				mirrorimage.PUT("/:mirrorPool/:imageName", c.MirrorImageUpdate)    //Config Image Mirroring
 				mirrorimage.DELETE("/:mirrorPool/:imageName", c.MirrorImageDelete) //Unconfigure Mirroring
 
 				mirrorimage.GET("/status/:mirrorPool/:imageName", c.MirrorImageStatus)             //Get Image Mirroring Status

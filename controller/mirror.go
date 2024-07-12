@@ -414,7 +414,7 @@ func (c *Controller) MirrorImageSetup(ctx *gin.Context) {
 
 // MirrorImageUpdate godoc
 //
-//	@Summary		Patch Image Mirroring
+//	@Summary		Put Image Mirroring
 //	@Description	Glue 의 이미지에 미러링의 설정을 변경합니다.
 //	@param			mirrorPool	path		string	true	"Pool Name for Mirroring"
 //	@param			imageName	path		string	true	"Image Name for Mirroring"
@@ -427,7 +427,7 @@ func (c *Controller) MirrorImageSetup(ctx *gin.Context) {
 //	@Failure		400	{object}	httputil.HTTP400BadRequest
 //	@Failure		404	{object}	httputil.HTTP404NotFound
 //	@Failure		500	{object}	httputil.HTTP500InternalServerError
-//	@Router			/api/v1/mirror/image/{mirrorPool}/{imageName} [patch]
+//	@Router			/api/v1/mirror/image/{mirrorPool}/{imageName} [put]
 func (c *Controller) MirrorImageUpdate(ctx *gin.Context) {
 	//var dat model.MirrorSetup
 	var dat = struct {

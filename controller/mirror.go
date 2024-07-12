@@ -431,7 +431,8 @@ func (c *Controller) MirrorImageSetup(ctx *gin.Context) {
 func (c *Controller) MirrorImageUpdate(ctx *gin.Context) {
 	//var dat model.MirrorSetup
 	var dat = struct {
-		Message string
+		Message  string
+		schedule []model.MirrorImageItem
 	}{}
 
 	mirrorPool := ctx.Param("mirrorPool")
@@ -439,7 +440,28 @@ func (c *Controller) MirrorImageUpdate(ctx *gin.Context) {
 	interval, _ := ctx.GetPostForm("interval")
 	startTime, _ := ctx.GetPostForm("startTime")
 
-	message, err := mirror.ImageConfig(mirrorPool, imageName, interval, startTime)
+	MirroredImage, err := mirror.ImageList()
+	if err != nil {
+		utils.FancyHandleError(err)
+		httputil.NewError(ctx, http.StatusInternalServerError, err)
+		return
+	}
+	for _, image := range MirroredImage.Local {
+		if image.Image == imageName {
+			if len(image.Items) > 0 {
+				dat.schedule = image.Items
+			}
+		}
+	}
+	for _, image := range MirroredImage.Remote {
+		if image.Image == imageName {
+			if len(image.Items) > 0 {
+				dat.schedule = image.Items
+			}
+		}
+	}
+
+	message, err := mirror.ImageUpdate(mirrorPool, imageName, interval, startTime, dat.schedule)
 	if err != nil {
 		utils.FancyHandleError(err)
 		httputil.NewError(ctx, http.StatusInternalServerError, err)

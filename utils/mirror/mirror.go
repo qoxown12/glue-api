@@ -306,6 +306,12 @@ func ImageUpdate(poolName string, imageName string, interval string, startTime s
 		} else {
 			strScheduleOutput = exec.Command("rbd", "mirror", "snapshot", "schedule", "rm", "--pool", poolName, "--image", imageName, scd.Interval, scd.StartTime)
 		}
+		stdoutScheduleEnable, err = strScheduleOutput.CombinedOutput()
+		if err != nil {
+			err = errors.Join(err, errors.New(string(stdoutScheduleEnable)))
+			utils.FancyHandleError(err)
+			return
+		}
 	}
 
 	if startTime == "" {

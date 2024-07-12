@@ -780,8 +780,10 @@ func RemoteImageResync(poolName string, imageName string) (output string, err er
 	strScheduleOutput := exec.Command("rbd", "-c", conf.ClusterFileName, "--cluster", conf.ClusterName, "--name", conf.Peers[0].ClientName, "--keyfile", conf.KeyFileName, "mirror", "image", "resync", "--pool", poolName, "--image", imageName)
 	stdoutScheduleEnable, err = strScheduleOutput.CombinedOutput()
 
+	if !strings.Contains(string(stdoutScheduleEnable), "Flagged image") {
+		err = errors.Join(err, errors.New(string(stdoutScheduleEnable)))
+	}
 	if err != nil {
-		err = errors.New(string(stdoutScheduleEnable))
 		utils.FancyHandleError(err)
 	}
 
@@ -796,8 +798,10 @@ func ImageResync(poolName string, imageName string) (output string, err error) {
 	strScheduleOutput := exec.Command("rbd", "mirror", "image", "resync", "--pool", poolName, "--image", imageName)
 	stdoutScheduleEnable, err = strScheduleOutput.CombinedOutput()
 
+	if !strings.Contains(string(stdoutScheduleEnable), "Flagged image") {
+		err = errors.Join(err, errors.New(string(stdoutScheduleEnable)))
+	}
 	if err != nil {
-		err = errors.New(string(stdoutScheduleEnable))
 		utils.FancyHandleError(err)
 	}
 

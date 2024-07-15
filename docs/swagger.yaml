@@ -2477,6 +2477,10 @@ paths:
         in: formData
         name: startTime
         type: string
+      - description: Current image region
+        in: formData
+        name: imageRegion
+        type: string
       produces:
       - application/json
       responses:

@@ -3174,6 +3174,12 @@ const docTemplate = `{
                         "description": "Starttime of image snapshot",
                         "name": "startTime",
                         "in": "formData"
+                    },
+                    {
+                        "type": "string",
+                        "description": "Current image region",
+                        "name": "imageRegion",
+                        "in": "formData"
                     }
                 ],
                 "responses": {

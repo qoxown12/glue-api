@@ -330,27 +330,7 @@ func ImageUpdate(poolName string, imageName string, interval string, startTime s
 	return
 }
 
-func ImageSchedule(schedule []model.MirrorImageItem, poolName string, imageName string) (imageStatus model.ImageStatus, err error) {
-
-	var stdoutScheduleEnable []byte
-	var strScheduleOutput *exec.Cmd
-
-	for _, scd := range schedule {
-		if scd.StartTime == "" {
-			strScheduleOutput = exec.Command("rbd", "mirror", "snapshot", "schedule", "add", "--pool", poolName, "--image", imageName, scd.Interval)
-		} else {
-			strScheduleOutput = exec.Command("rbd", "mirror", "snapshot", "schedule", "add", "--pool", poolName, "--image", imageName, scd.Interval, scd.StartTime)
-		}
-	}
-	stdoutScheduleEnable, err = strScheduleOutput.CombinedOutput()
-	if err != nil {
-		err = errors.Join(err, errors.New(string(stdoutScheduleEnable)))
-		utils.FancyHandleError(err)
-	}
-	return
-}
-
-func RemoteImageSchedule(schedule []model.MirrorImageItem, poolName string, imageName string) (imageStatus model.ImageStatus, err error) {
+func ImageRemoteUpdate(poolName string, imageName string, interval string, startTime string) (output string, err error) {
 
 	var stdoutScheduleEnable []byte
 	var strScheduleOutput *exec.Cmd
@@ -360,18 +340,19 @@ func RemoteImageSchedule(schedule []model.MirrorImageItem, poolName string, imag
 		return
 	}
 
-	for _, scd := range schedule {
-		if scd.StartTime == "" {
-			strScheduleOutput = exec.Command("rbd", "-c", mirrorConfig.ClusterFileName, "--cluster", mirrorConfig.ClusterName, "--name", mirrorConfig.Peers[0].ClientName, "--keyfile", mirrorConfig.KeyFileName, "mirror", "snapshot", "schedule", "add", "--pool", poolName, "--image", imageName, scd.Interval)
-		} else {
-			strScheduleOutput = exec.Command("rbd", "-c", mirrorConfig.ClusterFileName, "--cluster", mirrorConfig.ClusterName, "--name", mirrorConfig.Peers[0].ClientName, "--keyfile", mirrorConfig.KeyFileName, "mirror", "snapshot", "schedule", "add", "--pool", poolName, "--image", imageName, scd.Interval, scd.StartTime)
-		}
+	if startTime == "" {
+		strScheduleOutput = exec.Command("rbd", "-c", mirrorConfig.ClusterFileName, "--cluster", mirrorConfig.ClusterName, "--name", mirrorConfig.Peers[0].ClientName, "--keyfile", mirrorConfig.KeyFileName, "mirror", "snapshot", "schedule", "add", "--pool", poolName, "--image", imageName, interval)
+	} else {
+		strScheduleOutput = exec.Command("rbd", "-c", mirrorConfig.ClusterFileName, "--cluster", mirrorConfig.ClusterName, "--name", mirrorConfig.Peers[0].ClientName, "--keyfile", mirrorConfig.KeyFileName, "mirror", "snapshot", "schedule", "add", "--pool", poolName, "--image", imageName, interval, startTime)
 	}
 	stdoutScheduleEnable, err = strScheduleOutput.CombinedOutput()
 	if err != nil {
 		err = errors.Join(err, errors.New(string(stdoutScheduleEnable)))
 		utils.FancyHandleError(err)
+		return
 	}
+
+	output = string(stdoutScheduleEnable)
 	return
 }
 

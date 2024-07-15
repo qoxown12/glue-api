@@ -420,6 +420,7 @@ func (c *Controller) MirrorImageSetup(ctx *gin.Context) {
 //	@param			imageName	path		string	true	"Image Name for Mirroring"
 //	@param			interval	formData	string	true	"Interval of image snapshot"
 //	@param			startTime	formData	string	false	"Starttime of image snapshot"
+//	@param			imageRegion	formData	string	false	"Current Image region"
 //	@Tags			Mirror
 //	@Accept			x-www-form-urlencoded
 //	@Produce		json
@@ -439,6 +440,7 @@ func (c *Controller) MirrorImageUpdate(ctx *gin.Context) {
 	imageName := ctx.Param("imageName")
 	interval, _ := ctx.GetPostForm("interval")
 	startTime, _ := ctx.GetPostForm("startTime")
+	imageRegion, _ := ctx.GetPostForm("imageRegion")
 
 	MirroredImage, err := mirror.ImageList()
 	if err != nil {
@@ -461,13 +463,24 @@ func (c *Controller) MirrorImageUpdate(ctx *gin.Context) {
 		}
 	}
 
-	message, err := mirror.ImageUpdate(mirrorPool, imageName, interval, startTime, dat.schedule)
-	if err != nil {
-		utils.FancyHandleError(err)
-		httputil.NewError(ctx, http.StatusInternalServerError, err)
-		return
+	if imageRegion == "remote" {
+		message, err := mirror.ImageRemoteUpdate(mirrorPool, imageName, interval, startTime)
+		if err != nil {
+			utils.FancyHandleError(err)
+			httputil.NewError(ctx, http.StatusInternalServerError, err)
+			return
+		}
+		dat.Message = message
+	} else {
+		message, err := mirror.ImageUpdate(mirrorPool, imageName, interval, startTime, dat.schedule)
+		if err != nil {
+			utils.FancyHandleError(err)
+			httputil.NewError(ctx, http.StatusInternalServerError, err)
+			return
+		}
+		dat.Message = message
 	}
-	dat.Message = message
+
 	ctx.IndentedJSON(http.StatusOK, dat)
 }
 

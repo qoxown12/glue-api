@@ -10,6 +10,8 @@ import (
 	"os"
 	"os/exec"
 	"strings"
+	"fmt"
+	"io/ioutil"
 
 	"github.com/gin-gonic/gin"
 )
@@ -57,7 +59,6 @@ func (c *Controller) SmbStatus(ctx *gin.Context) {
 		if i == len(hosts)-1 {
 			ctx.IndentedJSON(http.StatusOK, smb_status)
 		}
-
 	}
 }
 
@@ -99,10 +100,34 @@ func (c *Controller) SmbCreate(ctx *gin.Context) {
 	dns, _ := ctx.GetPostForm("dns")
 	cache_policy, _ := ctx.GetPostForm("cache_policy")
 
-	dat := model.Settings{RemoteHostIp: "ablecube", RemoteRootRsaIdPath: "/root/.ssh/id_rsa", Samba_Security_Type: sec_type}
+	// JSON 파일 읽기
+	file, err := os.Open("/usr/local/glue-api/conf.json")
+	if err != nil {
+		fmt.Println("Error opening file:", err)
+		return
+	}
+	defer file.Close()
 
+	// 파일 내용을 읽어서 바이트 슬라이스로 변환
+	byteValue, err := ioutil.ReadAll(file)
+	if err != nil {
+		fmt.Println("Error reading file:", err)
+		return
+	}
+
+	// JSON 데이터를 구조체로 언마샬링
+	dat := model.Settings{}
+	err = json.Unmarshal(byteValue, &dat)
+	if err != nil {
+		fmt.Println("Error unmarshaling JSON:", err)
+		return
+	}
+
+	// 데이터 수정
+	dat.Samba_Security_Type = sec_type
+	
 	json_file, _ := json.MarshalIndent(dat, "", " ")
-	os.WriteFile("/root/glue-api/conf.json", json_file, 0644)
+	os.WriteFile("/usr/local/glue-api/conf.json", json_file, 0644)
 
 	if sec_type == "normal" {
 		for i := 0; i < len(hosts); i++ {
@@ -157,6 +182,88 @@ func (c *Controller) SmbUserCreate(ctx *gin.Context) {
 
 	for i := 0; i < len(hosts); i++ {
 		dat, err := smb.SmbUserCreate(hosts[i], username, password)
+		if err != nil {
+			utils.FancyHandleError(err)
+			httputil.NewError(ctx, http.StatusInternalServerError, err)
+			return
+		}
+		if i == len(hosts)-1 {
+			ctx.IndentedJSON(http.StatusOK, dat)
+		}
+	}
+}
+
+// SmbShareFolderAdd godoc
+//
+//	@Summary		Add Share Folder of Smb Service
+//	@Description	SMB 공유 폴더를 추가 생성합니다.
+//	@Tags			SMB
+//	@param			hosts     formData   []string	true    "SMB Server Host Name" collectionFormat(multi)
+//	@param			sec_type    formData   string	true    "Samba Security Type" Enums(normal, ads) default(normal)
+//	@param			folder_name     formData   string	true    "SMB Share Folder Name"
+//	@param			path    formData   string	true    "SMB Server Actual Shared Path"
+//	@param			fs_name     formData   string	true    "Glue File System Name"
+//	@param			volume_path    formData   string	true    "Glue File System Volume Path"
+//	@param			cache_policy   formData   boolean	true    "Active Directory Client Side Caching Policy" Enums(true, false) default(true)
+//	@Accept			x-www-form-urlencoded
+//	@Produce		json
+//	@Success		200	{string}	string "Success"
+//	@Failure		400	{object}	httputil.HTTP400BadRequest
+//	@Failure		404	{object}	httputil.HTTP404NotFound
+//	@Failure		500	{object}	httputil.HTTP500InternalServerError
+//	@Router			/api/v1/smb/folder [post]
+func (c *Controller) SmbShareFolderAdd(ctx *gin.Context) {
+	ctx.Header("Access-Control-Allow-Origin", "*")
+
+	hosts, _ := ctx.GetPostFormArray("hosts")
+	// sec_type, _ := ctx.GetPostForm("sec_type")
+	cache_policy, _ := ctx.GetPostForm("cache_policy")
+	folder, _ := ctx.GetPostForm("folder_name")
+	path, _ := ctx.GetPostForm("path")
+	fs_name, _ := ctx.GetPostForm("fs_name")
+	volume_path, _ := ctx.GetPostForm("volume_path")
+
+	for i := 0; i < len(hosts); i++ {
+		dat, err := smb.SmbShareFolderAdd(hosts[i], cache_policy, folder, path, fs_name, volume_path)
+		if err != nil {
+			utils.FancyHandleError(err)
+			httputil.NewError(ctx, http.StatusInternalServerError, err)
+			_, _ = smb.SmbShareFolderDelete(hosts[i], folder, path, fs_name)
+			return
+		}
+		if i == len(hosts)-1 {
+			ctx.IndentedJSON(http.StatusOK, dat)
+		}
+	}
+}
+
+// SmbShareFolderDelete godoc
+//
+//	@Summary		Delete Share Folder of Smb Service
+//	@Description	SMB 공유 폴더를 삭제합니다.
+//	@Tags			SMB
+//	@param			hosts     query   []string	true    "SMB Server Host Name" collectionFormat(multi)
+//	@param			folder_name     query   string	true    "SMB Share Folder Name"
+//	@param			path     query   string	true    "SMB Server Actual Shared Path"
+//	@param			fs_name     query   string	true    "Glue File System Name"
+//	@Accept			x-www-form-urlencoded
+//	@Produce		json
+//	@Success		200	{string}	string "Success"
+//	@Failure		400	{object}	httputil.HTTP400BadRequest
+//	@Failure		404	{object}	httputil.HTTP404NotFound
+//	@Failure		500	{object}	httputil.HTTP500InternalServerError
+//	@Router			/api/v1/smb/folder [delete]
+func (c *Controller) SmbShareFolderDelete(ctx *gin.Context) {
+	ctx.Header("Access-Control-Allow-Origin", "*")
+
+	hosts := ctx.QueryArray("hosts")
+	folder := ctx.Request.URL.Query().Get("folder_name")
+	path := ctx.Request.URL.Query().Get("path")
+	fs_name := ctx.Request.URL.Query().Get("fs_name")
+	// volume_path := ctx.Request.URL.Query().Get("volume_path")
+
+	for i := 0; i < len(hosts); i++ {
+		dat, err := smb.SmbShareFolderDelete(hosts[i], folder, path, fs_name)
 		if err != nil {
 			utils.FancyHandleError(err)
 			httputil.NewError(ctx, http.StatusInternalServerError, err)

@@ -2516,6 +2516,56 @@ const docTemplate = `{
                 }
             }
         },
+        "/api/v1/mirror/garbage": {
+            "delete": {
+                "description": "Glue 의 미러링 클러스터 가비지를 삭제합니다.",
+                "consumes": [
+                    "application/x-www-form-urlencoded"
+                ],
+                "produces": [
+                    "application/json"
+                ],
+                "tags": [
+                    "Mirror"
+                ],
+                "summary": "Delete Garbage Mirroring Cluster",
+                "parameters": [
+                    {
+                        "type": "string",
+                        "description": "Pool Name for Mirroring",
+                        "name": "mirrorPool",
+                        "in": "path",
+                        "required": true
+                    }
+                ],
+                "responses": {
+                    "200": {
+                        "description": "OK",
+                        "schema": {
+                            "$ref": "#/definitions/Message"
+                        }
+                    },
+                    "400": {
+                        "description": "Bad Request",
+                        "schema": {
+                            "$ref": "#/definitions/HTTP400BadRequest"
+                        }
+                    },
+                    "404": {
+                        "description": "Not Found",
+                        "schema": {
+                            "$ref": "#/definitions/HTTP404NotFound"
+                        }
+                    },
+                    "500": {
+                        "description": "Internal Server Error",
+                        "schema": {
+                            "$ref": "#/definitions/HTTP500InternalServerError"
+                        }
+                    }
+                }
+            }
+        },
         "/api/v1/mirror/image": {
             "get": {
                 "description": "미러링중인 이미지의 목록과 상태를 보여줍니다.",

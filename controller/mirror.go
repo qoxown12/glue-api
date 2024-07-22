@@ -917,3 +917,63 @@ func (c *Controller) MirrorPoolDisable(ctx *gin.Context) {
 	dat.RemoteToken = EncodedRemoteToken
 	ctx.IndentedJSON(http.StatusOK, dat)
 }
+
+// MirrorDeleteGarbage godoc
+//
+//	@Summary		Delete Mirroring Cluster Garbage
+//	@Description	Glue 의 미러링 클러스터 가비지를 제거합니다.
+//	@Tags			Mirror
+//	@Accept			x-www-form-urlencoded
+//	@Produce		json
+//	@Success		200	{object}	controller.Message
+//	@Failure		400	{object}	httputil.HTTP400BadRequest
+//	@Failure		404	{object}	httputil.HTTP404NotFound
+//	@Failure		500	{object}	httputil.HTTP500InternalServerError
+//	@Router			/api/v1/mirror/garbage [delete]
+func (c *Controller) MirrorDeleteGarbage(ctx *gin.Context) {
+
+	var stdout []byte
+	var out strings.Builder
+
+	mirrorPool := ctx.Param("mirrorPool")
+	mirrorStatus, err := mirror.GetConfigure()
+
+	// Mirror Peer Remove
+	if len(mirrorStatus.Peers) > 0 {
+		peerUUID := mirrorStatus.Peers[0].Uuid
+		cmd := exec.Command("rbd", "mirror", "pool", "peer", "remove", "--pool", mirrorPool, peerUUID)
+		stdout, err = cmd.CombinedOutput()
+		println("out: " + string(stdout))
+		if err != nil {
+			cmd.Stderr = &out
+			err = errors.Join(err, errors.New(out.String()))
+			utils.FancyHandleError(err)
+			httputil.NewError(ctx, http.StatusInternalServerError, err)
+			return
+		}
+	}
+
+	// Mirror Disable
+	cmd := exec.Command("rbd", "mirror", "pool", "disable")
+	stdout, err = cmd.CombinedOutput()
+	if err != nil {
+		cmd.Stderr = &out
+		err = errors.Join(err, errors.New(out.String()))
+		utils.FancyHandleError(err)
+		httputil.NewError(ctx, http.StatusInternalServerError, err)
+		return
+	}
+
+	// Mirror Daemon Destroy
+	cmd = exec.Command("ceph", "orch", "rm", "rbd-mirror")
+	stdout, err = cmd.CombinedOutput()
+	if err != nil {
+		cmd.Stderr = &out
+		err = errors.Join(err, errors.New(out.String()))
+		utils.FancyHandleError(err)
+		httputil.NewError(ctx, http.StatusInternalServerError, err)
+		return
+	}
+
+	ctx.IndentedJSON(http.StatusOK, string(stdout))
+}

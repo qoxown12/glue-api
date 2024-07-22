@@ -249,6 +249,10 @@ func main() {
 			mirror.DELETE("", c.MirrorDelete)                  //Unconfigure Mirroring
 			mirror.POST("/:mirrorPool", c.MirrorPoolEnable)    //Enable Mirroring Cluster
 			mirror.DELETE("/:mirrorPool", c.MirrorPoolDisable) //Disable Mirroring Cluster
+			mirrorgarbage := mirror.Group("/garbage")
+			{
+				mirrorgarbage.DELETE("", c.MirrorDeleteGarbage) //Delete Mirroring Cluster Garbage
+			}
 			mirrorimage := mirror.Group("/image")
 			{
 				mirrorimage.GET("", c.MirrorImageList)                             //List Mirroring Images

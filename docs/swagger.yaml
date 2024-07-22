@@ -2351,6 +2351,39 @@ paths:
       summary: Disable Mirroring Cluster
       tags:
       - Mirror
+  /api/v1/mirror/garbage:
+    delete:
+      consumes:
+      - application/x-www-form-urlencoded
+      description: Glue 의 미러링 클러스터 가비지를 삭제합니다.
+      parameters:
+      - description: pool
+        in: path
+        name: mirrorPool
+        required: true
+        type: string
+      produces:
+      - application/json
+      responses:
+        "200":
+          description: OK
+          schema:
+            $ref: '#/definitions/Message'
+        "400":
+          description: Bad Request
+          schema:
+            $ref: '#/definitions/HTTP400BadRequest'
+        "404":
+          description: Not Found
+          schema:
+            $ref: '#/definitions/HTTP404NotFound'
+        "500":
+          description: Internal Server Error
+          schema:
+            $ref: '#/definitions/HTTP500InternalServerError'
+      summary: Delete Garbage Mirroring Cluster
+      tags:
+      - Mirror 
   /api/v1/mirror/image:
     get:
       consumes:

@@ -261,6 +261,7 @@ func main() {
 				mirrorimage.PUT("/:mirrorPool/:imageName", c.MirrorImageUpdate)    //Config Image Mirroring
 				mirrorimage.DELETE("/:mirrorPool/:imageName", c.MirrorImageDelete) //Unconfigure Mirroring
 
+				mirrorimage.GET("/info/:mirrorPool/:imageName", c.MirrorImageParentInfo)           //Get Image Mirroring Parent Info
 				mirrorimage.GET("/status/:mirrorPool/:imageName", c.MirrorImageStatus)             //Get Image Mirroring Status
 				mirrorimage.POST("/promote/:mirrorPool/:imageName", c.MirrorImagePromote)          //Promote Image
 				mirrorimage.POST("/promote/peer/:mirrorPool/:imageName", c.MirrorImagePromotePeer) //Promote Peer Image

@@ -484,6 +484,37 @@ func (c *Controller) MirrorImageUpdate(ctx *gin.Context) {
 	ctx.IndentedJSON(http.StatusOK, dat)
 }
 
+// MirrorImageParentInfo godoc
+//
+//	@Summary		Show Mirroring Image Parent Info
+//	@Description	Glue 의 이미지에 미러링 Parent 정보를 확인합니다.
+//	@param			mirrorPool	path	string	true	"Pool Name for Mirroring"
+//	@param			imageName	path	string	true	"Image Name for Mirroring"
+//	@Tags			Mirror
+//	@Accept			x-www-form-urlencoded
+//	@Produce		json
+//	@Success		200	{object}	ImageInfo
+//	@Failure		400	{object}	HTTP400BadRequest
+//	@Failure		404	{object}	HTTP404NotFound
+//	@Failure		500	{object}	HTTP500InternalServerError
+//	@Router			/api/v1/mirror/image/info/{mirrorPool}/{imageName} [get]
+func (c *Controller) MirrorImageParentInfo(ctx *gin.Context) {
+
+	var dat model.ImageInfo
+
+	mirrorPool := ctx.Param("mirrorPool")
+	imageName := ctx.Param("imageName")
+
+	dat, err := mirror.ImageInfo(mirrorPool, imageName)
+	if err != nil {
+		utils.FancyHandleError(err)
+		print(err)
+		httputil.NewError(ctx, http.StatusInternalServerError, err)
+		return
+	}
+	ctx.IndentedJSON(http.StatusOK, dat)
+}
+
 // MirrorImageStatus godoc
 //
 //	@Summary		Show Mirroring Image Status

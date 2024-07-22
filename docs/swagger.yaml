@@ -2582,6 +2582,44 @@ paths:
       summary: Setup Image Mirroring
       tags:
       - Mirror
+  /api/v1/mirror/image/info/{mirrorPool}/{imageName}:
+    get:
+      consumes:
+      - application/x-www-form-urlencoded
+      description: Glue 의 이미지에 미러링 정보를 확인합니다.
+      parameters:
+      - description: Pool Name for Mirroring
+        in: path
+        name: mirrorPool
+        required: true
+        type: string
+      - description: Image Name for Mirroring
+        in: path
+        name: imageName
+        required: true
+        type: string
+      produces:
+      - application/json
+      responses:
+        "200":
+          description: OK
+          schema:
+            $ref: '#/definitions/ImageInfo'
+        "400":
+          description: Bad Request
+          schema:
+            $ref: '#/definitions/HTTP400BadRequest'
+        "404":
+          description: Not Found
+          schema:
+            $ref: '#/definitions/HTTP404NotFound'
+        "500":
+          description: Internal Server Error
+          schema:
+            $ref: '#/definitions/HTTP500InternalServerError'
+      summary: Show Mirroring Image Parent Info
+      tags:
+      - Mirror
   /api/v1/mirror/image/status/{mirrorPool}/{imageName}:
     get:
       consumes:

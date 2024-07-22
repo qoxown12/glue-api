@@ -2617,7 +2617,7 @@ paths:
           description: Internal Server Error
           schema:
             $ref: '#/definitions/HTTP500InternalServerError'
-      summary: Show Mirroring Image Parent Info
+      summary: Show Mirroring Image Info
       tags:
       - Mirror
   /api/v1/mirror/image/status/{mirrorPool}/{imageName}:

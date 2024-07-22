@@ -486,8 +486,8 @@ func (c *Controller) MirrorImageUpdate(ctx *gin.Context) {
 
 // MirrorImageParentInfo godoc
 //
-//	@Summary		Show Mirroring Image Parent Info
-//	@Description	Glue 의 이미지에 미러링 Parent 정보를 확인합니다.
+//	@Summary		Show Mirroring Image Info
+//	@Description	Glue 의 이미지에 미러링 정보를 확인합니다.
 //	@param			mirrorPool	path	string	true	"Pool Name for Mirroring"
 //	@param			imageName	path	string	true	"Image Name for Mirroring"
 //	@Tags			Mirror

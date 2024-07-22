@@ -2619,7 +2619,7 @@ const docTemplate = `{
                 "tags": [
                     "Mirror"
                 ],
-                "summary": "Show Mirroring Image Parent Info",
+                "summary": "Show Mirroring Image Info",
                 "parameters": [
                     {
                         "type": "string",

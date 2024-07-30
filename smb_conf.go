@@ -6,6 +6,7 @@ import (
     "gopkg.in/ini.v1"
     "os"
     "flag"
+    "os/exec"
 )
 
 func sectionList() (string){
@@ -63,6 +64,14 @@ func arrayList() (string){
             jsonData[sectionName] = make(map[string]string)
             for _, key := range section.Keys() {
                 jsonData[sectionName][key.Name()] = key.Value()
+                if key.Name() == "path" {
+                    var stdout []byte
+                    cmd := exec.Command("findmnt", key.Value())
+                    stdout, _ = cmd.CombinedOutput()
+                    if stdout != nil {
+                        jsonData[sectionName]["mount_yn"] = "true"
+                    }
+                }
             }
         }
     }

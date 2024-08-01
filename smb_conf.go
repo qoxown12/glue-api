@@ -7,11 +7,13 @@ import (
     "os"
     "flag"
     "os/exec"
+    "bufio"
+    "strings"
 )
-
+var conf_path string = "/etc/samba/smb.conf"
 func sectionList() (string){
 	// config 파일 읽기
-    cfg, err := ini.Load("/etc/samba/smb.conf")
+    cfg, err := ini.Load(conf_path)
     if err != nil {
         fmt.Printf("Fail to read file: %v", err)
         os.Exit(1)
@@ -46,7 +48,7 @@ func sectionList() (string){
 
 func arrayList() (string){
 	// config 파일 읽기
-    cfg, err := ini.Load("/etc/samba/smb.conf")
+    cfg, err := ini.Load(conf_path)
     if err != nil {
         fmt.Printf("Fail to read file: %v", err)
         os.Exit(1)
@@ -89,8 +91,11 @@ func arrayList() (string){
 }
 
 func confAdd(sectionStr string, pathStr string, vfs_objectsStr string, cacheStr string) (){
+    //global 세션 하위 주석처리
+    confAddAnnotation();
+
     // smb.conf 파일 읽기
-    cfg, err := ini.Load("/etc/samba/smb.conf")
+    cfg, err := ini.Load(conf_path)
     if err != nil {
         fmt.Printf("Fail to read file: %v", err)
         os.Exit(1)
@@ -126,32 +131,140 @@ func confAdd(sectionStr string, pathStr string, vfs_objectsStr string, cacheStr 
     }
 
     // INI 파일에 변경 사항 저장
-    err = cfg.SaveTo("/etc/samba/smb.conf")
+    err = cfg.SaveTo(conf_path)
     if err != nil {
         fmt.Printf("Fail to save file: %v", err)
         os.Exit(1)
     }
+
+    //global 세션 하위 주석해제
+    confRemoveAnnotation();
     // fmt.Println("conf 파일이 성공적으로 수정되었습니다.")
 }
 
 func confDelete(sectionStr string) (){
-        // config 파일 읽기
-        cfg, err := ini.Load("/etc/samba/smb.conf")
-        if err != nil {
-            fmt.Printf("Fail to read file: %v", err)
-            os.Exit(1)
+    //global 세션 하위 주석처리
+    confAddAnnotation();
+
+    // config 파일 읽기
+    cfg, err := ini.Load(conf_path)
+    if err != nil {
+        fmt.Printf("Fail to read file: %v", err)
+        os.Exit(1)
+    }
+
+    // 섹션 삭제
+    cfg.DeleteSection(sectionStr)
+
+    // config 파일에 변경 사항 저장
+    err = cfg.SaveTo(conf_path)
+    if err != nil {
+        fmt.Printf("Fail to save file: %v", err)
+        os.Exit(1)
+    }
+    //global 세션 하위 주석해제
+    confRemoveAnnotation();
+    // fmt.Println("conf 파일이 성공적으로 수정되었습니다.")
+}
+
+// smb.conf [global] 하위 주석처리
+func confAddAnnotation(){
+    // 파일을 열거나 생성합니다.
+    file, err := os.Open(conf_path)
+    if err != nil {
+        fmt.Println("Error opening file:", err)
+        return
+    }
+    defer file.Close()
+
+    // 파일을 읽어들입니다.
+    var lines []string
+    scanner := bufio.NewScanner(file)
+    for scanner.Scan() {
+        lines = append(lines, scanner.Text())
+    }
+    if err := scanner.Err(); err != nil {
+        fmt.Println("Error reading file:", err)
+        return
+    }
+
+    // 파일 내용을 처리합니다.
+    var result []string
+    insideGlobal := false
+    for _, line := range lines {
+        if strings.HasPrefix(line, "[global]") {
+            insideGlobal = true
+        } else if strings.HasPrefix(line, "[") && insideGlobal {
+            insideGlobal = false
         }
-    
-        // 섹션 삭제
-        cfg.DeleteSection(sectionStr)
-    
-        // config 파일에 변경 사항 저장
-        err = cfg.SaveTo("/etc/samba/smb.conf")
-        if err != nil {
-            fmt.Printf("Fail to save file: %v", err)
-            os.Exit(1)
+        if insideGlobal {
+            result = append(result, "# "+line) // 주석 처리합니다.
+        } else {
+            result = append(result, line)
         }
-        // fmt.Println("conf 파일이 성공적으로 수정되었습니다.")
+    }
+
+    // 수정된 내용을 파일에 씁니다.
+    err = os.WriteFile(conf_path, []byte(strings.Join(result, "\n")), 0644)
+    if err != nil {
+        fmt.Println("Error writing file:", err)
+    }
+}
+
+// smb.conf [global] 하위 주석해제
+func confRemoveAnnotation(){
+    // 파일을 열거나 생성합니다.
+    file, err := os.Open(conf_path)
+    if err != nil {
+        fmt.Println("Error opening file:", err)
+        return
+    }
+    defer file.Close()
+
+    // 파일을 읽어들입니다.
+    var lines []string
+    scanner := bufio.NewScanner(file)
+    for scanner.Scan() {
+        lines = append(lines, scanner.Text())
+    }
+    if err := scanner.Err(); err != nil {
+        fmt.Println("Error reading file:", err)
+        return
+    }
+
+    // 파일 내용을 처리합니다.
+    var result []string
+    insideGlobal := false
+    for _, line := range lines {
+        if strings.HasPrefix(line, "[global]") || strings.HasPrefix(line, "#[global]") || strings.HasPrefix(line, "# [global]") {
+            insideGlobal = true
+            if strings.HasPrefix(line, "[global]") {
+                result = append(result, line)
+            } else if strings.HasPrefix(line, "#[global]") {
+                result = append(result, strings.TrimPrefix(line, "#"))
+            } else if strings.HasPrefix(line, "# [global]") {
+                result = append(result, strings.TrimPrefix(line, "# "))
+            }
+        } else if strings.HasPrefix(line, "[") && insideGlobal {
+            insideGlobal = false
+            result = append(result, line)
+        } else if insideGlobal {
+            if strings.HasPrefix(line, "# ") {
+                // 주석을 제거하고 원래의 내용을 복원합니다.
+                result = append(result, strings.TrimPrefix(line, "# "))
+            } else {
+                result = append(result, line)
+            }
+        } else {
+            result = append(result, line)
+        }
+    }
+
+    // 수정된 내용을 파일에 씁니다.
+    err = os.WriteFile(conf_path, []byte(strings.Join(result, "\n")), 0644)
+    if err != nil {
+        fmt.Println("Error writing file:", err)
+    }
 }
 
 func main() {

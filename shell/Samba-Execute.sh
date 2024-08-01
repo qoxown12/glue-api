@@ -212,7 +212,7 @@ then
                         fsid=$(cat /etc/ceph/ceph.conf | grep -m 1 'fsid' | awk '{print $3}')
                         admin_key=$(cat /etc/ceph/ceph.client.admin.keyring | grep 'key' | awk '{print $3}')
                         sed -i "$ a admin@$fsid.$fs_name=$volume_path $path ceph name=admin,secret=$admin_key,rw,relatime,seclabel,defaults 0 0" /etc/fstab
-                        if [[ "$(grep samba $conf_json_file | cut -d ':' -f2)" =~ ads ]]
+                        if [[ "$(grep samba_security_type $conf_json_file | cut -d ':' -f2)" =~ ads ]]
                         then
                                 /usr/local/glue-api/smb_conf -a confAdd -s $folder -p $path -c $cache -f true
                         else
@@ -342,7 +342,7 @@ then
                 firewall-cmd --permanent --remove-service=samba > /dev/null 2>&1
                 firewall-cmd --reload > /dev/null 2>&1      
 
-                if [[ "$(grep samba $conf_json_file | cut -d ':' -f2)" =~ ads ]]
+                if [[ "$(grep samba_security_type $conf_json_file | cut -d ':' -f2)" =~ ads ]]
                 then
                         sed -i 's/ads/normal/g' $conf_json_file
                         sed -i '/DNS1/d' /etc/sysconfig/network-scripts/ifcfg-enp0s20
@@ -386,14 +386,14 @@ then
                 smb_status=$(systemctl show --no-pager smb | grep -w 'ActiveState' | cut -d "=" -f2)
                 smb_state=$(systemctl show --no-pager smb | grep -w 'UnitFileState' | cut -d "=" -f2)
                 users_data=$(pdbedit -L --debuglevel=1 | grep -v 'root' | grep -v 'ablecloud'| cut -d ':' -f1)
-                security_type=$(grep "samba" $conf_json_file | cut -d ':' -f2 | tr -d ' ' | sed 's/\"//g' | sed 's/,//g' | sed "s/'//g")
+                security_type=$(grep "samba_security_type" $conf_json_file | cut -d ':' -f2 | tr -d ' ' | sed 's/\"//g' | sed 's/,//g' | sed "s/'//g")
 
-                if [[ "$(grep samba $conf_json_file | cut -d ':' -f2)" =~ ads ]]
+                if [[ "$(grep samba_security_type $conf_json_file | cut -d ':' -f2)" =~ ads ]]
                 then
-                winbind_names=$(systemctl show --no-pager winbind | grep -w 'Names' | cut -d "=" -f2)
-                winbind_status=$(systemctl show --no-pager winbind | grep -w 'ActiveState' | cut -d "=" -f2)
-                winbind_state=$(systemctl show --no-pager winbind | grep -w 'UnitFileState' | cut -d "=" -f2)
-                realm=$(cat /etc/samba/smb.conf | grep 'realm' | awk '{print $3}')
+                        winbind_names=$(systemctl show --no-pager winbind | grep -w 'Names' | cut -d "=" -f2)
+                        winbind_status=$(systemctl show --no-pager winbind | grep -w 'ActiveState' | cut -d "=" -f2)
+                        winbind_state=$(systemctl show --no-pager winbind | grep -w 'UnitFileState' | cut -d "=" -f2)
+                        realm=$(cat /etc/samba/smb.conf | grep 'realm' | awk '{print $3}')
                 fi
                 
                 user=()
@@ -403,7 +403,7 @@ then
                 done
                 users=${user:0:${#user}-1}
 
-                if [[ "$(grep samba $conf_json_file | cut -d ':' -f2)" =~ ads ]]
+                if [[ "$(grep samba_security_type $conf_json_file | cut -d ':' -f2)" =~ ads ]]
                 then
                         if [ -z "$port_data" ]
                         then

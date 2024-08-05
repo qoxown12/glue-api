@@ -103,9 +103,11 @@ func (c *Controller) MirrorImageDelete(ctx *gin.Context) {
 	output, err = mirror.ImagePreDelete(pool, image)
 
 	if err != nil {
-		utils.FancyHandleError(err)
-		httputil.NewError(ctx, http.StatusInternalServerError, err)
-		return
+		if output != "Success" {
+			utils.FancyHandleError(err)
+			httputil.NewError(ctx, http.StatusInternalServerError, err)
+			return
+		}
 	}
 
 	ctx.IndentedJSON(http.StatusOK, Message{Message: output})
@@ -189,6 +191,7 @@ func (c *Controller) MirrorDelete(ctx *gin.Context) {
 	var stdout []byte
 
 	var out strings.Builder
+	var output string
 	dat.Host, _ = ctx.GetPostForm("host")
 	dat.MirrorPool, _ = ctx.GetPostForm("mirrorPool")
 	file, _ := ctx.FormFile("privateKeyFile")
@@ -218,9 +221,11 @@ func (c *Controller) MirrorDelete(ctx *gin.Context) {
 		if errt != nil {
 			err = errors.Join(err, errt)
 		}
-		_, errt = mirror.ImagePreDelete(image.Pool, image.Image)
+		output, errt = mirror.ImagePreDelete(image.Pool, image.Image)
 		if errt != nil {
-			err = errors.Join(err, errt)
+			if output != "Success" {
+				err = errors.Join(err, errt)
+			}
 		}
 	}
 	if err != nil {
@@ -810,6 +815,7 @@ func (c *Controller) MirrorPoolDisable(ctx *gin.Context) {
 	var stdout []byte
 
 	var out strings.Builder
+	var output string
 	dat.Host, _ = ctx.GetPostForm("host")
 	dat.MirrorPool, _ = ctx.GetPostForm("mirrorPool")
 	file, _ := ctx.FormFile("privateKeyFile")
@@ -839,9 +845,11 @@ func (c *Controller) MirrorPoolDisable(ctx *gin.Context) {
 		if errt != nil {
 			err = errors.Join(err, errt)
 		}
-		_, errt = mirror.ImagePreDelete(image.Pool, image.Image)
+		output, errt = mirror.ImagePreDelete(image.Pool, image.Image)
 		if errt != nil {
-			err = errors.Join(err, errt)
+			if output != "Success" {
+				err = errors.Join(err, errt)
+			}
 		}
 	}
 	if err != nil {

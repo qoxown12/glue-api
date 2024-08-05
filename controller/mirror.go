@@ -214,11 +214,11 @@ func (c *Controller) MirrorDelete(ctx *gin.Context) {
 		return
 	}
 	for _, image := range MirroredImage.Local {
-		_, errt := mirror.ImagePreDelete(image.Pool, image.Image)
+		_, errt := mirror.ImageDelete(image.Pool, image.Image)
 		if errt != nil {
 			err = errors.Join(err, errt)
 		}
-		_, errt = mirror.ImageDelete(image.Pool, image.Image)
+		_, errt = mirror.ImagePreDelete(image.Pool, image.Image)
 		if errt != nil {
 			err = errors.Join(err, errt)
 		}

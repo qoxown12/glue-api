@@ -189,27 +189,90 @@ then
                                 echo "ID, PW, Forder Name, PATH Check Please"
                         fi
                 fi
+        elif [ $action == "share_folder_add" ]
+        then
+                #인자 값 리스트 : share_folder_add --cache_policy true --folder smbtest22 --path /gluefs/volumes/smb --fs_name gluefs --volume_path /volumes/smb
+                
+                # echo "모든 파라미터 내용 : $@"
+                # sec_type=$2
+                cache=$3
+                folder=$5
+                path=$7
+                fs_name=$9
+                volume_path=${11}
+
+                if [ ! -d $path ]
+                then
+                        mkdir -p $path
+                        chmod 777 $path
+                fi
+                if [ ${#folder} -ne 0 ] && [ ${#path} -ne 0 ]
+                then
+                        mount -t ceph admin@.$fs_name=$volume_path $path
+                        fsid=$(cat /etc/ceph/ceph.conf | grep -m 1 'fsid' | awk '{print $3}')
+                        admin_key=$(cat /etc/ceph/ceph.client.admin.keyring | grep 'key' | awk '{print $3}')
+                        sed -i "$ a admin@$fsid.$fs_name=$volume_path $path ceph name=admin,secret=$admin_key,rw,relatime,seclabel,defaults 0 0" /etc/fstab
+                        if [[ "$(grep samba_security_type $conf_json_file | cut -d ':' -f2)" =~ ads ]]
+                        then
+                                /usr/local/glue-api/smb_conf -a confAdd -s $folder -p $path -c $cache -f true
+                        else
+                                /usr/local/glue-api/smb_conf -a confAdd -s $folder -p $path -c $cache
+                        fi
+                else
+                        echo "Forder Name, PATH Check Please"
+                fi
+        elif [ $action == "share_folder_delete" ]
+        then
+                #인자 값 리스트 : share_folder_delete --folder smb_test --path /gluefs/volumes/smb --fs_name gluefs
+                # echo "모든 파라미터 내용 : $@"
+                folder=$3
+                path=$5
+                fs_name=$7
+                # volume_path=$9
+
+                # umount -l -f $path > /dev/null 2>&1
+                umount -l -f $path
+                delChar=$(echo $path | sed 's/\//\\\//g')
+                sed -i "/$delChar/d" /etc/fstab
+
+                # delete section go 실행
+                /usr/local/glue-api/smb_conf -a confDelete -s $folder
+
         elif [ $action == "user_create" ]
         then
                 user=$(pdbedit -L --debuglevel=1 | grep -v 'root' | grep -v 'ablecloud' | cut -d ':' -f1)
-                for list in $user
-                do
-                        if [ $user_id == $list ]
-                        then
-                                echo "The same USER_ID exists."
-                        else
-                                useradd $user_id > /dev/null 2>&1
+                if [ !$user ]
+                then
+                        useradd $user_id > /dev/null 2>&1
 
-                                expect -c "
-                                spawn smbpasswd -a $user_id
-                                expect "password:"
+                        expect -c "
+                        spawn smbpasswd -a $user_id
+                        expect "password:"
+                                send \"$user_pw\\r\"
+                                expect "password"
                                         send \"$user_pw\\r\"
-                                        expect "password"
+                        expect eof
+                        " > /dev/null
+                else
+                        for list in $user
+                        do
+                                if [ $user_id == $list ]
+                                then
+                                        echo "The same USER_ID exists."
+                                else
+                                        useradd $user_id > /dev/null 2>&1
+
+                                        expect -c "
+                                        spawn smbpasswd -a $user_id
+                                        expect "password:"
                                                 send \"$user_pw\\r\"
-                                expect eof
-                                " > /dev/null
-                        fi
-                done
+                                                expect "password"
+                                                        send \"$user_pw\\r\"
+                                        expect eof
+                                        " > /dev/null
+                                fi
+                        done
+                fi
         elif [ $action == "user_delete" ]
         then
                 user_del=$(smbpasswd -x $user_id > /dev/null 2>&1; echo $?)
@@ -238,16 +301,27 @@ then
                 done
         elif [ $action == "delete" ]
         then
-                path=$(cat $smb_conf | grep 'path' | awk '{print $3}')
+                # path=$(cat $smb_conf | grep 'path' | awk '{print $3}')
+                sectionList=$(/usr/local/glue-api/smb_conf -a sectionList)
+                
+                # 대괄호와 따옴표 제거
+                cleaned_string=$(echo $sectionList | sed 's/\[\|\"\|\]//g')
+                
+                # 구분자를 기준으로 문자열을 배열로 변환 (쉼표 구분자)
+                IFS=',' read -r -a sec_list <<< "$cleaned_string"
 
-                if [ $path ]
-                then
+                # 배열 요소 출력
+                for section in "${sec_list[@]}"
+                do
+                        path=$(/usr/local/glue-api/smb_conf -a arrayList |jq -r '.'$section'.path')
                         umount -l -f $path > /dev/null 2>&1
+                done
+
+                if [ $sec_list != "null" ]
+                then
                         fsid=$(cat /etc/ceph/ceph.conf | grep -m 1 'fsid' | awk '{print $3}')
                         sed -i "/$fsid/d" /etc/fstab
-
                         cat /dev/null > $smb_conf
-
                         echo -e "[global]" >> $smb_conf
                         echo -e "workgroup = WORKGROUP" >> $smb_conf
                         echo -e "hosts allow = 0.0.0.0/0.0.0.0" >> $smb_conf
@@ -261,35 +335,27 @@ then
                         echo -e "\nlog file = /var/log/samba/%m.log" >> $smb_conf
                         echo -e "log level = 10" >> $smb_conf
 
-                        systemctl stop smb > /dev/null 2>&1
-                        systemctl disable smb > /dev/null 2>&1
-                        firewall-cmd --permanent --remove-service=samba > /dev/null 2>&1
-                        firewall-cmd --reload > /dev/null 2>&1
+                fi
 
-                        if [[ "$(grep samba $conf_json_file | cut -d ':' -f2)" =~ ads ]]
+                systemctl stop smb > /dev/null 2>&1
+                systemctl disable smb > /dev/null 2>&1
+                firewall-cmd --permanent --remove-service=samba > /dev/null 2>&1
+                firewall-cmd --reload > /dev/null 2>&1      
+
+                if [[ "$(grep samba_security_type $conf_json_file | cut -d ':' -f2)" =~ ads ]]
+                then
+                        sed -i 's/ads/normal/g' $conf_json_file
+                        sed -i '/DNS1/d' /etc/sysconfig/network-scripts/ifcfg-enp0s20
+                        sed -i 's/DNS2/DNS1/g' /etc/sysconfig/network-scripts/ifcfg-enp0s20
+
+                        systemctl restart NetworkManager
+                        systemctl stop winbind.service > /dev/null 2>&1
+                        systemctl disable winbind.service > /dev/null 2>&1
+
+                        user=$(pdbedit -L --debuglevel=1 | grep -v 'root' | grep -v 'ablecloud' | cut -d ':' -f1)
+
+                        if [ $user ]
                         then
-                                sed -i 's/ads/normal/g' $conf_json_file
-                                sed -i '/DNS1/d' /etc/sysconfig/network-scripts/ifcfg-enp0s20
-                                sed -i 's/DNS2/DNS1/g' /etc/sysconfig/network-scripts/ifcfg-enp0s20
-
-                                systemctl restart NetworkManager
-
-                                systemctl stop winbind.service > /dev/null 2>&1
-                                systemctl disable winbind.service > /dev/null 2>&1
-
-                                user=$(pdbedit -L --debuglevel=1 | grep -v 'root' | grep -v 'ablecloud' | cut -d ':' -f1)
-
-                                if [ $user ]
-                                then
-                                        for list in $user
-                                        do
-                                                smbpasswd -x $list > /dev/null 2>&1
-                                                userdel -r $list > /dev/null 2>&1
-                                        done
-                                fi
-                        else
-                                user=$(pdbedit -L --debuglevel=1 | grep -v 'root' | grep -v 'ablecloud' | cut -d ':' -f1)
-
                                 for list in $user
                                 do
                                         smbpasswd -x $list > /dev/null 2>&1
@@ -297,31 +363,39 @@ then
                                 done
                         fi
                 else
-                        echo "Already Deleted"
+                        user=$(pdbedit -L --debuglevel=1 | grep -v 'root' | grep -v 'ablecloud' | cut -d ':' -f1)
+
+                        for list in $user
+                        do
+                                smbpasswd -x $list > /dev/null 2>&1
+                                userdel -r $list > /dev/null 2>&1
+                        done
                 fi
+                
         elif [ $action == "select" ]
         then
                 hostname=$(hostname | cut -d '.' -f1)
                 ip_address=$(cat /etc/hosts | grep $hostname-mngt | awk '{print $1}')
-                folder_name=$(grep -F '[' $smb_conf | grep -v 'global' | tr -d '[]')
-                path=$(cat $smb_conf | grep path | awk '{print $3}')
+                # path=$(cat $smb_conf | grep path | awk '{print $3}')
+                # folder_name=$(grep -F '[' $smb_conf | grep -v 'global' | tr -d '[]')
+                # fs_name=$(mount | grep admin | grep smb | cut -d "." -f2 | cut -d "=" -f1)
+                # volume_path=$(mount | grep admin | grep smb | cut -d "=" -f2 | cut -d " " -f1)
+                path_list=$(/usr/local/glue-api/smb_conf -a arrayList)
                 port_data=$(netstat -ltnp | grep  smb | grep -v tcp6 | awk '{print $4}' | cut -d ':' -f2 | tr "\n" ",")
                 smb_names=$(systemctl show --no-pager smb | grep -w 'Names' | cut -d "=" -f2)
                 smb_status=$(systemctl show --no-pager smb | grep -w 'ActiveState' | cut -d "=" -f2)
                 smb_state=$(systemctl show --no-pager smb | grep -w 'UnitFileState' | cut -d "=" -f2)
                 users_data=$(pdbedit -L --debuglevel=1 | grep -v 'root' | grep -v 'ablecloud'| cut -d ':' -f1)
-                fs_name=$(mount | grep admin | grep smb | cut -d "." -f2 | cut -d "=" -f1)
-                volume_path=$(mount | grep admin | grep smb | cut -d "=" -f2 | cut -d " " -f1)
-                security_type=$(grep "samba" $conf_json_file | cut -d ':' -f2 | tr -d ' ' | sed 's/\"//g')
+                security_type=$(grep "samba_security_type" $conf_json_file | cut -d ':' -f2 | tr -d ' ' | sed 's/\"//g' | sed 's/,//g' | sed "s/'//g")
 
-                if [[ "$(grep samba $conf_json_file | cut -d ':' -f2)" =~ ads ]]
+                if [[ "$(grep samba_security_type $conf_json_file | cut -d ':' -f2)" =~ ads ]]
                 then
-                winbind_names=$(systemctl show --no-pager winbind | grep -w 'Names' | cut -d "=" -f2)
-                winbind_status=$(systemctl show --no-pager winbind | grep -w 'ActiveState' | cut -d "=" -f2)
-                winbind_state=$(systemctl show --no-pager winbind | grep -w 'UnitFileState' | cut -d "=" -f2)
-                realm=$(cat /etc/samba/smb.conf | grep 'realm' | awk '{print $3}')
+                        winbind_names=$(systemctl show --no-pager winbind | grep -w 'Names' | cut -d "=" -f2)
+                        winbind_status=$(systemctl show --no-pager winbind | grep -w 'ActiveState' | cut -d "=" -f2)
+                        winbind_state=$(systemctl show --no-pager winbind | grep -w 'UnitFileState' | cut -d "=" -f2)
+                        realm=$(cat /etc/samba/smb.conf | grep 'realm' | awk '{print $3}')
                 fi
-
+                
                 user=()
                 for list in $users_data
                 do
@@ -329,22 +403,22 @@ then
                 done
                 users=${user:0:${#user}-1}
 
-                if [[ "$(grep samba $conf_json_file | cut -d ':' -f2)" =~ ads ]]
+                if [[ "$(grep samba_security_type $conf_json_file | cut -d ':' -f2)" =~ ads ]]
                 then
                         if [ -z "$port_data" ]
                         then
-                                printf '{"names":["%s","%s"],"status":["%s","%s"],"state":["%s","%s"],"hostname":"%s","security_type":"%s","ip_address":"%s","folder_name":"%s","path":"%s","port":[%s],"fs_name":"%s","volume_path":"%s","realm":"%s","users":[%s]}' "$smb_names" "$winbind_names" "$smb_status" "$winbind_status" "$smb_state" "$winbind_state" "$hostname" "$security_type" "$ip_address" "$folder_name" "$path" "$port_data" "$fs_name" "$volume_path" "$realm" "$users"
+                                printf '{"names":["%s","%s"],"status":["%s","%s"],"state":["%s","%s"],"hostname":"%s","security_type":"%s","ip_address":"%s","port":[%s],"realm":"%s","users":[%s],"path_list":%s}' "$smb_names" "$winbind_names" "$smb_status" "$winbind_status" "$smb_state" "$winbind_state" "$hostname" "$security_type" "$ip_address" "$port_data" "$realm" "$users" "$path_list"
                         else
                                 port=${port_data:0:${#port_data}-1}
-                                printf '{"names":["%s","%s"],"status":["%s","%s"],"state":["%s","%s"],"hostname":"%s","security_type":"%s","ip_address":"%s","folder_name":"%s","path":"%s","port":[%s],"fs_name":"%s","volume_path":"%s","realm":"%s","users":[%s]}' "$smb_names" "$winbind_names" "$smb_status" "$winbind_status" "$smb_state" "$winbind_state" "$hostname" "$security_type" "$ip_address" "$folder_name" "$path" "$port" "$fs_name" "$volume_path" "$realm" "$users"
+                                printf '{"names":["%s","%s"],"status":["%s","%s"],"state":["%s","%s"],"hostname":"%s","security_type":"%s","ip_address":"%s","port":[%s],"realm":"%s","users":[%s],"path_list":%s}' "$smb_names" "$winbind_names" "$smb_status" "$winbind_status" "$smb_state" "$winbind_state" "$hostname" "$security_type" "$ip_address" "$port" "$realm" "$users" "$path_list"
                         fi
                 else
                         if [ -z "$port_data" ]
                         then
-                                printf '{"names":"%s","status":"%s","state":"%s","hostname":"%s","ip_address":"%s","security_type":"%s","folder_name":"%s","path":"%s","port":[%s],"fs_name":"%s","volume_path":"%s","users":[%s]}' "$smb_names" "$smb_status" "$smb_state" "$hostname" "$ip_address" "$security_type" "$folder_name" "$path" "$port_data" "$fs_name" "$volume_path" "$users"
+                                printf '{"names":"%s","status":"%s","state":"%s","hostname":"%s","ip_address":"%s","security_type":"%s","port":[%s],"users":[%s],"path_list":%s}' "$smb_names" "$smb_status" "$smb_state" "$hostname" "$ip_address" "$security_type" "$port_data" "$users" "$path_list"
                         else
                                 port=${port_data:0:${#port_data}-1}
-                                printf '{"names":"%s","status":"%s","state":"%s","hostname":"%s","ip_address":"%s","security_type":"%s","folder_name":"%s","path":"%s","port":[%s],"fs_name":"%s","volume_path":"%s","users":[%s]}' "$smb_names" "$smb_status" "$smb_state" "$hostname" "$ip_address" "$security_type" "$folder_name" "$path" "$port" "$fs_name" "$volume_path" "$users"
+                                printf '{"names":"%s","status":"%s","state":"%s","hostname":"%s","ip_address":"%s","security_type":"%s","port":[%s],"users":[%s],"path_list":%s}' "$smb_names" "$smb_status" "$smb_state" "$hostname" "$ip_address" "$security_type" "$port" "$users" "$path_list"
                         fi
                 fi
         else

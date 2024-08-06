@@ -305,6 +305,10 @@ func (c *Controller) MirrorDelete(ctx *gin.Context) {
 	}(client)
 	remoteMirrorStatus, err := mirror.GetRemoteConfigure(client)
 
+	if err != nil {
+		println("ssh connection error")
+	}
+
 	if len(remoteMirrorStatus.Peers) > 0 {
 		peerUUID := remoteMirrorStatus.Peers[0].Uuid
 		sshcmd, err := client.Command("rbd", "mirror", "pool", "peer", "remove", "--pool", dat.MirrorPool, peerUUID)

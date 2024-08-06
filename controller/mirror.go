@@ -267,16 +267,13 @@ func (c *Controller) MirrorDelete(ctx *gin.Context) {
 	// Mirror Disable
 	if mirrorStatus.Mode != "disabled" {
 		cmd := exec.Command("rbd", "mirror", "pool", "disable")
-		// cmd.Stderr = &out
 		stdout, err = cmd.CombinedOutput()
 		if err != nil {
 			cmd.Stderr = &out
-			if !strings.Contains(out.String(), "mirroring is already disabled") {
-				err = errors.Join(err, errors.New(out.String()))
-				utils.FancyHandleError(err)
-				httputil.NewError(ctx, http.StatusInternalServerError, err)
-				return
-			}
+			err = errors.Join(err, errors.New(out.String()))
+			utils.FancyHandleError(err)
+			httputil.NewError(ctx, http.StatusInternalServerError, err)
+			return
 		}
 	}
 

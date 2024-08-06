@@ -149,20 +149,21 @@ func ImageList() (MirrorList model.MirrorList, err error) {
 		return
 	}
 
-	strRemoteStatus := exec.Command("rbd", "-c", mirrorConfig.ClusterFileName, "--cluster", mirrorConfig.ClusterName, "--name", mirrorConfig.Peers[0].ClientName, "--keyfile", mirrorConfig.KeyFileName, "mirror", "snapshot", "schedule", "list", "-R", "--format", "json", "--pretty-format")
-	stdRemote, err = strRemoteStatus.CombinedOutput()
-	if err != nil {
-		Remote = []model.MirrorImage{}
+	if len(mirrorConfig.Peers) > 0 {
+		strRemoteStatus := exec.Command("rbd", "-c", mirrorConfig.ClusterFileName, "--cluster", mirrorConfig.ClusterName, "--name", mirrorConfig.Peers[0].ClientName, "--keyfile", mirrorConfig.KeyFileName, "mirror", "snapshot", "schedule", "list", "-R", "--format", "json", "--pretty-format")
+		stdRemote, err = strRemoteStatus.CombinedOutput()
+		if err = json.Unmarshal(stdRemote, &Remote); err != nil {
+			Remote = []model.MirrorImage{}
+		}
 	}
+
 	strLocalStatus := exec.Command("rbd", "mirror", "snapshot", "schedule", "list", "-R", "--format", "json", "--pretty-format")
 	stdLocal, err = strLocalStatus.CombinedOutput()
 
 	if err != nil {
 		return
 	}
-	if err = json.Unmarshal(stdRemote, &Remote); err != nil {
-		Remote = []model.MirrorImage{}
-	}
+
 	if err = json.Unmarshal(stdLocal, &Local); err != nil {
 		Local = []model.MirrorImage{}
 	}

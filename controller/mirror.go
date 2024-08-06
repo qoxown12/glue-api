@@ -336,12 +336,10 @@ func (c *Controller) MirrorDelete(ctx *gin.Context) {
 		stdout, err = sshcmd.CombinedOutput()
 		if err != nil {
 			sshcmd.Stderr = &out
-			if !strings.Contains(out.String(), "mirroring is already disabled") {
-				err = errors.Join(err, errors.New(out.String()))
-				utils.FancyHandleError(err)
-				httputil.NewError(ctx, http.StatusInternalServerError, err)
-				return
-			}
+			err = errors.Join(err, errors.New(out.String()))
+			utils.FancyHandleError(err)
+			httputil.NewError(ctx, http.StatusInternalServerError, err)
+			return
 		}
 	}
 

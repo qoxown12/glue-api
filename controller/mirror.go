@@ -265,16 +265,18 @@ func (c *Controller) MirrorDelete(ctx *gin.Context) {
 	}
 
 	// Mirror Disable
-	cmd := exec.Command("rbd", "mirror", "pool", "disable")
-	// cmd.Stderr = &out
-	stdout, err = cmd.CombinedOutput()
-	if err != nil {
-		cmd.Stderr = &out
-		if !strings.Contains(out.String(), "mirroring is already disabled") {
-			err = errors.Join(err, errors.New(out.String()))
-			utils.FancyHandleError(err)
-			httputil.NewError(ctx, http.StatusInternalServerError, err)
-			return
+	if mirrorStatus.Mode != "disabled" {
+		cmd := exec.Command("rbd", "mirror", "pool", "disable")
+		// cmd.Stderr = &out
+		stdout, err = cmd.CombinedOutput()
+		if err != nil {
+			cmd.Stderr = &out
+			if !strings.Contains(out.String(), "mirroring is already disabled") {
+				err = errors.Join(err, errors.New(out.String()))
+				utils.FancyHandleError(err)
+				httputil.NewError(ctx, http.StatusInternalServerError, err)
+				return
+			}
 		}
 	}
 
@@ -901,15 +903,17 @@ func (c *Controller) MirrorPoolDisable(ctx *gin.Context) {
 	}
 
 	// Mirror Disable
-	cmd := exec.Command("rbd", "mirror", "pool", "disable")
-	// cmd.Stderr = &out
-	stdout, err = cmd.CombinedOutput()
-	if err != nil {
-		cmd.Stderr = &out
-		err = errors.Join(err, errors.New(out.String()))
-		utils.FancyHandleError(err)
-		httputil.NewError(ctx, http.StatusInternalServerError, err)
-		return
+	if mirrorStatus.Mode != "disabled" {
+		cmd := exec.Command("rbd", "mirror", "pool", "disable")
+		// cmd.Stderr = &out
+		stdout, err = cmd.CombinedOutput()
+		if err != nil {
+			cmd.Stderr = &out
+			err = errors.Join(err, errors.New(out.String()))
+			utils.FancyHandleError(err)
+			httputil.NewError(ctx, http.StatusInternalServerError, err)
+			return
+		}
 	}
 
 	//remote local peer
@@ -937,7 +941,7 @@ func (c *Controller) MirrorPoolDisable(ctx *gin.Context) {
 		// sshcmd.Stderr = &out
 		stdout, err = sshcmd.CombinedOutput()
 		if err != nil {
-			cmd.Stderr = &out
+			sshcmd.Stderr = &out
 			err = errors.Join(err, errors.New(out.String()))
 			utils.FancyHandleError(err)
 			httputil.NewError(ctx, http.StatusInternalServerError, err)
@@ -955,7 +959,7 @@ func (c *Controller) MirrorPoolDisable(ctx *gin.Context) {
 	}
 	stdout, err = sshcmd.CombinedOutput()
 	if err != nil {
-		cmd.Stderr = &out
+		sshcmd.Stderr = &out
 		err = errors.Join(err, errors.New(out.String()))
 		utils.FancyHandleError(err)
 		httputil.NewError(ctx, http.StatusInternalServerError, err)
@@ -1004,18 +1008,20 @@ func (c *Controller) MirrorDeleteGarbage(ctx *gin.Context) {
 	}
 
 	// Mirror Disable
-	cmd := exec.Command("rbd", "mirror", "pool", "disable")
-	stdout, err = cmd.CombinedOutput()
-	if err != nil {
-		cmd.Stderr = &out
-		err = errors.Join(err, errors.New(out.String()))
-		utils.FancyHandleError(err)
-		httputil.NewError(ctx, http.StatusInternalServerError, err)
-		return
+	if mirrorStatus.Mode != "disabled" {
+		cmd := exec.Command("rbd", "mirror", "pool", "disable")
+		stdout, err = cmd.CombinedOutput()
+		if err != nil {
+			cmd.Stderr = &out
+			err = errors.Join(err, errors.New(out.String()))
+			utils.FancyHandleError(err)
+			httputil.NewError(ctx, http.StatusInternalServerError, err)
+			return
+		}
 	}
 
 	// Mirror Daemon Destroy
-	cmd = exec.Command("ceph", "orch", "rm", "rbd-mirror")
+	cmd := exec.Command("ceph", "orch", "rm", "rbd-mirror")
 	stdout, err = cmd.CombinedOutput()
 	if err != nil {
 		cmd.Stderr = &out

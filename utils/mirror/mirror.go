@@ -93,26 +93,28 @@ func GetRemoteConfigure(client *goph.Client) (clusterConf model.MirrorConf, err 
 	// 	err = errors.New("mirroring is disabled")
 	// 	return clusterConf, err
 	// }
-	peer := clusterConf.Peers[0]
-	strCluster := "[global]\n\tmon host = " + peer.MonHost + "\n"
-	// print(strCluster)
-	if _, err = tfCluster.WriteString(strCluster); err != nil {
-		fmt.Println("Failed to write to temporary file", err)
-		return clusterConf, err
-	}
-	if err = tfCluster.Close(); err != nil {
-		return clusterConf, err
-	}
-	if _, err = tfKey.WriteString(peer.Key); err != nil {
-		fmt.Println("Failed to write to temporary file", err)
-		return clusterConf, err
-	}
-	if err = tfKey.Close(); err != nil {
-		fmt.Println(err)
-		return clusterConf, err
-	}
+	if len(clusterConf.Peers) > 0 {
+		peer := clusterConf.Peers[0]
+		strCluster := "[global]\n\tmon host = " + peer.MonHost + "\n"
+		// print(strCluster)
+		if _, err = tfCluster.WriteString(strCluster); err != nil {
+			fmt.Println("Failed to write to temporary file", err)
+			return clusterConf, err
+		}
+		if err = tfCluster.Close(); err != nil {
+			return clusterConf, err
+		}
+		if _, err = tfKey.WriteString(peer.Key); err != nil {
+			fmt.Println("Failed to write to temporary file", err)
+			return clusterConf, err
+		}
+		if err = tfKey.Close(); err != nil {
+			fmt.Println(err)
+			return clusterConf, err
+		}
 
-	clusterConf.Name = peer.ClientName
+		clusterConf.Name = peer.ClientName
+	}
 	clusterConf.ClusterFileName = tfCluster.Name()
 	clusterConf.KeyFileName = tfKey.Name()
 	return clusterConf, nil

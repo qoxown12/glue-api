@@ -304,10 +304,6 @@ func (c *Controller) MirrorDelete(ctx *gin.Context) {
 	}(client)
 	remoteMirrorStatus, err := mirror.GetRemoteConfigure(client)
 
-	if err != nil {
-		println("ssh connection error")
-	}
-
 	if len(remoteMirrorStatus.Peers) > 0 {
 		peerUUID := remoteMirrorStatus.Peers[0].Uuid
 		sshcmd, err := client.Command("rbd", "mirror", "pool", "peer", "remove", "--pool", dat.MirrorPool, peerUUID)
@@ -329,26 +325,28 @@ func (c *Controller) MirrorDelete(ctx *gin.Context) {
 	}
 
 	// Mirror Disable
-	sshcmd, err := client.Command("rbd", "mirror", "pool", "disable")
-	if err != nil {
-		sshcmd.Stderr = &out
-		err = errors.Join(err, errors.New(out.String()))
-		utils.FancyHandleError(err)
-		return
-	}
-	stdout, err = sshcmd.CombinedOutput()
-	if err != nil {
-		sshcmd.Stderr = &out
-		if !strings.Contains(out.String(), "mirroring is already disabled") {
+	if remoteMirrorStatus.Mode != "disabled" {
+		sshcmd, err := client.Command("rbd", "mirror", "pool", "disable")
+		if err != nil {
+			sshcmd.Stderr = &out
 			err = errors.Join(err, errors.New(out.String()))
 			utils.FancyHandleError(err)
-			httputil.NewError(ctx, http.StatusInternalServerError, err)
 			return
+		}
+		stdout, err = sshcmd.CombinedOutput()
+		if err != nil {
+			sshcmd.Stderr = &out
+			if !strings.Contains(out.String(), "mirroring is already disabled") {
+				err = errors.Join(err, errors.New(out.String()))
+				utils.FancyHandleError(err)
+				httputil.NewError(ctx, http.StatusInternalServerError, err)
+				return
+			}
 		}
 	}
 
 	// Mirror Daemon Destroy
-	sshcmd, err = client.Command("ceph", "orch", "rm", "rbd-mirror")
+	sshcmd, err := client.Command("ceph", "orch", "rm", "rbd-mirror")
 	if err != nil {
 		sshcmd.Stderr = &out
 		err = errors.Join(err, errors.New(out.String()))
@@ -885,7 +883,6 @@ func (c *Controller) MirrorPoolDisable(ctx *gin.Context) {
 	if len(mirrorStatus.Peers) > 0 {
 		peerUUID := mirrorStatus.Peers[0].Uuid
 		cmd := exec.Command("rbd", "mirror", "pool", "peer", "remove", "--pool", dat.MirrorPool, peerUUID)
-		// cmd.Stderr = &out
 		stdout, err = cmd.CombinedOutput()
 		println("out: " + string(stdout))
 		println("err: " + out.String())
@@ -902,7 +899,6 @@ func (c *Controller) MirrorPoolDisable(ctx *gin.Context) {
 	// Mirror Disable
 	if mirrorStatus.Mode != "disabled" {
 		cmd := exec.Command("rbd", "mirror", "pool", "disable")
-		// cmd.Stderr = &out
 		stdout, err = cmd.CombinedOutput()
 		if err != nil {
 			cmd.Stderr = &out
@@ -926,6 +922,7 @@ func (c *Controller) MirrorPoolDisable(ctx *gin.Context) {
 	}(client)
 	remoteMirrorStatus, err := mirror.GetRemoteConfigure(client)
 
+	// Mirror Peer Remove
 	if len(remoteMirrorStatus.Peers) > 0 {
 		peerUUID := remoteMirrorStatus.Peers[0].Uuid
 		sshcmd, err := client.Command("rbd", "mirror", "pool", "peer", "remove", "--pool", dat.MirrorPool, peerUUID)
@@ -935,7 +932,6 @@ func (c *Controller) MirrorPoolDisable(ctx *gin.Context) {
 			utils.FancyHandleError(err)
 			return
 		}
-		// sshcmd.Stderr = &out
 		stdout, err = sshcmd.CombinedOutput()
 		if err != nil {
 			sshcmd.Stderr = &out
@@ -947,23 +943,24 @@ func (c *Controller) MirrorPoolDisable(ctx *gin.Context) {
 	}
 
 	// Mirror Disable
-	sshcmd, err := client.Command("rbd", "mirror", "pool", "disable")
-	if err != nil {
-		sshcmd.Stderr = &out
-		err = errors.Join(err, errors.New(out.String()))
-		utils.FancyHandleError(err)
-		return
-	}
-	stdout, err = sshcmd.CombinedOutput()
-	if err != nil {
-		sshcmd.Stderr = &out
-		err = errors.Join(err, errors.New(out.String()))
-		utils.FancyHandleError(err)
-		httputil.NewError(ctx, http.StatusInternalServerError, err)
-		return
+	if remoteMirrorStatus.Mode != "disabled" {
+		sshcmd, err := client.Command("rbd", "mirror", "pool", "disable")
+		if err != nil {
+			sshcmd.Stderr = &out
+			err = errors.Join(err, errors.New(out.String()))
+			utils.FancyHandleError(err)
+			return
+		}
+		stdout, err = sshcmd.CombinedOutput()
+		if err != nil {
+			sshcmd.Stderr = &out
+			err = errors.Join(err, errors.New(out.String()))
+			utils.FancyHandleError(err)
+			httputil.NewError(ctx, http.StatusInternalServerError, err)
+			return
+		}
 	}
 
-	// Print the output
 	dat.LocalToken = EncodedLocalToken
 	dat.RemoteToken = EncodedRemoteToken
 	ctx.IndentedJSON(http.StatusOK, dat)

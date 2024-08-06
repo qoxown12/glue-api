@@ -89,10 +89,10 @@ func GetRemoteConfigure(client *goph.Client) (clusterConf model.MirrorConf, err 
 
 		return clusterConf, err
 	}
-	if clusterConf.Mode == "disabled" {
-		err = errors.New("mirroring is disabled")
-		return clusterConf, err
-	}
+	// if clusterConf.Mode == "disabled" {
+	// 	err = errors.New("mirroring is disabled")
+	// 	return clusterConf, err
+	// }
 	peer := clusterConf.Peers[0]
 	strCluster := "[global]\n\tmon host = " + peer.MonHost + "\n"
 	// print(strCluster)

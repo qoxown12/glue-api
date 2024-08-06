@@ -251,7 +251,6 @@ func (c *Controller) MirrorDelete(ctx *gin.Context) {
 	if len(mirrorStatus.Peers) > 0 {
 		peerUUID := mirrorStatus.Peers[0].Uuid
 		cmd := exec.Command("rbd", "mirror", "pool", "peer", "remove", "--pool", dat.MirrorPool, peerUUID)
-		// cmd.Stderr = &out
 		stdout, err = cmd.CombinedOutput()
 		println("out: " + string(stdout))
 		println("err: " + out.String())
@@ -271,10 +270,12 @@ func (c *Controller) MirrorDelete(ctx *gin.Context) {
 	stdout, err = cmd.CombinedOutput()
 	if err != nil {
 		cmd.Stderr = &out
-		err = errors.Join(err, errors.New(out.String()))
-		utils.FancyHandleError(err)
-		httputil.NewError(ctx, http.StatusInternalServerError, err)
-		return
+		if !strings.Contains(out.String(), "mirroring is already disabled") {
+			err = errors.Join(err, errors.New(out.String()))
+			utils.FancyHandleError(err)
+			httputil.NewError(ctx, http.StatusInternalServerError, err)
+			return
+		}
 	}
 
 	// Mirror Daemon Destroy
@@ -283,10 +284,12 @@ func (c *Controller) MirrorDelete(ctx *gin.Context) {
 	stdout, err = cmd.CombinedOutput()
 	if err != nil {
 		cmd.Stderr = &out
-		err = errors.Join(err, errors.New(out.String()))
-		utils.FancyHandleError(err)
-		httputil.NewError(ctx, http.StatusInternalServerError, err)
-		return
+		if !strings.Contains(out.String(), "Invalid service 'rbd-mirror'.") {
+			err = errors.Join(err, errors.New(out.String()))
+			utils.FancyHandleError(err)
+			httputil.NewError(ctx, http.StatusInternalServerError, err)
+			return
+		}
 	}
 
 	//remote local peer
@@ -311,10 +314,10 @@ func (c *Controller) MirrorDelete(ctx *gin.Context) {
 			utils.FancyHandleError(err)
 			return
 		}
-		// sshcmd.Stderr = &out
+
 		stdout, err = sshcmd.CombinedOutput()
 		if err != nil {
-			cmd.Stderr = &out
+			sshcmd.Stderr = &out
 			err = errors.Join(err, errors.New(out.String()))
 			utils.FancyHandleError(err)
 			httputil.NewError(ctx, http.StatusInternalServerError, err)
@@ -332,11 +335,13 @@ func (c *Controller) MirrorDelete(ctx *gin.Context) {
 	}
 	stdout, err = sshcmd.CombinedOutput()
 	if err != nil {
-		cmd.Stderr = &out
-		err = errors.Join(err, errors.New(out.String()))
-		utils.FancyHandleError(err)
-		httputil.NewError(ctx, http.StatusInternalServerError, err)
-		return
+		sshcmd.Stderr = &out
+		if !strings.Contains(out.String(), "mirroring is already disabled") {
+			err = errors.Join(err, errors.New(out.String()))
+			utils.FancyHandleError(err)
+			httputil.NewError(ctx, http.StatusInternalServerError, err)
+			return
+		}
 	}
 
 	// Mirror Daemon Destroy
@@ -350,10 +355,12 @@ func (c *Controller) MirrorDelete(ctx *gin.Context) {
 	stdout, err = sshcmd.CombinedOutput()
 	if err != nil {
 		sshcmd.Stderr = &out
-		err = errors.Join(err, errors.New(out.String()))
-		utils.FancyHandleError(err)
-		httputil.NewError(ctx, http.StatusInternalServerError, err)
-		return
+		if !strings.Contains(out.String(), "Invalid service 'rbd-mirror'.") {
+			err = errors.Join(err, errors.New(out.String()))
+			utils.FancyHandleError(err)
+			httputil.NewError(ctx, http.StatusInternalServerError, err)
+			return
+		}
 	}
 
 	// Print the output

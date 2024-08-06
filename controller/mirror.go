@@ -281,7 +281,7 @@ func (c *Controller) MirrorDelete(ctx *gin.Context) {
 	}
 
 	// Mirror Daemon Destroy
-	cmd = exec.Command("ceph", "orch", "rm", "rbd-mirror")
+	cmd := exec.Command("ceph", "orch", "rm", "rbd-mirror")
 	// cmd.Stderr = &out
 	stdout, err = cmd.CombinedOutput()
 	if err != nil {

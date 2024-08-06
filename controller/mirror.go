@@ -362,10 +362,7 @@ func (c *Controller) MirrorDelete(ctx *gin.Context) {
 		}
 	}
 
-	// Print the output
-	dat.LocalToken = EncodedLocalToken
-	dat.RemoteToken = EncodedRemoteToken
-	ctx.IndentedJSON(http.StatusOK, dat)
+	ctx.IndentedJSON(http.StatusOK, string(stdout))
 }
 
 // MirrorImageSetup godoc

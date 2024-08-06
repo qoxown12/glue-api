@@ -186,8 +186,6 @@ func (c *Controller) MirrorSetup(ctx *gin.Context) {
 //	@Router			/api/v1/mirror [delete]
 func (c *Controller) MirrorDelete(ctx *gin.Context) {
 	var dat model.MirrorSetup
-	var EncodedLocalToken string
-	var EncodedRemoteToken string
 	var stdout []byte
 
 	var out strings.Builder
@@ -362,7 +360,7 @@ func (c *Controller) MirrorDelete(ctx *gin.Context) {
 		}
 	}
 
-	ctx.IndentedJSON(http.StatusOK, string(stdout))
+	ctx.IndentedJSON(http.StatusOK, dat)
 }
 
 // MirrorImageSetup godoc

@@ -363,7 +363,7 @@ func HostList() (dat model.HostList, err error) {
 }
 func HostIp() (output []byte, err error) {
 	var stdout []byte
-	cmd := exec.Command("sh", "-c", "cat /etc/hosts | grep -E '*mngt' | grep -v 'ccvm' | awk '{print $1}'")
+	cmd := exec.Command("sh", "-c", "cat /etc/hosts | grep -E '*mngt' | grep -v 'ccvm' | awk '{print $1, $2}'")
 	stdout, err = cmd.CombinedOutput()
 	if err != nil {
 		err_str := strings.ReplaceAll(string(stdout), "\n", "")

@@ -397,7 +397,12 @@ func (c *Controller) HostList(ctx *gin.Context) {
 		}
 	}
 	for i := 0; i < len(dat); i++ {
-		dat[i].Ip_Address = str[i]
+		for j := 0; j < len(str); j++ {
+			ip_data := strings.Split(string(str[j]), " ")
+			if dat[i].Hostname+"-mngt" == ip_data[1] {
+				dat[i].Ip_Address = ip_data[0]
+			}
+		}
 	}
 	// Print the output
 	ctx.IndentedJSON(http.StatusOK, dat)

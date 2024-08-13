@@ -387,6 +387,28 @@ definitions:
         example: message
         type: string
     type: object
+  ImageInfo:
+    properties:
+      name:
+        type: string
+      id:
+        type: string
+      size:
+        type: integer
+      snapshot_count:
+        type: integer
+      parent:
+        items:
+          properties:
+            pool:
+              type: string
+            image:
+              type: string
+            snapshot:
+              type: string
+          type: object
+        type: array
+    type: object
   MirrorImage:
     properties:
       image:

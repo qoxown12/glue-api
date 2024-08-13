@@ -6791,6 +6791,40 @@ const docTemplate = `{
                 }
             }
         },
+        "ImageInfo": {
+            "type": "object",
+            "properties": {
+                "name": {
+                    "type": "string"
+                },
+                "id": {
+                    "type": "string"
+                },
+                "size": {
+                    "type": "integer"
+                },
+                "snapshot_count": {
+                    "type": "integer"
+                },
+                "parent": {
+                    "type": "array",
+                    "items": {
+                        "type": "object",
+                        "properties": {
+                            "pool": {
+                                "type": "string"
+                            },
+                            "image": {
+                                "type": "string"
+                            },
+                            "snapshot": {
+                                "type": "string"
+                            }
+                        }
+                    }
+                }
+            }
+        },
         "MirrorImage": {
             "type": "object",
             "properties": {

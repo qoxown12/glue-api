@@ -5,11 +5,8 @@ import (
 	"crypto/sha1"
 	"encoding/base64"
 	"log"
-	"os"
 	"sort"
 	"strings"
-
-	"github.com/gofrs/uuid"
 )
 
 type SortMoldParams []MoldParams
@@ -40,9 +37,10 @@ func (s SortMoldParams) Swap(i, j int) {
 }
 func makeStringParams(params []MoldParams) string {
 	var result string
+	mold, _ := ReadMoldFile()
 
 	params1 := []MoldParams{
-		{"apikey": os.Getenv("MoldApiKey")},
+		{"apikey": mold.MoldApiKey},
 		{"response": "json"},
 	}
 	params = append(params, params1...)
@@ -54,27 +52,21 @@ func makeStringParams(params []MoldParams) string {
 		}
 	}
 	result = strings.TrimRight(result, "&")
-	log.Infof("Mold 통신전 params[%v]\n", result)
+	log.Fatal("Mold 통신전 params[%v]\n", result)
 	return result
 }
 
 func makeSignature(payload string) string {
-	secretkey := os.Getenv("MoldSecretKey")
+	mold, _ := ReadMoldFile()
+	secretkey := mold.MoldSecretKey
 	strurl := strings.Replace(strings.ToLower(payload), "+", "%20", -1)
-	//strurl = strings.Replace(strings.ToLower(strurl), "/", "%2F", -1)
-	log.Infof("makeSignature payload [%v]\n", payload)
+	log.Fatal("makeSignature payload [%v]\n", payload)
 	secret := []byte(secretkey)
 	message := []byte(strurl)
 	hash := hmac.New(sha1.New, secret)
 	hash.Write(message)
 	strHash := base64.StdEncoding.EncodeToString(hash.Sum(nil))
-	log.Infof("makeSignature payload [%v]\n", payload)
+	log.Fatal("makeSignature payload [%v]\n", payload)
 	returnString := strings.Replace(strHash, "+", "%2B", -1)
 	return returnString
-}
-
-func getUuid() string {
-	uuidValue, _ := uuid.NewV4()
-
-	return uuidValue.String()
 }

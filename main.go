@@ -37,6 +37,21 @@ import (
 //	@description				Description for what is this security definition being used
 
 func main() {
+	mold, _ := utils.ReadMoldFile()
+	println(mold.MoldUrl)
+
+	if mold.MoldUrl != "mold" {
+		drResult := utils.GetDisasterRecoveryClusterList()
+		getDisasterRecoveryClusterList := model.GetDisasterRecoveryClusterList{}
+		drInfo, _ := json.Marshal(drResult["getdisasterrecoveryclusterlistresponse"])
+		json.Unmarshal([]byte(drInfo), &getDisasterRecoveryClusterList)
+		println(len(getDisasterRecoveryClusterList.Disasterrecoverycluster))
+		// if len(getDisasterRecoveryClusterList.Drclustervmmap) > 0 {
+		// 	for i, vm := range getDisasterRecoveryClusterList.Drclustervmmap {
+		// 		if vm.Drclustermirrorvmname != ""
+		// 	}
+		// }
+	}
 	// programmatically set swagger info
 
 	docs.SwaggerInfo.Title = "Glue API"
@@ -303,22 +318,6 @@ func main() {
 	}
 	r.GET("/swagger/*any", ginSwagger.WrapHandler(swaggerFiles.Handler))
 	r.RunTLS(":8080", "cert.pem", "key.pem")
-
-	mold, _ := utils.ReadMoldFile()
-
-	if mold.MoldUrl != "mold" {
-		drResult := utils.GetDisasterRecoveryClusterList()
-		getDisasterRecoveryClusterList := model.GetDisasterRecoveryClusterList{}
-		drInfo, _ := json.Marshal(drResult["getdisasterrecoveryclusterlistresponse"])
-		json.Unmarshal([]byte(drInfo), &getDisasterRecoveryClusterList)
-		println(len(getDisasterRecoveryClusterList.Disasterrecoverycluster))
-		// if len(getDisasterRecoveryClusterList.Drclustervmmap) > 0 {
-		// 	for i, vm := range getDisasterRecoveryClusterList.Drclustervmmap {
-		// 		if vm.Drclustermirrorvmname != ""
-		// 	}
-		// }
-	}
-
 }
 
 /*

@@ -311,7 +311,7 @@ func main() {
 		getDisasterRecoveryClusterList := model.GetDisasterRecoveryClusterList{}
 		drInfo, _ := json.Marshal(drResult["getdisasterrecoveryclusterlistresponse"])
 		json.Unmarshal([]byte(drInfo), &getDisasterRecoveryClusterList)
-		println(getDisasterRecoveryClusterList)
+		println(len(getDisasterRecoveryClusterList.Disasterrecoverycluster))
 		// if len(getDisasterRecoveryClusterList.Drclustervmmap) > 0 {
 		// 	for i, vm := range getDisasterRecoveryClusterList.Drclustervmmap {
 		// 		if vm.Drclustermirrorvmname != ""

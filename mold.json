@@ -1,5 +1,5 @@
 {
-    "mold_url": "mold",
-    "mold_api_key": "PMMYhccuBIOqzbHJPsKoNcmd_h74smyzDh6oFOFfGAw",
-    "mold_secret_key": "/+nxImoLupBj3a2wsr/CU5aG585BTDlGTBF6wEAKQCtpEf2a1JH9qi0ViOZ++KLbWGmNidJ/9bbTwgos49izqiAUJyDwU78="
+    "mold_url": "http://10.10.31.10:8080/client/api",
+    "mold_api_key": "PCXecWXbeScBG81wZe1Ib_RXYht1gHWT5hV_tBA9OJ8",
+    "mold_secret_key": "gejA7sbV21iTq3FW9uPwL8zk9VpoScOiLGp9zJz6Jig"
 }

@@ -4,7 +4,6 @@ import (
 	"crypto/hmac"
 	"crypto/sha256"
 	"encoding/base64"
-	"log"
 	"sort"
 	"strings"
 )
@@ -64,9 +63,9 @@ func makeSignature(payload string) string {
 	hash := hmac.New(sha256.New, secret)
 	hash.Write(message)
 	strHash := base64.StdEncoding.EncodeToString(hash.Sum(nil))
-	println(hash.Sum(nil))
-	log.Fatal("makeSignature payload [%v]\n", payload)
+	println("1 : ", hash.Sum(nil))
+	println("1 : ", strHash)
 	returnString := strings.Replace(strHash, "+", "%2B", -1)
-	println(returnString)
+	println("2 : ", returnString)
 	return returnString
 }

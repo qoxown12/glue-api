@@ -37,9 +37,8 @@ import (
 //	@description				Description for what is this security definition being used
 
 func main() {
+	// DR 스케줄러 실행
 	mold, _ := utils.ReadMoldFile()
-	println(mold.MoldUrl)
-
 	if mold.MoldUrl != "mold" {
 		drResult := utils.GetDisasterRecoveryClusterList()
 		getDisasterRecoveryClusterList := model.GetDisasterRecoveryClusterList{}

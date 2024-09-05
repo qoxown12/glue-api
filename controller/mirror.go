@@ -171,7 +171,7 @@ func (c *Controller) MirrorSetup(ctx *gin.Context) {
 	mold := model.Mold{MoldUrl: moldUrl, MoldApiKey: moldApiKey, MoldSecretKey: moldSecretKey}
 
 	jsonFile, _ := json.MarshalIndent(mold, "", " ")
-	os.WriteFile("/root/glue-api/mold.json", jsonFile, 0644)
+	os.WriteFile("./mold.json", jsonFile, 0644)
 
 	dat.LocalToken = EncodedLocalToken
 	dat.RemoteToken = EncodedRemoteToken

@@ -52,11 +52,11 @@ func makeStringParams(params []MoldParams) string {
 		}
 	}
 	result = strings.TrimRight(result, "&")
-	log.Fatal("Mold 통신전 params[%v]\n", result)
 	return result
 }
 
 func makeSignature(payload string) string {
+	println("makeSignature")
 	mold, _ := ReadMoldFile()
 	secretkey := mold.MoldSecretKey
 	strurl := strings.Replace(strings.ToLower(payload), "+", "%20", -1)

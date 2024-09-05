@@ -2,7 +2,7 @@ package utils
 
 import (
 	"crypto/hmac"
-	"crypto/sha1"
+	"crypto/sha256"
 	"encoding/base64"
 	"log"
 	"sort"
@@ -61,7 +61,7 @@ func makeSignature(payload string) string {
 	strurl := strings.Replace(strings.ToLower(payload), "+", "%20", -1)
 	secret := []byte(secretkey)
 	message := []byte(strurl)
-	hash := hmac.New(sha1.New, secret)
+	hash := hmac.New(sha256.New, secret)
 	hash.Write(message)
 	strHash := base64.StdEncoding.EncodeToString(hash.Sum(nil))
 	println(hash.Sum(nil))

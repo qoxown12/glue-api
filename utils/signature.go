@@ -64,8 +64,8 @@ func makeSignature(payload string) string {
 	hash := hmac.New(sha1.New, secret)
 	hash.Write(message)
 	strHash := base64.StdEncoding.EncodeToString(hash.Sum(nil))
+	println(hash.Sum(nil))
 	log.Fatal("makeSignature payload [%v]\n", payload)
-	println(strHash)
 	returnString := strings.Replace(strHash, "+", "%2B", -1)
 	println(returnString)
 	return returnString

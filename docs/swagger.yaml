@@ -2256,6 +2256,21 @@ paths:
         name: mirrorPool
         required: true
         type: string
+      - description: Mold Url
+        in: formData
+        name: moldUrl
+        required: true
+        type: string
+      - description: Mold Api Key
+        in: formData
+        name: moldApiKey
+        required: true
+        type: string
+      - description: Mold Secret Key
+        in: formData
+        name: moldSecretKey
+        required: true
+        type: string
       produces:
       - application/json
       responses:

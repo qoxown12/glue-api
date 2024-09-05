@@ -2284,6 +2284,27 @@ const docTemplate = `{
                         "name": "mirrorPool",
                         "in": "formData",
                         "required": true
+                    },
+                    {
+                        "type": "string",
+                        "description": "Mold Url",
+                        "name": "moldUrl",
+                        "in": "formData",
+                        "required": true
+                    },
+                    {
+                        "type": "string",
+                        "description": "Mold Api Key",
+                        "name": "moldApiKey",
+                        "in": "formData",
+                        "required": true
+                    },
+                    {
+                        "type": "string",
+                        "description": "Mold Secret Key",
+                        "name": "moldSecretKey",
+                        "in": "formData",
+                        "required": true
                     }
                 ],
                 "responses": {

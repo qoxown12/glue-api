@@ -4,6 +4,9 @@ import (
 	"Glue-API/controller"
 	"Glue-API/docs"
 	"Glue-API/httputil"
+	"Glue-API/model"
+	"Glue-API/utils"
+	"encoding/json"
 	"log"
 
 	"github.com/gin-gonic/gin"
@@ -300,6 +303,22 @@ func main() {
 	}
 	r.GET("/swagger/*any", ginSwagger.WrapHandler(swaggerFiles.Handler))
 	r.RunTLS(":8080", "cert.pem", "key.pem")
+
+	mold, _ := utils.ReadMoldFile()
+
+	if mold.MoldUrl != "mold" {
+		drResult := utils.GetDisasterRecoveryClusterList()
+		getDisasterRecoveryClusterList := model.GetDisasterRecoveryClusterList{}
+		drInfo, _ := json.Marshal(drResult["getdisasterrecoveryclusterlistresponse"])
+		json.Unmarshal([]byte(drInfo), &getDisasterRecoveryClusterList)
+		println(getDisasterRecoveryClusterList)
+		// if len(getDisasterRecoveryClusterList.Drclustervmmap) > 0 {
+		// 	for i, vm := range getDisasterRecoveryClusterList.Drclustervmmap {
+		// 		if vm.Drclustermirrorvmname != ""
+		// 	}
+		// }
+	}
+
 }
 
 /*

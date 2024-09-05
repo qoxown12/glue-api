@@ -5,6 +5,7 @@ import (
 	"Glue-API/model"
 	"Glue-API/utils"
 	"Glue-API/utils/mirror"
+	"encoding/json"
 	"errors"
 	"net/http"
 	"os"
@@ -162,6 +163,15 @@ func (c *Controller) MirrorSetup(ctx *gin.Context) {
 		httputil.NewError(ctx, http.StatusInternalServerError, err)
 		return
 	}
+
+	moldUrl, _ := ctx.GetPostForm("moldUrl")
+	moldApiKey, _ := ctx.GetPostForm("moldApiKey")
+	moldSecretKey, _ := ctx.GetPostForm("moldSecretKey")
+
+	mold := model.Mold{MoldUrl: moldUrl, MoldApiKey: moldApiKey, MoldSecretKey: moldSecretKey}
+
+	jsonFile, _ := json.MarshalIndent(mold, "", " ")
+	os.WriteFile("/root/glue-api/mold.json", jsonFile, 0644)
 
 	dat.LocalToken = EncodedLocalToken
 	dat.RemoteToken = EncodedRemoteToken

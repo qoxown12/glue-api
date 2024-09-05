@@ -48,3 +48,19 @@ func ReadConfFile() (settings model.Settings, err error) {
 	}
 	return
 }
+
+// Read the mold settings file.
+func ReadMoldFile() (mold model.Mold, err error) {
+	content, err := os.ReadFile("./mold.json")
+	if err != nil {
+		log.Fatal("Error when opening file: ", err)
+		return
+	}
+
+	err = json.Unmarshal(content, &mold)
+	if err != nil {
+		log.Fatal("Error during Unmarshal(): ", err)
+		return
+	}
+	return
+}

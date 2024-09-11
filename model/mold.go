@@ -38,6 +38,7 @@ type ListVirtualMachinesMetrics struct {
 		Id                    string `json:"id"`
 		Ipaddress             string `json:"ipaddress"`
 		Isdynamicallyscalable bool   `json:"isdynamicallyscalable"`
+		Instancename          string `json:"instancename"`
 		Memory                int    `json:"memory"`
 		Memoryintfreekbs      int    `json:"memoryintfreekbs"`
 		Memorykbs             int    `json:"memorykbs"`
@@ -102,7 +103,7 @@ type GetDisasterRecoveryClusterList struct {
 		Drclusterstatus        string `json:"drclusterstatus"`
 		Drclustertype          string `json:"drclustertype"`
 		Drclusterurl           string `json:"drclusterurl"`
-		Drclustervmmap         struct {
+		Drclustervmmap         []struct {
 			Drclustermirrorvmid        string `json:"drclustermirrorvmid"`
 			Drclustermirrorvmname      string `json:"drclustermirrorvmname"`
 			Drclustermirrorvmstatus    string `json:"drclustermirrorvmstatus"`
@@ -118,7 +119,7 @@ type GetDisasterRecoveryClusterList struct {
 		Id                   string `json:"id"`
 		Mirroringagentstatus string `json:"mirroringagentstatus"`
 		Name                 string `json:"name"`
-		Network              struct {
+		Network              []struct {
 			Cidr        string `json:"cidr"`
 			Displaytext string `json:"displaytext"`
 			Dns1        string `json:"dns1"`
@@ -131,7 +132,7 @@ type GetDisasterRecoveryClusterList struct {
 			State       string `json:"state"`
 			Type        string `json:"type"`
 		} `json:"network"`
-		Serviceofferingdetails struct {
+		Serviceofferingdetails []struct {
 			Cachemode string `json:"cachemode"`
 			Id        string `json:"id"`
 			Name      string `json:"name"`

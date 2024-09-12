@@ -397,6 +397,7 @@ func ImageConfigSchedule(poolName string, imageName string, hostName string, vmN
 			uuid.MustParse(imageName),
 		),
 	)
+	fmt.Println(j.ID().ID())
 
 	if err != nil {
 		err = errors.Join(err, errors.New("failed to create mirror image snapshot scheduler."))

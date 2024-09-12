@@ -269,7 +269,7 @@ func ImageDeleteSchedule(poolName string, imageName string) (output string, err 
 
 	output = string(stdRemove)
 
-	fmt.Println("remove mirror snapshot schuduler --- image : " + imageName)
+	println("remove mirror snapshot schuduler --- image : " + imageName)
 	s, _ := gocron.NewScheduler()
 	defer func() {
 		_ = s.Shutdown()
@@ -369,7 +369,7 @@ func ImageConfigSchedule(poolName string, imageName string, hostName string, vmN
 		gocron.NewTask(
 			func() {
 				var stdout []byte
-				fmt.Println("start mirror snapshot schuduler --- vm : " + vmName + " --- image : " + imageName + " --- interval : " + it.String())
+				println("start mirror snapshot schuduler --- vm : " + vmName + " --- image : " + imageName + " --- interval : " + it.String())
 				cmd := exec.Command("ssh", hostName, "virsh", "domfsfreeze", vmName)
 				stdout, err = cmd.CombinedOutput()
 				if err != nil {
@@ -389,15 +389,13 @@ func ImageConfigSchedule(poolName string, imageName string, hostName string, vmN
 					println("failed to virsh domfsthaw")
 					println(string(stdout))
 				}
-				fmt.Println("end mirror snapshot schuduler --- vm : " + vmName + " --- image : " + imageName + " --- interval : " + it.String())
+				println("end mirror snapshot schuduler --- vm : " + vmName + " --- image : " + imageName + " --- interval : " + it.String())
 			},
 		),
 		gocron.WithTags(
 			imageName,
 		),
 	)
-	println(j.ID().ID())
-	println(j.Tags())
 
 	if err != nil {
 		err = errors.Join(err, errors.New("failed to create mirror image snapshot scheduler."))

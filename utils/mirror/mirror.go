@@ -334,9 +334,9 @@ func ImageConfigSchedule(poolName string, imageName string, hostName string, vmN
 		utils.FancyHandleError(err)
 		return
 	}
-	fmt.Println(j.ID())
-	fmt.Println(j.Tags())
-	fmt.Println(j.NextRun())
+	println(j.ID())
+	println(j.Tags())
+	println(j.NextRun())
 	scheduler.Start()
 	return
 }
@@ -346,22 +346,25 @@ func schedule(poolName string, imageName string, hostName string, vmName string)
 	fmt.Println("start mirror snapshot schuduler ::::::::")
 	cmd := exec.Command("ssh", hostName, "virsh", "domfsfreeze", vmName)
 	stdout, err = cmd.CombinedOutput()
+	println(string(stdout))
 	if err != nil {
-		fmt.Println("failed to virsh domfsfreeze")
-		fmt.Println(string(stdout))
+		println("failed to virsh domfsfreeze")
+		println(string(stdout))
 	}
 	cmd = exec.Command(poolName, "mirror", "image", "snapshot", poolName+"/"+imageName)
 	stdout, err = cmd.CombinedOutput()
+	println(string(stdout))
 	if err != nil {
-		fmt.Println("failed to create rbd mirror image snapshot")
-		fmt.Println(string(stdout))
+		println("failed to create rbd mirror image snapshot")
+		println(string(stdout))
 		exec.Command("ssh", hostName, "virsh", "domfsthaw", vmName)
 	}
 	cmd = exec.Command("ssh", hostName, "virsh", "domfsthaw", vmName)
 	stdout, err = cmd.CombinedOutput()
+	println(string(stdout))
 	if err != nil {
-		fmt.Println("failed to virsh domfsthaw")
-		fmt.Println(string(stdout))
+		println("failed to virsh domfsthaw")
+		println(string(stdout))
 	}
 	fmt.Println("end mirror snapshot schuduler ::::::::")
 	return

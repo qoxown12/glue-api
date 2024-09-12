@@ -14,6 +14,7 @@ import (
 	"time"
 
 	"github.com/go-co-op/gocron/v2"
+	"github.com/google/uuid"
 	"github.com/melbahja/goph"
 )
 
@@ -275,7 +276,7 @@ func ImageDeleteSchedule(poolName string, imageName string) (output string, err 
 		_ = s.Shutdown()
 	}()
 
-	s.RemoveByTags(imageName)
+	s.RemoveJob(uuid.MustParse(imageName))
 	return
 }
 
@@ -392,8 +393,8 @@ func ImageConfigSchedule(poolName string, imageName string, hostName string, vmN
 				println("end mirror snapshot schuduler --- vm : " + vmName + " --- image : " + imageName + " --- interval : " + it.String())
 			},
 		),
-		gocron.WithTags(
-			imageName,
+		gocron.WithIdentifier(
+			uuid.MustParse(imageName),
 		),
 	)
 

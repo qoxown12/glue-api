@@ -255,6 +255,30 @@ func ImageDelete(poolName string, imageName string) (output string, err error) {
 	return
 }
 
+func ImageDeleteSchedule(poolName string, imageName string) (output string, err error) {
+
+	var stdRemove []byte
+	strRemovestatus := exec.Command("rbd", "mirror", "image", "disable", "--pool", poolName, "--image", imageName)
+	stdRemove, err = strRemovestatus.CombinedOutput()
+
+	if err != nil {
+		err = errors.New(string(stdRemove))
+		utils.FancyHandleError(err)
+		return
+	}
+
+	output = string(stdRemove)
+
+	fmt.Println("remove mirror snapshot schuduler --- image : " + imageName)
+	s, _ := gocron.NewScheduler()
+	defer func() {
+		_ = s.Shutdown()
+	}()
+
+	s.RemoveByTags(imageName)
+	return
+}
+
 func ImagePreSetup(poolName string, imageName string) (output string, err error) {
 
 	var stdoutMirrorPreSetupEnable []byte

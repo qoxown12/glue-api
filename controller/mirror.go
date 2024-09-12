@@ -114,6 +114,46 @@ func (c *Controller) MirrorImageDelete(ctx *gin.Context) {
 	ctx.IndentedJSON(http.StatusOK, Message{Message: output})
 }
 
+// MirrorImageScheduleDelete godoc
+//
+//	@Summary		Delete Mirrored Snapshot Schedule
+//	@Description	이미지의 미러링 스케줄링을 비활성화 합니다.
+//	@param			mirrorPool	path	string	true	"pool"
+//	@param			imageName	path	string	true	"imageName"
+//	@Tags			Mirror
+//	@Accept			x-www-form-urlencoded
+//	@Produce		json
+//	@Success		200	{object}	controller.Message
+//	@Failure		400	{object}	httputil.HTTP400BadRequest
+//	@Failure		404	{object}	httputil.HTTP404NotFound
+//	@Failure		500	{object}	httputil.HTTP500InternalServerError
+//	@Router			/api/v1/mirror/image/{mirrorPool}/{imageName} [delete]
+func (c *Controller) MirrorImageScheduleDelete(ctx *gin.Context) {
+	image := ctx.Param("imageName")
+	pool := ctx.Param("mirrorPool")
+	var output string
+
+	output, err := mirror.ImageDeleteSchedule(pool, image)
+
+	if err != nil {
+		utils.FancyHandleError(err)
+		httputil.NewError(ctx, http.StatusInternalServerError, err)
+		return
+	}
+
+	output, err = mirror.ImagePreDelete(pool, image)
+
+	if err != nil {
+		if output != "Success" {
+			utils.FancyHandleError(err)
+			httputil.NewError(ctx, http.StatusInternalServerError, err)
+			return
+		}
+	}
+
+	ctx.IndentedJSON(http.StatusOK, Message{Message: output})
+}
+
 // MirrorStatus godoc
 //
 //	@Summary		Show Status of Mirror

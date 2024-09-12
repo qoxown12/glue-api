@@ -288,8 +288,7 @@ func main() {
 		{
 			mirror.GET("", c.MirrorStatus) //Get Mirroring Status
 			//Todo
-			mirror.POST("", c.MirrorSetup) //Setup Mirroring
-			//mirror.PATCH("", c.MirrorUpdate)  //Configure Mirroring
+			mirror.POST("", c.MirrorSetup)                     //Setup Mirroring
 			mirror.DELETE("", c.MirrorDelete)                  //Unconfigure Mirroring
 			mirror.POST("/:mirrorPool", c.MirrorPoolEnable)    //Enable Mirroring Cluster
 			mirror.DELETE("/:mirrorPool", c.MirrorPoolDisable) //Disable Mirroring Cluster
@@ -304,7 +303,8 @@ func main() {
 				mirrorimage.POST("/:mirrorPool/:imageName", c.MirrorImageSetup)                           //Setup Image Mirroring
 				mirrorimage.POST("/:mirrorPool/:imageName/:hostName/:vmName", c.MirrorImageScheduleSetup) //Setup Image Mirroring Schedule
 				mirrorimage.PUT("/:mirrorPool/:imageName", c.MirrorImageUpdate)                           //Config Image Mirroring
-				mirrorimage.DELETE("/:mirrorPool/:imageName", c.MirrorImageDelete)                        //Unconfigure Mirroring
+				// mirrorimage.DELETE("/:mirrorPool/:imageName", c.MirrorImageDelete)                //Unconfigure Image Mirroring
+				mirrorimage.DELETE("/:mirrorPool/:imageName", c.MirrorImageScheduleDelete) //Unconfigure ImageMirroring Schedule
 
 				mirrorimage.GET("/info/:mirrorPool/:imageName", c.MirrorImageParentInfo)           //Get Image Mirroring Parent Info
 				mirrorimage.GET("/status/:mirrorPool/:imageName", c.MirrorImageStatus)             //Get Image Mirroring Status
@@ -315,8 +315,6 @@ func main() {
 				mirrorimage.PUT("/resync/:mirrorPool/:imageName", c.MirrorImageResync)             //Resync Image
 				mirrorimage.PUT("/resync/peer/:mirrorPool/:imageName", c.MirrorImageResyncPeer)    //Resync Peer Image
 			}
-			//
-			//
 		}
 		gwvm := v1.Group("/gwvm")
 		{

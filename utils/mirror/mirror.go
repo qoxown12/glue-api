@@ -335,6 +335,8 @@ func ImageConfigSchedule(poolName string, imageName string, hostName string, vmN
 		return
 	}
 	fmt.Println(j.ID())
+	fmt.Println(j.Tags())
+	fmt.Println(j.NextRun())
 	scheduler.Start()
 	return
 }

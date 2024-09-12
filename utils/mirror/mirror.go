@@ -313,8 +313,25 @@ func ImageConfig(poolName string, imageName string, interval string, startTime s
 
 func ImageConfigSchedule(poolName string, imageName string, hostName string, vmName string, interval string) (output string, err error) {
 
-	ti, _ := strconv.Atoi(interval)
-	it := time.Duration(ti) * time.Hour
+	var it time.Duration
+
+	if strings.Contains(interval, "d") {
+		interval = strings.TrimRight(interval, "d")
+		ti, _ := strconv.Atoi(interval)
+		it = time.Duration(ti) * 24 * time.Hour
+	} else if strings.Contains(interval, "h") {
+		interval = strings.TrimRight(interval, "h")
+		ti, _ := strconv.Atoi(interval)
+		it = time.Duration(ti) * time.Hour
+	} else if strings.Contains(interval, "m") {
+		interval = strings.TrimRight(interval, "m")
+		ti, _ := strconv.Atoi(interval)
+		it = time.Duration(ti) * time.Minute
+	} else {
+		err = errors.Join(err, errors.New("The interval must include d, h, and m, and the scheduler setup failed because it was set incorrectly."))
+		utils.FancyHandleError(err)
+		return
+	}
 	scheduler, err := gocron.NewScheduler()
 	if err != nil {
 		err = errors.Join(err, errors.New("failed to create mirror image snapshot scheduler."))
@@ -328,17 +345,15 @@ func ImageConfigSchedule(poolName string, imageName string, hostName string, vmN
 		gocron.NewTask(
 			func() {
 				var stdout []byte
-				fmt.Println("start mirror snapshot schuduler ::::::::")
+				fmt.Println("start mirror snapshot schuduler :::: vm : " + vmName + " :::: image : " + imageName + " :::: interval : " + it.String())
 				cmd := exec.Command("ssh", hostName, "virsh", "domfsfreeze", vmName)
 				stdout, err = cmd.CombinedOutput()
-				println(string(stdout))
 				if err != nil {
 					println("failed to virsh domfsfreeze")
 					println(string(stdout))
 				}
 				cmd = exec.Command(poolName, "mirror", "image", "snapshot", poolName+"/"+imageName)
 				stdout, err = cmd.CombinedOutput()
-				println(string(stdout))
 				if err != nil {
 					println("failed to create rbd mirror image snapshot")
 					println(string(stdout))
@@ -346,12 +361,11 @@ func ImageConfigSchedule(poolName string, imageName string, hostName string, vmN
 				}
 				cmd = exec.Command("ssh", hostName, "virsh", "domfsthaw", vmName)
 				stdout, err = cmd.CombinedOutput()
-				println(string(stdout))
 				if err != nil {
 					println("failed to virsh domfsthaw")
 					println(string(stdout))
 				}
-				fmt.Println("end mirror snapshot schuduler ::::::::")
+				fmt.Println("end mirror snapshot schuduler :::: vm : " + vmName + " :::: image : " + imageName + " :::: interval : " + it.String())
 			},
 		),
 		gocron.WithTags(

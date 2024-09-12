@@ -37,20 +37,47 @@ import (
 //	@description				Description for what is this security definition being used
 
 func main() {
-	// DR 스케줄러 실행
+	// DR 목록 조회
 	mold, _ := utils.ReadMoldFile()
 	if mold.MoldUrl != "mold" {
 		drResult := utils.GetDisasterRecoveryClusterList()
 		getDisasterRecoveryClusterList := model.GetDisasterRecoveryClusterList{}
 		drInfo, _ := json.Marshal(drResult["getdisasterrecoveryclusterlistresponse"])
 		json.Unmarshal([]byte(drInfo), &getDisasterRecoveryClusterList)
-		println(len(getDisasterRecoveryClusterList.Disasterrecoverycluster))
-		// if len(getDisasterRecoveryClusterList.Drclustervmmap) > 0 {
-		// 	for i, vm := range getDisasterRecoveryClusterList.Drclustervmmap {
-		// 		if vm.Drclustermirrorvmname != ""
-		// 	}
-		// }
+		if len(getDisasterRecoveryClusterList.Disasterrecoverycluster) > 0 {
+			dr := getDisasterRecoveryClusterList.Disasterrecoverycluster
+			for i := 0; i < len(dr); i++ {
+				if len(dr[i].Drclustervmmap) > 0 {
+					for j := 0; j < len(dr[i].Drclustervmmap); j++ {
+						params1 := []utils.MoldParams{
+							{"keyword": dr[i].Drclustervmmap[j].Drclustermirrorvmname},
+						}
+						vmResult := utils.GetListVirtualMachinesMetrics(params1)
+						listVirtualMachinesMetrics := model.ListVirtualMachinesMetrics{}
+						vmInfo, _ := json.Marshal(vmResult["listvirtualmachinesmetricsresponse"])
+						json.Unmarshal([]byte(vmInfo), &listVirtualMachinesMetrics)
+						vm := listVirtualMachinesMetrics.Virtualmachine
+						for k := 0; k < len(vm); k++ {
+							if vm[k].Name == dr[i].Drclustervmmap[j].Drclustermirrorvmname {
+								println("dr vm")
+								// vmName := vm[k].Instancename // instance 명 저장
+								// //운영중인 가상머신만 고려한다면 호스트 이름이 있는 경우
+								// params2 := []utils.MoldParams{
+								// 	{"keyword": vm[k].Id},
+								// 	{"hostname": vm[k].hostname},
+								// }
+								// if vm[k].hostname == "" {
+								// 	//ssh hostname으로 명령어 전송
+								// }
+								// 스케줄러 실행
+							}
+						}
+					}
+				}
+			}
+		}
 	}
+
 	// programmatically set swagger info
 
 	docs.SwaggerInfo.Title = "Glue API"
@@ -272,11 +299,12 @@ func main() {
 			}
 			mirrorimage := mirror.Group("/image")
 			{
-				mirrorimage.GET("", c.MirrorImageList)                             //List Mirroring Images
-				mirrorimage.GET("/:mirrorPool/:imageName", c.MirrorImageInfo)      //Get Image Mirroring Info
-				mirrorimage.POST("/:mirrorPool/:imageName", c.MirrorImageSetup)    //Setup Image Mirroring
-				mirrorimage.PUT("/:mirrorPool/:imageName", c.MirrorImageUpdate)    //Config Image Mirroring
-				mirrorimage.DELETE("/:mirrorPool/:imageName", c.MirrorImageDelete) //Unconfigure Mirroring
+				mirrorimage.GET("", c.MirrorImageList)                                                    //List Mirroring Images
+				mirrorimage.GET("/:mirrorPool/:imageName", c.MirrorImageInfo)                             //Get Image Mirroring Info
+				mirrorimage.POST("/:mirrorPool/:imageName", c.MirrorImageSetup)                           //Setup Image Mirroring
+				mirrorimage.POST("/:mirrorPool/:imageName/:hostName/:vmName", c.MirrorImageScheduleSetup) //Setup Image Mirroring Schedule
+				mirrorimage.PUT("/:mirrorPool/:imageName", c.MirrorImageUpdate)                           //Config Image Mirroring
+				mirrorimage.DELETE("/:mirrorPool/:imageName", c.MirrorImageDelete)                        //Unconfigure Mirroring
 
 				mirrorimage.GET("/info/:mirrorPool/:imageName", c.MirrorImageParentInfo)           //Get Image Mirroring Parent Info
 				mirrorimage.GET("/status/:mirrorPool/:imageName", c.MirrorImageStatus)             //Get Image Mirroring Status

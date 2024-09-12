@@ -9,8 +9,11 @@ import (
 	"fmt"
 	"os"
 	"os/exec"
+	"strconv"
 	"strings"
+	"time"
 
+	"github.com/go-co-op/gocron/v2"
 	"github.com/melbahja/goph"
 )
 
@@ -305,6 +308,60 @@ func ImageConfig(poolName string, imageName string, interval string, startTime s
 	}
 
 	output = string(stdoutScheduleEnable)
+	return
+}
+
+func ImageConfigSchedule(poolName string, imageName string, hostName string, vmName string, interval string) (output string, err error) {
+
+	ti, _ := strconv.Atoi(interval)
+	it := time.Duration(ti) * time.Hour
+	scheduler, err := gocron.NewScheduler()
+	if err != nil {
+		err = errors.Join(err, errors.New("failed to create mirror image snapshot scheduler."))
+		utils.FancyHandleError(err)
+		return
+	}
+	j, err := scheduler.NewJob(
+		gocron.DurationJob(
+			it),
+		gocron.NewTask(
+			schedule(poolName, imageName, hostName, vmName)),
+		gocron.WithTags(
+			imageName),
+	)
+	if err != nil {
+		err = errors.Join(err, errors.New("failed to create mirror image snapshot scheduler."))
+		utils.FancyHandleError(err)
+		return
+	}
+	fmt.Println(j.ID())
+	scheduler.Start()
+	return
+}
+
+func schedule(poolName string, imageName string, hostName string, vmName string) (err error) {
+	var stdout []byte
+	fmt.Println("start mirror snapshot schuduler ::::::::")
+	cmd := exec.Command("ssh", hostName, "virsh", "domfsfreeze", vmName)
+	stdout, err = cmd.CombinedOutput()
+	if err != nil {
+		fmt.Println("failed to virsh domfsfreeze")
+		fmt.Println(string(stdout))
+	}
+	cmd = exec.Command(poolName, "mirror", "image", "snapshot", poolName+"/"+imageName)
+	stdout, err = cmd.CombinedOutput()
+	if err != nil {
+		fmt.Println("failed to create rbd mirror image snapshot")
+		fmt.Println(string(stdout))
+		exec.Command("ssh", hostName, "virsh", "domfsthaw", vmName)
+	}
+	cmd = exec.Command("ssh", hostName, "virsh", "domfsthaw", vmName)
+	stdout, err = cmd.CombinedOutput()
+	if err != nil {
+		fmt.Println("failed to virsh domfsthaw")
+		fmt.Println(string(stdout))
+	}
+	fmt.Println("end mirror snapshot schuduler ::::::::")
 	return
 }
 

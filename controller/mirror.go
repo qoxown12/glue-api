@@ -428,6 +428,61 @@ func (c *Controller) MirrorImageSetup(ctx *gin.Context) {
 
 }
 
+// MirrorImageScheduleSetup godoc
+//
+//		@Summary		Setup Image Mirroring Schedule
+//		@Description	Glue 의 이미지에 미러링 스케줄을 설정합니다.
+//		@param			mirrorPool	path		string	true	"Pool Name for Mirroring"
+//		@param			imageName	path		string	true	"Image Name for Mirroring"
+//	 	@param          hostName    path    	string  true    "Host Name"
+//	 	@param          vmName      path    	string  true    "VM Name"
+//		@param			interval	formData	string	true	"Interval of image snapshot"
+//		@Tags			Mirror
+//		@Accept			x-www-form-urlencoded
+//		@Produce		json
+//		@Success		200	{object}	model.ImageMirror
+//		@Failure		400	{object}	httputil.HTTP400BadRequest
+//		@Failure		404	{object}	httputil.HTTP404NotFound
+//		@Failure		500	{object}	httputil.HTTP500InternalServerError
+//		@Router			/api/v1/mirror/image/{mirrorPool}/{imageName}/{hostName}/{vmName} [post]
+func (c *Controller) MirrorImageScheduleSetup(ctx *gin.Context) {
+	//var dat model.MirrorSetup
+	var dat = struct {
+		Message string
+	}{}
+
+	mirrorPool := ctx.Param("mirrorPool")
+	imageName := ctx.Param("imageName")
+	hostName := ctx.Param("hostName")
+	vmName := ctx.Param("vmName")
+	interval, _ := ctx.GetPostForm("interval")
+
+	message, err := mirror.ImagePreSetup(mirrorPool, imageName)
+	if err != nil {
+		utils.FancyHandleError(err)
+		httputil.NewError(ctx, http.StatusInternalServerError, err)
+		return
+	}
+
+	message, err = mirror.ImageSetup(mirrorPool, imageName)
+	if err != nil {
+		utils.FancyHandleError(err)
+		httputil.NewError(ctx, http.StatusInternalServerError, err)
+		return
+	}
+
+	_, err = mirror.ImageConfigSchedule(mirrorPool, imageName, hostName, vmName, interval)
+	if err != nil {
+		utils.FancyHandleError(err)
+		httputil.NewError(ctx, http.StatusInternalServerError, err)
+		return
+	}
+
+	dat.Message = message
+	ctx.IndentedJSON(http.StatusOK, dat)
+
+}
+
 // MirrorImageUpdate godoc
 //
 //	@Summary		Put Image Mirroring

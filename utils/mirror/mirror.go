@@ -334,9 +334,6 @@ func ImageConfigSchedule(poolName string, imageName string, hostName string, vmN
 		utils.FancyHandleError(err)
 		return
 	}
-	println(j.ID())
-	println(j.Tags())
-	println(j.NextRun())
 	scheduler.Start()
 	return
 }

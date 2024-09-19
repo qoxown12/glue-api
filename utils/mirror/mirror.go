@@ -393,14 +393,13 @@ func ImageConfigSchedule(poolName string, imageName string, hostName string, vmN
 				}
 				println("end mirror snapshot schuduler --- vm : " + vmName + " --- image : " + imageName + " --- interval : " + it.String())
 			},
-			vmName,
 		),
 		gocron.WithIdentifier(uuid.MustParse(imageName)),
 		gocron.WithName(vmName),
 		gocron.WithEventListeners(
 			gocron.BeforeJobRuns(
 				func(jobID uuid.UUID, jobName string) {
-					fmt.Println("Job starting: %s, %s \n", jobID.String(), jobName)
+					println("Job starting: %s, %s \n", jobID.String(), jobName)
 					mold, _ := utils.ReadMoldFile()
 					exist = ""
 					if mold.MoldUrl != "mold" {
@@ -483,7 +482,7 @@ func ImageConfigSchedule(poolName string, imageName string, hostName string, vmN
 		return
 	}
 	scheduler.Start()
-	fmt.Println(j.ID().ID())
+	println(j.ID().ID())
 	return
 }
 

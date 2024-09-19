@@ -269,14 +269,6 @@ func ImageDeleteSchedule(poolName string, imageName string) (output string, err 
 	}
 
 	output = string(stdRemove)
-
-	println("remove mirror snapshot schuduler --- image : " + imageName)
-	s, _ := gocron.NewScheduler()
-	defer func() {
-		_ = s.Shutdown()
-	}()
-
-	s.RemoveJob(uuid.MustParse(imageName))
 	return
 }
 
@@ -339,6 +331,7 @@ func ImageConfig(poolName string, imageName string, interval string, startTime s
 func ImageConfigSchedule(poolName string, imageName string, hostName string, vmName string, interval string) (output string, err error) {
 
 	var it time.Duration
+	var exist string
 
 	if strings.Contains(interval, "d") {
 		interval = strings.TrimRight(interval, "d")
@@ -363,6 +356,7 @@ func ImageConfigSchedule(poolName string, imageName string, hostName string, vmN
 		utils.FancyHandleError(err)
 		return
 	}
+
 	j, err := scheduler.NewJob(
 		gocron.DurationJob(
 			it,
@@ -371,40 +365,125 @@ func ImageConfigSchedule(poolName string, imageName string, hostName string, vmN
 			func() {
 				var stdout []byte
 				println("start mirror snapshot schuduler --- vm : " + vmName + " --- image : " + imageName + " --- interval : " + it.String())
-				cmd := exec.Command("ssh", hostName, "virsh", "domfsfreeze", vmName)
-				stdout, err = cmd.CombinedOutput()
-				if err != nil {
-					println("failed to virsh domfsfreeze")
-					println(string(stdout))
+				println("hostName: " + hostName)
+				if hostName != "" {
+					println("::: domfsfreeze start")
+					cmd := exec.Command("ssh", hostName, "virsh", "domfsfreeze", vmName)
+					stdout, err = cmd.CombinedOutput()
+					if err != nil {
+						println("failed to virsh domfsfreeze")
+						println(string(stdout))
+					}
 				}
-				cmd = exec.Command(poolName, "mirror", "image", "snapshot", poolName+"/"+imageName)
+				cmd := exec.Command(poolName, "mirror", "image", "snapshot", poolName+"/"+imageName)
 				stdout, err = cmd.CombinedOutput()
 				if err != nil {
 					println("failed to create rbd mirror image snapshot")
 					println(string(stdout))
 					exec.Command("ssh", hostName, "virsh", "domfsthaw", vmName)
 				}
-				cmd = exec.Command("ssh", hostName, "virsh", "domfsthaw", vmName)
-				stdout, err = cmd.CombinedOutput()
-				if err != nil {
-					println("failed to virsh domfsthaw")
-					println(string(stdout))
+				if hostName != "" {
+					println("::: domfsthaw start")
+					cmd = exec.Command("ssh", hostName, "virsh", "domfsthaw", vmName)
+					stdout, err = cmd.CombinedOutput()
+					if err != nil {
+						println("failed to virsh domfsthaw")
+						println(string(stdout))
+					}
 				}
 				println("end mirror snapshot schuduler --- vm : " + vmName + " --- image : " + imageName + " --- interval : " + it.String())
 			},
+			vmName,
 		),
-		gocron.WithIdentifier(
-			uuid.MustParse(imageName),
+		gocron.WithIdentifier(uuid.MustParse(imageName)),
+		gocron.WithName(vmName),
+		gocron.WithEventListeners(
+			gocron.BeforeJobRuns(
+				func(jobID uuid.UUID, jobName string) {
+					fmt.Println("Job starting: %s, %s \n", jobID.String(), jobName)
+					mold, _ := utils.ReadMoldFile()
+					exist = ""
+					if mold.MoldUrl != "mold" {
+						drResult := utils.GetDisasterRecoveryClusterList()
+						getDisasterRecoveryClusterList := model.GetDisasterRecoveryClusterList{}
+						drInfo, _ := json.Marshal(drResult["getdisasterrecoveryclusterlistresponse"])
+						json.Unmarshal([]byte(drInfo), &getDisasterRecoveryClusterList)
+						if len(getDisasterRecoveryClusterList.Disasterrecoverycluster) > 0 {
+							dr := getDisasterRecoveryClusterList.Disasterrecoverycluster
+							for i := 0; i < len(dr); i++ {
+								if len(dr[i].Drclustervmmap) > 0 {
+									for j := 0; j < len(dr[i].Drclustervmmap); j++ {
+										if imageName == dr[i].Drclustervmmap[j].Drclustermirrorvmvolpath {
+											exist = "exist"
+											interval = dr[i].Details.Mirrorscheduleinterval
+											println("interval : " + interval)
+											if strings.Contains(interval, "d") {
+												interval = strings.TrimRight(interval, "d")
+												ti, _ := strconv.Atoi(interval)
+												it = time.Duration(ti) * 24 * time.Hour
+											} else if strings.Contains(interval, "h") {
+												interval = strings.TrimRight(interval, "h")
+												ti, _ := strconv.Atoi(interval)
+												it = time.Duration(ti) * time.Hour
+											} else if strings.Contains(interval, "m") {
+												interval = strings.TrimRight(interval, "m")
+												ti, _ := strconv.Atoi(interval)
+												it = time.Duration(ti) * time.Minute
+											} else {
+												// 잘못 입력된 경우 1시간으로 설정
+												it = time.Duration(1) * time.Hour
+											}
+											println("duration : " + it.String())
+											break
+										}
+									}
+								}
+							}
+							if exist != "exist" {
+								println("shutdown for scheduler image path : " + imageName)
+								scheduler.Shutdown()
+							} else {
+								for i := 0; i < len(dr); i++ {
+									if len(dr[i].Drclustervmmap) > 0 {
+										for j := 0; j < len(dr[i].Drclustervmmap); j++ {
+											params1 := []utils.MoldParams{
+												{"keyword": dr[i].Drclustervmmap[j].Drclustermirrorvmname},
+											}
+											vmResult := utils.GetListVirtualMachinesMetrics(params1)
+											listVirtualMachinesMetrics := model.ListVirtualMachinesMetrics{}
+											vmInfo, _ := json.Marshal(vmResult["listvirtualmachinesmetricsresponse"])
+											json.Unmarshal([]byte(vmInfo), &listVirtualMachinesMetrics)
+											vm := listVirtualMachinesMetrics.Virtualmachine
+											for k := 0; k < len(vm); k++ {
+												if vm[k].Name == dr[i].Drclustervmmap[j].Drclustermirrorvmname {
+													if vm[k].Hostname != "" {
+														hostName = vm[k].Hostname
+														println("hostName: " + hostName)
+													} else {
+														println("shutdown for scheduler image path : " + imageName)
+														hostName = ""
+														println("hostName: " + hostName)
+													}
+												}
+											}
+										}
+									}
+								}
+							}
+						} else {
+							scheduler.Shutdown()
+						}
+					}
+				}),
 		),
 	)
-	fmt.Println(j.ID().ID())
-
 	if err != nil {
 		err = errors.Join(err, errors.New("failed to create mirror image snapshot scheduler."))
 		utils.FancyHandleError(err)
 		return
 	}
 	scheduler.Start()
+	fmt.Println(j.ID().ID())
 	return
 }
 

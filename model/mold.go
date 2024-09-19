@@ -34,6 +34,7 @@ type ListVirtualMachinesMetrics struct {
 		Domainid              string `json:"domainid"`
 		Guestosid             string `json:"guestosid"`
 		Haenable              bool   `json:"haenable"`
+		Hostname              string `json:"hostname"`
 		Hypervisor            string `json:"hypervisor"`
 		Id                    string `json:"id"`
 		Ipaddress             string `json:"ipaddress"`

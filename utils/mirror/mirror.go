@@ -362,7 +362,7 @@ func goCronTask(poolName, imageName, hostName, vmName, interval string) (err err
 	return
 }
 
-func goCronEventListeners(scheduler gocron.Scheduler, jobID uuid.UUID, beforeIt time.Duration, jobName, imageName, hostName, vmName, poolName string) {
+func goCronEventListeners(scheduler gocron.Scheduler, jobID uuid.UUID, beforeIt time.Duration, jobName, imageName, hostName, vmName, poolName string) (host string) {
 	var afterIt time.Duration
 	var exist string
 	var interval string
@@ -446,7 +446,7 @@ func goCronEventListeners(scheduler gocron.Scheduler, jobID uuid.UUID, beforeIt 
 											gocron.WithEventListeners(
 												gocron.BeforeJobRuns(
 													func(jobID uuid.UUID, jobName string) {
-														goCronEventListeners(scheduler, jobID, beforeIt, jobName, imageName, hostName, vmName, poolName)
+														hostName = goCronEventListeners(scheduler, jobID, beforeIt, jobName, imageName, hostName, vmName, poolName)
 													}),
 											),
 										)
@@ -461,6 +461,7 @@ func goCronEventListeners(scheduler gocron.Scheduler, jobID uuid.UUID, beforeIt 
 			scheduler.Shutdown()
 		}
 	}
+	return hostName
 }
 
 func ImageConfigSchedule(poolName, imageName, hostName, vmName, interval string) (output string, err error) {
@@ -506,9 +507,10 @@ func ImageConfigSchedule(poolName, imageName, hostName, vmName, interval string)
 		gocron.WithEventListeners(
 			gocron.BeforeJobRuns(
 				func(jobID uuid.UUID, jobName string) {
-					println("beforeJobRuns start")
-					goCronEventListeners(scheduler, jobID, beforeIt, jobName, imageName, hostName, vmName, poolName)
-					println("beforeJobRuns end")
+					println("ImageConfigSchedule beforeJobRuns start")
+					hostName = goCronEventListeners(scheduler, jobID, beforeIt, jobName, imageName, hostName, vmName, poolName)
+					println(hostName)
+					println("ImageConfigSchedule beforeJobRuns end")
 				}),
 		),
 	)

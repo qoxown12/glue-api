@@ -384,7 +384,7 @@ func ImageConfigSchedule(poolName string, imageName string, hostName string, vmN
 				}
 				if hostName != "" {
 					println("::: domfsthaw start")
-					cmd = exec.Command("ssh", "-o", "StrictHostKeyChecking=no", hostName, "virsh", "domfsthaw", vmName)
+					cmd = exec.Command("ssh", hostName, "virsh", "domfsthaw", vmName)
 					stdout, err = cmd.CombinedOutput()
 					if err != nil {
 						println("failed to virsh domfsthaw")

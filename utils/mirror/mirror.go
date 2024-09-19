@@ -466,8 +466,6 @@ func goCronEventListeners(scheduler gocron.Scheduler, jobID uuid.UUID, beforeIt 
 func ImageConfigSchedule(poolName, imageName, hostName, vmName, interval string) (output string, err error) {
 
 	var beforeIt time.Duration
-	var afterIt time.Duration
-	var exist string
 
 	if strings.Contains(interval, "d") {
 		interval = strings.TrimRight(interval, "d")
@@ -508,100 +506,9 @@ func ImageConfigSchedule(poolName, imageName, hostName, vmName, interval string)
 		gocron.WithEventListeners(
 			gocron.BeforeJobRuns(
 				func(jobID uuid.UUID, jobName string) {
-					println("BeforeJobRuns: ", jobID.String(), jobName, time.Now().String())
-					mold, _ := utils.ReadMoldFile()
-					exist = ""
-					if mold.MoldUrl != "mold" {
-						drResult := utils.GetDisasterRecoveryClusterList()
-						getDisasterRecoveryClusterList := model.GetDisasterRecoveryClusterList{}
-						drInfo, _ := json.Marshal(drResult["getdisasterrecoveryclusterlistresponse"])
-						json.Unmarshal([]byte(drInfo), &getDisasterRecoveryClusterList)
-						if len(getDisasterRecoveryClusterList.Disasterrecoverycluster) > 0 {
-							dr := getDisasterRecoveryClusterList.Disasterrecoverycluster
-							for i := 0; i < len(dr); i++ {
-								if len(dr[i].Drclustervmmap) > 0 {
-									for j := 0; j < len(dr[i].Drclustervmmap); j++ {
-										if imageName == dr[i].Drclustervmmap[j].Drclustermirrorvmvolpath {
-											exist = "exist"
-											interval = dr[i].Details.Mirrorscheduleinterval
-											println("interval : " + interval)
-											if strings.Contains(interval, "d") {
-												interval = strings.TrimRight(interval, "d")
-												ti, _ := strconv.Atoi(interval)
-												afterIt = time.Duration(ti) * 24 * time.Hour
-											} else if strings.Contains(interval, "h") {
-												interval = strings.TrimRight(interval, "h")
-												ti, _ := strconv.Atoi(interval)
-												afterIt = time.Duration(ti) * time.Hour
-											} else if strings.Contains(interval, "m") {
-												interval = strings.TrimRight(interval, "m")
-												ti, _ := strconv.Atoi(interval)
-												afterIt = time.Duration(ti) * time.Minute
-											} else {
-												// 잘못 입력된 경우 1시간으로 설정
-												afterIt = time.Duration(1) * time.Hour
-											}
-											break
-										}
-									}
-								}
-							}
-							if exist != "exist" {
-								println("non exist shutdown for scheduler image path : " + imageName)
-								hostName = ""
-								imageName = ""
-								scheduler.Shutdown()
-							} else {
-								for i := 0; i < len(dr); i++ {
-									if len(dr[i].Drclustervmmap) > 0 {
-										for j := 0; j < len(dr[i].Drclustervmmap); j++ {
-											params1 := []utils.MoldParams{
-												{"keyword": dr[i].Drclustervmmap[j].Drclustermirrorvmname},
-											}
-											vmResult := utils.GetListVirtualMachinesMetrics(params1)
-											listVirtualMachinesMetrics := model.ListVirtualMachinesMetrics{}
-											vmInfo, _ := json.Marshal(vmResult["listvirtualmachinesmetricsresponse"])
-											json.Unmarshal([]byte(vmInfo), &listVirtualMachinesMetrics)
-											vm := listVirtualMachinesMetrics.Virtualmachine
-											for k := 0; k < len(vm); k++ {
-												if vm[k].Name == dr[i].Drclustervmmap[j].Drclustermirrorvmname {
-													if vm[k].Hostname != "" {
-														hostName = vm[k].Hostname
-														println("hostName: " + hostName)
-													} else {
-														hostName = ""
-														println("hostName: " + hostName)
-													}
-													if beforeIt != afterIt {
-														println("updateScheduler : ", jobID.String(), jobName, time.Now().String())
-														scheduler.Update(
-															uuid.MustParse(imageName),
-															gocron.DurationJob(
-																afterIt,
-															),
-															gocron.NewTask(
-																func() {
-																	goCronTask(poolName, imageName, hostName, vmName, interval)
-																},
-															),
-															gocron.WithEventListeners(
-																gocron.BeforeJobRuns(
-																	func(jobID uuid.UUID, jobName string) {
-																		goCronEventListeners(scheduler, jobID, beforeIt, jobName, imageName, hostName, vmName, poolName)
-																	}),
-															),
-														)
-													}
-												}
-											}
-										}
-									}
-								}
-							}
-						} else {
-							scheduler.Shutdown()
-						}
-					}
+					println("beforeJobRuns start")
+					goCronEventListeners(scheduler, jobID, beforeIt, jobName, imageName, hostName, vmName, poolName)
+					println("beforeJobRuns end")
 				}),
 		),
 	)

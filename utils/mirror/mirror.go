@@ -439,7 +439,9 @@ func goCronEventListeners(scheduler gocron.Scheduler, jobID uuid.UUID, beforeIt 
 												afterIt,
 											),
 											gocron.NewTask(
-												goCronTask(poolName, imageName, hostName, vmName, interval),
+												func() {
+													goCronTask(poolName, imageName, hostName, vmName, interval)
+												},
 											),
 											gocron.WithEventListeners(
 												gocron.BeforeJobRuns(
@@ -495,7 +497,9 @@ func ImageConfigSchedule(poolName, imageName, hostName, vmName, interval string)
 			beforeIt,
 		),
 		gocron.NewTask(
-			goCronTask(poolName, imageName, hostName, vmName, interval),
+			func() {
+				goCronTask(poolName, imageName, hostName, vmName, interval)
+			},
 		),
 		gocron.WithIdentifier(uuid.MustParse(imageName)),
 		gocron.WithName(vmName),

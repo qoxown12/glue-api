@@ -399,7 +399,7 @@ func ImageConfigSchedule(poolName string, imageName string, hostName string, vmN
 		gocron.WithEventListeners(
 			gocron.BeforeJobRuns(
 				func(jobID uuid.UUID, jobName string) {
-					println("Job starting: %s, %s \n", jobID.String(), jobName)
+					println("Job starting: ", jobID.String(), jobName)
 					mold, _ := utils.ReadMoldFile()
 					exist = ""
 					if mold.MoldUrl != "mold" {
@@ -438,8 +438,11 @@ func ImageConfigSchedule(poolName string, imageName string, hostName string, vmN
 									}
 								}
 							}
+							println("exist : " + exist)
 							if exist != "exist" {
-								println("shutdown for scheduler image path : " + imageName)
+								println("non exist shutdown for scheduler image path : " + imageName)
+								hostName = ""
+								println("hostName : " + hostName)
 								scheduler.Shutdown()
 							} else {
 								for i := 0; i < len(dr); i++ {
@@ -460,6 +463,7 @@ func ImageConfigSchedule(poolName string, imageName string, hostName string, vmN
 														println("hostName: " + hostName)
 													} else {
 														println("shutdown for scheduler image path : " + imageName)
+														println(vm[k].Hostname)
 														hostName = ""
 														println("hostName: " + hostName)
 													}

@@ -401,7 +401,7 @@ func ImageConfigSchedule(poolName string, imageName string, hostName string, vmN
 		gocron.WithEventListeners(
 			gocron.BeforeJobRuns(
 				func(jobID uuid.UUID, jobName string) {
-					println("Job starting: ", jobID.String(), jobName)
+					println("BeforeJobRuns: ", jobID.String(), jobName, time.Now().String())
 					mold, _ := utils.ReadMoldFile()
 					exist = ""
 					if mold.MoldUrl != "mold" {

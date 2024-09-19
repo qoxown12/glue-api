@@ -375,16 +375,18 @@ func ImageConfigSchedule(poolName string, imageName string, hostName string, vmN
 						println(string(stdout))
 					}
 				}
-				cmd := exec.Command(poolName, "mirror", "image", "snapshot", poolName+"/"+imageName)
-				stdout, err = cmd.CombinedOutput()
-				if err != nil {
-					println("failed to create rbd mirror image snapshot")
-					println(string(stdout))
-					exec.Command("ssh", hostName, "virsh", "domfsthaw", vmName)
+				if imageName != "" {
+					cmd := exec.Command(poolName, "mirror", "image", "snapshot", poolName+"/"+imageName)
+					stdout, err = cmd.CombinedOutput()
+					if err != nil {
+						println("failed to create rbd mirror image snapshot")
+						println(string(stdout))
+						exec.Command("ssh", hostName, "virsh", "domfsthaw", vmName)
+					}
 				}
 				if hostName != "" {
 					println("::: domfsthaw start")
-					cmd = exec.Command("ssh", hostName, "virsh", "domfsthaw", vmName)
+					cmd := exec.Command("ssh", hostName, "virsh", "domfsthaw", vmName)
 					stdout, err = cmd.CombinedOutput()
 					if err != nil {
 						println("failed to virsh domfsthaw")
@@ -438,11 +440,10 @@ func ImageConfigSchedule(poolName string, imageName string, hostName string, vmN
 									}
 								}
 							}
-							println("exist : " + exist)
 							if exist != "exist" {
 								println("non exist shutdown for scheduler image path : " + imageName)
 								hostName = ""
-								println("hostName : " + hostName)
+								imageName = ""
 								scheduler.Shutdown()
 							} else {
 								for i := 0; i < len(dr); i++ {
@@ -462,8 +463,6 @@ func ImageConfigSchedule(poolName string, imageName string, hostName string, vmN
 														hostName = vm[k].Hostname
 														println("hostName: " + hostName)
 													} else {
-														println("shutdown for scheduler image path : " + imageName)
-														println(vm[k].Hostname)
 														hostName = ""
 														println("hostName: " + hostName)
 													}

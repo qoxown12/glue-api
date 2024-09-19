@@ -330,7 +330,7 @@ func ImageConfig(poolName string, imageName string, interval string, startTime s
 
 func goCronTask(poolName, imageName, hostName, vmName, interval string) (err error) {
 	var stdout []byte
-	println("start mirror snapshot scheduler --- vm : " + vmName + " --- image : " + imageName + " --- interval : " + interval + " --- date :" + time.Now().String())
+	println("start mirror snapshot scheduler --- vm : " + vmName + " --- image : " + imageName + " --- interval : " + interval + " --- date : " + time.Now().String())
 	if hostName != "" {
 		println("start domfsfreeze ---")
 		cmd := exec.Command("ssh", "-o", "StrictHostKeyChecking=no", hostName, "virsh", "domfsfreeze", vmName)
@@ -358,7 +358,7 @@ func goCronTask(poolName, imageName, hostName, vmName, interval string) (err err
 			println(string(stdout))
 		}
 	}
-	println("end mirror snapshot scheduler --- vm : " + vmName + " --- image : " + imageName + " --- interval : " + interval + " --- date :" + time.Now().String())
+	println("end mirror snapshot scheduler --- vm : " + vmName + " --- image : " + imageName + " --- interval : " + interval + " --- date : " + time.Now().String())
 	return
 }
 
@@ -502,7 +502,9 @@ func ImageConfigSchedule(poolName, imageName, hostName, vmName, interval string)
 		gocron.WithEventListeners(
 			gocron.BeforeJobRuns(
 				func(jobID uuid.UUID, jobName string) {
+					println("beforeJobRuns start")
 					goCronEventListeners(scheduler, jobID, beforeIt, jobName, imageName, hostName, vmName, poolName)
+					println("beforeJobRuns end")
 				}),
 		),
 	)

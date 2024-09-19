@@ -330,7 +330,7 @@ func ImageConfig(poolName string, imageName string, interval string, startTime s
 
 func goCronTask(poolName, imageName, hostName, vmName, interval string) (err error) {
 	var stdout []byte
-	println("start mirror snapshot scheduler --- vm : " + vmName + " --- image : " + imageName + " --- interval : " + interval + " --- date : " + time.Now().String())
+	println("start mirror snapshot scheduler --- vm : " + vmName + " --- image : " + imageName + " --- interval : " + interval + " --- host : " + hostName + " --- date : " + time.Now().String())
 	if hostName != "" {
 		println("start domfsfreeze ---")
 		cmd := exec.Command("ssh", "-o", "StrictHostKeyChecking=no", hostName, "virsh", "domfsfreeze", vmName)
@@ -358,7 +358,7 @@ func goCronTask(poolName, imageName, hostName, vmName, interval string) (err err
 			println(string(stdout))
 		}
 	}
-	println("end mirror snapshot scheduler --- vm : " + vmName + " --- image : " + imageName + " --- interval : " + interval + " --- date : " + time.Now().String())
+	println("end mirror snapshot scheduler --- vm : " + vmName + " --- image : " + imageName + " --- interval : " + interval + " --- host : " + hostName + " --- date : " + time.Now().String())
 	return
 }
 
@@ -383,7 +383,6 @@ func goCronEventListeners(scheduler gocron.Scheduler, jobID uuid.UUID, beforeIt 
 						if imageName == dr[i].Drclustervmmap[j].Drclustermirrorvmvolpath {
 							exist = "exist"
 							interval = dr[i].Details.Mirrorscheduleinterval
-							println("interval : " + interval)
 							if strings.Contains(interval, "d") {
 								interval = strings.TrimRight(interval, "d")
 								ti, _ := strconv.Atoi(interval)
@@ -426,10 +425,8 @@ func goCronEventListeners(scheduler gocron.Scheduler, jobID uuid.UUID, beforeIt 
 								if vm[k].Name == dr[i].Drclustervmmap[j].Drclustermirrorvmname {
 									if vm[k].Hostname != "" {
 										hostName = vm[k].Hostname
-										println("hostName: " + hostName)
 									} else {
 										hostName = ""
-										println("hostName: " + hostName)
 									}
 									if beforeIt != afterIt {
 										println("updateScheduler : ", jobID.String(), jobName, time.Now().String())
@@ -509,7 +506,6 @@ func ImageConfigSchedule(poolName, imageName, hostName, vmName, interval string)
 				func(jobID uuid.UUID, jobName string) {
 					println("ImageConfigSchedule beforeJobRuns start")
 					hostName = goCronEventListeners(scheduler, jobID, beforeIt, jobName, imageName, hostName, vmName, poolName)
-					println(hostName)
 					println("ImageConfigSchedule beforeJobRuns end")
 				}),
 		),

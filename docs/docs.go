@@ -3386,6 +3386,13 @@ const docTemplate = `{
                         "name": "interval",
                         "in": "formData",
                         "required": true
+                    },
+                    {
+                        "type": "string",
+                        "description": "Volume Type",
+                        "name": "volType",
+                        "in": "formData",
+                        "required": true
                     }
                 ],
                 "responses": {

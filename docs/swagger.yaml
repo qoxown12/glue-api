@@ -2650,6 +2650,11 @@ paths:
         name: interval
         required: true
         type: string
+      - description: Volume Type
+        in: formData
+        name: volType
+        required: true
+        type: string
       produces:
       - application/json
       responses:

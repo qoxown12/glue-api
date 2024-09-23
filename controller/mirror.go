@@ -477,6 +477,7 @@ func (c *Controller) MirrorImageSetup(ctx *gin.Context) {
 //	 	@param          hostName    path    	string  true    "Host Name"
 //	 	@param          vmName      path    	string  true    "VM Name"
 //		@param			interval	formData	string	true	"Interval of image snapshot"
+//		@param			volType	formData	string	true	"Volume Type"
 //		@Tags			Mirror
 //		@Accept			x-www-form-urlencoded
 //		@Produce		json
@@ -496,6 +497,7 @@ func (c *Controller) MirrorImageScheduleSetup(ctx *gin.Context) {
 	hostName := ctx.Param("hostName")
 	vmName := ctx.Param("vmName")
 	interval, _ := ctx.GetPostForm("interval")
+	volType, _ := ctx.GetPostForm("volType")
 
 	message, err := mirror.ImagePreSetup(mirrorPool, imageName)
 	if err != nil {
@@ -511,11 +513,13 @@ func (c *Controller) MirrorImageScheduleSetup(ctx *gin.Context) {
 		return
 	}
 
-	_, err = mirror.ImageConfigSchedule(mirrorPool, imageName, hostName, vmName, interval)
-	if err != nil {
-		utils.FancyHandleError(err)
-		httputil.NewError(ctx, http.StatusInternalServerError, err)
-		return
+	if volType == "ROOT" {
+		_, err = mirror.ImageConfigSchedule(mirrorPool, imageName, hostName, vmName, interval)
+		if err != nil {
+			utils.FancyHandleError(err)
+			httputil.NewError(ctx, http.StatusInternalServerError, err)
+			return
+		}
 	}
 
 	dat.Message = message

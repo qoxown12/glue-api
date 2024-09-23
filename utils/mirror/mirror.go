@@ -328,9 +328,9 @@ func ImageConfig(poolName string, imageName string, interval string, startTime s
 	return
 }
 
-func goCronTask(poolName, imageName, hostName, vmName, interval string) (err error) {
+func goCronTask(poolName, imageName, hostName, vmName string) (err error) {
 	var stdout []byte
-	println("start mirror snapshot scheduler --- vm : " + vmName + " --- image : " + imageName + " --- interval : " + interval + " --- host : " + hostName + " --- date : " + time.Now().String())
+	println("start mirror snapshot scheduler --- vm : " + vmName + " --- image : " + imageName + " --- host : " + hostName + " --- date : " + time.Now().String())
 	if hostName != "" {
 		println("start domfsfreeze ---")
 		cmd := exec.Command("ssh", "-o", "StrictHostKeyChecking=no", hostName, "virsh", "domfsfreeze", vmName)
@@ -358,11 +358,11 @@ func goCronTask(poolName, imageName, hostName, vmName, interval string) (err err
 			println(string(stdout))
 		}
 	}
-	println("end mirror snapshot scheduler --- vm : " + vmName + " --- image : " + imageName + " --- interval : " + interval + " --- host : " + hostName + " --- date : " + time.Now().String())
+	println("end mirror snapshot scheduler --- vm : " + vmName + " --- image : " + imageName + " --- host : " + hostName + " --- date : " + time.Now().String())
 	return
 }
 
-func goCronEventListeners(scheduler gocron.Scheduler, jobID uuid.UUID, beforeIt time.Duration, jobName, imageName, hostName, vmName, poolName string) (host string) {
+func goCronEventListeners(scheduler gocron.Scheduler, jobID uuid.UUID, beforeIt time.Duration, jobName, imageName, hostName, vmName, poolName string) (host string, clock time.Duration) {
 	var afterIt time.Duration
 	var exist string
 	var interval string
@@ -428,6 +428,7 @@ func goCronEventListeners(scheduler gocron.Scheduler, jobID uuid.UUID, beforeIt 
 									} else {
 										hostName = ""
 									}
+									clock = beforeIt
 									if beforeIt != afterIt {
 										println("updateScheduler : ", jobID.String(), jobName, time.Now().String())
 										scheduler.Update(
@@ -437,13 +438,14 @@ func goCronEventListeners(scheduler gocron.Scheduler, jobID uuid.UUID, beforeIt 
 											),
 											gocron.NewTask(
 												func() {
-													goCronTask(poolName, imageName, hostName, vmName, interval)
+													goCronTask(poolName, imageName, hostName, vmName)
 												},
 											),
 											gocron.WithEventListeners(
 												gocron.BeforeJobRuns(
 													func(jobID uuid.UUID, jobName string) {
-														hostName = goCronEventListeners(scheduler, jobID, beforeIt, jobName, imageName, hostName, vmName, poolName)
+														hostName, clock = goCronEventListeners(scheduler, jobID, afterIt, jobName, imageName, hostName, vmName, poolName)
+														afterIt = clock
 													}),
 											),
 										)
@@ -458,12 +460,12 @@ func goCronEventListeners(scheduler gocron.Scheduler, jobID uuid.UUID, beforeIt 
 			scheduler.Shutdown()
 		}
 	}
-	return hostName
+	return hostName, clock
 }
 
 func ImageConfigSchedule(poolName, imageName, hostName, vmName, interval string) (output string, err error) {
 
-	var beforeIt time.Duration
+	var beforeIt, clock time.Duration
 
 	if strings.Contains(interval, "d") {
 		interval = strings.TrimRight(interval, "d")
@@ -496,7 +498,7 @@ func ImageConfigSchedule(poolName, imageName, hostName, vmName, interval string)
 		),
 		gocron.NewTask(
 			func() {
-				goCronTask(poolName, imageName, hostName, vmName, interval)
+				goCronTask(poolName, imageName, hostName, vmName)
 			},
 		),
 		gocron.WithIdentifier(uuid.MustParse(imageName)),
@@ -505,7 +507,8 @@ func ImageConfigSchedule(poolName, imageName, hostName, vmName, interval string)
 			gocron.BeforeJobRuns(
 				func(jobID uuid.UUID, jobName string) {
 					println("ImageConfigSchedule beforeJobRuns start")
-					hostName = goCronEventListeners(scheduler, jobID, beforeIt, jobName, imageName, hostName, vmName, poolName)
+					hostName, clock = goCronEventListeners(scheduler, jobID, beforeIt, jobName, imageName, hostName, vmName, poolName)
+					beforeIt = clock
 					println("ImageConfigSchedule beforeJobRuns end")
 				}),
 		),

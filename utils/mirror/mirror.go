@@ -421,7 +421,10 @@ func goCronEventListeners(scheduler gocron.Scheduler, jobID uuid.UUID, beforeIt 
 							vmInfo, _ := json.Marshal(vmResult["listvirtualmachinesmetricsresponse"])
 							json.Unmarshal([]byte(vmInfo), &listVirtualMachinesMetrics)
 							vm := listVirtualMachinesMetrics.Virtualmachine
+							println(vmInfo)
 							for k := 0; k < len(vm); k++ {
+								println(vm[k].Name)
+								println(dr[i].Drclustervmmap[j].Drclustermirrorvmname)
 								if vm[k].Name == dr[i].Drclustervmmap[j].Drclustermirrorvmname {
 									if vm[k].Hostname != "" {
 										hostName = vm[k].Hostname

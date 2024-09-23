@@ -328,9 +328,9 @@ func ImageConfig(poolName string, imageName string, interval string, startTime s
 	return
 }
 
-func goCronTask(poolName, imageName, hostName, vmName string) (err error) {
+func goCronTask(poolName, hostName, vmName string, imageName []string) (err error) {
 	var stdout []byte
-	println("start mirror snapshot scheduler --- vm : " + vmName + " --- image : " + imageName + " --- host : " + hostName + " --- date : " + time.Now().String())
+	println("start mirror snapshot scheduler --- vm : " + vmName + " --- image : " + strings.Join(imageName, ",") + " --- host : " + hostName + " --- date : " + time.Now().String())
 	if hostName != "" {
 		println("start domfsfreeze ---")
 		cmd := exec.Command("ssh", "-o", "StrictHostKeyChecking=no", hostName, "virsh", "domfsfreeze", vmName)
@@ -340,13 +340,16 @@ func goCronTask(poolName, imageName, hostName, vmName string) (err error) {
 			println(string(stdout))
 		}
 	}
-	if imageName != "" {
-		cmd := exec.Command(poolName, "mirror", "image", "snapshot", poolName+"/"+imageName)
-		stdout, err = cmd.CombinedOutput()
-		if err != nil {
-			println("failed to create rbd mirror image snapshot")
-			println(string(stdout))
-			exec.Command("ssh", hostName, "virsh", "domfsthaw", vmName)
+	if len(imageName) > 0 {
+		for i := 0; i < len(imageName); i++ {
+			cmd := exec.Command(poolName, "mirror", "image", "snapshot", poolName+"/"+imageName[i])
+			stdout, err = cmd.CombinedOutput()
+			if err != nil {
+				println("failed to create rbd mirror image snapshot path : " + imageName[i])
+				println(string(stdout))
+				exec.Command("ssh", hostName, "virsh", "domfsthaw", vmName)
+				break
+			}
 		}
 	}
 	if hostName != "" {
@@ -358,11 +361,11 @@ func goCronTask(poolName, imageName, hostName, vmName string) (err error) {
 			println(string(stdout))
 		}
 	}
-	println("end mirror snapshot scheduler --- vm : " + vmName + " --- image : " + imageName + " --- host : " + hostName + " --- date : " + time.Now().String())
+	println("end mirror snapshot scheduler --- vm : " + vmName + " --- image : " + strings.Join(imageName, ",") + " --- host : " + hostName + " --- date : " + time.Now().String())
 	return
 }
 
-func goCronEventListeners(scheduler gocron.Scheduler, jobID uuid.UUID, beforeIt time.Duration, jobName, imageName, hostName, vmName, poolName string) (host string, clock time.Duration) {
+func goCronEventListeners(scheduler gocron.Scheduler, jobID uuid.UUID, beforeIt time.Duration, jobName, imageName, hostName, vmName, poolName string) (host string, clock time.Duration, imageList []string) {
 	var afterIt time.Duration
 	var exist string
 	var interval string
@@ -409,6 +412,18 @@ func goCronEventListeners(scheduler gocron.Scheduler, jobID uuid.UUID, beforeIt 
 							vm := listVirtualMachinesMetrics.Virtualmachine
 							for k := 0; k < len(vm); k++ {
 								if vm[k].Name == dr[i].Drclustervmmap[j].Drclustermirrorvmname {
+									params2 := []utils.MoldParams{
+										{"virtualmachineid": vm[k].Id},
+									}
+									volResult := utils.GetListVolumesMetrics(params2)
+									listVolumesMetrics := model.ListVolumesMetrics{}
+									volInfo, _ := json.Marshal(volResult["listvolumesmetricsresponse"])
+									json.Unmarshal([]byte(volInfo), &listVolumesMetrics)
+									vol := listVolumesMetrics.Volume
+									imageList = make([]string, 0)
+									for v := 0; v < len(vol); v++ {
+										imageList = append(imageList, vol[v].Id)
+									}
 									if vm[k].Hostname != "" {
 										hostName = vm[k].Hostname
 									} else {
@@ -424,13 +439,13 @@ func goCronEventListeners(scheduler gocron.Scheduler, jobID uuid.UUID, beforeIt 
 											),
 											gocron.NewTask(
 												func() {
-													goCronTask(poolName, imageName, hostName, vmName)
+													goCronTask(poolName, hostName, vmName, imageList)
 												},
 											),
 											gocron.WithEventListeners(
 												gocron.BeforeJobRuns(
 													func(jobID uuid.UUID, jobName string) {
-														hostName, clock = goCronEventListeners(scheduler, jobID, afterIt, jobName, imageName, hostName, vmName, poolName)
+														hostName, clock, imageList = goCronEventListeners(scheduler, jobID, afterIt, jobName, imageName, hostName, vmName, poolName)
 														afterIt = clock
 													}),
 											),
@@ -454,12 +469,13 @@ func goCronEventListeners(scheduler gocron.Scheduler, jobID uuid.UUID, beforeIt 
 			scheduler.Shutdown()
 		}
 	}
-	return hostName, clock
+	return hostName, clock, imageList
 }
 
 func ImageConfigSchedule(poolName, imageName, hostName, vmName, interval string) (output string, err error) {
 
 	var beforeIt, clock time.Duration
+	var imageList []string
 
 	if strings.Contains(interval, "d") {
 		interval = strings.TrimRight(interval, "d")
@@ -492,7 +508,7 @@ func ImageConfigSchedule(poolName, imageName, hostName, vmName, interval string)
 		),
 		gocron.NewTask(
 			func() {
-				goCronTask(poolName, imageName, hostName, vmName)
+				goCronTask(poolName, hostName, vmName, imageList)
 			},
 		),
 		gocron.WithIdentifier(uuid.MustParse(imageName)),
@@ -501,7 +517,7 @@ func ImageConfigSchedule(poolName, imageName, hostName, vmName, interval string)
 			gocron.BeforeJobRuns(
 				func(jobID uuid.UUID, jobName string) {
 					println("ImageConfigSchedule beforeJobRuns start")
-					hostName, clock = goCronEventListeners(scheduler, jobID, beforeIt, jobName, imageName, hostName, vmName, poolName)
+					hostName, clock, imageList = goCronEventListeners(scheduler, jobID, beforeIt, jobName, imageName, hostName, vmName, poolName)
 					beforeIt = clock
 					println("ImageConfigSchedule beforeJobRuns end")
 				}),

@@ -412,6 +412,7 @@ func goCronEventListeners(scheduler gocron.Scheduler, jobID uuid.UUID, beforeIt 
 							vm := listVirtualMachinesMetrics.Virtualmachine
 							for k := 0; k < len(vm); k++ {
 								if vm[k].Name == dr[i].Drclustervmmap[j].Drclustermirrorvmname {
+									println(vm[k].Id)
 									params2 := []utils.MoldParams{
 										{"virtualmachineid": vm[k].Id},
 									}

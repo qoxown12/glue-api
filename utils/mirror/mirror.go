@@ -413,47 +413,48 @@ func goCronEventListeners(scheduler gocron.Scheduler, jobID uuid.UUID, beforeIt 
 				for i := 0; i < len(dr); i++ {
 					if len(dr[i].Drclustervmmap) > 0 {
 						for j := 0; j < len(dr[i].Drclustervmmap); j++ {
-							params1 := []utils.MoldParams{
-								{"keyword": dr[i].Drclustervmmap[j].Drclustermirrorvmname},
-							}
-							vmResult := utils.GetListVirtualMachinesMetrics(params1)
-							listVirtualMachinesMetrics := model.ListVirtualMachinesMetrics{}
-							vmInfo, _ := json.Marshal(vmResult["listvirtualmachinesmetricsresponse"])
-							json.Unmarshal([]byte(vmInfo), &listVirtualMachinesMetrics)
-							vm := listVirtualMachinesMetrics.Virtualmachine
-							for k := 0; k < len(vm); k++ {
-								println(vm[k].Name)
-								println(dr[i].Drclustervmmap[j].Drclustermirrorvmname)
-								if vm[k].Name == dr[i].Drclustervmmap[j].Drclustermirrorvmname {
-									if vm[k].Hostname != "" {
-										hostName = vm[k].Hostname
-									} else {
-										hostName = ""
-									}
-									clock = beforeIt
-									if beforeIt != afterIt {
-										println("updateScheduler : ", jobID.String(), jobName, time.Now().String())
-										scheduler.Update(
-											uuid.MustParse(imageName),
-											gocron.DurationJob(
-												afterIt,
-											),
-											gocron.NewTask(
-												func() {
-													goCronTask(poolName, imageName, hostName, vmName)
-												},
-											),
-											gocron.WithEventListeners(
-												gocron.BeforeJobRuns(
-													func(jobID uuid.UUID, jobName string) {
-														hostName, clock = goCronEventListeners(scheduler, jobID, afterIt, jobName, imageName, hostName, vmName, poolName)
-														afterIt = clock
-													}),
-											),
-										)
-									}
-									break
+							if imageName == dr[i].Drclustervmmap[j].Drclustermirrorvmvolpath {
+								params1 := []utils.MoldParams{
+									{"keyword": dr[i].Drclustervmmap[j].Drclustermirrorvmname},
 								}
+								vmResult := utils.GetListVirtualMachinesMetrics(params1)
+								listVirtualMachinesMetrics := model.ListVirtualMachinesMetrics{}
+								vmInfo, _ := json.Marshal(vmResult["listvirtualmachinesmetricsresponse"])
+								json.Unmarshal([]byte(vmInfo), &listVirtualMachinesMetrics)
+								vm := listVirtualMachinesMetrics.Virtualmachine
+								for k := 0; k < len(vm); k++ {
+									if vm[k].Name == dr[i].Drclustervmmap[j].Drclustermirrorvmname {
+										if vm[k].Hostname != "" {
+											hostName = vm[k].Hostname
+										} else {
+											hostName = ""
+										}
+										clock = beforeIt
+										if beforeIt != afterIt {
+											println("updateScheduler : ", jobID.String(), jobName, time.Now().String())
+											scheduler.Update(
+												uuid.MustParse(imageName),
+												gocron.DurationJob(
+													afterIt,
+												),
+												gocron.NewTask(
+													func() {
+														goCronTask(poolName, imageName, hostName, vmName)
+													},
+												),
+												gocron.WithEventListeners(
+													gocron.BeforeJobRuns(
+														func(jobID uuid.UUID, jobName string) {
+															hostName, clock = goCronEventListeners(scheduler, jobID, afterIt, jobName, imageName, hostName, vmName, poolName)
+															afterIt = clock
+														}),
+												),
+											)
+										}
+										break
+									}
+								}
+								break
 							}
 						}
 					} else {

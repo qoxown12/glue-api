@@ -416,19 +416,14 @@ func goCronEventListeners(scheduler gocron.Scheduler, jobID uuid.UUID, beforeIt 
 										{"virtualmachineid": vm[k].Id},
 									}
 									volResult := utils.GetListVolumesMetrics(params2)
-									println(volResult["listvolumesmetricsresponse"])
 									listVolumesMetrics := model.ListVolumesMetrics{}
 									volInfo, _ := json.Marshal(volResult["listvolumesresponse"])
 									json.Unmarshal([]byte(volInfo), &listVolumesMetrics)
 									vol := listVolumesMetrics.Volume
 									imageList = make([]string, 0)
-									println(len(vol))
-									println(strings.Join(imageList, ","))
 									for v := 0; v < len(vol); v++ {
-										println(vol[v].Id)
 										imageList = append(imageList, vol[v].Id)
 									}
-									println(strings.Join(imageList, ","))
 									if vm[k].Hostname != "" {
 										hostName = vm[k].Hostname
 									} else {

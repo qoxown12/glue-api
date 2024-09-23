@@ -416,17 +416,19 @@ func goCronEventListeners(scheduler gocron.Scheduler, jobID uuid.UUID, beforeIt 
 										{"virtualmachineid": vm[k].Id},
 									}
 									volResult := utils.GetListVolumesMetrics(params2)
+									println(volResult["listvolumesmetricsresponse"])
 									listVolumesMetrics := model.ListVolumesMetrics{}
 									volInfo, _ := json.Marshal(volResult["listvolumesmetricsresponse"])
 									json.Unmarshal([]byte(volInfo), &listVolumesMetrics)
 									vol := listVolumesMetrics.Volume
 									imageList = make([]string, 0)
-									println(imageList)
+									println(len(vol))
+									println(strings.Join(imageList, ","))
 									for v := 0; v < len(vol); v++ {
 										println(vol[v].Id)
 										imageList = append(imageList, vol[v].Id)
 									}
-									println(imageList)
+									println(strings.Join(imageList, ","))
 									if vm[k].Hostname != "" {
 										hostName = vm[k].Hostname
 									} else {
@@ -512,6 +514,7 @@ func ImageConfigSchedule(poolName, imageName, hostName, vmName, interval string)
 		),
 		gocron.NewTask(
 			func() {
+				println(strings.Join(imageList, ","))
 				goCronTask(poolName, hostName, vmName, imageList)
 			},
 		),
@@ -521,10 +524,10 @@ func ImageConfigSchedule(poolName, imageName, hostName, vmName, interval string)
 			gocron.BeforeJobRuns(
 				func(jobID uuid.UUID, jobName string) {
 					println("ImageConfigSchedule beforeJobRuns start")
-					println(imageList)
+					println(strings.Join(imageList, ","))
 					hostName, clock, imageList = goCronEventListeners(scheduler, jobID, beforeIt, jobName, imageName, hostName, vmName, poolName)
 					beforeIt = clock
-					println(imageList)
+					println(strings.Join(imageList, ","))
 					println("ImageConfigSchedule beforeJobRuns end")
 				}),
 		),

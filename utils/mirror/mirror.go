@@ -421,7 +421,6 @@ func goCronEventListeners(scheduler gocron.Scheduler, jobID uuid.UUID, beforeIt 
 							vmInfo, _ := json.Marshal(vmResult["listvirtualmachinesmetricsresponse"])
 							json.Unmarshal([]byte(vmInfo), &listVirtualMachinesMetrics)
 							vm := listVirtualMachinesMetrics.Virtualmachine
-							println(vmInfo)
 							for k := 0; k < len(vm); k++ {
 								println(vm[k].Name)
 								println(dr[i].Drclustervmmap[j].Drclustermirrorvmname)
@@ -453,9 +452,12 @@ func goCronEventListeners(scheduler gocron.Scheduler, jobID uuid.UUID, beforeIt 
 											),
 										)
 									}
+									break
 								}
 							}
 						}
+					} else {
+						scheduler.Shutdown()
 					}
 				}
 			}

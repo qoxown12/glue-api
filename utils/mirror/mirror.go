@@ -421,9 +421,12 @@ func goCronEventListeners(scheduler gocron.Scheduler, jobID uuid.UUID, beforeIt 
 									json.Unmarshal([]byte(volInfo), &listVolumesMetrics)
 									vol := listVolumesMetrics.Volume
 									imageList = make([]string, 0)
+									println(imageList)
 									for v := 0; v < len(vol); v++ {
+										println(vol[v].Id)
 										imageList = append(imageList, vol[v].Id)
 									}
+									println(imageList)
 									if vm[k].Hostname != "" {
 										hostName = vm[k].Hostname
 									} else {
@@ -469,6 +472,7 @@ func goCronEventListeners(scheduler gocron.Scheduler, jobID uuid.UUID, beforeIt 
 			scheduler.Shutdown()
 		}
 	}
+	println(imageList)
 	return hostName, clock, imageList
 }
 
@@ -517,8 +521,10 @@ func ImageConfigSchedule(poolName, imageName, hostName, vmName, interval string)
 			gocron.BeforeJobRuns(
 				func(jobID uuid.UUID, jobName string) {
 					println("ImageConfigSchedule beforeJobRuns start")
+					println(imageList)
 					hostName, clock, imageList = goCronEventListeners(scheduler, jobID, beforeIt, jobName, imageName, hostName, vmName, poolName)
 					beforeIt = clock
+					println(imageList)
 					println("ImageConfigSchedule beforeJobRuns end")
 				}),
 		),

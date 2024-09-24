@@ -219,6 +219,34 @@ func (c *Controller) MirrorSetup(ctx *gin.Context) {
 	ctx.IndentedJSON(http.StatusOK, dat)
 }
 
+// MirrorUpdate godoc
+//
+//	@Summary		Put Mirroring Cluster
+//	@Description	Glue 의 미러링 클러스터의 설정을 변경합니다.
+//	@param			moldUrl	        formData	string	false	"Mold API request URL"
+//	@param			moldApiKey	    formData	string	false	"Mold Admin Api Key"
+//	@param			moldSecretKey	formData	string	false	"Mold Admin Secret Key"
+//	@Tags			Mirror
+//	@Accept			x-www-form-urlencoded
+//	@Produce		json
+//	@Success		200	{object}	model.Mold
+//	@Failure		400	{object}	httputil.HTTP400BadRequest
+//	@Failure		404	{object}	httputil.HTTP404NotFound
+//	@Failure		500	{object}	httputil.HTTP500InternalServerError
+//	@Router			/api/v1/mirror [put]
+func (c *Controller) MirrorUpdate(ctx *gin.Context) {
+
+	moldUrl, _ := ctx.GetPostForm("moldUrl")
+	moldApiKey, _ := ctx.GetPostForm("moldApiKey")
+	moldSecretKey, _ := ctx.GetPostForm("moldSecretKey")
+
+	mold := model.Mold{MoldUrl: moldUrl, MoldApiKey: moldApiKey, MoldSecretKey: moldSecretKey}
+	jsonFile, _ := json.MarshalIndent(mold, "", " ")
+	os.WriteFile("./mold.json", jsonFile, 0644)
+
+	ctx.IndentedJSON(http.StatusOK, mold)
+}
+
 // MirrorDelete godoc
 //
 //	@Summary		Delete Mirroring Cluster
@@ -409,6 +437,10 @@ func (c *Controller) MirrorDelete(ctx *gin.Context) {
 			return
 		}
 	}
+
+	mold := model.Mold{MoldUrl: "moldUrl", MoldApiKey: "moldApiKey", MoldSecretKey: "moldSecretKey"}
+	jsonFile, _ := json.MarshalIndent(mold, "", " ")
+	os.WriteFile("./mold.json", jsonFile, 0644)
 
 	ctx.IndentedJSON(http.StatusOK, dat)
 }

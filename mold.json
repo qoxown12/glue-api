@@ -1,5 +1,5 @@
 {
-    "mold_url": "http://10.10.31.10:8080/client/api",
-    "mold_api_key": "PCXecWXbeScBG81wZe1Ib_RXYht1gHWT5hV_tBA9OJ8",
-    "mold_secret_key": "gejA7sbV21iTq3FW9uPwL8zk9VpoScOiLGp9zJz6Jig"
+    "mold_url": "moldUrl",
+    "mold_api_key": "moldApiKey",
+    "mold_secret_key": "moldSecretKey"
 }

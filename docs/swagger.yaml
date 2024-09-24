@@ -2158,6 +2158,48 @@ paths:
       tags:
       - IscsiTarget
   /api/v1/mirror:
+    put:
+      consumes:
+      -application/x-www-form-urlencoded
+      description: Glue 의 미러링 클러스터 설정을 변경합니다.
+      parameters:
+      - description: Mold API request URL
+        in: formData
+        name: moldUrl
+        required: true
+        type: string
+      - description: Mold Admin Api Key
+        in: formData
+        name: moldApiKey
+        required: true
+        type: string
+      - description: Mold Admin Secret Key
+        in: formData
+        name: moldSecretKey
+        required: true
+        type: string
+      produces:
+      - application/json
+      responses:
+        "200":
+          description: OK
+          schema:
+            $ref: '#/definitions/Mold'
+        "400":
+          description: Bad Request
+          schema:
+            $ref: '#/definitions/HTTP400BadRequest'
+        "404":
+          description: Not Found
+          schema:
+            $ref: '#/definitions/HTTP404NotFound'
+        "500":
+          description: Internal Server Error
+          schema:
+            $ref: '#/definitions/HTTP500InternalServerError'
+      summary: Put Mirroring Cluster
+      tags:
+      - Mirror
     delete:
       consumes:
       - multipart/form-data

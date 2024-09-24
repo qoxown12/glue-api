@@ -39,7 +39,7 @@ import (
 func main() {
 	// DR 목록 조회
 	mold, _ := utils.ReadMoldFile()
-	if mold.MoldUrl != "mold" {
+	if mold.MoldUrl != "moldUrl" {
 		drResult := utils.GetDisasterRecoveryClusterList()
 		getDisasterRecoveryClusterList := model.GetDisasterRecoveryClusterList{}
 		drInfo, _ := json.Marshal(drResult["getdisasterrecoveryclusterlistresponse"])
@@ -288,8 +288,9 @@ func main() {
 		{
 			mirror.GET("", c.MirrorStatus) //Get Mirroring Status
 			//Todo
-			mirror.POST("", c.MirrorSetup)                     //Setup Mirroring
-			mirror.DELETE("", c.MirrorDelete)                  //Unconfigure Mirroring
+			mirror.POST("", c.MirrorSetup)                     //Setup Mirroring Cluster
+			mirror.PUT("", c.MirrorUpdate)                     //Put Mirroring Cluster
+			mirror.DELETE("", c.MirrorDelete)                  //Unconfigure Mirroring Cluster
 			mirror.POST("/:mirrorPool", c.MirrorPoolEnable)    //Enable Mirroring Cluster
 			mirror.DELETE("/:mirrorPool", c.MirrorPoolDisable) //Disable Mirroring Cluster
 			mirrorgarbage := mirror.Group("/garbage")

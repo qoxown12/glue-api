@@ -373,7 +373,7 @@ func goCronEventListeners(scheduler gocron.Scheduler, jobID uuid.UUID, beforeIt 
 	println("BeforeJobRuns: ", jobID.String(), jobName, time.Now().String())
 	mold, _ := utils.ReadMoldFile()
 	exist = ""
-	if mold.MoldUrl != "mold" {
+	if mold.MoldUrl != "moldUrl" {
 		drResult := utils.GetDisasterRecoveryClusterList()
 		getDisasterRecoveryClusterList := model.GetDisasterRecoveryClusterList{}
 		drInfo, _ := json.Marshal(drResult["getdisasterrecoveryclusterlistresponse"])

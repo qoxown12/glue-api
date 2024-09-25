@@ -955,7 +955,7 @@ func ConfigMold(moldUrl, moldApiKey, moldSecretKey string) (err error) {
 
 	var stdout []byte
 
-	cmd := exec.Command("cat", "/etc/hosts", "|", "grep", "-E", "'scvm.*-mngt'", "|", "grep", "-v", "$(hostname)", "|", "awk", "'{print $1}'")
+	cmd := exec.Command("sh", "-c", "cat /etc/hosts | grep -E 'scvm.*-mngt' | grep -v $(hostname) | awk '{print $1}'")
 	// cmd.Stderr = &out
 	stdout, err = cmd.CombinedOutput()
 	println(string(stdout))
@@ -965,7 +965,7 @@ func ConfigMold(moldUrl, moldApiKey, moldSecretKey string) (err error) {
 	}
 	ipAddress := strings.Split(string(stdout), ",")
 	for i := 0; i < len(ipAddress); i++ {
-		cmd := exec.Command("scp", "-o", "StrictHostKeyChecking=no", "/usr/local/glue-api/mold.json", ipAddress[i]+":/usr/local/glue-api/mold.json")
+		cmd := exec.Command("sh", "-c", "scp -o StrictHostKeyChecking=no /usr/local/glue-api/mold.json "+ipAddress[i]+":/usr/local/glue-api/mold.json")
 		// cmd.Stderr = &out
 		stdout, err = cmd.CombinedOutput()
 		println(string(stdout))

@@ -963,7 +963,7 @@ func ConfigMold(moldUrl, moldApiKey, moldSecretKey string) (err error) {
 		utils.FancyHandleError(err)
 		return
 	}
-	ipAddress := strings.Split(string(stdout), ",")
+	ipAddress := strings.Split(string(stdout), "\n")
 	for i := 0; i < len(ipAddress); i++ {
 		cmd := exec.Command("sh", "-c", "scp -o StrictHostKeyChecking=no /usr/local/glue-api/mold.json "+ipAddress[i]+":/usr/local/glue-api/mold.json")
 		// cmd.Stderr = &out

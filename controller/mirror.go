@@ -5,7 +5,6 @@ import (
 	"Glue-API/model"
 	"Glue-API/utils"
 	"Glue-API/utils/mirror"
-	"encoding/json"
 	"errors"
 	"net/http"
 	"os"
@@ -208,10 +207,12 @@ func (c *Controller) MirrorSetup(ctx *gin.Context) {
 	moldApiKey, _ := ctx.GetPostForm("moldApiKey")
 	moldSecretKey, _ := ctx.GetPostForm("moldSecretKey")
 
-	mold := model.Mold{MoldUrl: moldUrl, MoldApiKey: moldApiKey, MoldSecretKey: moldSecretKey}
-
-	jsonFile, _ := json.MarshalIndent(mold, "", " ")
-	os.WriteFile("./mold.json", jsonFile, 0644)
+	err = mirror.ConfigMold(moldUrl, moldApiKey, moldSecretKey)
+	if err != nil {
+		utils.FancyHandleError(err)
+		httputil.NewError(ctx, http.StatusInternalServerError, err)
+		return
+	}
 
 	dat.LocalToken = EncodedLocalToken
 	dat.RemoteToken = EncodedRemoteToken
@@ -236,13 +237,18 @@ func (c *Controller) MirrorSetup(ctx *gin.Context) {
 //	@Router			/api/v1/mirror [put]
 func (c *Controller) MirrorUpdate(ctx *gin.Context) {
 
+	var mold = model.Mold{}
+
 	moldUrl, _ := ctx.GetPostForm("moldUrl")
 	moldApiKey, _ := ctx.GetPostForm("moldApiKey")
 	moldSecretKey, _ := ctx.GetPostForm("moldSecretKey")
 
-	mold := model.Mold{MoldUrl: moldUrl, MoldApiKey: moldApiKey, MoldSecretKey: moldSecretKey}
-	jsonFile, _ := json.MarshalIndent(mold, "", " ")
-	os.WriteFile("./mold.json", jsonFile, 0644)
+	err := mirror.ConfigMold(moldUrl, moldApiKey, moldSecretKey)
+	if err != nil {
+		utils.FancyHandleError(err)
+		httputil.NewError(ctx, http.StatusInternalServerError, err)
+		return
+	}
 
 	ctx.IndentedJSON(http.StatusOK, mold)
 }
@@ -438,9 +444,12 @@ func (c *Controller) MirrorDelete(ctx *gin.Context) {
 		}
 	}
 
-	mold := model.Mold{MoldUrl: "moldUrl", MoldApiKey: "moldApiKey", MoldSecretKey: "moldSecretKey"}
-	jsonFile, _ := json.MarshalIndent(mold, "", " ")
-	os.WriteFile("./mold.json", jsonFile, 0644)
+	err = mirror.ConfigMold("moldUrl", "moldApiKey", "moldSecretKey")
+	if err != nil {
+		utils.FancyHandleError(err)
+		httputil.NewError(ctx, http.StatusInternalServerError, err)
+		return
+	}
 
 	ctx.IndentedJSON(http.StatusOK, dat)
 }

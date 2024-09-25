@@ -946,6 +946,37 @@ func ConfigMirror(dat model.MirrorSetup, privkeyname string) (EncodedLocalToken 
 	return
 }
 
+func ConfigMold(moldUrl, moldApiKey, moldSecretKey string) (err error) {
+
+	mold := model.Mold{MoldUrl: moldUrl, MoldApiKey: moldApiKey, MoldSecretKey: moldSecretKey}
+
+	jsonFile, _ := json.MarshalIndent(mold, "", " ")
+	os.WriteFile("./mold.json", jsonFile, 0644)
+
+	var stdout []byte
+
+	cmd := exec.Command("cat", "/etc/hosts", "|", "grep", "-E", "'scvm.*-mngt'", "|", "grep", "-v", "$(hostname)", "|", "awk", "'{print $1}'")
+	// cmd.Stderr = &out
+	stdout, err = cmd.CombinedOutput()
+	println(string(stdout))
+	if err != nil {
+		utils.FancyHandleError(err)
+		return
+	}
+	ipAddress := strings.Split(string(stdout), ",")
+	for i := 0; i < len(ipAddress); i++ {
+		cmd := exec.Command("scp", "-o", "StrictHostKeyChecking=no", "/usr/local/glue-api/mold.json", ipAddress[i]+":/usr/local/glue-api/mold.json")
+		// cmd.Stderr = &out
+		stdout, err = cmd.CombinedOutput()
+		println(string(stdout))
+		if err != nil {
+			utils.FancyHandleError(err)
+			return
+		}
+	}
+	return
+}
+
 func ImagePromote(poolName string, imageName string) (output string, err error) {
 
 	var stdoutScheduleEnable []byte

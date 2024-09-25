@@ -223,8 +223,8 @@ func (c *Controller) MirrorSetup(ctx *gin.Context) {
 //
 //	@Summary		Put Mirroring Cluster
 //	@Description	Glue 의 미러링 클러스터의 설정을 변경합니다.
-//	@param			moldUrl	        formData	string	false	"Mold API request URL"
-//	@param			moldApiKey	    formData	string	false	"Mold Admin Api Key"
+//	@param			moldUrl			formData	string	false	"Mold API request URL"
+//	@param			moldApiKey		formData	string	false	"Mold Admin Api Key"
 //	@param			moldSecretKey	formData	string	false	"Mold Admin Secret Key"
 //	@Tags			Mirror
 //	@Accept			x-www-form-urlencoded

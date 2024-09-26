@@ -19,12 +19,12 @@ type MirrorImage struct {
 } //@name MirrorImage
 
 type MirrorListImages struct {
-	Name          string `json:"name"`
-	GlobalId      string `json:"global_id"`
-	State         string `json:"state"`
-	Description   string `json:"description"`
-	DaemonService string `json:"daemon_service"`
-	LastUpdate    string `json:"last_update"`
+	Name          string      `json:"name"`
+	GlobalId      string      `json:"global_id"`
+	State         string      `json:"state"`
+	Description   string      `json:"description"`
+	DaemonService interface{} `json:"daemon_service"`
+	LastUpdate    string      `json:"last_update"`
 	PeerSites     []struct {
 		SiteName    string `json:"site_name"`
 		MirrorUuids string `json:"mirror_uuids"`

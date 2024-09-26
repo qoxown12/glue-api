@@ -19,6 +19,7 @@ import (
 //
 //	@Summary		Show List of Mirrored Snapshot
 //	@Description	미러링중인 이미지의 목록과 상태를 보여줍니다.
+//	@param			mirrorPool	path	string	true	"mirrorPool"
 //	@Tags			Mirror
 //	@Accept			x-www-form-urlencoded
 //	@Produce		json

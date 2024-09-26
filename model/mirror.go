@@ -18,12 +18,23 @@ type MirrorImage struct {
 	Items     []MirrorImageItem `json:"items"`
 } //@name MirrorImage
 
-type MirrorList struct {
-	Local  []MirrorImage `json:"Local"`
-	Remote []MirrorImage `json:"Remote"`
-} //@name MirrorList
+type MirrorListImages struct {
+	Name          string `json:"name"`
+	GlobalId      string `json:"global_id"`
+	State         string `json:"state"`
+	Description   string `json:"description"`
+	DaemonService string `json:"daemon_service"`
+	LastUpdate    string `json:"last_update"`
+	PeerSites     []struct {
+		SiteName    string `json:"site_name"`
+		MirrorUuids string `json:"mirror_uuids"`
+		State       string `json:"state"`
+		Description string `json:"description"`
+		LastUpdate  string `json:"last_update"`
+	} `json:"peer_sites"`
+} //@name MirrorListImages
 
-type MirrorScheduleList struct {
+type MirrorList struct {
 	Summary struct {
 		Health       string `json:"health"`
 		DaemonHealth string `json:"daemon_health"`
@@ -39,22 +50,9 @@ type MirrorScheduleList struct {
 		Leader      string `json:"leader"`
 		Health      string `json:"health"`
 	} `json:"daemons"`
-	Images []struct {
-		Name          string `json:"name"`
-		GlobalId      string `json:"global_id"`
-		State         string `json:"state"`
-		Description   string `json:"description"`
-		DaemonService string `json:"daemon_service"`
-		LastUpdate    string `json:"last_update"`
-		PeerSites     []struct {
-			SiteName    string `json:"site_name"`
-			MirrorUuids string `json:"mirror_uuids"`
-			State       string `json:"state"`
-			Description string `json:"description"`
-			LastUpdate  string `json:"last_update"`
-		} `json:"peer_sites"`
-	} `json:"images"`
-}
+	Images []MirrorListImages `json:"images"`
+} //@name MirrorList
+
 type MirrorSetup struct {
 	LocalClusterName  string      `json:"localClusterName"`  //미러링 상태
 	RemoteClusterName string      `json:"remoteClusterName"` //미러링 상태

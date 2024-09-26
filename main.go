@@ -302,12 +302,12 @@ func main() {
 			}
 			mirrorimage := mirror.Group("/image")
 			{
-				mirrorimage.GET("", c.MirrorImageList)                                                    //List Mirroring Images
+				mirrorimage.GET("/:mirrorPool", c.MirrorImageList)                                        //List Mirroring Images
 				mirrorimage.GET("/:mirrorPool/:imageName", c.MirrorImageInfo)                             //Get Image Mirroring Info
 				mirrorimage.POST("/:mirrorPool/:imageName", c.MirrorImageSetup)                           //Setup Image Mirroring
 				mirrorimage.POST("/:mirrorPool/:imageName/:hostName/:vmName", c.MirrorImageScheduleSetup) //Setup Image Mirroring Schedule
-				mirrorimage.PUT("/:mirrorPool/:imageName", c.MirrorImageUpdate)                           //Config Image Mirroring
-				// mirrorimage.DELETE("/:mirrorPool/:imageName", c.MirrorImageDelete)                //Unconfigure Image Mirroring
+				// mirrorimage.PUT("/:mirrorPool/:imageName", c.MirrorImageUpdate)                           //Config Image Mirroring
+				// mirrorimage.DELETE("/:mirrorPool/:imageName", c.MirrorImageDelete)                		//Unconfigure Image Mirroring
 				mirrorimage.DELETE("/:mirrorPool/:imageName", c.MirrorImageScheduleDelete) //Unconfigure ImageMirroring Schedule
 
 				mirrorimage.GET("/info/:mirrorPool/:imageName", c.MirrorImageParentInfo)           //Get Image Mirroring Parent Info

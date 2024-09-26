@@ -2616,7 +2616,7 @@
                 }
             }
         },
-        "/api/v1/mirror/image": {
+        "/api/v1/mirror/image/{mirrorPool}": {
             "get": {
                 "description": "미러링중인 이미지의 목록과 상태를 보여줍니다.",
                 "consumes": [
@@ -6994,16 +6994,99 @@
         "MirrorList": {
             "type": "object",
             "properties": {
-                "Local": {
-                    "type": "array",
-                    "items": {
-                        "$ref": "#/definitions/MirrorImage"
+                "Summary": {
+                    "type": "object",
+                    "properties": {
+                        "health": {
+                            "type": "string"
+                        },
+                        "daemon_health": {
+                            "type": "string"
+                        },
+                        "image_health": {
+                            "type": "string"
+                        },
+                        "states": {
+                            "type": "string"
+                        }
                     }
                 },
-                "Remote": {
+                "Daemons": {
+                    "type": "object",
+                    "properties": {
+                        "service_id": {
+                            "type": "string"
+                        },
+                        "instance_id": {
+                            "type": "string"
+                        },
+                        "client_id": {
+                            "type": "string"
+                        },
+                        "hostname": {
+                            "type": "string"
+                        },
+                        "ceph_version": {
+                            "type": "string"
+                        },
+                        "leader": {
+                            "type": "string"
+                        },
+                        "health": {
+                            "type": "string"
+                        }
+                    }
+                },
+                "Images": {
                     "type": "array",
                     "items": {
-                        "$ref": "#/definitions/MirrorImage"
+                        "$ref": "#/definitions/MirrorListImages"
+                    }
+                }
+            }
+        },
+        "MirrorListImages": {
+            "type": "object",
+            "properties": {
+                "name": {
+                    "type": "string"
+                },
+                "global_id": {
+                    "type": "string"
+                },
+                "state": {
+                    "type": "string"
+                },
+                "description": {
+                    "type": "string"
+                },
+                "daemon_service": {
+                    "type": "string"
+                },
+                "last_update": {
+                    "type": "string"
+                },
+                "peer_sites": {
+                    "type": "array",
+                    "items": {
+                        "type": "object",
+                        "properties": {
+                            "site_name": {
+                                "type": "string"
+                            },
+                            "mirror_uuids": {
+                                "type": "string"
+                            },
+                            "state": {
+                                "type": "string"
+                            },
+                            "description": {
+                                "type": "string"
+                            },
+                            "last_update": {
+                                "type": "string"
+                            }
+                        }
                     }
                 }
             }

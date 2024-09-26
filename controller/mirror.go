@@ -26,9 +26,10 @@ import (
 //	@Failure		400	{object}	httputil.HTTP400BadRequest
 //	@Failure		404	{object}	httputil.HTTP404NotFound
 //	@Failure		500	{object}	httputil.HTTP500InternalServerError
-//	@Router			/api/v1/mirror/image [get]
+//	@Router			/api/v1/mirror/image/{mirrorPool} [get]
 func (c *Controller) MirrorImageList(ctx *gin.Context) {
-	dat, err := mirror.ImageList()
+	pool := ctx.Param("mirrorPool")
+	dat, err := mirror.ImageList(pool)
 	if err != nil {
 		utils.FancyHandleError(err)
 		httputil.NewError(ctx, http.StatusInternalServerError, err)
@@ -54,15 +55,15 @@ func (c *Controller) MirrorImageList(ctx *gin.Context) {
 func (c *Controller) MirrorImageInfo(ctx *gin.Context) {
 	pool := ctx.Param("mirrorPool")
 	image := ctx.Param("imageName")
-	dat2, err := mirror.ImageList()
-	var dat model.ImageMirror
+	dat2, err := mirror.ImageList(pool)
+	var dat model.MirrorListImages
 
-	for _, mirrorImage := range append(dat2.Local, dat2.Remote...) {
-		if mirrorImage.Pool == pool && mirrorImage.Image == image {
-			dat.Items = mirrorImage.Items
-			dat.Image = mirrorImage.Image
-			dat.Namespace = mirrorImage.Namespace
-			dat.Pool = mirrorImage.Pool
+	for _, mirrorImage := range dat2.Images {
+		if mirrorImage.Name == image {
+			dat.Name = mirrorImage.Name
+			dat.State = mirrorImage.State
+			dat.Description = mirrorImage.Description
+			dat.PeerSites = mirrorImage.PeerSites
 		}
 	}
 	if err != nil {
@@ -292,33 +293,22 @@ func (c *Controller) MirrorDelete(ctx *gin.Context) {
 	}
 
 	// Get Mirroring Images
-	MirroredImage, err := mirror.ImageList()
+	MirroredImage, err := mirror.ImageList(dat.MirrorPool)
 	if err != nil {
 		utils.FancyHandleError(err)
 		httputil.NewError(ctx, http.StatusInternalServerError, err)
 		return
 	}
-	for _, image := range MirroredImage.Local {
-		_, errt := mirror.ImageDelete(image.Pool, image.Image)
+	for _, image := range MirroredImage.Images {
+		_, errt := mirror.ImageDelete(dat.MirrorPool, image.Name)
 		if errt != nil {
 			err = errors.Join(err, errt)
 		}
-		output, errt = mirror.ImagePreDelete(image.Pool, image.Image)
+		output, errt = mirror.ImagePreDelete(dat.MirrorPool, image.Name)
 		if errt != nil {
 			if output != "Success" {
 				err = errors.Join(err, errt)
 			}
-		}
-	}
-	if err != nil {
-		utils.FancyHandleError(err)
-		httputil.NewError(ctx, http.StatusInternalServerError, err)
-		return
-	}
-	for _, image := range MirroredImage.Remote {
-		_, errt := mirror.ImageDelete(image.Pool, image.Image)
-		if errt != nil {
-			err = errors.Join(err, errt)
 		}
 	}
 	if err != nil {
@@ -585,60 +575,60 @@ func (c *Controller) MirrorImageScheduleSetup(ctx *gin.Context) {
 //	@Failure		404	{object}	httputil.HTTP404NotFound
 //	@Failure		500	{object}	httputil.HTTP500InternalServerError
 //	@Router			/api/v1/mirror/image/{mirrorPool}/{imageName} [put]
-func (c *Controller) MirrorImageUpdate(ctx *gin.Context) {
-	//var dat model.MirrorSetup
-	var dat = struct {
-		Message  string
-		schedule []model.MirrorImageItem
-	}{}
+// func (c *Controller) MirrorImageUpdate(ctx *gin.Context) {
+// 	//var dat model.MirrorSetup
+// 	var dat = struct {
+// 		Message  string
+// 		schedule []model.MirrorImageItem
+// 	}{}
 
-	mirrorPool := ctx.Param("mirrorPool")
-	imageName := ctx.Param("imageName")
-	interval, _ := ctx.GetPostForm("interval")
-	startTime, _ := ctx.GetPostForm("startTime")
-	imageRegion, _ := ctx.GetPostForm("imageRegion")
+// 	mirrorPool := ctx.Param("mirrorPool")
+// 	imageName := ctx.Param("imageName")
+// 	interval, _ := ctx.GetPostForm("interval")
+// 	startTime, _ := ctx.GetPostForm("startTime")
+// 	imageRegion, _ := ctx.GetPostForm("imageRegion")
 
-	MirroredImage, err := mirror.ImageList()
-	if err != nil {
-		utils.FancyHandleError(err)
-		httputil.NewError(ctx, http.StatusInternalServerError, err)
-		return
-	}
-	for _, image := range MirroredImage.Local {
-		if image.Image == imageName {
-			if len(image.Items) > 0 {
-				dat.schedule = image.Items
-			}
-		}
-	}
-	for _, image := range MirroredImage.Remote {
-		if image.Image == imageName {
-			if len(image.Items) > 0 {
-				dat.schedule = image.Items
-			}
-		}
-	}
+// 	MirroredImage, err := mirror.ImageList()
+// 	if err != nil {
+// 		utils.FancyHandleError(err)
+// 		httputil.NewError(ctx, http.StatusInternalServerError, err)
+// 		return
+// 	}
+// 	for _, image := range MirroredImage.Local {
+// 		if image.Image == imageName {
+// 			if len(image.Items) > 0 {
+// 				dat.schedule = image.Items
+// 			}
+// 		}
+// 	}
+// 	for _, image := range MirroredImage.Remote {
+// 		if image.Image == imageName {
+// 			if len(image.Items) > 0 {
+// 				dat.schedule = image.Items
+// 			}
+// 		}
+// 	}
 
-	if imageRegion == "remote" {
-		message, err := mirror.ImageRemoteUpdate(mirrorPool, imageName, interval, startTime)
-		if err != nil {
-			utils.FancyHandleError(err)
-			httputil.NewError(ctx, http.StatusInternalServerError, err)
-			return
-		}
-		dat.Message = message
-	} else {
-		message, err := mirror.ImageUpdate(mirrorPool, imageName, interval, startTime, dat.schedule)
-		if err != nil {
-			utils.FancyHandleError(err)
-			httputil.NewError(ctx, http.StatusInternalServerError, err)
-			return
-		}
-		dat.Message = message
-	}
+// 	if imageRegion == "remote" {
+// 		message, err := mirror.ImageRemoteUpdate(mirrorPool, imageName, interval, startTime)
+// 		if err != nil {
+// 			utils.FancyHandleError(err)
+// 			httputil.NewError(ctx, http.StatusInternalServerError, err)
+// 			return
+// 		}
+// 		dat.Message = message
+// 	} else {
+// 		message, err := mirror.ImageUpdate(mirrorPool, imageName, interval, startTime, dat.schedule)
+// 		if err != nil {
+// 			utils.FancyHandleError(err)
+// 			httputil.NewError(ctx, http.StatusInternalServerError, err)
+// 			return
+// 		}
+// 		dat.Message = message
+// 	}
 
-	ctx.IndentedJSON(http.StatusOK, dat)
-}
+// 	ctx.IndentedJSON(http.StatusOK, dat)
+// }
 
 // MirrorImageParentInfo godoc
 //
@@ -985,33 +975,22 @@ func (c *Controller) MirrorPoolDisable(ctx *gin.Context) {
 	}
 
 	// Get Mirroring Images
-	MirroredImage, err := mirror.ImageList()
+	MirroredImage, err := mirror.ImageList(dat.MirrorPool)
 	if err != nil {
 		utils.FancyHandleError(err)
 		httputil.NewError(ctx, http.StatusInternalServerError, err)
 		return
 	}
-	for _, image := range MirroredImage.Local {
-		_, errt := mirror.ImageDelete(image.Pool, image.Image)
+	for _, image := range MirroredImage.Images {
+		_, errt := mirror.ImageDelete(dat.MirrorPool, image.Name)
 		if errt != nil {
 			err = errors.Join(err, errt)
 		}
-		output, errt = mirror.ImagePreDelete(image.Pool, image.Image)
+		output, errt = mirror.ImagePreDelete(dat.MirrorPool, image.Name)
 		if errt != nil {
 			if output != "Success" {
 				err = errors.Join(err, errt)
 			}
-		}
-	}
-	if err != nil {
-		utils.FancyHandleError(err)
-		httputil.NewError(ctx, http.StatusInternalServerError, err)
-		return
-	}
-	for _, image := range MirroredImage.Remote {
-		_, errt := mirror.ImageDelete(image.Pool, image.Image)
-		if errt != nil {
-			err = errors.Join(err, errt)
 		}
 	}
 	if err != nil {

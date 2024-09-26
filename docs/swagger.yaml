@@ -431,13 +431,67 @@ definitions:
     type: object
   MirrorList:
     properties:
-      Local:
+      Summary:
+        properties:
+          health:
+            type: string
+          daemon_health:
+            type: string
+          image_health:
+            type: string
+          states:
+            type: string
+        type: object
+      Daemons:
+        properties:
+          service_id:
+            type: string
+          instance_id:
+            type: string
+          client_id:
+            type: string
+          hostname:
+            type: string
+          ceph_version:
+            type: string
+          leader:
+            type: string
+          health:
+            type: string
+        type: object
+      Images:
         items:
-          $ref: '#/definitions/MirrorImage'
+          $ref: '#/definitions/MirrorListImages'
         type: array
-      Remote:
+    type: object
+  MirrorListImages:
+    properties:
+      name:
+        type: string
+      global_id:
+        type: string
+      state:
+        type: string
+      description:
+        type: string
+      daemon_service:
+        type: string
+      last_update:
+        type: string
+      peer_sites:
         items:
-          $ref: '#/definitions/MirrorImage'
+          properties:
+            site_name:
+              type: string
+            mirror_uuids:
+              type: string
+            state:
+              type: string
+            description:
+              type: string
+            last_update:
+              type: string
+          type: object
         type: array
     type: object
   MirrorSetup:
@@ -2463,7 +2517,7 @@ paths:
       summary: Delete Garbage Mirroring Cluster
       tags:
       - Mirror 
-  /api/v1/mirror/image:
+  /api/v1/mirror/image/{mirrorPool}:
     get:
       consumes:
       - application/x-www-form-urlencoded

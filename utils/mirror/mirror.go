@@ -143,11 +143,11 @@ func ImageInfo(poolName string, imageName string) (imageInfo model.ImageInfo, er
 	return imageInfo, err
 }
 
-func ImageList() (MirrorList model.MirrorScheduleList, err error) {
+func ImageList(pool string) (MirrorList model.MirrorList, err error) {
 
 	var stdout []byte
 
-	cmd := exec.Command("rbd", "mirror", "pool", "status", "rbd", "--verbose", "--format", "json", "--pretty-format")
+	cmd := exec.Command("rbd", "mirror", "pool", "status", pool, "--verbose", "--format", "json", "--pretty-format")
 	stdout, err = cmd.CombinedOutput()
 
 	if err != nil {
@@ -155,7 +155,7 @@ func ImageList() (MirrorList model.MirrorScheduleList, err error) {
 	}
 
 	if err = json.Unmarshal(stdout, &MirrorList); err != nil {
-		MirrorList = model.MirrorScheduleList{}
+		MirrorList = model.MirrorList{}
 	}
 
 	return MirrorList, err

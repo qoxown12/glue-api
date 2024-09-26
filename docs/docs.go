@@ -2662,6 +2662,15 @@ const docTemplate = `{
                     "Mirror"
                 ],
                 "summary": "Show List of Mirrored Snapshot",
+                "parameters": [
+                    {
+                        "type": "string",
+                        "description": "Pool Name for Mirroring",
+                        "name": "mirrorPool",
+                        "in": "path",
+                        "required": true
+                    }
+                ],
                 "responses": {
                     "200": {
                         "description": "OK",

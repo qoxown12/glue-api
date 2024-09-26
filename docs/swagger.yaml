@@ -455,7 +455,7 @@ definitions:
           ceph_version:
             type: string
           leader:
-            type: string
+            type: boolean
           health:
             type: string
         type: object

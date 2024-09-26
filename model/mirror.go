@@ -36,10 +36,10 @@ type MirrorListImages struct {
 
 type MirrorList struct {
 	Summary struct {
-		Health       string `json:"health"`
-		DaemonHealth string `json:"daemon_health"`
-		ImageHealth  string `json:"image_health"`
-		States       string `json:"states"`
+		Health       string      `json:"health"`
+		DaemonHealth string      `json:"daemon_health"`
+		ImageHealth  string      `json:"image_health"`
+		States       interface{} `json:"states"`
 	} `json:"summary"`
 	Daemons []struct {
 		ServiceId   string `json:"service_id"`
@@ -47,7 +47,7 @@ type MirrorList struct {
 		ClientId    string `json:"client_id"`
 		Hostname    string `json:"hostname"`
 		CephVersion string `json:"ceph_version"`
-		Leader      string `json:"leader"`
+		Leader      bool   `json:"leader"`
 		Health      string `json:"health"`
 	} `json:"daemons"`
 	Images []MirrorListImages `json:"images"`

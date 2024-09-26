@@ -7072,7 +7072,7 @@ const docTemplate = `{
                             "type": "string"
                         },
                         "leader": {
-                            "type": "string"
+                            "type": "boolean"
                         },
                         "health": {
                             "type": "string"

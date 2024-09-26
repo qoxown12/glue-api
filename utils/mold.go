@@ -2,6 +2,7 @@ package utils
 
 import (
 	"encoding/json"
+	"fmt"
 	"log"
 	"net/http"
 )
@@ -18,11 +19,17 @@ func GetDisasterRecoveryClusterList() map[string]interface{} {
 
 	resp, err := http.Get(endUrl)
 
+	var res map[string]interface{}
 	if err != nil {
-		log.Fatal("Failed to communicate with Mold. (getDisasterRecoveryClusterList): ", err)
+		fmt.Println("Failed to communicate with Mold. (getDisasterRecoveryClusterList): ", err)
+		res = map[string]interface{}{
+			"getdisasterrecoveryclusterlistresponse": map[string]interface{}{
+				"count": -1,
+			},
+		}
+		return res
 	}
 
-	var res map[string]interface{}
 	err = json.NewDecoder(resp.Body).Decode(&res)
 
 	return res

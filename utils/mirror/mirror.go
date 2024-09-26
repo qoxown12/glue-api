@@ -143,38 +143,21 @@ func ImageInfo(poolName string, imageName string) (imageInfo model.ImageInfo, er
 	return imageInfo, err
 }
 
-func ImageList() (MirrorList model.MirrorList, err error) {
+func ImageList() (MirrorList model.MirrorScheduleList, err error) {
 
-	var stdRemote []byte
-	var stdLocal []byte
-	var Local []model.MirrorImage
-	var Remote []model.MirrorImage
+	var stdout []byte
 
-	mirrorConfig, err := GetConfigure()
-	if err != nil {
-		return
-	}
-
-	if len(mirrorConfig.Peers) > 0 {
-		strRemoteStatus := exec.Command("rbd", "-c", mirrorConfig.ClusterFileName, "--cluster", mirrorConfig.ClusterName, "--name", mirrorConfig.Peers[0].ClientName, "--keyfile", mirrorConfig.KeyFileName, "mirror", "snapshot", "schedule", "list", "-R", "--format", "json", "--pretty-format")
-		stdRemote, err = strRemoteStatus.CombinedOutput()
-		if err = json.Unmarshal(stdRemote, &Remote); err != nil {
-			Remote = []model.MirrorImage{}
-		}
-	}
-
-	strLocalStatus := exec.Command("rbd", "mirror", "snapshot", "schedule", "list", "-R", "--format", "json", "--pretty-format")
-	stdLocal, err = strLocalStatus.CombinedOutput()
+	cmd := exec.Command("rbd", "mirror", "pool", "status", "rbd", "--verbose", "--format", "json", "--pretty-format")
+	stdout, err = cmd.CombinedOutput()
 
 	if err != nil {
 		return
 	}
 
-	if err = json.Unmarshal(stdLocal, &Local); err != nil {
-		Local = []model.MirrorImage{}
+	if err = json.Unmarshal(stdout, &MirrorList); err != nil {
+		MirrorList = model.MirrorScheduleList{}
 	}
-	MirrorList.Local = Local
-	MirrorList.Remote = Remote
+
 	return MirrorList, err
 }
 
@@ -958,14 +941,12 @@ func ConfigMold(moldUrl, moldApiKey, moldSecretKey string) (err error) {
 	cmd := exec.Command("sh", "-c", "cat /etc/hosts | grep -E 'scvm.*-mngt' | grep -v $(hostname) | awk '{print $1}'")
 	// cmd.Stderr = &out
 	stdout, err = cmd.CombinedOutput()
-	println(string(stdout))
 	if err != nil {
 		utils.FancyHandleError(err)
 		return
 	}
 	var str []string
 	ipAddress := strings.Split(string(stdout), "\n")
-	println(ipAddress)
 	for i := 0; i < len(ipAddress); i++ {
 		strs := ipAddress[i]
 		str = append(str, strs)
@@ -973,7 +954,6 @@ func ConfigMold(moldUrl, moldApiKey, moldSecretKey string) (err error) {
 			str = str[:len(ipAddress)-1]
 		}
 	}
-	println(str)
 	for j := 0; j < len(str); j++ {
 		cmd := exec.Command("sh", "-c", "scp -o StrictHostKeyChecking=no /usr/local/glue-api/mold.json "+str[j]+":/usr/local/glue-api/mold.json")
 		// cmd.Stderr = &out

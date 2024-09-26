@@ -44,6 +44,9 @@ func main() {
 		getDisasterRecoveryClusterList := model.GetDisasterRecoveryClusterList{}
 		drInfo, _ := json.Marshal(drResult["getdisasterrecoveryclusterlistresponse"])
 		json.Unmarshal([]byte(drInfo), &getDisasterRecoveryClusterList)
+		if getDisasterRecoveryClusterList.Count == -1 {
+			// mold 통신 안되는 경우 처리
+		}
 		if len(getDisasterRecoveryClusterList.Disasterrecoverycluster) > 0 {
 			dr := getDisasterRecoveryClusterList.Disasterrecoverycluster
 			for i := 0; i < len(dr); i++ {

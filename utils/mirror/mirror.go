@@ -1059,7 +1059,7 @@ func ImageMetaUpdate(interval string) (err error) {
 func ImageMetaRemove(imageName string) (err error) {
 
 	var stdout []byte
-	cmd := exec.Command("rbd", "image-meta ", "remove", "rbd/MOLD-DR", imageName)
+	cmd := exec.Command("rbd", "image-meta", "remove", "rbd/MOLD-DR", imageName)
 	stdout, err = cmd.CombinedOutput()
 	if err != nil {
 		err = errors.Join(err, errors.New(string(stdout)))

@@ -2352,7 +2352,7 @@ const docTemplate = `{
                         "description": "Mirroring Schedule Interval",
                         "name": "interval",
                         "in": "formData",
-                        "required": true
+                        "required": false
                     },
                     {
                         "type": "string",

@@ -233,7 +233,7 @@ func (c *Controller) MirrorSetup(ctx *gin.Context) {
 //
 //		@Summary		Put Mirroring Cluster
 //		@Description	Glue 의 미러링 클러스터의 설정을 변경합니다.
-//	 	@param			interval		formData 	string	true	"Mirroring Schedule Interval"
+//	 	@param			interval		formData 	string	false	"Mirroring Schedule Interval"
 //		@param			moldUrl			formData	string	true	"Mold API request URL"
 //		@param			moldApiKey		formData	string	true	"Mold Admin Api Key"
 //		@param			moldSecretKey	formData	string	true	"Mold Admin Secret Key"
@@ -261,19 +261,21 @@ func (c *Controller) MirrorUpdate(ctx *gin.Context) {
 		return
 	}
 
-	rbd_image, err := mirror.RbdImage("rbd")
-	if err != nil {
-		utils.FancyHandleError(err)
-		httputil.NewError(ctx, http.StatusInternalServerError, err)
-		return
-	}
-	for i := 0; i < len(rbd_image); i++ {
-		if rbd_image[i] == "MOLD-DR" {
-			err := mirror.ImageMetaUpdate(interval)
-			if err != nil {
-				utils.FancyHandleError(err)
-				httputil.NewError(ctx, http.StatusInternalServerError, err)
-				return
+	if interval != "" {
+		rbd_image, err := mirror.RbdImage("rbd")
+		if err != nil {
+			utils.FancyHandleError(err)
+			httputil.NewError(ctx, http.StatusInternalServerError, err)
+			return
+		}
+		for i := 0; i < len(rbd_image); i++ {
+			if rbd_image[i] == "MOLD-DR" {
+				err := mirror.ImageMetaUpdate(interval)
+				if err != nil {
+					utils.FancyHandleError(err)
+					httputil.NewError(ctx, http.StatusInternalServerError, err)
+					return
+				}
 			}
 		}
 	}

@@ -2220,7 +2220,7 @@ paths:
       - description: Mirroring Schedule Interval
         in: formData
         name: interval
-        required: true
+        required: false
         type: string
       - description: Mold API request URL
         in: formData

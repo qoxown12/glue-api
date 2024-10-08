@@ -333,8 +333,7 @@ func ImageConfig(poolName string, imageName string, interval string, startTime s
 func goCronTask(poolName, hostName, vmName string, imageName []string) (err error) {
 	var stdout []byte
 	currentTime := time.Now()
-	currentTime.Format("2006-01-02 15:04:05")
-	println("start mirror snapshot scheduler --- vm : " + vmName + " --- image : " + strings.Join(imageName, ",") + " --- host : " + hostName + " --- date : " + currentTime.String())
+	println("start mirror snapshot scheduler --- vm : " + vmName + " --- image : " + strings.Join(imageName, ",") + " --- host : " + hostName + " --- date : " + currentTime.Format("2006-01-02 15:04:05"))
 	if hostName != "" {
 		println("start domfsfreeze ---")
 		cmd := exec.Command("ssh", "-o", "StrictHostKeyChecking=no", hostName, "virsh", "domfsfreeze", vmName)
@@ -355,7 +354,7 @@ func goCronTask(poolName, hostName, vmName string, imageName []string) (err erro
 				break
 			}
 			host, _ := os.Hostname()
-			cmd = exec.Command("rbd", "image-meta", "set", "rbd/MOLD-DR", imageName[i], currentTime.String()+","+host)
+			cmd = exec.Command("rbd", "image-meta", "set", "rbd/MOLD-DR", imageName[i], currentTime.Format("2006-01-02 15:04:05")+","+host)
 			stdout, err = cmd.CombinedOutput()
 			if err != nil {
 				println("failed to update image-meta")
@@ -372,7 +371,7 @@ func goCronTask(poolName, hostName, vmName string, imageName []string) (err erro
 			println(string(stdout))
 		}
 	}
-	println("end mirror snapshot scheduler --- vm : " + vmName + " --- image : " + strings.Join(imageName, ",") + " --- host : " + hostName + " --- date : " + currentTime.String())
+	println("end mirror snapshot scheduler --- vm : " + vmName + " --- image : " + strings.Join(imageName, ",") + " --- host : " + hostName + " --- date : " + currentTime.Format("2006-01-02 15:04:05"))
 	return
 }
 
@@ -381,9 +380,8 @@ func goCronEventListeners(scheduler gocron.Scheduler, jobID uuid.UUID, beforeIt 
 	var exist string
 	var interval string
 	currentTime := time.Now()
-	currentTime.Format("2006-01-02 15:04:05")
 
-	println("BeforeJobRuns: ", jobID.String(), jobName, currentTime.String())
+	println("BeforeJobRuns: ", jobID.String(), jobName, currentTime.Format("2006-01-02 15:04:05"))
 	mold, _ := utils.ReadMoldFile()
 	exist = ""
 	if mold.MoldUrl != "moldUrl" {
@@ -444,7 +442,7 @@ func goCronEventListeners(scheduler gocron.Scheduler, jobID uuid.UUID, beforeIt 
 									}
 									clock = beforeIt
 									if beforeIt != afterIt {
-										println("updateScheduler : ", jobID.String(), jobName, currentTime.String())
+										println("updateScheduler : ", jobID.String(), jobName, currentTime.Format("2006-01-02 15:04:05"))
 										scheduler.Update(
 											uuid.MustParse(imageName),
 											gocron.DurationJob(

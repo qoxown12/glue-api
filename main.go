@@ -37,49 +37,8 @@ import (
 //	@description				Description for what is this security definition being used
 
 func main() {
-	// DR 목록 조회
 	mold, _ := utils.ReadMoldFile()
-	if mold.MoldUrl != "moldUrl" {
-		drResult := utils.GetDisasterRecoveryClusterList()
-		getDisasterRecoveryClusterList := model.GetDisasterRecoveryClusterList{}
-		drInfo, _ := json.Marshal(drResult["getdisasterrecoveryclusterlistresponse"])
-		json.Unmarshal([]byte(drInfo), &getDisasterRecoveryClusterList)
-		if getDisasterRecoveryClusterList.Count == -1 {
-			// mold 통신 안되는 경우 처리
-		}
-		if len(getDisasterRecoveryClusterList.Disasterrecoverycluster) > 0 {
-			dr := getDisasterRecoveryClusterList.Disasterrecoverycluster
-			for i := 0; i < len(dr); i++ {
-				if len(dr[i].Drclustervmmap) > 0 {
-					for j := 0; j < len(dr[i].Drclustervmmap); j++ {
-						params1 := []utils.MoldParams{
-							{"keyword": dr[i].Drclustervmmap[j].Drclustermirrorvmname},
-						}
-						vmResult := utils.GetListVirtualMachinesMetrics(params1)
-						listVirtualMachinesMetrics := model.ListVirtualMachinesMetrics{}
-						vmInfo, _ := json.Marshal(vmResult["listvirtualmachinesmetricsresponse"])
-						json.Unmarshal([]byte(vmInfo), &listVirtualMachinesMetrics)
-						vm := listVirtualMachinesMetrics.Virtualmachine
-						for k := 0; k < len(vm); k++ {
-							if vm[k].Name == dr[i].Drclustervmmap[j].Drclustermirrorvmname {
-								println("dr vm")
-								// vmName := vm[k].Instancename // instance 명 저장
-								// //운영중인 가상머신만 고려한다면 호스트 이름이 있는 경우
-								// params2 := []utils.MoldParams{
-								// 	{"keyword": vm[k].Id},
-								// 	{"hostname": vm[k].hostname},
-								// }
-								// if vm[k].hostname == "" {
-								// 	//ssh hostname으로 명령어 전송
-								// }
-								// 스케줄러 실행
-							}
-						}
-					}
-				}
-			}
-		}
-	}
+	MirroringSchedule(mold)
 
 	// programmatically set swagger info
 
@@ -360,3 +319,48 @@ func auth() gin.HandlerFunc {
 	}
 }
 */
+
+func MirroringSchedule(mold model.Mold) {
+	if mold.MoldUrl != "moldUrl" {
+		drResult := utils.GetDisasterRecoveryClusterList()
+		getDisasterRecoveryClusterList := model.GetDisasterRecoveryClusterList{}
+		drInfo, _ := json.Marshal(drResult["getdisasterrecoveryclusterlistresponse"])
+		json.Unmarshal([]byte(drInfo), &getDisasterRecoveryClusterList)
+		if getDisasterRecoveryClusterList.Count == -1 {
+			// mold 통신 안되는 경우 처리
+			// rbd meta 가져와서 interval 주고 mirror snapshot만 찍도록 로직
+		} else {
+			if len(getDisasterRecoveryClusterList.Disasterrecoverycluster) > 0 {
+				dr := getDisasterRecoveryClusterList.Disasterrecoverycluster
+				for i := 0; i < len(dr); i++ {
+					if len(dr[i].Drclustervmmap) > 0 {
+						for j := 0; j < len(dr[i].Drclustervmmap); j++ {
+							params1 := []utils.MoldParams{
+								{"keyword": dr[i].Drclustervmmap[j].Drclustermirrorvmname},
+							}
+							vmResult := utils.GetListVirtualMachinesMetrics(params1)
+							listVirtualMachinesMetrics := model.ListVirtualMachinesMetrics{}
+							vmInfo, _ := json.Marshal(vmResult["listvirtualmachinesmetricsresponse"])
+							json.Unmarshal([]byte(vmInfo), &listVirtualMachinesMetrics)
+							vm := listVirtualMachinesMetrics.Virtualmachine
+							for k := 0; k < len(vm); k++ {
+								if vm[k].Name == dr[i].Drclustervmmap[j].Drclustermirrorvmname {
+									// vmName := vm[k].Instancename // instance 명 저장
+									// //운영중인 가상머신만 고려한다면 호스트 이름이 있는 경우
+									// params2 := []utils.MoldParams{
+									// 	{"keyword": vm[k].Id},
+									// 	{"hostname": vm[k].hostname},
+									// }
+									// if vm[k].hostname == "" {
+									// 	//ssh hostname으로 명령어 전송
+									// }
+									// 스케줄러 실행
+								}
+							}
+						}
+					}
+				}
+			}
+		}
+	}
+}

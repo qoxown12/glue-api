@@ -2349,6 +2349,13 @@ const docTemplate = `{
                 "parameters": [
                     {
                         "type": "string",
+                        "description": "Mirroring Schedule Interval",
+                        "name": "interval",
+                        "in": "formData",
+                        "required": true
+                    },
+                    {
+                        "type": "string",
                         "description": "Mold API request URL",
                         "name": "moldUrl",
                         "in": "formData",

@@ -57,9 +57,9 @@ func makeStringParams(params []MoldParams) string {
 func makeSignature(payload string) string {
 	mold, _ := ReadMoldFile()
 	secretkey := mold.MoldSecretKey
-	strurl := strings.Replace(strings.ToLower(payload), "+", "%20", -1)
+	strUrl := strings.Replace(strings.ToLower(payload), "+", "%20", -1)
 	secret := []byte(secretkey)
-	message := []byte(strurl)
+	message := []byte(strUrl)
 	hash := hmac.New(sha256.New, secret)
 	hash.Write(message)
 	strHash := base64.StdEncoding.EncodeToString(hash.Sum(nil))

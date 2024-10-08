@@ -124,6 +124,25 @@ func GetRemoteConfigure(client *goph.Client) (clusterConf model.MirrorConf, err 
 	return clusterConf, nil
 }
 
+func RbdImage(pool_name string) (pools []string, err error) {
+	var stdout []byte
+	cmd := exec.Command("rbd", "ls", "-p", pool_name, "--format", "json")
+	stdout, err = cmd.CombinedOutput()
+	if err != nil {
+		err_str := strings.ReplaceAll(string(stdout), "\n", "")
+		err = errors.New(err_str)
+		utils.FancyHandleError(err)
+		return
+	}
+	if err = json.Unmarshal(stdout, &pools); err != nil {
+		err_str := strings.ReplaceAll(string(stdout), "\n", "")
+		err = errors.New(err_str)
+		utils.FancyHandleError(err)
+		return
+	}
+	return
+}
+
 func ImageInfo(poolName string, imageName string) (imageInfo model.ImageInfo, err error) {
 
 	var stdoutMirrorPreSetup []byte
@@ -313,7 +332,9 @@ func ImageConfig(poolName string, imageName string, interval string, startTime s
 
 func goCronTask(poolName, hostName, vmName string, imageName []string) (err error) {
 	var stdout []byte
-	println("start mirror snapshot scheduler --- vm : " + vmName + " --- image : " + strings.Join(imageName, ",") + " --- host : " + hostName + " --- date : " + time.Now().String())
+	currentTime := time.Now()
+	currentTime.Format(time.DateTime)
+	println("start mirror snapshot scheduler --- vm : " + vmName + " --- image : " + strings.Join(imageName, ",") + " --- host : " + hostName + " --- date : " + currentTime.String())
 	if hostName != "" {
 		println("start domfsfreeze ---")
 		cmd := exec.Command("ssh", "-o", "StrictHostKeyChecking=no", hostName, "virsh", "domfsfreeze", vmName)
@@ -333,6 +354,13 @@ func goCronTask(poolName, hostName, vmName string, imageName []string) (err erro
 				exec.Command("ssh", hostName, "virsh", "domfsthaw", vmName)
 				break
 			}
+			host, _ := os.Hostname()
+			cmd = exec.Command("rbd", "image-meta", "set", "rbd/MOLD-DR", imageName[i], currentTime.String()+","+host)
+			stdout, err = cmd.CombinedOutput()
+			if err != nil {
+				println("failed to update image-meta")
+				println(string(stdout))
+			}
 		}
 	}
 	if hostName != "" {
@@ -344,7 +372,7 @@ func goCronTask(poolName, hostName, vmName string, imageName []string) (err erro
 			println(string(stdout))
 		}
 	}
-	println("end mirror snapshot scheduler --- vm : " + vmName + " --- image : " + strings.Join(imageName, ",") + " --- host : " + hostName + " --- date : " + time.Now().String())
+	println("end mirror snapshot scheduler --- vm : " + vmName + " --- image : " + strings.Join(imageName, ",") + " --- host : " + hostName + " --- date : " + currentTime.String())
 	return
 }
 
@@ -352,8 +380,10 @@ func goCronEventListeners(scheduler gocron.Scheduler, jobID uuid.UUID, beforeIt 
 	var afterIt time.Duration
 	var exist string
 	var interval string
+	currentTime := time.Now()
+	currentTime.Format(time.DateTime)
 
-	println("BeforeJobRuns: ", jobID.String(), jobName, time.Now().String())
+	println("BeforeJobRuns: ", jobID.String(), jobName, currentTime.String())
 	mold, _ := utils.ReadMoldFile()
 	exist = ""
 	if mold.MoldUrl != "moldUrl" {
@@ -414,7 +444,7 @@ func goCronEventListeners(scheduler gocron.Scheduler, jobID uuid.UUID, beforeIt 
 									}
 									clock = beforeIt
 									if beforeIt != afterIt {
-										println("updateScheduler : ", jobID.String(), jobName, time.Now().String())
+										println("updateScheduler : ", jobID.String(), jobName, currentTime.String())
 										scheduler.Update(
 											uuid.MustParse(imageName),
 											gocron.DurationJob(
@@ -492,7 +522,6 @@ func ImageConfigSchedule(poolName, imageName, hostName, vmName, interval string)
 		),
 		gocron.NewTask(
 			func() {
-				println(strings.Join(imageList, ","))
 				goCronTask(poolName, hostName, vmName, imageList)
 			},
 		),
@@ -501,12 +530,8 @@ func ImageConfigSchedule(poolName, imageName, hostName, vmName, interval string)
 		gocron.WithEventListeners(
 			gocron.BeforeJobRuns(
 				func(jobID uuid.UUID, jobName string) {
-					println("ImageConfigSchedule beforeJobRuns start")
-					println(strings.Join(imageList, ","))
 					hostName, clock, imageList = goCronEventListeners(scheduler, jobID, beforeIt, jobName, imageName, hostName, vmName, poolName)
 					beforeIt = clock
-					println(strings.Join(imageList, ","))
-					println("ImageConfigSchedule beforeJobRuns end")
 				}),
 		),
 	)
@@ -516,6 +541,7 @@ func ImageConfigSchedule(poolName, imageName, hostName, vmName, interval string)
 		return
 	}
 	scheduler.Start()
+
 	println(j.ID().ID())
 	return
 }
@@ -926,6 +952,24 @@ func ConfigMirror(dat model.MirrorSetup, privkeyname string) (EncodedLocalToken 
 		utils.FancyHandleError(err)
 		return
 	}
+
+	cmd = exec.Command("rbd", "create", "--size", "1", "rbd/MOLD-DR")
+	stdout, err = cmd.CombinedOutput()
+	if err != nil {
+		cmd.Stderr = &out
+		err = errors.Join(err, errors.New(out.String()))
+		utils.FancyHandleError(err)
+		return
+	}
+
+	cmd = exec.Command("rbd", "image-meta", "set", "rbd/MOLD-DR", "interval", "1h")
+	stdout, err = cmd.CombinedOutput()
+	if err != nil {
+		cmd.Stderr = &out
+		err = errors.Join(err, errors.New(out.String()))
+		utils.FancyHandleError(err)
+		return
+	}
 	return
 }
 
@@ -963,6 +1007,32 @@ func ConfigMold(moldUrl, moldApiKey, moldSecretKey string) (err error) {
 			utils.FancyHandleError(err)
 			return
 		}
+	}
+	return
+}
+
+func ImageMetaUpdate(interval string) (err error) {
+
+	var stdout []byte
+	cmd := exec.Command("rbd", "image-meta", "set", "rbd/MOLD-DR", "interval", interval)
+	stdout, err = cmd.CombinedOutput()
+	if err != nil {
+		err = errors.Join(err, errors.New(string(stdout)))
+		utils.FancyHandleError(err)
+		return
+	}
+	return
+}
+
+func ImageMetaRemove(imageName string) (err error) {
+
+	var stdout []byte
+	cmd := exec.Command("rbd", "image-meta ", "remove", "rbd/MOLD-DR", imageName)
+	stdout, err = cmd.CombinedOutput()
+	if err != nil {
+		err = errors.Join(err, errors.New(string(stdout)))
+		utils.FancyHandleError(err)
+		return
 	}
 	return
 }

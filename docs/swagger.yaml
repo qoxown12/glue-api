@@ -2217,6 +2217,11 @@ paths:
       -application/x-www-form-urlencoded
       description: Glue 의 미러링 클러스터 설정을 변경합니다.
       parameters:
+      - description: Mirroring Schedule Interval
+        in: formData
+        name: interval
+        required: true
+        type: string
       - description: Mold API request URL
         in: formData
         name: moldUrl

@@ -112,6 +112,13 @@ func (c *Controller) MirrorImageDelete(ctx *gin.Context) {
 		}
 	}
 
+	err = mirror.ImageMetaRemove(image)
+	if err != nil {
+		utils.FancyHandleError(err)
+		httputil.NewError(ctx, http.StatusInternalServerError, err)
+		return
+	}
+
 	ctx.IndentedJSON(http.StatusOK, Message{Message: output})
 }
 
@@ -224,23 +231,25 @@ func (c *Controller) MirrorSetup(ctx *gin.Context) {
 
 // MirrorUpdate godoc
 //
-//	@Summary		Put Mirroring Cluster
-//	@Description	Glue 의 미러링 클러스터의 설정을 변경합니다.
-//	@param			moldUrl			formData	string	false	"Mold API request URL"
-//	@param			moldApiKey		formData	string	false	"Mold Admin Api Key"
-//	@param			moldSecretKey	formData	string	false	"Mold Admin Secret Key"
-//	@Tags			Mirror
-//	@Accept			x-www-form-urlencoded
-//	@Produce		json
-//	@Success		200	{object}	model.Mold
-//	@Failure		400	{object}	httputil.HTTP400BadRequest
-//	@Failure		404	{object}	httputil.HTTP404NotFound
-//	@Failure		500	{object}	httputil.HTTP500InternalServerError
-//	@Router			/api/v1/mirror [put]
+//		@Summary		Put Mirroring Cluster
+//		@Description	Glue 의 미러링 클러스터의 설정을 변경합니다.
+//	 	@param			interval		formData 	string	true	"Mirroring Schedule Interval"
+//		@param			moldUrl			formData	string	true	"Mold API request URL"
+//		@param			moldApiKey		formData	string	true	"Mold Admin Api Key"
+//		@param			moldSecretKey	formData	string	true	"Mold Admin Secret Key"
+//		@Tags			Mirror
+//		@Accept			x-www-form-urlencoded
+//		@Produce		json
+//		@Success		200	{object}	model.Mold
+//		@Failure		400	{object}	httputil.HTTP400BadRequest
+//		@Failure		404	{object}	httputil.HTTP404NotFound
+//		@Failure		500	{object}	httputil.HTTP500InternalServerError
+//		@Router			/api/v1/mirror [put]
 func (c *Controller) MirrorUpdate(ctx *gin.Context) {
 
 	var mold = model.Mold{}
 
+	interval, _ := ctx.GetPostForm("interval")
 	moldUrl, _ := ctx.GetPostForm("moldUrl")
 	moldApiKey, _ := ctx.GetPostForm("moldApiKey")
 	moldSecretKey, _ := ctx.GetPostForm("moldSecretKey")
@@ -252,6 +261,22 @@ func (c *Controller) MirrorUpdate(ctx *gin.Context) {
 		return
 	}
 
+	rbd_image, err := mirror.RbdImage("rbd")
+	if err != nil {
+		utils.FancyHandleError(err)
+		httputil.NewError(ctx, http.StatusInternalServerError, err)
+		return
+	}
+	for i := 0; i < len(rbd_image); i++ {
+		if rbd_image[i] == "MOLD-DR" {
+			err := mirror.ImageMetaUpdate(interval)
+			if err != nil {
+				utils.FancyHandleError(err)
+				httputil.NewError(ctx, http.StatusInternalServerError, err)
+				return
+			}
+		}
+	}
 	ctx.IndentedJSON(http.StatusOK, mold)
 }
 
@@ -362,6 +387,17 @@ func (c *Controller) MirrorDelete(ctx *gin.Context) {
 			httputil.NewError(ctx, http.StatusInternalServerError, err)
 			return
 		}
+	}
+
+	// DR Mirror Image Destroy
+	cmd = exec.Command("rbd", "rm", "rbd/MOLD-DR")
+	stdout, err = cmd.CombinedOutput()
+	if err != nil {
+		cmd.Stderr = &out
+		err = errors.Join(err, errors.New(out.String()))
+		utils.FancyHandleError(err)
+		httputil.NewError(ctx, http.StatusInternalServerError, err)
+		return
 	}
 
 	//remote local peer

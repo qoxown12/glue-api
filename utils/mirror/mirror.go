@@ -333,7 +333,7 @@ func ImageConfig(poolName string, imageName string, interval string, startTime s
 func goCronTask(poolName, hostName, vmName string, imageName []string) (err error) {
 	var stdout []byte
 	currentTime := time.Now()
-	currentTime.Format(time.DateTime)
+	currentTime.Format("2006-01-02 15:04:05")
 	println("start mirror snapshot scheduler --- vm : " + vmName + " --- image : " + strings.Join(imageName, ",") + " --- host : " + hostName + " --- date : " + currentTime.String())
 	if hostName != "" {
 		println("start domfsfreeze ---")
@@ -381,7 +381,7 @@ func goCronEventListeners(scheduler gocron.Scheduler, jobID uuid.UUID, beforeIt 
 	var exist string
 	var interval string
 	currentTime := time.Now()
-	currentTime.Format(time.DateTime)
+	currentTime.Format("2006-01-02 15:04:05")
 
 	println("BeforeJobRuns: ", jobID.String(), jobName, currentTime.String())
 	mold, _ := utils.ReadMoldFile()

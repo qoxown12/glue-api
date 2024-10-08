@@ -400,6 +400,14 @@ func (c *Controller) MirrorDelete(ctx *gin.Context) {
 		return
 	}
 
+	// DR mold conf reset
+	err = mirror.ConfigMold("moldUrl", "moldApiKey", "moldSecretKey")
+	if err != nil {
+		utils.FancyHandleError(err)
+		httputil.NewError(ctx, http.StatusInternalServerError, err)
+		return
+	}
+
 	//remote local peer
 	out.Reset()
 	client, err := utils.ConnectSSH(dat.Host, privkeyname)
@@ -471,12 +479,30 @@ func (c *Controller) MirrorDelete(ctx *gin.Context) {
 		}
 	}
 
-	err = mirror.ConfigMold("moldUrl", "moldApiKey", "moldSecretKey")
+	// DR Mirror Image Destroy
+	sshcmd, err = client.Command("rbd", "rm", "rbd/MOLD-DR")
 	if err != nil {
+		sshcmd.Stderr = &out
+		err = errors.Join(err, errors.New(out.String()))
+		utils.FancyHandleError(err)
+		return
+	}
+	stdout, err = sshcmd.CombinedOutput()
+	if err != nil {
+		sshcmd.Stderr = &out
+		err = errors.Join(err, errors.New(out.String()))
 		utils.FancyHandleError(err)
 		httputil.NewError(ctx, http.StatusInternalServerError, err)
 		return
 	}
+
+	// Secondary DR mold conf reset 추가 필요
+	// err = mirror.ConfigMold("moldUrl", "moldApiKey", "moldSecretKey")
+	// if err != nil {
+	// 	utils.FancyHandleError(err)
+	// 	httputil.NewError(ctx, http.StatusInternalServerError, err)
+	// 	return
+	// }
 
 	ctx.IndentedJSON(http.StatusOK, dat)
 }

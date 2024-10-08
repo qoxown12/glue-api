@@ -899,6 +899,38 @@ func ConfigMirror(dat model.MirrorSetup, privkeyname string) (EncodedLocalToken 
 		return
 	}
 
+	sshcmd, err = client.Command("rbd", "create", "--size", "1", "rbd/MOLD-DR")
+	if err != nil {
+		sshcmd.Stderr = &out
+		err = errors.Join(err, errors.New(out.String()))
+		utils.FancyHandleError(err)
+		return
+	}
+	// sshcmd.Stderr = &out
+	stdout, err = sshcmd.CombinedOutput()
+	if err != nil {
+		sshcmd.Stderr = &out
+		err = errors.Join(err, errors.New(out.String()))
+		utils.FancyHandleError(err)
+		return
+	}
+
+	sshcmd, err = client.Command("rbd", "image-meta", "set", "rbd/MOLD-DR", "interval", "1h")
+	if err != nil {
+		sshcmd.Stderr = &out
+		err = errors.Join(err, errors.New(out.String()))
+		utils.FancyHandleError(err)
+		return
+	}
+	// sshcmd.Stderr = &out
+	stdout, err = sshcmd.CombinedOutput()
+	if err != nil {
+		sshcmd.Stderr = &out
+		err = errors.Join(err, errors.New(out.String()))
+		utils.FancyHandleError(err)
+		return
+	}
+
 	out.Reset()
 	// println(EncodedRemoteToken)
 	// cmd.Stderr = &out

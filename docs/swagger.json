@@ -2319,7 +2319,7 @@
                         "description": "Mirroring Schedule Interval",
                         "name": "interval",
                         "in": "formData",
-                        "required": false
+                        "required": true
                     },
                     {
                         "type": "string",

@@ -8,6 +8,7 @@ import (
 	"Glue-API/utils"
 	"encoding/json"
 	"log"
+	"time"
 
 	"github.com/gin-gonic/gin"
 
@@ -322,19 +323,26 @@ func auth() gin.HandlerFunc {
 
 func MirroringSchedule(mold model.Mold) {
 	if mold.MoldUrl != "moldUrl" {
-		drResult := utils.GetDisasterRecoveryClusterList()
-		getDisasterRecoveryClusterList := model.GetDisasterRecoveryClusterList{}
-		drInfo, _ := json.Marshal(drResult["getdisasterrecoveryclusterlistresponse"])
+		var drResult map[string]interface{}
+		var getDisasterRecoveryClusterList model.GetDisasterRecoveryClusterList
+		var drInfo []byte
+		for {
+			drResult = utils.GetDisasterRecoveryClusterList()
+			getDisasterRecoveryClusterList = model.GetDisasterRecoveryClusterList{}
+			drInfo, _ = json.Marshal(drResult["getdisasterrecoveryclusterlistresponse"])
+			json.Unmarshal([]byte(drInfo), &getDisasterRecoveryClusterList)
+			if getDisasterRecoveryClusterList.Count != -1 {
+				break
+			}
+			time.Sleep(3 * time.Minute)
+		}
 		json.Unmarshal([]byte(drInfo), &getDisasterRecoveryClusterList)
-		if getDisasterRecoveryClusterList.Count == -1 {
-			// mold 통신 안되는 경우 처리
-			// rbd meta 가져와서 interval 주고 mirror snapshot만 찍도록 로직
-		} else {
-			if len(getDisasterRecoveryClusterList.Disasterrecoverycluster) > 0 {
-				dr := getDisasterRecoveryClusterList.Disasterrecoverycluster
-				for i := 0; i < len(dr); i++ {
-					if len(dr[i].Drclustervmmap) > 0 {
-						for j := 0; j < len(dr[i].Drclustervmmap); j++ {
+		if len(getDisasterRecoveryClusterList.Disasterrecoverycluster) > 0 {
+			dr := getDisasterRecoveryClusterList.Disasterrecoverycluster
+			for i := 0; i < len(dr); i++ {
+				if len(dr[i].Drclustervmmap) > 0 {
+					for j := 0; j < len(dr[i].Drclustervmmap); j++ {
+						if dr[i].Drclustervmmap[j].Drclustermirrorvmvoltype == "ROOT" {
 							params1 := []utils.MoldParams{
 								{"keyword": dr[i].Drclustervmmap[j].Drclustermirrorvmname},
 							}
@@ -345,16 +353,14 @@ func MirroringSchedule(mold model.Mold) {
 							vm := listVirtualMachinesMetrics.Virtualmachine
 							for k := 0; k < len(vm); k++ {
 								if vm[k].Name == dr[i].Drclustervmmap[j].Drclustermirrorvmname {
-									// vmName := vm[k].Instancename // instance 명 저장
-									// //운영중인 가상머신만 고려한다면 호스트 이름이 있는 경우
-									// params2 := []utils.MoldParams{
-									// 	{"keyword": vm[k].Id},
-									// 	{"hostname": vm[k].hostname},
-									// }
-									// if vm[k].hostname == "" {
-									// 	//ssh hostname으로 명령어 전송
-									// }
-									// 스케줄러 실행
+									println("/////")
+									//vmName := vm[k].Instancename
+									//hostName := vm[k].Hostname
+									//스케줄러 실행 (이미지가 primary 인 경우)
+									//lastUpdate, _ := mirror.ImageMetaGetTime(dr[i].Drclustervmmap[j].Drclustermirrorvmvolpath)
+									//strings.Contains(lastUpdate, )
+									//interval, _ := mirror.ImageMetaGetInterval()
+									//mirror.ImageConfigSchedule("rbd", dr[i].Drclustervmmap[j].Drclustermirrorvmvolpath, hostName, vmName, interval)
 								}
 							}
 						}

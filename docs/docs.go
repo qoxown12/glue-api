@@ -3460,13 +3460,6 @@ const docTemplate = `{
                     },
                     {
                         "type": "string",
-                        "description": "Interval of image snapshot",
-                        "name": "interval",
-                        "in": "formData",
-                        "required": true
-                    },
-                    {
-                        "type": "string",
                         "description": "Volume Type",
                         "name": "volType",
                         "in": "formData",

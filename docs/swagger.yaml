@@ -2752,11 +2752,6 @@ paths:
         name: vmName
         required: true
         type: string
-      - description: Interval of image snapshot
-        in: formData
-        name: interval
-        required: true
-        type: string
       - description: Volume Type
         in: formData
         name: volType

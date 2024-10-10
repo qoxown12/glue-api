@@ -41,7 +41,7 @@ func (c *Controller) MirrorImageList(ctx *gin.Context) {
 
 // MirrorImageInfo godoc
 //
-//	@Summary		Show Infomation of Mirrored Snapshot
+//	@Summary		Show Information of Mirrored Snapshot
 //	@Description	미러링중인 이미지의 정보를 보여줍니다.
 //	@param			mirrorPool	path	string	true	"mirrorPool"
 //	@param			imageName	path	string	true	"imageName"
@@ -570,8 +570,7 @@ func (c *Controller) MirrorImageSetup(ctx *gin.Context) {
 //		@param			imageName	path		string	true	"Image Name for Mirroring"
 //	 	@param          hostName    path    	string  true    "Host Name"
 //	 	@param          vmName      path    	string  true    "VM Name"
-//		@param			interval	formData	string	true	"Interval of image snapshot"
-//		@param			volType	formData	string	true	"Volume Type"
+//		@param			volType		formData	string	true	"Volume Type"
 //		@Tags			Mirror
 //		@Accept			x-www-form-urlencoded
 //		@Produce		json
@@ -590,7 +589,6 @@ func (c *Controller) MirrorImageScheduleSetup(ctx *gin.Context) {
 	imageName := ctx.Param("imageName")
 	hostName := ctx.Param("hostName")
 	vmName := ctx.Param("vmName")
-	interval, _ := ctx.GetPostForm("interval")
 	volType, _ := ctx.GetPostForm("volType")
 
 	message, err := mirror.ImagePreSetup(mirrorPool, imageName)
@@ -608,6 +606,11 @@ func (c *Controller) MirrorImageScheduleSetup(ctx *gin.Context) {
 	}
 
 	if volType == "ROOT" {
+		interval, err := mirror.ImageMetaGetInterval()
+		if err != nil {
+			utils.FancyHandleError(err)
+			httputil.NewError(ctx, http.StatusInternalServerError, err)
+		}
 		_, err = mirror.ImageConfigSchedule(mirrorPool, imageName, hostName, vmName, interval)
 		if err != nil {
 			utils.FancyHandleError(err)

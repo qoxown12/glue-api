@@ -480,7 +480,6 @@ func goCronEventListeners(scheduler gocron.Scheduler, jobID uuid.UUID, beforeIt 
 			scheduler.Shutdown()
 		}
 	}
-	println(imageList)
 	return hostName, clock, imageList
 }
 
@@ -1064,6 +1063,34 @@ func ImageMetaRemove(imageName string) (err error) {
 		utils.FancyHandleError(err)
 		return
 	}
+	return
+}
+
+func ImageMetaGetTime(imageName string) (output string, err error) {
+
+	var stdout []byte
+	cmd := exec.Command("rbd", "image-meta", "get", "rbd/MOLD-DR", imageName)
+	stdout, err = cmd.CombinedOutput()
+	if err != nil {
+		err = errors.Join(err, errors.New(string(stdout)))
+		utils.FancyHandleError(err)
+		return
+	}
+	output = string(stdout)
+	return
+}
+
+func ImageMetaGetInterval() (output string, err error) {
+
+	var stdout []byte
+	cmd := exec.Command("rbd", "image-meta", "get", "rbd/MOLD-DR", "interval")
+	stdout, err = cmd.CombinedOutput()
+	if err != nil {
+		err = errors.Join(err, errors.New(string(stdout)))
+		utils.FancyHandleError(err)
+		return
+	}
+	output = string(stdout)
 	return
 }
 

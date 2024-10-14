@@ -158,6 +158,7 @@ type ListVolumesMetrics struct {
 		Id                         string        `json:"id"`
 		Isextractable              bool          `json:"isextractable"`
 		Name                       string        `json:"name"`
+		Path                       string        `json:"path"`
 		Provisioningtype           string        `json:"provisioningtype"`
 		Quiescevm                  bool          `json:"quiescevm"`
 		Serviceofferingdisplaytext string        `json:"serviceofferingdisplaytext"`

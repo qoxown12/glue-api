@@ -1102,16 +1102,22 @@ func ImageMetaUpdate(interval string) (err error) {
 	return
 }
 
-func ImageMetaRemove(imageName string) (err error) {
+func ImageMetaRemove(imageName string) (output string, err error) {
 
 	var stdout []byte
 	cmd := exec.Command("rbd", "image-meta", "remove", "rbd/MOLD-DR", imageName)
 	stdout, err = cmd.CombinedOutput()
 	if err != nil {
-		err = errors.Join(err, errors.New(string(stdout)))
-		utils.FancyHandleError(err)
-		return
+		if strings.Contains(string(stdout), "no existing metadata key") {
+			output = "Success"
+			return
+		} else {
+			err = errors.Join(err, errors.New(string(stdout)))
+			utils.FancyHandleError(err)
+			return
+		}
 	}
+	output = string(stdout)
 	return
 }
 

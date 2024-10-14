@@ -608,8 +608,11 @@ func (c *Controller) MirrorImageScheduleSetup(ctx *gin.Context) {
 	if volType == "ROOT" {
 		interval, err := mirror.ImageMetaGetInterval()
 		if err != nil {
+			mirror.ImageDeleteSchedule(mirrorPool, imageName)
+			mirror.ImagePreDelete(mirrorPool, imageName)
 			utils.FancyHandleError(err)
 			httputil.NewError(ctx, http.StatusInternalServerError, err)
+			return
 		}
 		_, err = mirror.ImageConfigSchedule(mirrorPool, imageName, hostName, vmName, interval)
 		if err != nil {

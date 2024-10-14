@@ -154,9 +154,11 @@ func (c *Controller) MirrorImageScheduleDelete(ctx *gin.Context) {
 
 	output, err = mirror.ImageMetaRemove(image)
 	if err != nil {
-		utils.FancyHandleError(err)
-		httputil.NewError(ctx, http.StatusInternalServerError, err)
-		return
+		if output != "Success" {
+			utils.FancyHandleError(err)
+			httputil.NewError(ctx, http.StatusInternalServerError, err)
+			return
+		}
 	}
 
 	ctx.IndentedJSON(http.StatusOK, Message{Message: output})

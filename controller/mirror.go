@@ -613,6 +613,20 @@ func (c *Controller) MirrorImageScheduleSetup(ctx *gin.Context) {
 		}
 		_, err = mirror.ImageConfigSchedule(mirrorPool, imageName, hostName, vmName, interval)
 		if err != nil {
+			message, err = mirror.ImageDeleteSchedule(mirrorPool, imageName)
+			if err != nil {
+				utils.FancyHandleError(err)
+				httputil.NewError(ctx, http.StatusInternalServerError, err)
+				return
+			}
+			message, err = mirror.ImagePreDelete(mirrorPool, imageName)
+			if err != nil {
+				if message != "Success" {
+					utils.FancyHandleError(err)
+					httputil.NewError(ctx, http.StatusInternalServerError, err)
+					return
+				}
+			}
 			utils.FancyHandleError(err)
 			httputil.NewError(ctx, http.StatusInternalServerError, err)
 			return

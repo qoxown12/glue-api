@@ -431,9 +431,13 @@ func goCronEventListeners(scheduler gocron.Scheduler, jobID uuid.UUID, beforeIt 
 									volInfo, _ := json.Marshal(volResult["listvolumesresponse"])
 									json.Unmarshal([]byte(volInfo), &listVolumesMetrics)
 									vol := listVolumesMetrics.Volume
-									imageList = make([]string, 0)
+									println(len(vol))
+									var imageList []string
 									for v := 0; v < len(vol); v++ {
 										imageList = append(imageList, vol[v].Id)
+										if v == len(vol)-1 {
+											imageList = imageList[:len(vol)-1]
+										}
 									}
 									if vm[k].Hostname != "" {
 										hostName = vm[k].Hostname

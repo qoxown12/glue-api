@@ -483,21 +483,66 @@ func goCronEventListeners(scheduler gocron.Scheduler, jobID uuid.UUID, beforeIt 
 	return hostName, clock, imageList
 }
 
+func ImageMirroringSnap(poolName, hostName, vmName string, imageName []string) (output string, err error) {
+	var stdout []byte
+	currentTime := time.Now()
+	println("start mirror snapshot ImageMirroringSnap --- vm : " + vmName + " --- image : " + strings.Join(imageName, ",") + " --- host : " + hostName + " --- date : " + currentTime.Format("2006-01-02 15:04:05"))
+	if hostName != "" {
+		println("start domfsfreeze ---")
+		cmd := exec.Command("ssh", "-o", "StrictHostKeyChecking=no", hostName, "virsh", "domfsfreeze", vmName)
+		stdout, err = cmd.CombinedOutput()
+		if err != nil {
+			println("failed to virsh domfsfreeze")
+			println(string(stdout))
+		}
+	}
+	if len(imageName) > 0 {
+		for i := 0; i < len(imageName); i++ {
+			cmd := exec.Command(poolName, "mirror", "image", "snapshot", poolName+"/"+imageName[i])
+			stdout, err = cmd.CombinedOutput()
+			if err != nil {
+				println("failed to create rbd mirror image snapshot path : " + imageName[i])
+				println(string(stdout))
+				exec.Command("ssh", hostName, "virsh", "domfsthaw", vmName)
+				break
+			}
+			host, _ := os.Hostname()
+			cmd = exec.Command("rbd", "image-meta", "set", "rbd/MOLD-DR", imageName[i], currentTime.Format("2006-01-02 15:04:05")+","+host)
+			stdout, err = cmd.CombinedOutput()
+			if err != nil {
+				println("failed to update image-meta")
+				println(string(stdout))
+			}
+		}
+	}
+	if hostName != "" {
+		println("start domfsthaw ---")
+		cmd := exec.Command("ssh", hostName, "virsh", "domfsthaw", vmName)
+		stdout, err = cmd.CombinedOutput()
+		if err != nil {
+			println("failed to virsh domfsthaw")
+			println(string(stdout))
+		}
+	}
+	println("end mirror snapshot ImageMirroringSnap --- vm : " + vmName + " --- image : " + strings.Join(imageName, ",") + " --- host : " + hostName + " --- date : " + currentTime.Format("2006-01-02 15:04:05"))
+	return
+}
+
 func ImageConfigSchedule(poolName, imageName, hostName, vmName, interval string) (output string, err error) {
 
 	var beforeIt, clock time.Duration
 	var imageList []string
 
 	if strings.Contains(interval, "d") {
-		interval = strings.TrimRight(interval, "d")
+		interval = strings.TrimRight(interval, "d\n")
 		ti, _ := strconv.Atoi(interval)
 		beforeIt = time.Duration(ti) * 24 * time.Hour
 	} else if strings.Contains(interval, "h") {
-		interval = strings.TrimRight(interval, "h")
+		interval = strings.TrimRight(interval, "h\n")
 		ti, _ := strconv.Atoi(interval)
 		beforeIt = time.Duration(ti) * time.Hour
 	} else if strings.Contains(interval, "m") {
-		interval = strings.TrimRight(interval, "m")
+		interval = strings.TrimRight(interval, "m\n")
 		ti, _ := strconv.Atoi(interval)
 		beforeIt = time.Duration(ti) * time.Minute
 	} else {

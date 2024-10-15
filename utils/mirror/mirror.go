@@ -389,97 +389,119 @@ func goCronEventListeners(scheduler gocron.Scheduler, jobID uuid.UUID, beforeIt 
 		getDisasterRecoveryClusterList := model.GetDisasterRecoveryClusterList{}
 		drInfo, _ := json.Marshal(drResult["getdisasterrecoveryclusterlistresponse"])
 		json.Unmarshal([]byte(drInfo), &getDisasterRecoveryClusterList)
-		if len(getDisasterRecoveryClusterList.Disasterrecoverycluster) > 0 {
-			dr := getDisasterRecoveryClusterList.Disasterrecoverycluster
-			for i := 0; i < len(dr); i++ {
-				if len(dr[i].Drclustervmmap) > 0 {
-					for j := 0; j < len(dr[i].Drclustervmmap); j++ {
-						if imageName == dr[i].Drclustervmmap[j].Drclustermirrorvmvolpath {
-							exist = "exist"
-							interval = dr[i].Details.Mirrorscheduleinterval
-							if strings.Contains(interval, "d") {
-								interval = strings.TrimRight(interval, "d")
-								ti, _ := strconv.Atoi(interval)
-								afterIt = time.Duration(ti) * 24 * time.Hour
-							} else if strings.Contains(interval, "h") {
-								interval = strings.TrimRight(interval, "h")
-								ti, _ := strconv.Atoi(interval)
-								afterIt = time.Duration(ti) * time.Hour
-							} else if strings.Contains(interval, "m") {
-								interval = strings.TrimRight(interval, "m")
-								ti, _ := strconv.Atoi(interval)
-								afterIt = time.Duration(ti) * time.Minute
-							} else {
-								// 잘못 입력된 경우 1시간으로 설정
-								afterIt = time.Duration(1) * time.Hour
-							}
-							params1 := []utils.MoldParams{
-								{"keyword": dr[i].Drclustervmmap[j].Drclustermirrorvmname},
-							}
-							vmResult := utils.GetListVirtualMachinesMetrics(params1)
-							listVirtualMachinesMetrics := model.ListVirtualMachinesMetrics{}
-							vmInfo, _ := json.Marshal(vmResult["listvirtualmachinesmetricsresponse"])
-							json.Unmarshal([]byte(vmInfo), &listVirtualMachinesMetrics)
-							vm := listVirtualMachinesMetrics.Virtualmachine
-							for k := 0; k < len(vm); k++ {
-								if vm[k].Name == dr[i].Drclustervmmap[j].Drclustermirrorvmname {
-									params2 := []utils.MoldParams{
-										{"virtualmachineid": vm[k].Id},
-									}
-									volResult := utils.GetListVolumes(params2)
-									listVolumes := model.ListVolumes{}
-									volInfo, _ := json.Marshal(volResult["listvolumesresponse"])
-									json.Unmarshal([]byte(volInfo), &listVolumes)
-									vol := listVolumes.Volume
-									println(len(vol))
-									var imageList []string
-									for v := 0; v < len(vol); v++ {
-										imageList = append(imageList, vol[v].Path)
-									}
-									println(imageList)
-									if vm[k].Hostname != "" {
-										hostName = vm[k].Hostname
-									} else {
-										hostName = ""
-									}
-									clock = beforeIt
-									if beforeIt != afterIt {
-										println("updateScheduler : ", jobID.String(), jobName, currentTime.Format("2006-01-02 15:04:05"))
-										scheduler.Update(
-											uuid.MustParse(imageName),
-											gocron.DurationJob(
-												afterIt,
-											),
-											gocron.NewTask(
-												func() {
-													goCronTask(poolName, hostName, vmName, imageList)
-												},
-											),
-											gocron.WithEventListeners(
-												gocron.BeforeJobRuns(
-													func(jobID uuid.UUID, jobName string) {
-														hostName, clock, imageList = goCronEventListeners(scheduler, jobID, afterIt, jobName, imageName, hostName, vmName, poolName)
-														afterIt = clock
-													}),
-											),
-										)
-									}
-									break
+		if getDisasterRecoveryClusterList.Count == -1 {
+			var Ti time.Duration
+			interval, _ := ImageMetaGetInterval()
+			if strings.Contains(interval, "d") {
+				interval = strings.TrimRight(interval, "d\n")
+				ti, _ := strconv.Atoi(interval)
+				Ti = time.Duration(ti) * 24 * time.Hour
+			} else if strings.Contains(interval, "h") {
+				interval = strings.TrimRight(interval, "h\n")
+				ti, _ := strconv.Atoi(interval)
+				Ti = time.Duration(ti) * time.Hour
+			} else if strings.Contains(interval, "m") {
+				interval = strings.TrimRight(interval, "m\n")
+				ti, _ := strconv.Atoi(interval)
+				Ti = time.Duration(ti) * time.Minute
+			} else {
+				Ti = time.Duration(1) * time.Hour
+			}
+			clock = Ti
+			imageList = append(imageList, imageName)
+		} else {
+			if len(getDisasterRecoveryClusterList.Disasterrecoverycluster) > 0 {
+				dr := getDisasterRecoveryClusterList.Disasterrecoverycluster
+				for i := 0; i < len(dr); i++ {
+					if len(dr[i].Drclustervmmap) > 0 {
+						for j := 0; j < len(dr[i].Drclustervmmap); j++ {
+							if imageName == dr[i].Drclustervmmap[j].Drclustermirrorvmvolpath {
+								exist = "exist"
+								interval = dr[i].Details.Mirrorscheduleinterval
+								if strings.Contains(interval, "d") {
+									interval = strings.TrimRight(interval, "d")
+									ti, _ := strconv.Atoi(interval)
+									afterIt = time.Duration(ti) * 24 * time.Hour
+								} else if strings.Contains(interval, "h") {
+									interval = strings.TrimRight(interval, "h")
+									ti, _ := strconv.Atoi(interval)
+									afterIt = time.Duration(ti) * time.Hour
+								} else if strings.Contains(interval, "m") {
+									interval = strings.TrimRight(interval, "m")
+									ti, _ := strconv.Atoi(interval)
+									afterIt = time.Duration(ti) * time.Minute
+								} else {
+									// 잘못 입력된 경우 1시간으로 설정
+									afterIt = time.Duration(1) * time.Hour
 								}
+								params1 := []utils.MoldParams{
+									{"keyword": dr[i].Drclustervmmap[j].Drclustermirrorvmname},
+								}
+								vmResult := utils.GetListVirtualMachinesMetrics(params1)
+								listVirtualMachinesMetrics := model.ListVirtualMachinesMetrics{}
+								vmInfo, _ := json.Marshal(vmResult["listvirtualmachinesmetricsresponse"])
+								json.Unmarshal([]byte(vmInfo), &listVirtualMachinesMetrics)
+								vm := listVirtualMachinesMetrics.Virtualmachine
+								for k := 0; k < len(vm); k++ {
+									if vm[k].Name == dr[i].Drclustervmmap[j].Drclustermirrorvmname {
+										params2 := []utils.MoldParams{
+											{"virtualmachineid": vm[k].Id},
+										}
+										volResult := utils.GetListVolumes(params2)
+										listVolumes := model.ListVolumes{}
+										volInfo, _ := json.Marshal(volResult["listvolumesresponse"])
+										json.Unmarshal([]byte(volInfo), &listVolumes)
+										vol := listVolumes.Volume
+										println(len(vol))
+										var imageList []string
+										for v := 0; v < len(vol); v++ {
+											imageList = append(imageList, vol[v].Path)
+										}
+										println(imageList)
+										if vm[k].Hostname != "" {
+											hostName = vm[k].Hostname
+										} else {
+											hostName = ""
+										}
+										clock = beforeIt
+										if beforeIt != afterIt {
+											println("updateScheduler : ", jobID.String(), jobName, currentTime.Format("2006-01-02 15:04:05"))
+											scheduler.Update(
+												uuid.MustParse(imageName),
+												gocron.DurationJob(
+													afterIt,
+												),
+												gocron.NewTask(
+													func() {
+														goCronTask(poolName, hostName, vmName, imageList)
+													},
+												),
+												gocron.WithEventListeners(
+													gocron.BeforeJobRuns(
+														func(jobID uuid.UUID, jobName string) {
+															hostName, clock, imageList = goCronEventListeners(scheduler, jobID, afterIt, jobName, imageName, hostName, vmName, poolName)
+															afterIt = clock
+														}),
+												),
+											)
+										}
+										break
+									}
+								}
+								break
 							}
-							break
 						}
 					}
 				}
-			}
-			if exist != "exist" {
-				println("non exist shutdown for scheduler image path : " + imageName)
-				hostName = ""
-				imageName = ""
+				if exist != "exist" {
+					println("non exist shutdown for scheduler image path : " + imageName)
+					hostName = ""
+					imageName = ""
+					scheduler.Shutdown()
+				}
+			} else {
 				scheduler.Shutdown()
 			}
-		} else {
-			scheduler.Shutdown()
 		}
 	}
 	return hostName, clock, imageList

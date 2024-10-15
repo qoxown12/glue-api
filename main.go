@@ -42,9 +42,6 @@ import (
 //	@description				Description for what is this security definition being used
 
 func main() {
-	mold, _ := utils.ReadMoldFile()
-	MirroringSchedule(mold)
-
 	// programmatically set swagger info
 
 	docs.SwaggerInfo.Title = "Glue API"
@@ -311,6 +308,9 @@ func main() {
 	}
 	r.GET("/swagger/*any", ginSwagger.WrapHandler(swaggerFiles.Handler))
 	r.RunTLS(":8080", "cert.pem", "key.pem")
+
+	mold, _ := utils.ReadMoldFile()
+	MirroringSchedule(mold)
 }
 
 /*

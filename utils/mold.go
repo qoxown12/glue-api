@@ -20,7 +20,7 @@ func GetDisasterRecoveryClusterList() map[string]interface{} {
 
 	var res map[string]interface{}
 	if err != nil {
-		log.Fatal("Failed to communicate with Mold. (getDisasterRecoveryClusterList): ", err)
+		println("Failed to communicate with Mold. (getDisasterRecoveryClusterList): ", err)
 		res = map[string]interface{}{
 			"getdisasterrecoveryclusterlistresponse": map[string]interface{}{
 				"count": -1,

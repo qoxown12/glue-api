@@ -44,7 +44,7 @@ import (
 func main() {
 
 	mold, _ := utils.ReadMoldFile()
-	MirroringSchedule(mold)
+	go MirroringSchedule(mold)
 
 	// programmatically set swagger info
 
@@ -338,10 +338,8 @@ func MirroringSchedule(mold model.Mold) {
 			drInfo, _ = json.Marshal(drResult["getdisasterrecoveryclusterlistresponse"])
 			json.Unmarshal([]byte(drInfo), &getDisasterRecoveryClusterList)
 			if getDisasterRecoveryClusterList.Count != -1 {
-				println("break")
 				break
 			}
-			println("sleep")
 			time.Sleep(5 * time.Minute)
 		}
 		json.Unmarshal([]byte(drInfo), &getDisasterRecoveryClusterList)
@@ -351,6 +349,7 @@ func MirroringSchedule(mold model.Mold) {
 				if len(dr[i].Drclustervmmap) > 0 {
 					for j := 0; j < len(dr[i].Drclustervmmap); j++ {
 						if dr[i].Drclustervmmap[j].Drclustermirrorvmvoltype == "ROOT" {
+							println("ROOT DISK")
 							params1 := []utils.MoldParams{
 								{"keyword": dr[i].Drclustervmmap[j].Drclustermirrorvmname},
 							}
@@ -360,15 +359,24 @@ func MirroringSchedule(mold model.Mold) {
 							json.Unmarshal([]byte(vmInfo), &listVirtualMachinesMetrics)
 							vm := listVirtualMachinesMetrics.Virtualmachine
 							for k := 0; k < len(vm); k++ {
+								println("VM LIST")
 								if vm[k].Name == dr[i].Drclustervmmap[j].Drclustermirrorvmname {
 									vmName := vm[k].Instancename
 									hostName := vm[k].Hostname
+									println(vmName)
+									println(hostName)
+
 									volStatus, _ := mirror.ImageStatus("rbd", dr[i].Drclustervmmap[j].Drclustermirrorvmvolpath)
+									println(volStatus.Description)
+									println(volStatus.PeerSites[0].State)
+									println(volStatus.PeerSites[0].Description)
 									if volStatus.Description == "local image is primary" && strings.Contains(volStatus.PeerSites[0].State, "replaying") && strings.Contains(volStatus.PeerSites[0].Description, "idle") {
 										interval, _ := mirror.ImageMetaGetInterval()
+										println(interval)
 										meta, _ := mirror.ImageMetaGetTime(dr[i].Drclustervmmap[j].Drclustermirrorvmvolpath)
 										info := strings.Split(meta, ",")
 										host, _ := os.Hostname()
+										println(host)
 										params2 := []utils.MoldParams{
 											{"virtualmachineid": vm[k].Id},
 										}
@@ -377,17 +385,18 @@ func MirroringSchedule(mold model.Mold) {
 										volInfo, _ := json.Marshal(volResult["listvolumesreponse"])
 										json.Unmarshal([]byte(volInfo), &listVolumes)
 										vol := listVolumes.Volume
+										println("VOL LIST")
 										var volList []string
 										for l := 0; l < len(vol); l++ {
 											volList = append(volList, vol[l].Path)
-											if l == len(vol)-1 {
-												volList = volList[:len(vol)-1]
-											}
 										}
+										println(volList)
 										if host == info[1] {
+											println("host == info[1]")
 											mirror.ImageMirroringSnap("rbd", hostName, vmName, volList)
 											mirror.ImageConfigSchedule("rbd", dr[i].Drclustervmmap[j].Drclustermirrorvmvolpath, hostName, vmName, interval)
 										} else {
+											println("host != info[1]")
 											t, _ := time.Parse("2006-01-02 15:04:05", info[0])
 											since := time.Since(t)
 											var Ti time.Duration

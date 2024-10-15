@@ -332,6 +332,7 @@ func MirroringSchedule(mold model.Mold) {
 		var drResult map[string]interface{}
 		var getDisasterRecoveryClusterList model.GetDisasterRecoveryClusterList
 		var drInfo []byte
+		var volList []string
 		for {
 			drResult = utils.GetDisasterRecoveryClusterList()
 			getDisasterRecoveryClusterList = model.GetDisasterRecoveryClusterList{}
@@ -349,7 +350,6 @@ func MirroringSchedule(mold model.Mold) {
 				if len(dr[i].Drclustervmmap) > 0 {
 					for j := 0; j < len(dr[i].Drclustervmmap); j++ {
 						if dr[i].Drclustervmmap[j].Drclustermirrorvmvoltype == "ROOT" {
-							println("ROOT DISK")
 							params1 := []utils.MoldParams{
 								{"keyword": dr[i].Drclustervmmap[j].Drclustermirrorvmname},
 							}
@@ -359,20 +359,12 @@ func MirroringSchedule(mold model.Mold) {
 							json.Unmarshal([]byte(vmInfo), &listVirtualMachinesMetrics)
 							vm := listVirtualMachinesMetrics.Virtualmachine
 							for k := 0; k < len(vm); k++ {
-								println("VM LIST")
 								if vm[k].Name == dr[i].Drclustervmmap[j].Drclustermirrorvmname {
 									vmName := vm[k].Instancename
 									hostName := vm[k].Hostname
-									println(vmName)
-									println(hostName)
-
 									volStatus, _ := mirror.ImageStatus("rbd", dr[i].Drclustervmmap[j].Drclustermirrorvmvolpath)
-									println(volStatus.Description)
-									println(volStatus.PeerSites[0].State)
-									println(volStatus.PeerSites[0].Description)
 									if volStatus.Description == "local image is primary" && strings.Contains(volStatus.PeerSites[0].State, "replaying") && strings.Contains(volStatus.PeerSites[0].Description, "idle") {
 										interval, _ := mirror.ImageMetaGetInterval()
-										println(interval)
 										meta, _ := mirror.ImageMetaGetTime(dr[i].Drclustervmmap[j].Drclustermirrorvmvolpath)
 										info := strings.Split(meta, ",")
 										host, _ := os.Hostname()
@@ -386,11 +378,11 @@ func MirroringSchedule(mold model.Mold) {
 										json.Unmarshal([]byte(volInfo), &listVolumes)
 										vol := listVolumes.Volume
 										println("VOL LIST")
-										var volList []string
 										for l := 0; l < len(vol); l++ {
 											volList = append(volList, vol[l].Path)
 										}
 										println(volList)
+										println(info[1])
 										if host == info[1] {
 											println("host == info[1]")
 											mirror.ImageMirroringSnap("rbd", hostName, vmName, volList)

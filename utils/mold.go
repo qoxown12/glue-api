@@ -2,7 +2,6 @@ package utils
 
 import (
 	"encoding/json"
-	"fmt"
 	"log"
 	"net/http"
 )
@@ -21,7 +20,7 @@ func GetDisasterRecoveryClusterList() map[string]interface{} {
 
 	var res map[string]interface{}
 	if err != nil {
-		fmt.Println("Failed to communicate with Mold. (getDisasterRecoveryClusterList): ", err)
+		log.Fatal("Failed to communicate with Mold. (getDisasterRecoveryClusterList): ", err)
 		res = map[string]interface{}{
 			"getdisasterrecoveryclusterlistresponse": map[string]interface{}{
 				"count": -1,

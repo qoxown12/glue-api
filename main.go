@@ -336,6 +336,7 @@ func MirroringSchedule(mold model.Mold) {
 			drInfo, _ = json.Marshal(drResult["getdisasterrecoveryclusterlistresponse"])
 			json.Unmarshal([]byte(drInfo), &getDisasterRecoveryClusterList)
 			if getDisasterRecoveryClusterList.Count != -1 {
+				println("break")
 				break
 			}
 			time.Sleep(5 * time.Minute)

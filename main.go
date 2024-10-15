@@ -374,16 +374,15 @@ func MirroringSchedule(mold model.Mold) {
 										}
 										volResult := utils.GetListVolumes(params2)
 										listVolumes := model.ListVolumes{}
-										volInfo, _ := json.Marshal(volResult["listvolumesreponse"])
+										volInfo, _ := json.Marshal(volResult["listvolumesresponse"])
 										json.Unmarshal([]byte(volInfo), &listVolumes)
 										vol := listVolumes.Volume
-										println("VOL LIST")
+										println(len(vol))
 										for l := 0; l < len(vol); l++ {
 											volList = append(volList, vol[l].Path)
 										}
 										println(volList)
-										println(info[1])
-										if host == info[1] {
+										if host == strings.TrimRight(info[1], "\n") {
 											println("host == info[1]")
 											mirror.ImageMirroringSnap("rbd", hostName, vmName, volList)
 											mirror.ImageConfigSchedule("rbd", dr[i].Drclustervmmap[j].Drclustermirrorvmvolpath, hostName, vmName, interval)

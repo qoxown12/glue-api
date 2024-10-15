@@ -142,7 +142,7 @@ type GetDisasterRecoveryClusterList struct {
 	} `json:"disasterrecoverycluster"`
 }
 
-type ListVolumesMetrics struct {
+type ListVolumes struct {
 	Count  int `json:"count"`
 	Volume []struct {
 		Account                    string        `json:"account"`

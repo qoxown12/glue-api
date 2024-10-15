@@ -426,11 +426,11 @@ func goCronEventListeners(scheduler gocron.Scheduler, jobID uuid.UUID, beforeIt 
 									params2 := []utils.MoldParams{
 										{"virtualmachineid": vm[k].Id},
 									}
-									volResult := utils.GetListVolumesMetrics(params2)
-									listVolumesMetrics := model.ListVolumesMetrics{}
+									volResult := utils.GetListVolumes(params2)
+									listVolumes := model.ListVolumes{}
 									volInfo, _ := json.Marshal(volResult["listvolumesresponse"])
-									json.Unmarshal([]byte(volInfo), &listVolumesMetrics)
-									vol := listVolumesMetrics.Volume
+									json.Unmarshal([]byte(volInfo), &listVolumes)
+									vol := listVolumes.Volume
 									println(len(vol))
 									var imageList []string
 									for v := 0; v < len(vol); v++ {

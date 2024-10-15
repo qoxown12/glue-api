@@ -386,8 +386,11 @@ func MirroringSchedule(mold model.Mold) {
 										} else {
 											println("host != info[1]")
 											t, _ := time.Parse("2006-01-02 15:04:05", info[0])
+											timevalue := time.Now()
+											Duration := time.Since(timevalue)
+											println(Duration.Minutes())
 											since := time.Since(t)
-											println(since)
+											println(since.Minutes())
 											var Ti time.Duration
 											if strings.Contains(interval, "d") {
 												interval = strings.TrimRight(interval, "d\n")

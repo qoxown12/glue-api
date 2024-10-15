@@ -452,12 +452,9 @@ func goCronEventListeners(scheduler gocron.Scheduler, jobID uuid.UUID, beforeIt 
 										volInfo, _ := json.Marshal(volResult["listvolumesresponse"])
 										json.Unmarshal([]byte(volInfo), &listVolumes)
 										vol := listVolumes.Volume
-										println(len(vol))
-										var imageList []string
 										for v := 0; v < len(vol); v++ {
 											imageList = append(imageList, vol[v].Path)
 										}
-										println(imageList)
 										if vm[k].Hostname != "" {
 											hostName = vm[k].Hostname
 										} else {
@@ -496,7 +493,7 @@ func goCronEventListeners(scheduler gocron.Scheduler, jobID uuid.UUID, beforeIt 
 				if exist != "exist" {
 					println("non exist shutdown for scheduler image path : " + imageName)
 					hostName = ""
-					imageName = ""
+					imageList = make([]string, 0)
 					scheduler.Shutdown()
 				}
 			} else {

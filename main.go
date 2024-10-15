@@ -377,19 +377,17 @@ func MirroringSchedule(mold model.Mold) {
 										volInfo, _ := json.Marshal(volResult["listvolumesresponse"])
 										json.Unmarshal([]byte(volInfo), &listVolumes)
 										vol := listVolumes.Volume
-										println(len(vol))
 										for l := 0; l < len(vol); l++ {
 											volList = append(volList, vol[l].Path)
 										}
-										println(volList)
 										if host == strings.TrimRight(info[1], "\n") {
-											println("host == info[1]")
 											mirror.ImageMirroringSnap("rbd", hostName, vmName, volList)
 											mirror.ImageConfigSchedule("rbd", dr[i].Drclustervmmap[j].Drclustermirrorvmvolpath, hostName, vmName, interval)
 										} else {
 											println("host != info[1]")
 											t, _ := time.Parse("2006-01-02 15:04:05", info[0])
 											since := time.Since(t)
+											println(since)
 											var Ti time.Duration
 											if strings.Contains(interval, "d") {
 												interval = strings.TrimRight(interval, "d\n")
@@ -406,10 +404,13 @@ func MirroringSchedule(mold model.Mold) {
 											} else {
 												Ti = time.Duration(1) * time.Hour
 											}
+											println(Ti)
 											if since > Ti {
+												println("since>Ti")
 												mirror.ImageMirroringSnap("rbd", hostName, vmName, volList)
 												mirror.ImageConfigSchedule("rbd", dr[i].Drclustervmmap[j].Drclustermirrorvmvolpath, hostName, vmName, interval)
 											}
+											println("else")
 										}
 									}
 									break

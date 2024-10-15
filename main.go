@@ -6,8 +6,12 @@ import (
 	"Glue-API/httputil"
 	"Glue-API/model"
 	"Glue-API/utils"
+	"Glue-API/utils/mirror"
 	"encoding/json"
 	"log"
+	"os"
+	"strconv"
+	"strings"
 	"time"
 
 	"github.com/gin-gonic/gin"
@@ -334,7 +338,7 @@ func MirroringSchedule(mold model.Mold) {
 			if getDisasterRecoveryClusterList.Count != -1 {
 				break
 			}
-			time.Sleep(3 * time.Minute)
+			time.Sleep(5 * time.Minute)
 		}
 		json.Unmarshal([]byte(drInfo), &getDisasterRecoveryClusterList)
 		if len(getDisasterRecoveryClusterList.Disasterrecoverycluster) > 0 {
@@ -353,14 +357,58 @@ func MirroringSchedule(mold model.Mold) {
 							vm := listVirtualMachinesMetrics.Virtualmachine
 							for k := 0; k < len(vm); k++ {
 								if vm[k].Name == dr[i].Drclustervmmap[j].Drclustermirrorvmname {
-									println("/////")
-									//vmName := vm[k].Instancename
-									//hostName := vm[k].Hostname
-									//스케줄러 실행 (이미지가 primary 인 경우)
-									//lastUpdate, _ := mirror.ImageMetaGetTime(dr[i].Drclustervmmap[j].Drclustermirrorvmvolpath)
-									//strings.Contains(lastUpdate, )
-									//interval, _ := mirror.ImageMetaGetInterval()
-									//mirror.ImageConfigSchedule("rbd", dr[i].Drclustervmmap[j].Drclustermirrorvmvolpath, hostName, vmName, interval)
+									vmName := vm[k].Instancename
+									hostName := vm[k].Hostname
+									volStatus, _ := mirror.ImageStatus("rbd", dr[i].Drclustervmmap[j].Drclustermirrorvmvolpath)
+									if volStatus.Description == "local image is primary" && strings.Contains(volStatus.PeerSites[0].State, "replaying") && strings.Contains(volStatus.PeerSites[0].Description, "idle") {
+										interval, _ := mirror.ImageMetaGetInterval()
+										meta, _ := mirror.ImageMetaGetTime(dr[i].Drclustervmmap[j].Drclustermirrorvmvolpath)
+										info := strings.Split(meta, ",")
+										host, _ := os.Hostname()
+										params2 := []utils.MoldParams{
+											{"virtualmachineid": vm[k].Id},
+										}
+										volResult := utils.GetListVolumes(params2)
+										listVolumes := model.ListVolumes{}
+										volInfo, _ := json.Marshal(volResult["listvolumesreponse"])
+										json.Unmarshal([]byte(volInfo), &listVolumes)
+										vol := listVolumes.Volume
+										var volList []string
+										for l := 0; l < len(vol); l++ {
+											volList = append(volList, vol[l].Path)
+											if l == len(vol)-1 {
+												volList = volList[:len(vol)-1]
+											}
+										}
+										if host == info[1] {
+											mirror.ImageMirroringSnap("rbd", hostName, vmName, volList)
+											mirror.ImageConfigSchedule("rbd", dr[i].Drclustervmmap[j].Drclustermirrorvmvolpath, hostName, vmName, interval)
+										} else {
+											t, _ := time.Parse("2006-01-02 15:04:05", info[0])
+											since := time.Since(t)
+											var Ti time.Duration
+											if strings.Contains(interval, "d") {
+												interval = strings.TrimRight(interval, "d\n")
+												ti, _ := strconv.Atoi(interval)
+												Ti = time.Duration(ti) * 24 * time.Hour
+											} else if strings.Contains(interval, "h") {
+												interval = strings.TrimRight(interval, "h\n")
+												ti, _ := strconv.Atoi(interval)
+												Ti = time.Duration(ti) * time.Hour
+											} else if strings.Contains(interval, "m") {
+												interval = strings.TrimRight(interval, "m\n")
+												ti, _ := strconv.Atoi(interval)
+												Ti = time.Duration(ti) * time.Minute
+											} else {
+												Ti = time.Duration(1) * time.Hour
+											}
+											if since > Ti {
+												mirror.ImageMirroringSnap("rbd", hostName, vmName, volList)
+												mirror.ImageConfigSchedule("rbd", dr[i].Drclustervmmap[j].Drclustermirrorvmvolpath, hostName, vmName, interval)
+											}
+										}
+									}
+									break
 								}
 							}
 						}

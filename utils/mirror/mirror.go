@@ -434,11 +434,9 @@ func goCronEventListeners(scheduler gocron.Scheduler, jobID uuid.UUID, beforeIt 
 									println(len(vol))
 									var imageList []string
 									for v := 0; v < len(vol); v++ {
-										imageList = append(imageList, vol[v].Id)
-										if v == len(vol)-1 {
-											imageList = imageList[:len(vol)-1]
-										}
+										imageList = append(imageList, vol[v].Path)
 									}
+									println(imageList)
 									if vm[k].Hostname != "" {
 										hostName = vm[k].Hostname
 									} else {

@@ -4,8 +4,8 @@ import (
 	"Glue-API/controller"
 	"Glue-API/docs"
 	"Glue-API/httputil"
-	"Glue-API/utils"
 	"Glue-API/model"
+	"Glue-API/utils"
 	"Glue-API/utils/mirror"
 	"encoding/json"
 	"log"
@@ -428,6 +428,41 @@ func MirroringSchedule(mold model.Mold) {
 								}
 							}
 						}
+					}
+				} else {
+					interval, _ := mirror.ImageMetaGetInterval()
+					meta, _ := mirror.ImageMetaGetTime("volPath")
+					info := strings.Split(meta, ",")
+					t, _ := time.Parse("2006-01-02 15:04:05", info[0])
+					test := time.Now()
+					println("현재시간 출력")
+					println(test.Format("2006-01-02 15:04:05"))
+					println("마지막 업데이트 시간 출력")
+					println(t.String())
+					since := t.Sub(test)
+					println("시간 차이")
+					println(since)
+					var Ti time.Duration
+					if strings.Contains(interval, "d") {
+						interval = strings.TrimRight(interval, "d\n")
+						ti, _ := strconv.Atoi(interval)
+						Ti = time.Duration(ti) * 24 * time.Hour
+					} else if strings.Contains(interval, "h") {
+						interval = strings.TrimRight(interval, "h\n")
+						ti, _ := strconv.Atoi(interval)
+						Ti = time.Duration(ti) * time.Hour
+					} else if strings.Contains(interval, "m") {
+						interval = strings.TrimRight(interval, "m\n")
+						ti, _ := strconv.Atoi(interval)
+						Ti = time.Duration(ti) * time.Minute
+					} else {
+						Ti = time.Duration(1) * time.Hour
+					}
+					println(Ti)
+					if since > Ti {
+						println("since>Ti")
+					} else {
+						println("since<Ti")
 					}
 				}
 			}

@@ -438,7 +438,7 @@ func MirroringSchedule(mold model.Mold) {
 					println("현재시간 출력")
 					println(test.Format("2006-01-02 15:04:05"))
 					println("마지막 업데이트 시간 출력")
-					println(t.String())
+					println(t.Format("2006-01-02 15:04:05"))
 					since := t.Sub(test)
 					println("시간 차이")
 					println(since)

@@ -5,7 +5,14 @@ import (
 	"Glue-API/docs"
 	"Glue-API/httputil"
 	"Glue-API/utils"
+	"Glue-API/model"
+	"Glue-API/utils/mirror"
+	"encoding/json"
 	"log"
+	"os"
+	"strconv"
+	"strings"
+	"time"
 
 	"github.com/gin-gonic/gin"
 
@@ -35,6 +42,10 @@ import (
 //	@description				Description for what is this security definition being used
 
 func main() {
+
+	mold, _ := utils.ReadMoldFile()
+	go MirroringSchedule(mold)
+
 	// programmatically set swagger info
 
 	docs.SwaggerInfo.Title = "Glue API"
@@ -249,24 +260,34 @@ func main() {
 		{
 			mirror.GET("", c.MirrorStatus) //Get Mirroring Status
 			//Todo
-			mirror.POST("", c.MirrorSetup) //Setup Mirroring
-			//mirror.PATCH("", c.MirrorUpdate)  //Configure Mirroring
-			mirror.DELETE("", c.MirrorDelete) //Unconfigure Mirroring
-			//
+			mirror.POST("", c.MirrorSetup)                     //Setup Mirroring Cluster
+			mirror.PUT("", c.MirrorUpdate)                     //Put Mirroring Cluster
+			mirror.DELETE("", c.MirrorDelete)                  //Unconfigure Mirroring Cluster
+			mirror.POST("/:mirrorPool", c.MirrorPoolEnable)    //Enable Mirroring Cluster
+			mirror.DELETE("/:mirrorPool", c.MirrorPoolDisable) //Disable Mirroring Cluster
+			mirrorgarbage := mirror.Group("/garbage")
+			{
+				mirrorgarbage.DELETE("", c.MirrorDeleteGarbage) //Delete Mirroring Cluster Garbage
+			}
 			mirrorimage := mirror.Group("/image")
 			{
-				mirrorimage.GET("", c.MirrorImageList)                             //List Mirroring Images
-				mirrorimage.GET("/:mirrorPool/:imageName", c.MirrorImageInfo)      //Get Image Mirroring Status
-				mirrorimage.POST("/:mirrorPool/:imageName", c.MirrorImageSetup)    //Setup Image Mirroring
-				mirrorimage.PATCH("/:mirrorPool/:imageName", c.MirrorImageUpdate)  //Config Image Mirroring
-				mirrorimage.DELETE("/:mirrorPool/:imageName", c.MirrorImageDelete) //Unconfigure Mirroring
+				mirrorimage.GET("/:mirrorPool", c.MirrorImageList)                                        //List Mirroring Images
+				mirrorimage.GET("/:mirrorPool/:imageName", c.MirrorImageInfo)                             //Get Image Mirroring Info
+				mirrorimage.POST("/:mirrorPool/:imageName", c.MirrorImageSetup)                           //Setup Image Mirroring
+				mirrorimage.POST("/:mirrorPool/:imageName/:hostName/:vmName", c.MirrorImageScheduleSetup) //Setup Image Mirroring Schedule
+				// mirrorimage.PUT("/:mirrorPool/:imageName", c.MirrorImageUpdate)                           //Config Image Mirroring
+				// mirrorimage.DELETE("/:mirrorPool/:imageName", c.MirrorImageDelete)                		//Unconfigure Image Mirroring
+				mirrorimage.DELETE("/:mirrorPool/:imageName", c.MirrorImageScheduleDelete) //Unconfigure ImageMirroring Schedule
 
-				mirrorimage.GET("/promote/:mirrorPool/:imageName", c.MirrorImagestatus)   //Promote Image
-				mirrorimage.POST("/promote/:mirrorPool/:imageName", c.MirrorImagePromote) //
-				mirrorimage.DELETE("/promote/:mirrorPool/:imageName", c.MirrorImageDemote)
+				mirrorimage.GET("/info/:mirrorPool/:imageName", c.MirrorImageParentInfo)           //Get Image Mirroring Parent Info
+				mirrorimage.GET("/status/:mirrorPool/:imageName", c.MirrorImageStatus)             //Get Image Mirroring Status
+				mirrorimage.POST("/promote/:mirrorPool/:imageName", c.MirrorImagePromote)          //Promote Image
+				mirrorimage.POST("/promote/peer/:mirrorPool/:imageName", c.MirrorImagePromotePeer) //Promote Peer Image
+				mirrorimage.DELETE("/demote/:mirrorPool/:imageName", c.MirrorImageDemote)          //Demote Image
+				mirrorimage.DELETE("/demote/peer/:mirrorPool/:imageName", c.MirrorImageDemotePeer) //Demote Peer Image
+				mirrorimage.PUT("/resync/:mirrorPool/:imageName", c.MirrorImageResync)             //Resync Image
+				mirrorimage.PUT("/resync/peer/:mirrorPool/:imageName", c.MirrorImageResyncPeer)    //Resync Peer Image
 			}
-			//
-			//
 		}
 		gwvm := v1.Group("/gwvm")
 		{
@@ -296,6 +317,7 @@ func main() {
 	settings, _ := utils.ReadConfFile()
 	r.GET("/swagger/*any", ginSwagger.WrapHandler(swaggerFiles.Handler))
 	r.RunTLS(":"+settings.ApiPort, "cert.pem", "key.pem")
+
 }
 
 /*
@@ -309,3 +331,106 @@ func auth() gin.HandlerFunc {
 	}
 }
 */
+
+func MirroringSchedule(mold model.Mold) {
+	if mold.MoldUrl != "moldUrl" {
+		var drResult map[string]interface{}
+		var getDisasterRecoveryClusterList model.GetDisasterRecoveryClusterList
+		var drInfo []byte
+		var volList []string
+		for {
+			drResult = utils.GetDisasterRecoveryClusterList()
+			getDisasterRecoveryClusterList = model.GetDisasterRecoveryClusterList{}
+			drInfo, _ = json.Marshal(drResult["getdisasterrecoveryclusterlistresponse"])
+			json.Unmarshal([]byte(drInfo), &getDisasterRecoveryClusterList)
+			if getDisasterRecoveryClusterList.Count != -1 {
+				break
+			}
+			time.Sleep(5 * time.Minute)
+		}
+		json.Unmarshal([]byte(drInfo), &getDisasterRecoveryClusterList)
+		if len(getDisasterRecoveryClusterList.Disasterrecoverycluster) > 0 {
+			dr := getDisasterRecoveryClusterList.Disasterrecoverycluster
+			for i := 0; i < len(dr); i++ {
+				if len(dr[i].Drclustervmmap) > 0 {
+					for j := 0; j < len(dr[i].Drclustervmmap); j++ {
+						if dr[i].Drclustervmmap[j].Drclustermirrorvmvoltype == "ROOT" {
+							params1 := []utils.MoldParams{
+								{"keyword": dr[i].Drclustervmmap[j].Drclustermirrorvmname},
+							}
+							vmResult := utils.GetListVirtualMachinesMetrics(params1)
+							listVirtualMachinesMetrics := model.ListVirtualMachinesMetrics{}
+							vmInfo, _ := json.Marshal(vmResult["listvirtualmachinesmetricsresponse"])
+							json.Unmarshal([]byte(vmInfo), &listVirtualMachinesMetrics)
+							vm := listVirtualMachinesMetrics.Virtualmachine
+							for k := 0; k < len(vm); k++ {
+								if vm[k].Name == dr[i].Drclustervmmap[j].Drclustermirrorvmname {
+									vmName := vm[k].Instancename
+									hostName := vm[k].Hostname
+									volStatus, _ := mirror.ImageStatus("rbd", dr[i].Drclustervmmap[j].Drclustermirrorvmvolpath)
+									if volStatus.Description == "local image is primary" && strings.Contains(volStatus.PeerSites[0].State, "replaying") && strings.Contains(volStatus.PeerSites[0].Description, "idle") {
+										interval, _ := mirror.ImageMetaGetInterval()
+										meta, _ := mirror.ImageMetaGetTime(dr[i].Drclustervmmap[j].Drclustermirrorvmvolpath)
+										info := strings.Split(meta, ",")
+										host, _ := os.Hostname()
+										println(host)
+										params2 := []utils.MoldParams{
+											{"virtualmachineid": vm[k].Id},
+										}
+										volResult := utils.GetListVolumes(params2)
+										listVolumes := model.ListVolumes{}
+										volInfo, _ := json.Marshal(volResult["listvolumesresponse"])
+										json.Unmarshal([]byte(volInfo), &listVolumes)
+										vol := listVolumes.Volume
+										for l := 0; l < len(vol); l++ {
+											volList = append(volList, vol[l].Path)
+										}
+										if host == strings.TrimRight(info[1], "\n") {
+											mirror.ImageMirroringSnap("rbd", hostName, vmName, volList)
+											mirror.ImageConfigSchedule("rbd", dr[i].Drclustervmmap[j].Drclustermirrorvmvolpath, hostName, vmName, interval)
+										} else {
+											println("host != info[1]")
+											t, _ := time.Parse("2006-01-02 15:04:05", info[0])
+											test := time.Now()
+											println("현재시간 출력")
+											println(test.Format("2006-01-02 15:04:05"))
+											println("마지막 업데이트 시간 출력")
+											println(t.String())
+											since := t.Sub(test)
+											println("시간 차이")
+											println(since)
+											var Ti time.Duration
+											if strings.Contains(interval, "d") {
+												interval = strings.TrimRight(interval, "d\n")
+												ti, _ := strconv.Atoi(interval)
+												Ti = time.Duration(ti) * 24 * time.Hour
+											} else if strings.Contains(interval, "h") {
+												interval = strings.TrimRight(interval, "h\n")
+												ti, _ := strconv.Atoi(interval)
+												Ti = time.Duration(ti) * time.Hour
+											} else if strings.Contains(interval, "m") {
+												interval = strings.TrimRight(interval, "m\n")
+												ti, _ := strconv.Atoi(interval)
+												Ti = time.Duration(ti) * time.Minute
+											} else {
+												Ti = time.Duration(1) * time.Hour
+											}
+											println(Ti)
+											if since > Ti {
+												println("since>Ti")
+												mirror.ImageMirroringSnap("rbd", hostName, vmName, volList)
+												mirror.ImageConfigSchedule("rbd", dr[i].Drclustervmmap[j].Drclustermirrorvmvolpath, hostName, vmName, interval)
+											}
+											println("else")
+										}
+									}
+									break
+								}
+							}
+						}
+					}
+				}
+			}
+		}
+	}
+}

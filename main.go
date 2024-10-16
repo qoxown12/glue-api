@@ -429,6 +429,9 @@ func MirroringSchedule(mold model.Mold) {
 					local, _ := time.LoadLocation("Asia/Seoul")
 					t, _ := time.ParseInLocation("2006-01-02 15:04:05", info[0], local)
 					since := time.Since(t)
+					println(t.Format("2006-01-02 15:04:05"))
+					println(time.Now().Format("2006-01-02 15:04:05"))
+					println(since)
 					var Ti time.Duration
 					if strings.Contains(interval, "d") {
 						interval = strings.TrimRight(interval, "d\n")
@@ -445,6 +448,7 @@ func MirroringSchedule(mold model.Mold) {
 					} else {
 						Ti = time.Duration(1) * time.Hour
 					}
+					println(Ti)
 					if since > Ti {
 						println("since>Ti")
 					} else {

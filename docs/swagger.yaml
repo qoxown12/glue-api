@@ -803,6 +803,44 @@ paths:
       summary: Show List of Glue Hosts
       tags:
       - Hosts
+  /api/v1/glue/pw:
+    get:
+      consumes:
+      - application/x-www-form-urlencoded
+      description: Glue 사용자의 비밀번호 암호화 값을 생성합니다.
+      parameters:
+      - description: Glue User's Password
+        in: query
+        name: pass_word
+        required: true
+        type: string
+      produces:
+      - application/json
+      responses:
+        "200":
+          description: OK
+          schema:
+            items:
+              properties:
+                pass_word:
+                  type: string
+              type: object
+            type: array
+        "400":
+          description: Bad Request
+          schema:
+            $ref: '#/definitions/HTTP400BadRequest'
+        "404":
+          description: Not Found
+          schema:
+            $ref: '#/definitions/HTTP404NotFound'
+        "500":
+          description: Internal Server Error
+          schema:
+            $ref: '#/definitions/HTTP500InternalServerError'
+      summary: Creates the glue user's password encryption value.
+      tags:
+      - Passwd
   /api/v1/glue/version:
     get:
       consumes:
@@ -4877,6 +4915,130 @@ paths:
           schema:
             $ref: '#/definitions/HTTP500InternalServerError'
       summary: Create of Smb Service
+      tags:
+      - SMB
+  /api/v1/smb/folder:
+    delete:
+      consumes:
+      - application/x-www-form-urlencoded
+      description: SMB 공유 폴더를 삭제합니다.
+      parameters:
+      - collectionFormat: multi
+        description: SMB Server Host Name
+        in: query
+        items:
+          type: string
+        name: hosts
+        required: true
+        type: array
+      - description: SMB Share Folder Name
+        in: query
+        name: folder_name
+        required: true
+        type: string
+      - description: SMB Server Actual Shared Path
+        in: query
+        name: path
+        required: true
+        type: string
+      - description: Glue File System Name
+        in: query
+        name: fs_name
+        required: true
+        type: string
+      produces:
+      - application/json
+      responses:
+        "200":
+          description: Success
+          schema:
+            type: string
+        "400":
+          description: Bad Request
+          schema:
+            $ref: '#/definitions/HTTP400BadRequest'
+        "404":
+          description: Not Found
+          schema:
+            $ref: '#/definitions/HTTP404NotFound'
+        "500":
+          description: Internal Server Error
+          schema:
+            $ref: '#/definitions/HTTP500InternalServerError'
+      summary: Delete Share Folder of Smb Service
+      tags:
+      - SMB
+    post:
+      consumes:
+      - application/x-www-form-urlencoded
+      description: SMB 공유 폴더를 추가 생성합니다.
+      parameters:
+      - collectionFormat: multi
+        description: SMB Server Host Name
+        in: formData
+        items:
+          type: string
+        name: hosts
+        required: true
+        type: array
+      - default: normal
+        description: Samba Security Type
+        enum:
+        - normal
+        - ads
+        in: formData
+        name: sec_type
+        required: true
+        type: string
+      - description: SMB Share Folder Name
+        in: formData
+        name: folder_name
+        required: true
+        type: string
+      - description: SMB Server Actual Shared Path
+        in: formData
+        name: path
+        required: true
+        type: string
+      - description: Glue File System Name
+        in: formData
+        name: fs_name
+        required: true
+        type: string
+      - description: Glue File System Volume Path
+        in: formData
+        name: volume_path
+        required: true
+        type: string
+      - default: true
+        description: Active Directory Client Side Caching Policy
+        enum:
+        - true
+        - false
+        in: formData
+        name: cache_policy
+        required: true
+        type: boolean
+      produces:
+      - application/json
+      responses:
+        "200":
+          description: Success
+          schema:
+            type: string
+        "400":
+          description: Bad Request
+          schema:
+            $ref: '#/definitions/HTTP400BadRequest'
+        "404":
+          description: Not Found
+          schema:
+            $ref: '#/definitions/HTTP404NotFound'
+        "500":
+          description: Internal Server Error
+          schema:
+            $ref: '#/definitions/HTTP500InternalServerError'
+      summary: Add Share Folder of Smb Service
       tags:
       - SMB
   /api/v1/smb/user:

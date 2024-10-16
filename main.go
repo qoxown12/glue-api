@@ -4,8 +4,8 @@ import (
 	"Glue-API/controller"
 	"Glue-API/docs"
 	"Glue-API/httputil"
-	"Glue-API/model"
 	"Glue-API/utils"
+	"Glue-API/model"
 	"Glue-API/utils/mirror"
 	"encoding/json"
 	"log"
@@ -68,10 +68,9 @@ func main() {
 		glue := v1.Group("/glue")
 		{
 			glue.GET("", c.GlueStatus)
-
 			glue.GET("/hosts", c.HostList)
-
 			glue.GET("/version", c.GlueVersion)
+			glue.GET("/pw", c.PwEncryption)
 		}
 		pool := v1.Group("/pool")
 		{
@@ -194,7 +193,12 @@ func main() {
 			smb.POST("", c.SmbCreate)
 			smb.DELETE("", c.SmbDelete)
 			smb.OPTIONS("", c.SmbOption)
-
+			smb_folder := smb.Group("/folder")
+			{
+				smb_folder.POST("", c.SmbShareFolderAdd)
+				smb_folder.DELETE("", c.SmbShareFolderDelete)
+				smb_folder.OPTIONS("", c.SmbOption)
+			}
 			smb_user := smb.Group("/user")
 			{
 				smb_user.POST("", c.SmbUserCreate)
@@ -310,8 +314,9 @@ func main() {
 		*/
 		r.Any("/version", c.Version)
 	}
+	settings, _ := utils.ReadConfFile()
 	r.GET("/swagger/*any", ginSwagger.WrapHandler(swaggerFiles.Handler))
-	r.RunTLS(":8080", "cert.pem", "key.pem")
+	r.RunTLS(":"+settings.ApiPort, "cert.pem", "key.pem")
 
 }
 

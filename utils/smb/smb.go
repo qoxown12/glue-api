@@ -106,6 +106,33 @@ func SmbUserCreate(hostname string, username string, password string) (output st
 	output = "Success"
 	return
 }
+
+func SmbShareFolderAdd(hostname string, cache_policy string, folder string, path string, fs_name string, volume_path string) (output string, err error) {
+	var stdout []byte
+	cmd := exec.Command("ssh", "-o", "StrictHostKeyChecking=no", hostname, "sh", Samba_Execute_sh, "share_folder_add", "--cache_policy", cache_policy, "--folder", folder, "--path", path, "--fs_name", fs_name, "--volume_path", volume_path)
+	stdout, err = cmd.CombinedOutput()
+	if err != nil {
+		err = errors.New(string("(") + hostname + string(") ") + string(stdout))
+		utils.FancyHandleError(err)
+		return
+	}
+	output = "Success"
+	return
+}
+
+func SmbShareFolderDelete(hostname string, folder string, path string, fs_name string) (output string, err error) {
+	var stdout []byte
+	cmd := exec.Command("ssh", "-o", "StrictHostKeyChecking=no", hostname, "sh", Samba_Execute_sh, "share_folder_delete", "--folder", folder, "--path", path, "--fs_name", fs_name)
+	stdout, err = cmd.CombinedOutput()
+	if err != nil {
+		err = errors.New(string("(") + hostname + string(") ") + string(stdout))
+		utils.FancyHandleError(err)
+		return
+	}
+	output = "Success"
+	return
+}
+
 func SmbUserUpdate(hostname string, username string, password string) (output string, err error) {
 	var stdout []byte
 	cmd := exec.Command("ssh", "-o", "StrictHostKeyChecking=no", hostname, "sh", Samba_Execute_sh, "user_update", "normal", "--username", username, "--password", password)

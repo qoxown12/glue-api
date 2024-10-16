@@ -127,3 +127,7 @@ type Images []struct {
 } // @name Images
 
 type ImageCommon interface{} // @name ImageCommon
+
+type PwEncryption []struct {
+	Pass_Word string `json:"pass_word"`
+} // @name PwEncryption

@@ -116,6 +116,64 @@
                 }
             }
         },
+        "/api/v1/glue/pw": {
+            "get": {
+                "description": "Glue 사용자의 비밀번호 암호화 값을 생성합니다.",
+                "consumes": [
+                    "application/x-www-form-urlencoded"
+                ],
+                "produces": [
+                    "application/json"
+                ],
+                "tags": [
+                    "Passwd"
+                ],
+                "summary": "Creates the glue user's password encryption value.",
+                "parameters": [
+                    {
+                        "type": "string",
+                        "description": "Glue User's Password",
+                        "name": "pass_word",
+                        "in": "query",
+                        "required": true
+                    }
+                ],
+                "responses": {
+                    "200": {
+                        "description": "OK",
+                        "schema": {
+                            "type": "array",
+                            "items": {
+                                "type": "object",
+                                "properties": {
+                                    "pass_word": {
+                                        "type": "string"
+                                    }
+                                }
+                            }
+                        }
+                    },
+                    "400": {
+                        "description": "Bad Request",
+                        "schema": {
+                            "$ref": "#/definitions/HTTP400BadRequest"
+                        }
+                    },
+                    "404": {
+                        "description": "Not Found",
+                        "schema": {
+                            "$ref": "#/definitions/HTTP404NotFound"
+                        }
+                    },
+                    "500": {
+                        "description": "Internal Server Error",
+                        "schema": {
+                            "$ref": "#/definitions/HTTP500InternalServerError"
+                        }
+                    }
+                }
+            }
+        },
         "/api/v1/glue/version": {
             "get": {
                 "description": "Glue 의 버전을 보여줍니다.",
@@ -5376,6 +5434,185 @@
                         "collectionFormat": "multi",
                         "description": "SMB Server Host Name",
                         "name": "hosts",
+                        "in": "query",
+                        "required": true
+                    }
+                ],
+                "responses": {
+                    "200": {
+                        "description": "Success",
+                        "schema": {
+                            "type": "string"
+                        }
+                    },
+                    "400": {
+                        "description": "Bad Request",
+                        "schema": {
+                            "$ref": "#/definitions/HTTP400BadRequest"
+                        }
+                    },
+                    "404": {
+                        "description": "Not Found",
+                        "schema": {
+                            "$ref": "#/definitions/HTTP404NotFound"
+                        }
+                    },
+                    "500": {
+                        "description": "Internal Server Error",
+                        "schema": {
+                            "$ref": "#/definitions/HTTP500InternalServerError"
+                        }
+                    }
+                }
+            }
+        },
+        "/api/v1/smb/folder": {
+            "post": {
+                "description": "SMB 공유 폴더를 추가 생성합니다.",
+                "consumes": [
+                    "application/x-www-form-urlencoded"
+                ],
+                "produces": [
+                    "application/json"
+                ],
+                "tags": [
+                    "SMB"
+                ],
+                "summary": "Add Share Folder of Smb Service",
+                "parameters": [
+                    {
+                        "type": "array",
+                        "items": {
+                            "type": "string"
+                        },
+                        "collectionFormat": "multi",
+                        "description": "SMB Server Host Name",
+                        "name": "hosts",
+                        "in": "formData",
+                        "required": true
+                    },
+                    {
+                        "enum": [
+                            "normal",
+                            "ads"
+                        ],
+                        "type": "string",
+                        "default": "normal",
+                        "description": "Samba Security Type",
+                        "name": "sec_type",
+                        "in": "formData",
+                        "required": true
+                    },
+                    {
+                        "type": "string",
+                        "description": "SMB Share Folder Name",
+                        "name": "folder_name",
+                        "in": "formData",
+                        "required": true
+                    },
+                    {
+                        "type": "string",
+                        "description": "SMB Server Actual Shared Path",
+                        "name": "path",
+                        "in": "formData",
+                        "required": true
+                    },
+                    {
+                        "type": "string",
+                        "description": "Glue File System Name",
+                        "name": "fs_name",
+                        "in": "formData",
+                        "required": true
+                    },
+                    {
+                        "type": "string",
+                        "description": "Glue File System Volume Path",
+                        "name": "volume_path",
+                        "in": "formData",
+                        "required": true
+                    },
+                    {
+                        "enum": [
+                            true,
+                            false
+                        ],
+                        "type": "boolean",
+                        "default": true,
+                        "description": "Active Directory Client Side Caching Policy",
+                        "name": "cache_policy",
+                        "in": "formData",
+                        "required": true
+                    }
+                ],
+                "responses": {
+                    "200": {
+                        "description": "Success",
+                        "schema": {
+                            "type": "string"
+                        }
+                    },
+                    "400": {
+                        "description": "Bad Request",
+                        "schema": {
+                            "$ref": "#/definitions/HTTP400BadRequest"
+                        }
+                    },
+                    "404": {
+                        "description": "Not Found",
+                        "schema": {
+                            "$ref": "#/definitions/HTTP404NotFound"
+                        }
+                    },
+                    "500": {
+                        "description": "Internal Server Error",
+                        "schema": {
+                            "$ref": "#/definitions/HTTP500InternalServerError"
+                        }
+                    }
+                }
+            },
+            "delete": {
+                "description": "SMB 공유 폴더를 삭제합니다.",
+                "consumes": [
+                    "application/x-www-form-urlencoded"
+                ],
+                "produces": [
+                    "application/json"
+                ],
+                "tags": [
+                    "SMB"
+                ],
+                "summary": "Delete Share Folder of Smb Service",
+                "parameters": [
+                    {
+                        "type": "array",
+                        "items": {
+                            "type": "string"
+                        },
+                        "collectionFormat": "multi",
+                        "description": "SMB Server Host Name",
+                        "name": "hosts",
+                        "in": "query",
+                        "required": true
+                    },
+                    {
+                        "type": "string",
+                        "description": "SMB Share Folder Name",
+                        "name": "folder_name",
+                        "in": "query",
+                        "required": true
+                    },
+                    {
+                        "type": "string",
+                        "description": "SMB Server Actual Shared Path",
+                        "name": "path",
+                        "in": "query",
+                        "required": true
+                    },
+                    {
+                        "type": "string",
+                        "description": "Glue File System Name",
+                        "name": "fs_name",
                         "in": "query",
                         "required": true
                     }

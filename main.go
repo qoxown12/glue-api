@@ -271,13 +271,14 @@ func main() {
 			}
 			mirrorimage := mirror.Group("/image")
 			{
-				mirrorimage.GET("/:mirrorPool", c.MirrorImageList)                                        //List Mirroring Images
-				mirrorimage.GET("/:mirrorPool/:imageName", c.MirrorImageInfo)                             //Get Image Mirroring Info
-				mirrorimage.POST("/:mirrorPool/:imageName", c.MirrorImageSetup)                           //Setup Image Mirroring
+				mirrorimage.GET("/:mirrorPool", c.MirrorImageList)            //List Mirroring Images
+				mirrorimage.GET("/:mirrorPool/:imageName", c.MirrorImageInfo) //Get Image Mirroring Info
+				// mirrorimage.POST("/:mirrorPool/:imageName", c.MirrorImageSetup)                        //Setup Image Mirroring
+				// mirrorimage.PUT("/:mirrorPool/:imageName", c.MirrorImageUpdate)                        //Config Image Mirroring
+				// mirrorimage.DELETE("/:mirrorPool/:imageName", c.MirrorImageDelete)                	  //Unconfigure Image Mirroring
 				mirrorimage.POST("/:mirrorPool/:imageName/:hostName/:vmName", c.MirrorImageScheduleSetup) //Setup Image Mirroring Schedule
-				// mirrorimage.PUT("/:mirrorPool/:imageName", c.MirrorImageUpdate)                           //Config Image Mirroring
-				// mirrorimage.DELETE("/:mirrorPool/:imageName", c.MirrorImageDelete)                		//Unconfigure Image Mirroring
-				mirrorimage.DELETE("/:mirrorPool/:imageName", c.MirrorImageScheduleDelete) //Unconfigure ImageMirroring Schedule
+				mirrorimage.POST("/:mirrorPool/:vmName", c.MirrorImageSnap)                               //Take Image Mirroring Snapshot or Setup Image Mirroring Snapshot Schedule
+				mirrorimage.DELETE("/:mirrorPool/:imageName", c.MirrorImageScheduleDelete)                //Unconfigure ImageMirroring Schedule
 
 				mirrorimage.GET("/info/:mirrorPool/:imageName", c.MirrorImageParentInfo)           //Get Image Mirroring Parent Info
 				mirrorimage.GET("/status/:mirrorPool/:imageName", c.MirrorImageStatus)             //Get Image Mirroring Status
@@ -338,6 +339,7 @@ func MirroringSchedule(mold model.Mold) {
 		var getDisasterRecoveryClusterList model.GetDisasterRecoveryClusterList
 		var drInfo []byte
 		var volList []string
+		// mold 통신이 되는 경우 미러링 스케줄러 실행
 		for {
 			drResult = utils.GetDisasterRecoveryClusterList()
 			getDisasterRecoveryClusterList = model.GetDisasterRecoveryClusterList{}
@@ -368,6 +370,7 @@ func MirroringSchedule(mold model.Mold) {
 									vmName := vm[k].Instancename
 									hostName := vm[k].Hostname
 									volStatus, _ := mirror.ImageStatus("rbd", dr[i].Drclustervmmap[j].Drclustermirrorvmvolpath)
+									// 미러링 이미지 상태가 Peer와 정상적으로 ready, resync 인 경우
 									if volStatus.Description == "local image is primary" && strings.Contains(volStatus.PeerSites[0].State, "replaying") && strings.Contains(volStatus.PeerSites[0].Description, "idle") {
 										interval, _ := mirror.ImageMetaGetInterval()
 										meta, _ := mirror.ImageMetaGetTime(dr[i].Drclustervmmap[j].Drclustermirrorvmvolpath)

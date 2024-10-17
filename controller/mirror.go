@@ -525,44 +525,44 @@ func (c *Controller) MirrorDelete(ctx *gin.Context) {
 //	@Failure		404	{object}	httputil.HTTP404NotFound
 //	@Failure		500	{object}	httputil.HTTP500InternalServerError
 //	@Router			/api/v1/mirror/image/{mirrorPool}/{imageName} [post]
-func (c *Controller) MirrorImageSetup(ctx *gin.Context) {
-	//var dat model.MirrorSetup
-	var dat = struct {
-		Message string
-	}{}
+// func (c *Controller) MirrorImageSetup(ctx *gin.Context) {
+// 	//var dat model.MirrorSetup
+// 	var dat = struct {
+// 		Message string
+// 	}{}
 
-	//mirrorPool, _ := ctx.GetPostForm("mirrorPool")
-	mirrorPool := ctx.Param("mirrorPool")
-	imageName := ctx.Param("imageName")
-	//imageName, _ := ctx.GetPostForm("imageName")
-	interval, _ := ctx.GetPostForm("interval")
-	startTime, _ := ctx.GetPostForm("startTime")
-	print(startTime)
+// 	//mirrorPool, _ := ctx.GetPostForm("mirrorPool")
+// 	mirrorPool := ctx.Param("mirrorPool")
+// 	imageName := ctx.Param("imageName")
+// 	//imageName, _ := ctx.GetPostForm("imageName")
+// 	interval, _ := ctx.GetPostForm("interval")
+// 	startTime, _ := ctx.GetPostForm("startTime")
+// 	print(startTime)
 
-	message, err := mirror.ImagePreSetup(mirrorPool, imageName)
-	if err != nil {
-		utils.FancyHandleError(err)
-		httputil.NewError(ctx, http.StatusInternalServerError, err)
-		return
-	}
+// 	message, err := mirror.ImagePreSetup(mirrorPool, imageName)
+// 	if err != nil {
+// 		utils.FancyHandleError(err)
+// 		httputil.NewError(ctx, http.StatusInternalServerError, err)
+// 		return
+// 	}
 
-	message, err = mirror.ImageSetup(mirrorPool, imageName)
-	if err != nil {
-		utils.FancyHandleError(err)
-		httputil.NewError(ctx, http.StatusInternalServerError, err)
-		return
-	}
+// 	message, err = mirror.ImageSetup(mirrorPool, imageName)
+// 	if err != nil {
+// 		utils.FancyHandleError(err)
+// 		httputil.NewError(ctx, http.StatusInternalServerError, err)
+// 		return
+// 	}
 
-	message, err = mirror.ImageConfig(mirrorPool, imageName, interval, startTime)
-	if err != nil {
-		utils.FancyHandleError(err)
-		httputil.NewError(ctx, http.StatusInternalServerError, err)
-		return
-	}
-	dat.Message = message
-	ctx.IndentedJSON(http.StatusOK, dat)
+// 	message, err = mirror.ImageConfig(mirrorPool, imageName, interval, startTime)
+// 	if err != nil {
+// 		utils.FancyHandleError(err)
+// 		httputil.NewError(ctx, http.StatusInternalServerError, err)
+// 		return
+// 	}
+// 	dat.Message = message
+// 	ctx.IndentedJSON(http.StatusOK, dat)
 
-}
+// }
 
 // MirrorImageScheduleSetup godoc
 //
@@ -629,6 +629,60 @@ func (c *Controller) MirrorImageScheduleSetup(ctx *gin.Context) {
 	dat.Message = message
 	ctx.IndentedJSON(http.StatusOK, dat)
 
+}
+
+// MirrorImageSnap godoc
+//
+//		@Summary		Take Image Mirroring Snapshot or Setup Image Mirroring Snapshot Schedule
+//		@Description	Glue 의 이미지에 미러링 스냅샷을 생성하거나 스케줄을 설정합니다.
+//		@param			mirrorPool	path		string	true	"Pool Name for Mirroring"
+//		@param			vmName   	path		string	true	"VM Name for Mirroring"
+//	 	@param          hostName    formData    string  false   "Host Name"
+//	 	@param          imageName   formData    string  false   "Image Name (Schedule)"
+//	 	@param          imageList   formData    string  false   "Image List (Manual)"
+//		@Tags			Mirror
+//		@Accept			x-www-form-urlencoded
+//		@Produce		json
+//		@Success		200	{object}	model.ImageMirror
+//		@Failure		400	{object}	httputil.HTTP400BadRequest
+//		@Failure		404	{object}	httputil.HTTP404NotFound
+//		@Failure		500	{object}	httputil.HTTP500InternalServerError
+//		@Router			/api/v1/mirror/image/{mirrorPool}/{vmName} [post]
+func (c *Controller) MirrorImageSnap(ctx *gin.Context) {
+
+	var dat = struct {
+		Message string
+	}{}
+
+	mirrorPool := ctx.Param("mirrorPool")
+	vmName := ctx.Param("vmName")
+	hostName := ctx.Param("hostName")
+	imageName := ctx.Param("imageName")
+	imageList := ctx.Param("imageList")
+
+	// 수동 스냅샷 생성
+	if imageName == "" {
+		volList := strings.Split(imageList, ",")
+		message, _ := mirror.ImageMirroringSnap(mirrorPool, hostName, vmName, volList)
+		dat.Message = message
+	} else {
+		interval, err := mirror.ImageMetaGetInterval()
+		if err != nil {
+			utils.FancyHandleError(err)
+			httputil.NewError(ctx, http.StatusInternalServerError, err)
+			return
+		}
+		// 스냅샷 스케줄 설정
+		message, err := mirror.ImageConfigSchedule(mirrorPool, imageName, hostName, vmName, interval)
+		if err != nil {
+			utils.FancyHandleError(err)
+			httputil.NewError(ctx, http.StatusInternalServerError, err)
+			return
+		}
+		dat.Message = message
+	}
+
+	ctx.IndentedJSON(http.StatusOK, dat)
 }
 
 // MirrorImageUpdate godoc
@@ -1215,6 +1269,25 @@ func (c *Controller) MirrorDeleteGarbage(ctx *gin.Context) {
 	if err != nil {
 		cmd.Stderr = &out
 		err = errors.Join(err, errors.New(out.String()))
+		utils.FancyHandleError(err)
+		httputil.NewError(ctx, http.StatusInternalServerError, err)
+		return
+	}
+
+	// DR Mirror Image Destroy
+	cmd = exec.Command("rbd", "rm", "rbd/MOLD-DR")
+	stdout, err = cmd.CombinedOutput()
+	if err != nil {
+		cmd.Stderr = &out
+		err = errors.Join(err, errors.New(out.String()))
+		utils.FancyHandleError(err)
+		httputil.NewError(ctx, http.StatusInternalServerError, err)
+		return
+	}
+
+	// DR mold conf reset
+	err = mirror.ConfigMold("moldUrl", "moldApiKey", "moldSecretKey")
+	if err != nil {
 		utils.FancyHandleError(err)
 		httputil.NewError(ctx, http.StatusInternalServerError, err)
 		return

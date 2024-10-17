@@ -2817,6 +2817,59 @@ paths:
       summary: Setup Image Mirroring
       tags:
       - Mirror
+  /api/v1/mirror/image/{mirrorPool}/{vmName}:
+    post:
+      consumes:
+      - application/x-www-form-urlencoded
+      description: Glue 의 이미지에 미러링 스냅샷을 생성하거나 스케줄을 설정합니다.
+      parameters:
+      - description: Pool Name for Mirroring
+        in: path
+        name: mirrorPool
+        required: true
+        type: string
+      - description: VM Name for Mirroring
+        in: path
+        name: vmName
+        required: true
+        type: string
+      - description: Host Name for Mirroring VM
+        in: path
+        name: hostName
+        required: false
+        type: string
+      - description: Image Name for Mirroring (Schedule)
+        in: formData
+        name: imageName
+        required: false
+        type: string
+      - description: Image List for Mirroring (Manual)
+        in: formData
+        name: imageList
+        required: false
+        type: string
+      produces:
+      - application/json
+      responses:
+        "200":
+          description: OK
+          schema:
+            $ref: '#/definitions/ImageMirror'
+        "400":
+          description: Bad Request
+          schema:
+            $ref: '#/definitions/HTTP400BadRequest'
+        "404":
+          description: Not Found
+          schema:
+            $ref: '#/definitions/HTTP404NotFound'
+        "500":
+          description: Internal Server Error
+          schema:
+            $ref: '#/definitions/HTTP500InternalServerError'
+      summary: Setup Image Mirroring
+      tags:
+      - Mirror
   /api/v1/mirror/image/info/{mirrorPool}/{imageName}:
     get:
       consumes:

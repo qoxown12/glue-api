@@ -546,6 +546,7 @@ func ImageMirroringSnap(poolName, hostName, vmName string, imageName []string) (
 		}
 	}
 	println("end mirror snapshot ImageMirroringSnap --- vm : " + vmName + " --- image : " + strings.Join(imageName, ",") + " --- host : " + hostName + " --- date : " + currentTime.Format("2006-01-02 15:04:05"))
+	output = string(stdout)
 	return
 }
 
@@ -605,6 +606,7 @@ func ImageConfigSchedule(poolName, imageName, hostName, vmName, interval string)
 	}
 	scheduler.Start()
 
+	output = "Success"
 	println(j.ID().ID())
 	return
 }

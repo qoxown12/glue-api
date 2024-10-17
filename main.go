@@ -277,17 +277,16 @@ func main() {
 				// mirrorimage.PUT("/:mirrorPool/:imageName", c.MirrorImageUpdate)                        //Config Image Mirroring
 				// mirrorimage.DELETE("/:mirrorPool/:imageName", c.MirrorImageDelete)                	  //Unconfigure Image Mirroring
 				mirrorimage.POST("/:mirrorPool/:imageName/:hostName/:vmName", c.MirrorImageScheduleSetup) //Setup Image Mirroring Schedule
-				mirrorimage.POST("/:mirrorPool/:vmName", c.MirrorImageSnap)                               //Take Image Mirroring Snapshot or Setup Image Mirroring Snapshot Schedule
 				mirrorimage.DELETE("/:mirrorPool/:imageName", c.MirrorImageScheduleDelete)                //Unconfigure ImageMirroring Schedule
-
-				mirrorimage.GET("/info/:mirrorPool/:imageName", c.MirrorImageParentInfo)           //Get Image Mirroring Parent Info
-				mirrorimage.GET("/status/:mirrorPool/:imageName", c.MirrorImageStatus)             //Get Image Mirroring Status
-				mirrorimage.POST("/promote/:mirrorPool/:imageName", c.MirrorImagePromote)          //Promote Image
-				mirrorimage.POST("/promote/peer/:mirrorPool/:imageName", c.MirrorImagePromotePeer) //Promote Peer Image
-				mirrorimage.DELETE("/demote/:mirrorPool/:imageName", c.MirrorImageDemote)          //Demote Image
-				mirrorimage.DELETE("/demote/peer/:mirrorPool/:imageName", c.MirrorImageDemotePeer) //Demote Peer Image
-				mirrorimage.PUT("/resync/:mirrorPool/:imageName", c.MirrorImageResync)             //Resync Image
-				mirrorimage.PUT("/resync/peer/:mirrorPool/:imageName", c.MirrorImageResyncPeer)    //Resync Peer Image
+				mirrorimage.POST("/snapshot/:mirrorPool/:vmName", c.MirrorImageSnap)                      //Take Image Mirroring Snapshot or Setup Image Mirroring Snapshot Schedule
+				mirrorimage.GET("/info/:mirrorPool/:imageName", c.MirrorImageParentInfo)                  //Get Image Mirroring Parent Info
+				mirrorimage.GET("/status/:mirrorPool/:imageName", c.MirrorImageStatus)                    //Get Image Mirroring Status
+				mirrorimage.POST("/promote/:mirrorPool/:imageName", c.MirrorImagePromote)                 //Promote Image
+				mirrorimage.POST("/promote/peer/:mirrorPool/:imageName", c.MirrorImagePromotePeer)        //Promote Peer Image
+				mirrorimage.DELETE("/demote/:mirrorPool/:imageName", c.MirrorImageDemote)                 //Demote Image
+				mirrorimage.DELETE("/demote/peer/:mirrorPool/:imageName", c.MirrorImageDemotePeer)        //Demote Peer Image
+				mirrorimage.PUT("/resync/:mirrorPool/:imageName", c.MirrorImageResync)                    //Resync Image
+				mirrorimage.PUT("/resync/peer/:mirrorPool/:imageName", c.MirrorImageResyncPeer)           //Resync Peer Image
 			}
 		}
 		gwvm := v1.Group("/gwvm")

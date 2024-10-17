@@ -661,18 +661,20 @@ func (c *Controller) MirrorImageSnap(ctx *gin.Context) {
 	imageList := ctx.Param("imageList")
 
 	// 수동 스냅샷 생성
-	if imageName == "" {
+	if imageList != "" {
 		volList := strings.Split(imageList, ",")
 		message, _ := mirror.ImageMirroringSnap(mirrorPool, hostName, vmName, volList)
 		dat.Message = message
-	} else {
+	}
+
+	// 스냅샷 스케줄 설정
+	if imageName != "" {
 		interval, err := mirror.ImageMetaGetInterval()
 		if err != nil {
 			utils.FancyHandleError(err)
 			httputil.NewError(ctx, http.StatusInternalServerError, err)
 			return
 		}
-		// 스냅샷 스케줄 설정
 		message, err := mirror.ImageConfigSchedule(mirrorPool, imageName, hostName, vmName, interval)
 		if err != nil {
 			utils.FancyHandleError(err)

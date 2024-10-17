@@ -2817,7 +2817,7 @@ paths:
       summary: Setup Image Mirroring
       tags:
       - Mirror
-  /api/v1/mirror/image/{mirrorPool}/{vmName}:
+  /api/v1/mirror/image/snapshot/{mirrorPool}/{vmName}:
     post:
       consumes:
       - application/x-www-form-urlencoded

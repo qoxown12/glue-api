@@ -3552,7 +3552,7 @@ const docTemplate = `{
                 }
             }
         },
-        "/api/v1/mirror/image/{mirrorPool}/{vmName}": {
+        "/api/v1/mirror/image/snapshot/{mirrorPool}/{vmName}": {
             "post": {
                 "description": "Glue 의 이미지에 미러링 스냅샷을 생성하거나 스케줄을 설정합니다.",
                 "consumes": [

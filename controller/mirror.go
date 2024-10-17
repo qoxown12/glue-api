@@ -637,9 +637,9 @@ func (c *Controller) MirrorImageScheduleSetup(ctx *gin.Context) {
 //		@Description	Glue 의 이미지에 미러링 스냅샷을 생성하거나 스케줄을 설정합니다.
 //		@param			mirrorPool	path		string	true	"Pool Name for Mirroring"
 //		@param			vmName   	path		string	true	"VM Name for Mirroring"
-//	 	@param          hostName    formData    string  false   "Host Name"
-//	 	@param          imageName   formData    string  false   "Image Name (Schedule)"
-//	 	@param          imageList   formData    string  false   "Image List (Manual)"
+//	 	@param          hostName    formData    string  false   "Host Name for Mirroring VMe"
+//	 	@param          imageName   formData    string  false   "Image Name for Mirroring (Schedule)"
+//	 	@param          imageList   formData    string  false   "Image List for Mirroring (Manual)"
 //		@Tags			Mirror
 //		@Accept			x-www-form-urlencoded
 //		@Produce		json
@@ -647,7 +647,7 @@ func (c *Controller) MirrorImageScheduleSetup(ctx *gin.Context) {
 //		@Failure		400	{object}	httputil.HTTP400BadRequest
 //		@Failure		404	{object}	httputil.HTTP404NotFound
 //		@Failure		500	{object}	httputil.HTTP500InternalServerError
-//		@Router			/api/v1/mirror/image/{mirrorPool}/{vmName} [post]
+//		@Router			/api/v1/mirror/image/snapshot/{mirrorPool}/{vmName} [post]
 func (c *Controller) MirrorImageSnap(ctx *gin.Context) {
 
 	var dat = struct {

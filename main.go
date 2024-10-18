@@ -397,16 +397,16 @@ func MirroringSchedule(mold model.Mold) {
 											since := time.Since(t)
 											var Ti time.Duration
 											if strings.Contains(interval, "d") {
-												interval = strings.TrimRight(interval, "d\n")
-												ti, _ := strconv.Atoi(interval)
+												intervals := strings.TrimRight(interval, "d\n")
+												ti, _ := strconv.Atoi(intervals)
 												Ti = time.Duration(ti) * 24 * time.Hour
 											} else if strings.Contains(interval, "h") {
-												interval = strings.TrimRight(interval, "h\n")
-												ti, _ := strconv.Atoi(interval)
+												intervals := strings.TrimRight(interval, "h\n")
+												ti, _ := strconv.Atoi(intervals)
 												Ti = time.Duration(ti) * time.Hour
 											} else if strings.Contains(interval, "m") {
-												interval = strings.TrimRight(interval, "m\n")
-												ti, _ := strconv.Atoi(interval)
+												intervals := strings.TrimRight(interval, "m\n")
+												ti, _ := strconv.Atoi(intervals)
 												Ti = time.Duration(ti) * time.Minute
 											} else {
 												Ti = time.Duration(1) * time.Hour

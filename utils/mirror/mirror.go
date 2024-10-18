@@ -447,7 +447,7 @@ func goCronEventListeners(scheduler gocron.Scheduler, jobID uuid.UUID, beforeIt 
 								for k := 0; k < len(vm); k++ {
 									if vm[k].Name == dr[i].Drclustervmmap[j].Drclustermirrorvmname {
 										volStatus, _ := ImageStatus("rbd", dr[i].Drclustervmmap[j].Drclustermirrorvmvolpath)
-										// 미러링 이미지 상태가 Peer와 정상적으로 ready, resync 인 경우
+										// 미러링 이미지 상태가 Peer와 정상적으로 ready, sync 인 경우
 										if volStatus.Description == "local image is primary" && strings.Contains(volStatus.PeerSites[0].State, "replaying") && strings.Contains(volStatus.PeerSites[0].Description, "idle") {
 											params2 := []utils.MoldParams{
 												{"virtualmachineid": vm[k].Id},

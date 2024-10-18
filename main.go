@@ -375,7 +375,6 @@ func MirroringSchedule(mold model.Mold) {
 										meta, _ := mirror.ImageMetaGetTime(dr[i].Drclustervmmap[j].Drclustermirrorvmvolpath)
 										info := strings.Split(meta, ",")
 										host, _ := os.Hostname()
-										println(host)
 										params2 := []utils.MoldParams{
 											{"virtualmachineid": vm[k].Id},
 										}
@@ -388,9 +387,11 @@ func MirroringSchedule(mold model.Mold) {
 											volList = append(volList, vol[l].Path)
 										}
 										if host == strings.TrimRight(info[1], "\n") {
+											println("same host")
 											mirror.ImageMirroringSnap("rbd", hostName, vmName, volList)
 											mirror.ImageConfigSchedule("rbd", dr[i].Drclustervmmap[j].Drclustermirrorvmvolpath, hostName, vmName, interval)
 										} else {
+											println("dif host")
 											local, _ := time.LoadLocation("Asia/Seoul")
 											t, _ := time.ParseInLocation("2006-01-02 15:04:05", info[0], local)
 											since := time.Since(t)
@@ -411,8 +412,14 @@ func MirroringSchedule(mold model.Mold) {
 												Ti = time.Duration(1) * time.Hour
 											}
 											if since > Ti {
+												println("timeout, other host execute")
 												mirror.ImageMirroringSnap("rbd", hostName, vmName, volList)
+												println(dr[i].Drclustervmmap[j].Drclustermirrorvmvolpath)
+												println(hostName)
+												println(vmName)
+												println(interval)
 												mirror.ImageConfigSchedule("rbd", dr[i].Drclustervmmap[j].Drclustermirrorvmvolpath, hostName, vmName, interval)
+												println("exit")
 											}
 										}
 									}

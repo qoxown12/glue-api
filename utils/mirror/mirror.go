@@ -565,6 +565,7 @@ func ImageConfigSchedule(poolName, imageName, hostName, vmName, interval string)
 	var beforeIt, clock time.Duration
 	var imageList []string
 
+	println(interval)
 	if strings.Contains(interval, "d") {
 		interval = strings.TrimRight(interval, "d\n")
 		ti, _ := strconv.Atoi(interval)

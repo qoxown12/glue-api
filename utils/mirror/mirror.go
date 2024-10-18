@@ -444,45 +444,54 @@ func goCronEventListeners(scheduler gocron.Scheduler, jobID uuid.UUID, beforeIt 
 								vm := listVirtualMachinesMetrics.Virtualmachine
 								for k := 0; k < len(vm); k++ {
 									if vm[k].Name == dr[i].Drclustervmmap[j].Drclustermirrorvmname {
-										params2 := []utils.MoldParams{
-											{"virtualmachineid": vm[k].Id},
-										}
-										volResult := utils.GetListVolumes(params2)
-										listVolumes := model.ListVolumes{}
-										volInfo, _ := json.Marshal(volResult["listvolumesresponse"])
-										json.Unmarshal([]byte(volInfo), &listVolumes)
-										vol := listVolumes.Volume
-										for v := 0; v < len(vol); v++ {
-											imageList = append(imageList, vol[v].Path)
-										}
-										if vm[k].Hostname != "" {
-											hostName = vm[k].Hostname
+										volStatus, _ := ImageStatus("rbd", dr[i].Drclustervmmap[j].Drclustermirrorvmvolpath)
+										// 미러링 이미지 상태가 Peer와 정상적으로 ready, resync 인 경우
+										if volStatus.Description == "local image is primary" && strings.Contains(volStatus.PeerSites[0].State, "replaying") && strings.Contains(volStatus.PeerSites[0].Description, "idle") {
+											params2 := []utils.MoldParams{
+												{"virtualmachineid": vm[k].Id},
+											}
+											volResult := utils.GetListVolumes(params2)
+											listVolumes := model.ListVolumes{}
+											volInfo, _ := json.Marshal(volResult["listvolumesresponse"])
+											json.Unmarshal([]byte(volInfo), &listVolumes)
+											vol := listVolumes.Volume
+											for v := 0; v < len(vol); v++ {
+												imageList = append(imageList, vol[v].Path)
+											}
+											if vm[k].Hostname != "" {
+												hostName = vm[k].Hostname
+											} else {
+												hostName = ""
+											}
+											clock = beforeIt
+											if beforeIt != afterIt {
+												println("updateScheduler : ", jobID.String(), jobName, currentTime.Format("2006-01-02 15:04:05"))
+												scheduler.Update(
+													uuid.MustParse(imageName),
+													gocron.DurationJob(
+														afterIt,
+													),
+													gocron.NewTask(
+														func() {
+															goCronTask(poolName, hostName, vmName, imageList)
+														},
+													),
+													gocron.WithEventListeners(
+														gocron.BeforeJobRuns(
+															func(jobID uuid.UUID, jobName string) {
+																hostName, clock, imageList = goCronEventListeners(scheduler, jobID, afterIt, jobName, imageName, hostName, vmName, poolName)
+																afterIt = clock
+															}),
+													),
+												)
+											}
+											break
 										} else {
+											// 미러링 이미지 상태가 Peer와 정상적으로 ready, resync 아닌 경우
 											hostName = ""
+											imageList = append(imageList, imageName)
+											clock = beforeIt
 										}
-										clock = beforeIt
-										if beforeIt != afterIt {
-											println("updateScheduler : ", jobID.String(), jobName, currentTime.Format("2006-01-02 15:04:05"))
-											scheduler.Update(
-												uuid.MustParse(imageName),
-												gocron.DurationJob(
-													afterIt,
-												),
-												gocron.NewTask(
-													func() {
-														goCronTask(poolName, hostName, vmName, imageList)
-													},
-												),
-												gocron.WithEventListeners(
-													gocron.BeforeJobRuns(
-														func(jobID uuid.UUID, jobName string) {
-															hostName, clock, imageList = goCronEventListeners(scheduler, jobID, afterIt, jobName, imageName, hostName, vmName, poolName)
-															afterIt = clock
-														}),
-												),
-											)
-										}
-										break
 									}
 								}
 								break

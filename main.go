@@ -369,10 +369,26 @@ func MirroringSchedule(mold model.Mold) {
 									vmName := vm[k].Instancename
 									hostName := vm[k].Hostname
 									volStatus, _ := mirror.ImageStatus("rbd", dr[i].Drclustervmmap[j].Drclustermirrorvmvolpath)
-									// 미러링 이미지 상태가 Peer와 정상적으로 ready, resync 인 경우
+									// 미러링 이미지 상태가 Peer와 정상적으로 ready, sync 인 경우
 									if volStatus.Description == "local image is primary" && strings.Contains(volStatus.PeerSites[0].State, "replaying") && strings.Contains(volStatus.PeerSites[0].Description, "idle") {
 										interval, _ := mirror.ImageMetaGetInterval()
-										meta, _ := mirror.ImageMetaGetTime(dr[i].Drclustervmmap[j].Drclustermirrorvmvolpath)
+										meta, err := mirror.ImageMetaGetTime(dr[i].Drclustervmmap[j].Drclustermirrorvmvolpath)
+										// 스케줄러가 실행되기 전에 다운된 경우 처리
+										if err != nil {
+											params2 := []utils.MoldParams{
+												{"virtualmachineid": vm[k].Id},
+											}
+											volResult := utils.GetListVolumes(params2)
+											listVolumes := model.ListVolumes{}
+											volInfo, _ := json.Marshal(volResult["listvolumesresponse"])
+											json.Unmarshal([]byte(volInfo), &listVolumes)
+											vol := listVolumes.Volume
+											for l := 0; l < len(vol); l++ {
+												volList = append(volList, vol[l].Path)
+											}
+											mirror.ImageMirroringSnap("rbd", hostName, vmName, volList)
+											mirror.ImageConfigSchedule("rbd", dr[i].Drclustervmmap[j].Drclustermirrorvmvolpath, hostName, vmName, interval)
+										}
 										info := strings.Split(meta, ",")
 										host, _ := os.Hostname()
 										params2 := []utils.MoldParams{

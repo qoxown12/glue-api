@@ -350,7 +350,9 @@ func goCronTask(poolName, hostName, vmName string, imageName []string) (err erro
 			if err != nil {
 				println("failed to create rbd mirror image snapshot path : " + imageName[i])
 				println(string(stdout))
-				exec.Command("ssh", hostName, "virsh", "domfsthaw", vmName)
+				if hostName != "" {
+					exec.Command("ssh", hostName, "virsh", "domfsthaw", vmName)
+				}
 				break
 			}
 			host, _ := os.Hostname()

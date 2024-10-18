@@ -418,7 +418,10 @@ func MirroringSchedule(mold model.Mold) {
 												println(hostName)
 												println(vmName)
 												println(interval)
-												mirror.ImageConfigSchedule("rbd", dr[i].Drclustervmmap[j].Drclustermirrorvmvolpath, hostName, vmName, interval)
+												message, err := mirror.ImageConfigSchedule("rbd", dr[i].Drclustervmmap[j].Drclustermirrorvmvolpath, hostName, vmName, interval)
+												if err != nil {
+													println(string(message))
+												}
 												println("exit")
 											}
 										}

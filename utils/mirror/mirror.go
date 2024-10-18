@@ -561,6 +561,7 @@ func ImageMirroringSnap(poolName, hostName, vmName string, imageName []string) (
 
 func ImageConfigSchedule(poolName, imageName, hostName, vmName, interval string) (output string, err error) {
 
+	println("imageconfigschedule")
 	var beforeIt, clock time.Duration
 	var imageList []string
 
@@ -581,6 +582,7 @@ func ImageConfigSchedule(poolName, imageName, hostName, vmName, interval string)
 		utils.FancyHandleError(err)
 		return
 	}
+	println(beforeIt)
 
 	scheduler, err := gocron.NewScheduler()
 	if err != nil {
@@ -595,6 +597,7 @@ func ImageConfigSchedule(poolName, imageName, hostName, vmName, interval string)
 		),
 		gocron.NewTask(
 			func() {
+				println("newtask")
 				goCronTask(poolName, hostName, vmName, imageList)
 			},
 		),
@@ -603,6 +606,7 @@ func ImageConfigSchedule(poolName, imageName, hostName, vmName, interval string)
 		gocron.WithEventListeners(
 			gocron.BeforeJobRuns(
 				func(jobID uuid.UUID, jobName string) {
+					println("beforejobruns")
 					hostName, clock, imageList = goCronEventListeners(scheduler, jobID, beforeIt, jobName, imageName, hostName, vmName, poolName)
 					beforeIt = clock
 				}),

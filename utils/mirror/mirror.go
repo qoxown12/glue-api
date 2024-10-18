@@ -489,7 +489,7 @@ func goCronEventListeners(scheduler gocron.Scheduler, jobID uuid.UUID, beforeIt 
 										} else {
 											// 미러링 이미지 상태가 Peer와 정상적으로 ready, resync 아닌 경우
 											hostName = ""
-											imageList = append(imageList, imageName)
+											imageList = make([]string, 0)
 											clock = beforeIt
 										}
 									}

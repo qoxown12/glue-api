@@ -656,9 +656,9 @@ func (c *Controller) MirrorImageSnap(ctx *gin.Context) {
 
 	mirrorPool := ctx.Param("mirrorPool")
 	vmName := ctx.Param("vmName")
-	hostName := ctx.Param("hostName")
-	imageName := ctx.Param("imageName")
-	imageList := ctx.Param("imageList")
+	hostName, _ := ctx.GetPostForm("hostName")
+	imageName, _ := ctx.GetPostForm("imageName")
+	imageList, _ := ctx.GetPostForm("imageList")
 
 	// 수동 스냅샷 생성
 	if imageList != "" {

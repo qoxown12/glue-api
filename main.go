@@ -337,7 +337,6 @@ func MirroringSchedule(mold model.Mold) {
 		var drResult map[string]interface{}
 		var getDisasterRecoveryClusterList model.GetDisasterRecoveryClusterList
 		var drInfo []byte
-		var volList []string
 		// mold 통신이 되는 경우 미러링 스케줄러 실행
 		for {
 			drResult = utils.GetDisasterRecoveryClusterList()
@@ -365,6 +364,7 @@ func MirroringSchedule(mold model.Mold) {
 							json.Unmarshal([]byte(vmInfo), &listVirtualMachinesMetrics)
 							vm := listVirtualMachinesMetrics.Virtualmachine
 							for k := 0; k < len(vm); k++ {
+								var volList []string
 								if vm[k].Name == dr[i].Drclustervmmap[j].Drclustermirrorvmname {
 									vmName := vm[k].Instancename
 									hostName := vm[k].Hostname

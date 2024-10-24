@@ -328,7 +328,7 @@ func (c *Controller) MirrorDelete(ctx *gin.Context) {
 		return
 	}
 	for _, image := range MirroredImage.Images {
-		_, errt := mirror.ImageDelete(dat.MirrorPool, image.Name)
+		_, errt := mirror.ImageDeleteSchedule(dat.MirrorPool, image.Name)
 		if errt != nil {
 			err = errors.Join(err, errt)
 		}
@@ -1111,7 +1111,7 @@ func (c *Controller) MirrorPoolDisable(ctx *gin.Context) {
 		return
 	}
 	for _, image := range MirroredImage.Images {
-		_, errt := mirror.ImageDelete(dat.MirrorPool, image.Name)
+		_, errt := mirror.ImageDeleteSchedule(dat.MirrorPool, image.Name)
 		if errt != nil {
 			err = errors.Join(err, errt)
 		}

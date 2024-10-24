@@ -236,14 +236,14 @@ func ImageDelete(poolName string, imageName string) (output string, err error) {
 
 	var stdRemove []byte
 
-	strRemoveStatus := exec.Command("rbd", "mirror", "snapshot", "schedule", "rm", "--pool", poolName, "--image", imageName)
-	stdRemove, err = strRemoveStatus.CombinedOutput()
+	// strRemoveStatus := exec.Command("rbd", "mirror", "snapshot", "schedule", "rm", "--pool", poolName, "--image", imageName)
+	// stdRemove, err = strRemoveStatus.CombinedOutput()
 
-	if err != nil {
-		err = errors.New(string(stdRemove))
-		utils.FancyHandleError(err)
-		return
-	}
+	// if err != nil {
+	// 	err = errors.New(string(stdRemove))
+	// 	utils.FancyHandleError(err)
+	// 	return
+	// }
 
 	strRemovestatus := exec.Command("rbd", "mirror", "image", "disable", "--pool", poolName, "--image", imageName)
 	stdRemove, err = strRemovestatus.CombinedOutput()

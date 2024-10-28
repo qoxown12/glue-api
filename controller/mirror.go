@@ -30,13 +30,24 @@ import (
 //	@Router			/api/v1/mirror/image/{mirrorPool} [get]
 func (c *Controller) MirrorImageList(ctx *gin.Context) {
 	pool := ctx.Param("mirrorPool")
-	dat, err := mirror.ImageList(pool)
+	mirrorStatus, err := mirror.GetConfigure()
 	if err != nil {
 		utils.FancyHandleError(err)
 		httputil.NewError(ctx, http.StatusInternalServerError, err)
 		return
 	}
-	ctx.IndentedJSON(http.StatusOK, dat)
+	if mirrorStatus.Mode != "disabled" {
+		dat, err := mirror.ImageList(pool)
+		if err != nil {
+			utils.FancyHandleError(err)
+			httputil.NewError(ctx, http.StatusInternalServerError, err)
+			return
+		}
+		ctx.IndentedJSON(http.StatusOK, dat)
+	} else {
+		dat := model.MirrorList{}
+		ctx.IndentedJSON(http.StatusOK, dat)
+	}
 }
 
 // MirrorImageInfo godoc

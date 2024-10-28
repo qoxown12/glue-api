@@ -170,13 +170,7 @@ func ImageList(pool string) (MirrorList model.MirrorList, err error) {
 	stdout, err = cmd.CombinedOutput()
 
 	if err != nil {
-		if strings.Contains(string(stdout), "mirroring not enabled on the pool") {
-			MirrorList = model.MirrorList{}
-		} else {
-			err = errors.New(string(stdout))
-			utils.FancyHandleError(err)
-			return
-		}
+		return
 	}
 
 	if err = json.Unmarshal(stdout, &MirrorList); err != nil {

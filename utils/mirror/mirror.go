@@ -170,7 +170,13 @@ func ImageList(pool string) (MirrorList model.MirrorList, err error) {
 	stdout, err = cmd.CombinedOutput()
 
 	if err != nil {
-		return
+		if strings.Contains(string(stdout), "mirroring not enabled on the pool") {
+			MirrorList = model.MirrorList{}
+		} else {
+			err = errors.New(string(stdout))
+			utils.FancyHandleError(err)
+			return
+		}
 	}
 
 	if err = json.Unmarshal(stdout, &MirrorList); err != nil {
@@ -236,14 +242,14 @@ func ImageDelete(poolName string, imageName string) (output string, err error) {
 
 	var stdRemove []byte
 
-	// strRemoveStatus := exec.Command("rbd", "mirror", "snapshot", "schedule", "rm", "--pool", poolName, "--image", imageName)
-	// stdRemove, err = strRemoveStatus.CombinedOutput()
+	strRemoveStatus := exec.Command("rbd", "mirror", "snapshot", "schedule", "rm", "--pool", poolName, "--image", imageName)
+	stdRemove, err = strRemoveStatus.CombinedOutput()
 
-	// if err != nil {
-	// 	err = errors.New(string(stdRemove))
-	// 	utils.FancyHandleError(err)
-	// 	return
-	// }
+	if err != nil {
+		err = errors.New(string(stdRemove))
+		utils.FancyHandleError(err)
+		return
+	}
 
 	strRemovestatus := exec.Command("rbd", "mirror", "image", "disable", "--pool", poolName, "--image", imageName)
 	stdRemove, err = strRemovestatus.CombinedOutput()

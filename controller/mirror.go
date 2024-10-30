@@ -407,10 +407,12 @@ func (c *Controller) MirrorDelete(ctx *gin.Context) {
 	stdout, err = cmd.CombinedOutput()
 	if err != nil {
 		cmd.Stderr = &out
-		err = errors.Join(err, errors.New(out.String()))
-		utils.FancyHandleError(err)
-		httputil.NewError(ctx, http.StatusInternalServerError, err)
-		return
+		if !strings.Contains(string(stdout), "No such file or directory") {
+			err = errors.Join(err, errors.New(out.String()))
+			utils.FancyHandleError(err)
+			httputil.NewError(ctx, http.StatusInternalServerError, err)
+			return
+		}
 	}
 
 	// DR mold conf reset
@@ -424,6 +426,11 @@ func (c *Controller) MirrorDelete(ctx *gin.Context) {
 	//remote local peer
 	out.Reset()
 	client, err := utils.ConnectSSH(dat.Host, privkeyname)
+	if err != nil {
+		err = errors.Join(err, errors.New("failed to get remote configure."))
+		utils.FancyHandleError(err)
+		return
+	}
 	defer func(client *goph.Client) {
 		err := client.Close()
 		if err != nil {

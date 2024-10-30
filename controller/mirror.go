@@ -332,32 +332,33 @@ func (c *Controller) MirrorDelete(ctx *gin.Context) {
 	}
 
 	// Get Mirroring Images
-	MirroredImage, err := mirror.ImageList(dat.MirrorPool)
-	if err != nil {
-		utils.FancyHandleError(err)
-		httputil.NewError(ctx, http.StatusInternalServerError, err)
-		return
-	}
-	for _, image := range MirroredImage.Images {
-		_, errt := mirror.ImageDeleteSchedule(dat.MirrorPool, image.Name)
-		if errt != nil {
-			err = errors.Join(err, errt)
+	mirrorStatus, err := mirror.GetConfigure()
+	if mirrorStatus.Mode != "disabled" {
+		MirroredImage, err := mirror.ImageList(dat.MirrorPool)
+		if err != nil {
+			utils.FancyHandleError(err)
+			httputil.NewError(ctx, http.StatusInternalServerError, err)
+			return
 		}
-		output, errt = mirror.ImagePreDelete(dat.MirrorPool, image.Name)
-		if errt != nil {
-			if output != "Success" {
+		for _, image := range MirroredImage.Images {
+			_, errt := mirror.ImageDeleteSchedule(dat.MirrorPool, image.Name)
+			if errt != nil {
 				err = errors.Join(err, errt)
 			}
+			output, errt = mirror.ImagePreDelete(dat.MirrorPool, image.Name)
+			if errt != nil {
+				if output != "Success" {
+					err = errors.Join(err, errt)
+				}
+			}
+		}
+		if err != nil {
+			utils.FancyHandleError(err)
+			httputil.NewError(ctx, http.StatusInternalServerError, err)
+			return
 		}
 	}
-	if err != nil {
-		utils.FancyHandleError(err)
-		httputil.NewError(ctx, http.StatusInternalServerError, err)
-		return
-	}
-
 	//remote local peer
-	mirrorStatus, err := mirror.GetConfigure()
 
 	if len(mirrorStatus.Peers) > 0 {
 		peerUUID := mirrorStatus.Peers[0].Uuid

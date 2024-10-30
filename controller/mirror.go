@@ -427,7 +427,7 @@ func (c *Controller) MirrorDelete(ctx *gin.Context) {
 	out.Reset()
 	client, err := utils.ConnectSSH(dat.Host, privkeyname)
 	if err != nil {
-		err = errors.Join(err, errors.New("failed to get remote configure."))
+		err = errors.Join(err, errors.New("failed to connect ssh."))
 		utils.FancyHandleError(err)
 		return
 	}

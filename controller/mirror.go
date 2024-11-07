@@ -5,6 +5,7 @@ import (
 	"Glue-API/model"
 	"Glue-API/utils"
 	"Glue-API/utils/mirror"
+	"encoding/json"
 	"errors"
 	"net/http"
 	"os"
@@ -501,20 +502,40 @@ func (c *Controller) MirrorDelete(ctx *gin.Context) {
 	}
 
 	// DR Mirror Image Destroy
-	sshcmd, err = client.Command("rbd", "rm", "rbd/MOLD-DR")
+	sshcmd, err = client.Command("rbd", "ls", "-p", "rbd", "--format", "json")
 	if err != nil {
 		sshcmd.Stderr = &out
 		err = errors.Join(err, errors.New(out.String()))
 		utils.FancyHandleError(err)
 		return
 	}
+	var pools []string
 	stdout, err = sshcmd.CombinedOutput()
-	if err != nil {
+	if err = json.Unmarshal(stdout, &pools); err != nil {
 		sshcmd.Stderr = &out
 		err = errors.Join(err, errors.New(out.String()))
 		utils.FancyHandleError(err)
 		httputil.NewError(ctx, http.StatusInternalServerError, err)
 		return
+	}
+	for i := 0; i < len(pools); i++ {
+		if pools[i] == "MOLD-DR" {
+			sshcmd, err = client.Command("rbd", "rm", "rbd/MOLD-DR")
+			if err != nil {
+				sshcmd.Stderr = &out
+				err = errors.Join(err, errors.New(out.String()))
+				utils.FancyHandleError(err)
+				return
+			}
+			stdout, err = sshcmd.CombinedOutput()
+			if err != nil {
+				sshcmd.Stderr = &out
+				err = errors.Join(err, errors.New(out.String()))
+				utils.FancyHandleError(err)
+				httputil.NewError(ctx, http.StatusInternalServerError, err)
+				return
+			}
+		}
 	}
 
 	// Secondary DR mold conf reset 추가 필요

@@ -388,6 +388,7 @@ func MirroringSchedule(mold model.Mold) {
 											}
 											mirror.ImageMirroringSnap("rbd", hostName, vmName, volList)
 											mirror.ImageConfigSchedule("rbd", dr[i].Drclustervmmap[j].Drclustermirrorvmvolpath, hostName, vmName, interval)
+											meta, _ = mirror.ImageMetaGetTime(dr[i].Drclustervmmap[j].Drclustermirrorvmvolpath)
 										}
 										info := strings.Split(meta, ",")
 										host, _ := os.Hostname()

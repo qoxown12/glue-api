@@ -375,6 +375,18 @@ func (c *Controller) MirrorDelete(ctx *gin.Context) {
 			httputil.NewError(ctx, http.StatusInternalServerError, err)
 			return
 		}
+		cmd = exec.Command("ceph", "auth", "del", "client.rbd-mirror-peer")
+		stdout, err = cmd.CombinedOutput()
+		println("out: " + string(stdout))
+		println("err: " + out.String())
+		// if err != nil || (out.String() != "" && out.String() != "rbd: mirroring is already configured for image mode") {
+		if err != nil {
+			cmd.Stderr = &out
+			err = errors.Join(err, errors.New(out.String()))
+			utils.FancyHandleError(err)
+			httputil.NewError(ctx, http.StatusInternalServerError, err)
+			return
+		}
 	}
 
 	// Mirror Disable
@@ -1283,6 +1295,18 @@ func (c *Controller) MirrorDeleteGarbage(ctx *gin.Context) {
 		cmd := exec.Command("rbd", "mirror", "pool", "peer", "remove", "--pool", mirrorPool, peerUUID)
 		stdout, err = cmd.CombinedOutput()
 		println("out: " + string(stdout))
+		if err != nil {
+			cmd.Stderr = &out
+			err = errors.Join(err, errors.New(out.String()))
+			utils.FancyHandleError(err)
+			httputil.NewError(ctx, http.StatusInternalServerError, err)
+			return
+		}
+		cmd = exec.Command("ceph", "auth", "del", "client.rbd-mirror-peer")
+		stdout, err = cmd.CombinedOutput()
+		println("out: " + string(stdout))
+		println("err: " + out.String())
+		// if err != nil || (out.String() != "" && out.String() != "rbd: mirroring is already configured for image mode") {
 		if err != nil {
 			cmd.Stderr = &out
 			err = errors.Join(err, errors.New(out.String()))

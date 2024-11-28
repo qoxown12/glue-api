@@ -473,6 +473,24 @@ func (c *Controller) MirrorDelete(ctx *gin.Context) {
 			httputil.NewError(ctx, http.StatusInternalServerError, err)
 			return
 		}
+
+		sshcmd, err = client.Command("ceph", "auth", "del", "client.rbd-mirror-peer")
+		if err != nil {
+			sshcmd.Stderr = &out
+			err = errors.Join(err, errors.New(out.String()))
+			utils.FancyHandleError(err)
+			return
+		}
+
+		stdout, err = sshcmd.CombinedOutput()
+		if err != nil {
+			sshcmd.Stderr = &out
+			err = errors.Join(err, errors.New(out.String()))
+			utils.FancyHandleError(err)
+			httputil.NewError(ctx, http.StatusInternalServerError, err)
+			return
+		}
+
 	}
 
 	// Mirror Disable

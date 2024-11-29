@@ -337,7 +337,6 @@ func MirroringSchedule(mold model.Mold) {
 		var drResult map[string]interface{}
 		var getDisasterRecoveryClusterList model.GetDisasterRecoveryClusterList
 		var drInfo []byte
-		// mold 통신이 되는 경우 미러링 스케줄러 실행
 		for {
 			drResult = utils.GetDisasterRecoveryClusterList()
 			getDisasterRecoveryClusterList = model.GetDisasterRecoveryClusterList{}
@@ -373,7 +372,7 @@ func MirroringSchedule(mold model.Mold) {
 									if volStatus.Description == "local image is primary" && strings.Contains(volStatus.PeerSites[0].State, "replaying") && strings.Contains(volStatus.PeerSites[0].Description, "idle") {
 										interval, _ := mirror.ImageMetaGetInterval()
 										meta, err := mirror.ImageMetaGetTime(dr[i].Drclustervmmap[j].Drclustermirrorvmvolpath)
-										// 스케줄러가 실행되기 전에 다운된 경우 처리
+										// 스케줄러가 실행되기 전에 glue-api 다운된 경우 처리
 										if err != nil {
 											params2 := []utils.MoldParams{
 												{"virtualmachineid": vm[k].Id},

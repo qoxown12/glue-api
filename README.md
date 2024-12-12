@@ -1458,11 +1458,43 @@ API 의 버전을 보여줍니다.
 | code    | integer |             | No       |
 | message | string  |             | No       |
 
+#### ImageMirror
+
+| Name      | Type                                    | Description | Required |
+| --------- | --------------------------------------- | ----------- | -------- |
+| image     | string                                  |             | No       |
+| items     | [ [MirrorImageItem](#MirrorImageItem) ] |             | No       |
+| namespace | string                                  |             | No       |
+| pool      | string                                  |             | No       |
+
+#### ImageStatus
+
+| Name           | Type                                    | Description | Required |
+| -------------- | --------------------------------------- | ----------- | -------- |
+| daemon_service | object                                  |             | No       |
+| description    | string                                  |             | No       |
+| global_id      | string                                  |             | No       |
+| last_update    | string                                  |             | No       |
+| name           | string                                  |             | No       |
+| peer_sites     | array                                   |             | No       |
+| snapshots      | array                                   |             | No       |
+| state          | string                                  |             | No       |
+
 #### Message
 
 | Name    | Type   | Description | Required |
 | ------- | ------ | ----------- | -------- |
 | message | string |             | No       |
+
+#### ImageInfo
+
+| Name           | Type                                    | Description | Required |
+| -------------- | --------------------------------------- | ----------- | -------- |
+| name           | string                                  |             | No       |
+| id             | string                                  |             | No       |
+| size           | string                                  |             | No       |
+| snapshot_count | integer                                 |             | No       |
+| parent         | array                                   |             | No       |
 
 #### MirrorImage
 
@@ -1482,32 +1514,45 @@ API 의 버전을 보여줍니다.
 
 #### MirrorList
 
-| Name   | Type                            | Description | Required |
-| ------ | ------------------------------- | ----------- | -------- |
-| Local  | [ [MirrorImage](#MirrorImage) ] |             | No       |
-| Remote | [ [MirrorImage](#MirrorImage) ] |             | No       |
-| debug  | boolean (bool)                  | Debug info  | No       |
+| Name          | Type                                      | Description | Required |
+| ------------- | ----------------------------------------- | ----------- | -------- |
+| Summary       | object                                    |             | No       |
+| Daemons       | object                                    |             | No       |
+| Images        | [ [MirrorListImages](#MirrorListImages) ] |             | No       |
+| states        | string                                    |             | No       |
+
+#### MirrorListImages
+
+| Name           | Type                                      | Description | Required |
+| -------------- | ----------------------------------------- | ----------- | -------- |
+| name           | string                                    |             | No       |
+| global_id      | string                                    |             | No       |
+| state          | string                                    |             | No       |
+| description    | string                                    |             | No       |
+| daemon_service | string                                    |             | No       |
+| last_update    | string                                    |             | No       |
+| peer_sites     | array                                     |             | No       |
 
 #### MirrorSetup
 
 | Name              | Type   | Description | Required |
 | ----------------- | ------ | ----------- | -------- |
 | host              | string |             | No       |
-| localClusterName  | string | 미러링 상태 | No       |
+| localClusterName  | string | 미러링 상태    | No       |
 | localToken        | string |             | No       |
 | mirrorPool        | string |             | No       |
 | privateKeyFile    | object |             | No       |
-| remoteClusterName | string | 미러링 상태 | No       |
+| remoteClusterName | string | 미러링 상태    | No       |
 | remoteToken       | string |             | No       |
 
 #### MirrorStatus
 
 | Name          | Type   | Description      | Required |
 | ------------- | ------ | ---------------- | -------- |
-| daemon_health | string | 미러링 데몬 상태 | No       |
-| health        | string | 미러링 상태      | No       |
-| image_health  | string | 이미지 상태      | No       |
-| states        | object | 이미지 상세      | No       |
+| daemon_health | string | 미러링 데몬 상태     | No       |
+| health        | string | 미러링 상태         | No       |
+| image_health  | string | 이미지 상태         | No       |
+| states        | object | 이미지 상세         | No       |
 
 #### FsStatus
 

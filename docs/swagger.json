@@ -2743,7 +2743,7 @@
                 "tags": [
                     "Mirror"
                 ],
-                "summary": "Show Mirroring Image Info",
+                "summary": "Show Mirroring Image Parent Info",
                 "parameters": [
                     {
                         "type": "string",
@@ -3243,76 +3243,8 @@
                     }
                 }
             },
-            "post": {
-                "description": "Glue 의 이미지에 미러링을 설정합니다.",
-                "consumes": [
-                    "application/x-www-form-urlencoded"
-                ],
-                "produces": [
-                    "application/json"
-                ],
-                "tags": [
-                    "Mirror"
-                ],
-                "summary": "Setup Image Mirroring",
-                "parameters": [
-                    {
-                        "type": "string",
-                        "description": "Pool Name for Mirroring",
-                        "name": "mirrorPool",
-                        "in": "path",
-                        "required": true
-                    },
-                    {
-                        "type": "string",
-                        "description": "Image Name for Mirroring",
-                        "name": "imageName",
-                        "in": "path",
-                        "required": true
-                    },
-                    {
-                        "type": "string",
-                        "description": "Interval of image snapshot",
-                        "name": "interval",
-                        "in": "formData",
-                        "required": true
-                    },
-                    {
-                        "type": "string",
-                        "description": "StartTime of image snapshot",
-                        "name": "startTime",
-                        "in": "formData"
-                    }
-                ],
-                "responses": {
-                    "200": {
-                        "description": "OK",
-                        "schema": {
-                            "$ref": "#/definitions/ImageMirror"
-                        }
-                    },
-                    "400": {
-                        "description": "Bad Request",
-                        "schema": {
-                            "$ref": "#/definitions/HTTP400BadRequest"
-                        }
-                    },
-                    "404": {
-                        "description": "Not Found",
-                        "schema": {
-                            "$ref": "#/definitions/HTTP404NotFound"
-                        }
-                    },
-                    "500": {
-                        "description": "Internal Server Error",
-                        "schema": {
-                            "$ref": "#/definitions/HTTP500InternalServerError"
-                        }
-                    }
-                }
-            },
             "delete": {
-                "description": "이미지의 미러링을 비활성화 합니다.",
+                "description": "이미지의 미러링 스케줄링을 비활성화 합니다.",
                 "consumes": [
                     "application/x-www-form-urlencoded"
                 ],
@@ -3322,7 +3254,7 @@
                 "tags": [
                     "Mirror"
                 ],
-                "summary": "Delete Mirrored Snapshot",
+                "summary": "Delete Mirrored Snapshot Schedule",
                 "parameters": [
                     {
                         "type": "string",
@@ -3344,80 +3276,6 @@
                         "description": "OK",
                         "schema": {
                             "$ref": "#/definitions/Message"
-                        }
-                    },
-                    "400": {
-                        "description": "Bad Request",
-                        "schema": {
-                            "$ref": "#/definitions/HTTP400BadRequest"
-                        }
-                    },
-                    "404": {
-                        "description": "Not Found",
-                        "schema": {
-                            "$ref": "#/definitions/HTTP404NotFound"
-                        }
-                    },
-                    "500": {
-                        "description": "Internal Server Error",
-                        "schema": {
-                            "$ref": "#/definitions/HTTP500InternalServerError"
-                        }
-                    }
-                }
-            },
-            "put": {
-                "description": "Glue 의 이미지에 미러링의 설정을 변경합니다.",
-                "consumes": [
-                    "application/x-www-form-urlencoded"
-                ],
-                "produces": [
-                    "application/json"
-                ],
-                "tags": [
-                    "Mirror"
-                ],
-                "summary": "Put Image Mirroring",
-                "parameters": [
-                    {
-                        "type": "string",
-                        "description": "Pool Name for Mirroring",
-                        "name": "mirrorPool",
-                        "in": "path",
-                        "required": true
-                    },
-                    {
-                        "type": "string",
-                        "description": "Image Name for Mirroring",
-                        "name": "imageName",
-                        "in": "path",
-                        "required": true
-                    },
-                    {
-                        "type": "string",
-                        "description": "Interval of image snapshot",
-                        "name": "interval",
-                        "in": "formData",
-                        "required": true
-                    },
-                    {
-                        "type": "string",
-                        "description": "Starttime of image snapshot",
-                        "name": "startTime",
-                        "in": "formData"
-                    },
-                    {
-                        "type": "string",
-                        "description": "Current image region",
-                        "name": "imageRegion",
-                        "in": "formData"
-                    }
-                ],
-                "responses": {
-                    "200": {
-                        "description": "OK",
-                        "schema": {
-                            "$ref": "#/definitions/ImageMirror"
                         }
                     },
                     "400": {

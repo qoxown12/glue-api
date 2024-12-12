@@ -2597,7 +2597,7 @@ paths:
     delete:
       consumes:
       - application/x-www-form-urlencoded
-      description: 이미지의 미러링을 비활성화 합니다.
+      description: 이미지의 미러링 스케줄링을 비활성화 합니다.
       parameters:
       - description: pool
         in: path
@@ -2628,7 +2628,7 @@ paths:
           description: Internal Server Error
           schema:
             $ref: '#/definitions/HTTP500InternalServerError'
-      summary: Delete Mirrored Snapshot
+      summary: Delete Mirrored Snapshot Schedule
       tags:
       - Mirror
     get:
@@ -2666,102 +2666,6 @@ paths:
           schema:
             $ref: '#/definitions/HTTP500InternalServerError'
       summary: Show Infomation of Mirrored Snapshot
-      tags:
-      - Mirror
-    put:
-      consumes:
-      - application/x-www-form-urlencoded
-      description: Glue 의 이미지에 미러링의 설정을 변경합니다.
-      parameters:
-      - description: Pool Name for Mirroring
-        in: path
-        name: mirrorPool
-        required: true
-        type: string
-      - description: Image Name for Mirroring
-        in: path
-        name: imageName
-        required: true
-        type: string
-      - description: Interval of image snapshot
-        in: formData
-        name: interval
-        required: true
-        type: string
-      - description: Starttime of image snapshot
-        in: formData
-        name: startTime
-        type: string
-      - description: Current image region
-        in: formData
-        name: imageRegion
-        type: string
-      produces:
-      - application/json
-      responses:
-        "200":
-          description: OK
-          schema:
-            $ref: '#/definitions/ImageMirror'
-        "400":
-          description: Bad Request
-          schema:
-            $ref: '#/definitions/HTTP400BadRequest'
-        "404":
-          description: Not Found
-          schema:
-            $ref: '#/definitions/HTTP404NotFound'
-        "500":
-          description: Internal Server Error
-          schema:
-            $ref: '#/definitions/HTTP500InternalServerError'
-      summary: Put Image Mirroring
-      tags:
-      - Mirror
-    post:
-      consumes:
-      - application/x-www-form-urlencoded
-      description: Glue 의 이미지에 미러링을 설정합니다.
-      parameters:
-      - description: Pool Name for Mirroring
-        in: path
-        name: mirrorPool
-        required: true
-        type: string
-      - description: Image Name for Mirroring
-        in: path
-        name: imageName
-        required: true
-        type: string
-      - description: Interval of image snapshot
-        in: formData
-        name: interval
-        required: true
-        type: string
-      - description: StartTime of image snapshot
-        in: formData
-        name: startTime
-        type: string
-      produces:
-      - application/json
-      responses:
-        "200":
-          description: OK
-          schema:
-            $ref: '#/definitions/ImageMirror'
-        "400":
-          description: Bad Request
-          schema:
-            $ref: '#/definitions/HTTP400BadRequest'
-        "404":
-          description: Not Found
-          schema:
-            $ref: '#/definitions/HTTP404NotFound'
-        "500":
-          description: Internal Server Error
-          schema:
-            $ref: '#/definitions/HTTP500InternalServerError'
-      summary: Setup Image Mirroring
       tags:
       - Mirror
   /api/v1/mirror/image/{mirrorPool}/{imageName}/{hostName}/{vmName}:
@@ -2814,7 +2718,7 @@ paths:
           description: Internal Server Error
           schema:
             $ref: '#/definitions/HTTP500InternalServerError'
-      summary: Setup Image Mirroring
+      summary: Setup Image Mirroring Schedule
       tags:
       - Mirror
   /api/v1/mirror/image/snapshot/{mirrorPool}/{vmName}:
@@ -2867,7 +2771,7 @@ paths:
           description: Internal Server Error
           schema:
             $ref: '#/definitions/HTTP500InternalServerError'
-      summary: Setup Image Mirroring
+      summary: Take Image Mirroring Snapshot or Setup Image Mirroring Snapshot Schedule
       tags:
       - Mirror
   /api/v1/mirror/image/info/{mirrorPool}/{imageName}:
@@ -2905,7 +2809,7 @@ paths:
           description: Internal Server Error
           schema:
             $ref: '#/definitions/HTTP500InternalServerError'
-      summary: Show Mirroring Image Info
+      summary: Show Mirroring Image Parent Info
       tags:
       - Mirror
   /api/v1/mirror/image/status/{mirrorPool}/{imageName}:

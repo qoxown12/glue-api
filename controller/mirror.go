@@ -101,31 +101,31 @@ func (c *Controller) MirrorImageInfo(ctx *gin.Context) {
 //	@Failure		404	{object}	httputil.HTTP404NotFound
 //	@Failure		500	{object}	httputil.HTTP500InternalServerError
 //	@Router			/api/v1/mirror/image/{mirrorPool}/{imageName} [delete]
-func (c *Controller) MirrorImageDelete(ctx *gin.Context) {
-	image := ctx.Param("imageName")
-	pool := ctx.Param("mirrorPool")
-	var output string
+// func (c *Controller) MirrorImageDelete(ctx *gin.Context) {
+// 	image := ctx.Param("imageName")
+// 	pool := ctx.Param("mirrorPool")
+// 	var output string
 
-	output, err := mirror.ImageDelete(pool, image)
+// 	output, err := mirror.ImageDelete(pool, image)
 
-	if err != nil {
-		utils.FancyHandleError(err)
-		httputil.NewError(ctx, http.StatusInternalServerError, err)
-		return
-	}
+// 	if err != nil {
+// 		utils.FancyHandleError(err)
+// 		httputil.NewError(ctx, http.StatusInternalServerError, err)
+// 		return
+// 	}
 
-	output, err = mirror.ImagePreDelete(pool, image)
+// 	output, err = mirror.ImagePreDelete(pool, image)
 
-	if err != nil {
-		if output != "Success" {
-			utils.FancyHandleError(err)
-			httputil.NewError(ctx, http.StatusInternalServerError, err)
-			return
-		}
-	}
+// 	if err != nil {
+// 		if output != "Success" {
+// 			utils.FancyHandleError(err)
+// 			httputil.NewError(ctx, http.StatusInternalServerError, err)
+// 			return
+// 		}
+// 	}
 
-	ctx.IndentedJSON(http.StatusOK, Message{Message: output})
-}
+// 	ctx.IndentedJSON(http.StatusOK, Message{Message: output})
+// }
 
 // MirrorImageScheduleDelete godoc
 //
@@ -831,7 +831,7 @@ func (c *Controller) MirrorImageSnap(ctx *gin.Context) {
 
 // MirrorImageParentInfo godoc
 //
-//	@Summary		Show Mirroring Image Info
+//	@Summary		Show Mirroring Image Parent Info
 //	@Description	Glue 의 이미지에 미러링 정보를 확인합니다.
 //	@param			mirrorPool	path	string	true	"Pool Name for Mirroring"
 //	@param			imageName	path	string	true	"Image Name for Mirroring"
@@ -1096,6 +1096,21 @@ func (c *Controller) MirrorImageResyncPeer(ctx *gin.Context) {
 	ctx.IndentedJSON(http.StatusOK, dat)
 }
 
+// MirrorPoolEnable godoc
+//
+//	@Summary		Enable Mirroring
+//	@Description	Glue 의 미러링 클러스터를 활성화합니다.
+//	@param			host			formData	string	true	"Remote Cluster Host Address"
+//	@param			privateKeyFile	formData	file	true	"Remote Cluster PrivateKey"
+//	@param			mirrorPool		formData	string	true	"Pool Name for Mirroring"
+//	@Tags			Mirror
+//	@Accept			x-www-form-urlencoded
+//	@Produce		json
+//	@Success		200	{object}	model.ImageStatus
+//	@Failure		400	{object}	httputil.HTTP400BadRequest
+//	@Failure		404	{object}	httputil.HTTP404NotFound
+//	@Failure		500	{object}	httputil.HTTP500InternalServerError
+//	@Router			/api/v1/mirror/pool/{mirrorPool} [POST]
 func (c *Controller) MirrorPoolEnable(ctx *gin.Context) {
 
 	var dat model.MirrorSetup

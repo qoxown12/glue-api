@@ -198,6 +198,18 @@ func (c *Controller) MirrorStatus(ctx *gin.Context) {
 	ctx.IndentedJSON(http.StatusOK, dat)
 }
 
+// MirrorSetup godoc
+//
+//	@Summary		Setup Mirroring Cluster
+//	@Description	Glue 의 미러링 클러스터를 설정합니다.
+//	@Tags			Mirror
+//	@Accept			x-www-form-urlencoded
+//	@Produce		json
+//	@Success		200	{object}	model.MirrorSetup
+//	@Failure		400	{object}	httputil.HTTP400BadRequest
+//	@Failure		404	{object}	httputil.HTTP404NotFound
+//	@Failure		500	{object}	httputil.HTTP500InternalServerError
+//	@Router			/api/v1/mirror [POST]
 func (c *Controller) MirrorSetup(ctx *gin.Context) {
 	var dat model.MirrorSetup
 

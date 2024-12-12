@@ -542,7 +542,7 @@ Glue 의 이미지에 미러링 정보를 확인합니다.
 
 | Code | Description           | Schema                                                    |
 | ---- | --------------------- | --------------------------------------------------------- |
-| 200  | OK                    | [MirrorList](#MirrorList)                                 |
+| 200  | OK                    | [ImageInfo](#ImageInfo)                                 |
 | 400  | Bad Request           | [HTTP400BadRequest](#HTTP400BadRequest)                   |
 | 404  | Not Found             | [HTTP404NotFound](#HTTP404NotFound)                       |
 | 500  | Internal Server Error | [HTTP500InternalServerError](#HTTP500InternalServerError) |
@@ -570,7 +570,7 @@ Glue 의 이미지에 미러링상태를 확인합니다.
 
 | Code | Description           | Schema                                                    |
 | ---- | --------------------- | --------------------------------------------------------- |
-| 200  | OK                    | [MirrorList](#MirrorList)                                 |
+| 200  | OK                    | [ImageStatus](#ImageStatus)                                 |
 | 400  | Bad Request           | [HTTP400BadRequest](#HTTP400BadRequest)                   |
 | 404  | Not Found             | [HTTP404NotFound](#HTTP404NotFound)                       |
 | 500  | Internal Server Error | [HTTP500InternalServerError](#HTTP500InternalServerError) |
@@ -598,7 +598,7 @@ Glue 의 이미지를 Promote 합니다.
 
 | Code | Description           | Schema                                                    |
 | ---- | --------------------- | --------------------------------------------------------- |
-| 200  | OK                    | [MirrorList](#MirrorList)                                 |
+| 200  | OK                    | [Message](#Message)                                 |
 | 400  | Bad Request           | [HTTP400BadRequest](#HTTP400BadRequest)                   |
 | 404  | Not Found             | [HTTP404NotFound](#HTTP404NotFound)                       |
 | 500  | Internal Server Error | [HTTP500InternalServerError](#HTTP500InternalServerError) |
@@ -626,7 +626,7 @@ Peer Glue 의 이미지를 Promote 합니다.
 
 | Code | Description           | Schema                                                    |
 | ---- | --------------------- | --------------------------------------------------------- |
-| 200  | OK                    | [MirrorList](#MirrorList)                                 |
+| 200  | OK                    | [Message](#Message)                                 |
 | 400  | Bad Request           | [HTTP400BadRequest](#HTTP400BadRequest)                   |
 | 404  | Not Found             | [HTTP404NotFound](#HTTP404NotFound)                       |
 | 500  | Internal Server Error | [HTTP500InternalServerError](#HTTP500InternalServerError) |
@@ -654,7 +654,7 @@ Glue 의 이미지를 Demote 합니다.
 
 | Code | Description           | Schema                                                    |
 | ---- | --------------------- | --------------------------------------------------------- |
-| 200  | OK                    | [MirrorList](#MirrorList)                                 |
+| 200  | OK                    | [Message](#Message)                                 |
 | 400  | Bad Request           | [HTTP400BadRequest](#HTTP400BadRequest)                   |
 | 404  | Not Found             | [HTTP404NotFound](#HTTP404NotFound)                       |
 | 500  | Internal Server Error | [HTTP500InternalServerError](#HTTP500InternalServerError) |
@@ -682,7 +682,7 @@ Peer Glue 의 이미지를 Demote 합니다.
 
 | Code | Description           | Schema                                                    |
 | ---- | --------------------- | --------------------------------------------------------- |
-| 200  | OK                    | [MirrorList](#MirrorList)                                 |
+| 200  | OK                    | [Message](#Message)                                 |
 | 400  | Bad Request           | [HTTP400BadRequest](#HTTP400BadRequest)                   |
 | 404  | Not Found             | [HTTP404NotFound](#HTTP404NotFound)                       |
 | 500  | Internal Server Error | [HTTP500InternalServerError](#HTTP500InternalServerError) |
@@ -710,7 +710,7 @@ Glue 의 이미지를 Resync 합니다.
 
 | Code | Description           | Schema                                                    |
 | ---- | --------------------- | --------------------------------------------------------- |
-| 200  | OK                    | [MirrorList](#MirrorList)                                 |
+| 200  | OK                    | [Message](#Message)                                 |
 | 400  | Bad Request           | [HTTP400BadRequest](#HTTP400BadRequest)                   |
 | 404  | Not Found             | [HTTP404NotFound](#HTTP404NotFound)                       |
 | 500  | Internal Server Error | [HTTP500InternalServerError](#HTTP500InternalServerError) |
@@ -738,7 +738,7 @@ Peer Glue 의 이미지를 Resync 합니다.
 
 | Code | Description           | Schema                                                    |
 | ---- | --------------------- | --------------------------------------------------------- |
-| 200  | OK                    | [MirrorList](#MirrorList)                                 |
+| 200  | OK                    | [Message](#Message)                                 |
 | 400  | Bad Request           | [HTTP400BadRequest](#HTTP400BadRequest)                   |
 | 404  | Not Found             | [HTTP404NotFound](#HTTP404NotFound)                       |
 | 500  | Internal Server Error | [HTTP500InternalServerError](#HTTP500InternalServerError) |
@@ -749,7 +749,7 @@ Peer Glue 의 이미지를 Resync 합니다.
 
 ##### Summary:
 
-Show Infomation of Mirrored Snapshot
+Show Information of Mirrored Snapshot
 
 ##### Description:
 
@@ -766,7 +766,7 @@ Show Infomation of Mirrored Snapshot
 
 | Code | Description           | Schema                                                    |
 | ---- | --------------------- | --------------------------------------------------------- |
-| 200  | OK                    | [Message](#Message)                                       |
+| 200  | OK                    | [ImageMirror](#ImageMirror)                               |
 | 400  | Bad Request           | [HTTP400BadRequest](#HTTP400BadRequest)                   |
 | 404  | Not Found             | [HTTP404NotFound](#HTTP404NotFound)                       |
 | 500  | Internal Server Error | [HTTP500InternalServerError](#HTTP500InternalServerError) |
@@ -809,7 +809,7 @@ Setup Image Mirroring Schedule
 
 ##### Description:
 
-Glue의 이미지에 미러링 스케줄을 설정합니다.
+Glue 의 이미지에 미러링 스케줄을 설정합니다.
 
 ##### Parameters
 

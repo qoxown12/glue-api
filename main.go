@@ -305,6 +305,10 @@ func main() {
 			gwvm.PATCH("/migrate/:hypervisorType", c.VmMigrate) //Migrate to Gateway VM
 			gwvm.OPTIONS("/migrate/:hypervisorType", c.VmMigrateOptions)
 		}
+		license := v1.Group("/license")
+		{
+			license.GET("", c.License)
+		}
 		/*
 			admin := v1.Group("/admin")
 			{

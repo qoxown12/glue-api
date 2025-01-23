@@ -144,3 +144,19 @@ func PasswordDecryption(encryptedText string) (decryptedText string, err error) 
 	}
 	return decryptedText, nil
 }
+
+// Read the mold settings file.
+func ReadMoldFile() (mold model.Mold, err error) {
+	content, err := os.ReadFile("./mold.json")
+	if err != nil {
+		log.Fatal("Error when opening file: ", err)
+		return
+	}
+
+	err = json.Unmarshal(content, &mold)
+	if err != nil {
+		log.Fatal("Error during Unmarshal(): ", err)
+		return
+	}
+	return
+}

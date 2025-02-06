@@ -2,9 +2,11 @@ package controller
 
 import (
 	"Glue-API/docs"
+	"Glue-API/httputil"
 	"Glue-API/model"
 	"Glue-API/utils"
 	"Glue-API/utils/glue"
+	"Glue-API/utils/license"
 	"bytes"
 	"crypto/tls"
 	"encoding/json"
@@ -92,10 +94,10 @@ func GetToken() (output string, err error) {
 			TLSClientConfig: &tls.Config{InsecureSkipVerify: true},
 		},
 	}
-	
+
 	settings, _ := utils.ReadConfFile()
 	pw, err := utils.PasswordDecryption(settings.GluePw)
-	
+
 	user_json := model.UserInfo{
 		Username: settings.GlueUser,
 		Password: pw,
@@ -134,4 +136,13 @@ func GetToken() (output string, err error) {
 	}
 	output = dat.Token
 	return
+}
+
+func (c *Controller) License(ctx *gin.Context) {
+	output, err := license.License()
+	if err != nil {
+		httputil.NewError(ctx, http.StatusInternalServerError, err)
+		return
+	}
+	ctx.JSON(http.StatusOK, output)
 }

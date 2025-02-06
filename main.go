@@ -20,26 +20,26 @@ import (
 	ginSwagger "github.com/swaggo/gin-swagger"
 )
 
-//	@title			Glue-API
-//	@version		v1.0
-//	@description	This is a GlueAPI server.
-//	@termsOfService	http://swagger.io/terms/
+//      @title                  Glue-API
+//      @version                v1.0
+//      @description    This is a GlueAPI server.
+//      @termsOfService http://swagger.io/terms/
 
-//	@contact.name	윤여천
-//	@contact.url	http://www.ablecloud.io
-//	@contact.email	support@ablecloud.io
+//      @contact.name   윤여천
+//      @contact.url    http://www.ablecloud.io
+//      @contact.email  support@ablecloud.io
 
-//	@license.name	Apache 2.0
-//	@license.url	http://www.apache.org/licenses/LICENSE-2.0.html
+//      @license.name   Apache 2.0
+//      @license.url    http://www.apache.org/licenses/LICENSE-2.0.html
 
-//	@BasePath	/api/v1
+//      @BasePath       /api/v1
 
-//	@securityDefinitions.basic	BasicAuth
+//      @securityDefinitions.basic      BasicAuth
 
-//	@securityDefinitions.apikey	ApiKeyAuth
-//	@in							header
-//	@name						Authorization
-//	@description				Description for what is this security definition being used
+//      @securityDefinitions.apikey     ApiKeyAuth
+//      @in                                                     header
+//      @name                                           Authorization
+//      @description                            Description for what is this security definition being used
 
 func main() {
 
@@ -47,6 +47,30 @@ func main() {
 	go MirroringSchedule(mold)
 
 	// programmatically set swagger info
+
+	// 로그 설정
+	// log.SetFlags(log.LstdFlags | log.Lshortfile)
+	// logFile, err := os.OpenFile("/var/log/glue-api.log", os.O_CREATE|os.O_WRONLY|os.O_APPEND, 0666)
+	// if err != nil {
+	// 	fmt.Printf("로그 파일 열기 실패: %v\n", err)
+	// 	return
+	// }
+	// defer logFile.Close()
+	// log.SetOutput(logFile)
+	// // 라이센스 체크 시작
+	// password := "password"
+	// salt := "salt"
+
+	// if password == "" || salt == "" {
+	// 	log.Println("라이센스 환경 변수가 설정되지 않았습니다")
+	// 	return
+	// }
+
+	// err = license.StartLicenseCheck(password, salt)
+	// if err != nil {
+	// 	log.Printf("라이센스 체크 시작 실패: %v\n", err)
+	// 	return
+	// }
 
 	docs.SwaggerInfo.Title = "Glue API"
 	docs.SwaggerInfo.Description = "This is a GlueAPI server."
@@ -126,10 +150,10 @@ func main() {
 				}
 				// snapshot := subvolume.Group("/snapshot")
 				// {
-				// 	snapshot.GET("", c.SubVolumeSnapList)
-				// 	snapshot.POST("", c.SubVolumeSnapCreate)
-				// 	snapshot.DELETE("", c.SubVolumeSnapDelete)
-				// 	snapshot.OPTIONS("", c.SubVolumeOption)
+				//      snapshot.GET("", c.SubVolumeSnapList)
+				//      snapshot.POST("", c.SubVolumeSnapCreate)
+				//      snapshot.DELETE("", c.SubVolumeSnapDelete)
+				//      snapshot.OPTIONS("", c.SubVolumeOption)
 				// }
 			}
 		}
@@ -310,11 +334,11 @@ func main() {
 			license.GET("", c.License)
 		}
 		/*
-			admin := v1.Group("/admin")
-			{
-				admin.Use(auth())
-				admin.POST("/auth", c.Auth)
-			}
+		   admin := v1.Group("/admin")
+		   {
+		           admin.Use(auth())
+		           admin.POST("/auth", c.Auth)
+		   }
 		*/
 		r.Any("/version", c.Version)
 	}
@@ -326,13 +350,13 @@ func main() {
 
 /*
 func auth() gin.HandlerFunc {
-	return func(c *gin.Context) {
-		if len(c.GetHeader("Authorization")) == 0 {
-			httputil.NewError(c, http.StatusUnauthorized, errors.New("Authorization is required Header"))
-			c.Abort()
-		}
-		c.Next()
-	}
+        return func(c *gin.Context) {
+                if len(c.GetHeader("Authorization")) == 0 {
+                        httputil.NewError(c, http.StatusUnauthorized, errors.New("Authorization is required Header"))
+                        c.Abort()
+                }
+                c.Next()
+        }
 }
 */
 

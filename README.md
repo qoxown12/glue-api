@@ -21,16 +21,24 @@ Glue의 기능을 제어하기 위한 REST API 입니다.
 | DELETE | [api/v1/gluefs/:fs_name](#apiv1gluefs-)                                | :white_check_mark: | FsDelete                    |
 | GET    | [api/v1/mirror](#apiv1mirror)                                          | :white_check_mark: | MirrorStatus                |
 | POST   | [api/v1/mirror](#apiv1mirror)                                          | :white_check_mark: | MirrorSetup                 |
-| PATCH  | [api/v1/mirror]()                                                      |                    |                             |
-| DELETE | [api/v1/mirror](#apiv1mirror)                                          |     :recycle:      | MirrorDelete                |
-| GET    | [api/v1/mirror/image](#apiv1mirrorimage)                               | :white_check_mark: | MirrorImageList             |
-| GET    | [api/v1/mirror/image/:pool/:imagename]()                               |                    |                             |
-| POST   | [api/v1/mirror/image/:pool/:imagename]()                               |                    |                             |
-| PATCH  | [api/v1/mirror/image/:pool/:imagename]()                               |                    |                             |
-| DELETE | [api/v1/mirror/image/:pool/:imagename](#apiv1mirrorimagepoolimagename) | :white_check_mark: | MirrorImageDelete           |
-| POST   | [api/v1/mirror/image/prymary/:pool/:image]()                           |                    |                             |
-| DELETE | [api/v1/mirror/image/prymary/:pool/:image]()                           |                    |                             |
-| GET    | [api/v1/mirror/image/prymary/:pool/:image]()                           |                    |                             |
+| PUT    | [api/v1/mirror](#apiv1mirror)                                          | :white_check_mark: | MirrorUpdate                |
+| DELETE | [api/v1/mirror](#apiv1mirror)                                          | :white_check_mark: | MirrorDelete                |
+| POST   | [api/v1/mirror/:pool](#apiv1mirror)                                    | :white_check_mark: | MirrorPoolEnable            |
+| DELETE | [api/v1/mirror/:pool](#apiv1mirror)                                    | :white_check_mark: | MirrorPoolDisable           |
+| DELETE | [api/v1/mirror/garbage](#apiv1mirror)                                  | :white_check_mark: | MirrorDeleteGarbage         |
+| GET    | [api/v1/mirror/image/:pool](#apiv1mirrorimage)                         | :white_check_mark: | MirrorImageList             |
+| GET    | [api/v1/mirror/image/info/:pool/:imageName]()                          | :white_check_mark: | MirrorImageParentInfo       |
+| GET    | [api/v1/mirror/image/status/:pool/:imageName]()                        | :white_check_mark: | MirrorImageStatus           |
+| POST   | [api/v1/mirror/image/promote/:pool/:imageName]()                       | :white_check_mark: | MirrorImagePromote          |
+| POST   | [api/v1/mirror/image/promote/peer/:pool/:imageName]()                  | :white_check_mark: | MirrorImagePromotePeer      |
+| DELETE | [api/v1/mirror/image/demote/:pool/:imageName]()                        | :white_check_mark: | MirrorImageDemote           |
+| DELETE | [api/v1/mirror/image/demote/peer/:pool/:imageName]()                   | :white_check_mark: | MirrorImageDemotePeer       |
+| PUT    | [api/v1/mirror/image/resync/:pool/:imageName]()                        | :white_check_mark: | MirrorImageResync           |
+| PUT    | [api/v1/mirror/image/resync/peer/:pool/:imageName]()                   | :white_check_mark: | MirrorImageResyncPeer       |
+| GET    | [api/v1/mirror/image/:pool/:imageName]()                               | :white_check_mark: | MirrorImageInfo             |
+| DELETE | [api/v1/mirror/image/:pool/:imageName]()                               | :white_check_mark: | MirrorImageScheduleDelete   |
+| POST   | [api/v1/mirror/image/:pool/:imageName/:hostName:/vmName]()             | :white_check_mark: | MirrorImageScheduleSetup    |
+| POST   | [api/v1/mirror/image/snapshot/:pool/:vmName]()                         | :white_check_mark: | MirrorImageSnap             |
 | GET    | [api/v1/nfs](#apiv1nfs)                                                | :white_check_mark: | NfsClusterLs,NfsClusterInfo |
 | DELETE | [api/v1/nfs/:cluster_id](#apiv1nfscluster)                             | :white_check_mark: | NfsClusterDelete            |
 | POST   | [api/v1/nfs/:cluster_id/:port](#apiv1nfscluster-)                      | :white_check_mark: | NfsClusterCreate            |
@@ -293,33 +301,6 @@ Glue 의 버전을 보여줍니다.
 
 ### /api/v1/mirror
 
-#### DELETE
-
-##### Summary:
-
-Delete Mirroring Cluster
-
-##### Description:
-
-Glue 의 미러링 클러스터를 제거합니다.
-
-##### Parameters
-
-| Name           | Located in | Description                 | Required | Schema |
-| -------------- | ---------- | --------------------------- | -------- | ------ |
-| host           | formData   | Remote Cluster Host Address | Yes      | string |
-| privateKeyFile | formData   | Remote Cluster PrivateKey   | Yes      | file   |
-| mirrorPool     | formData   | Pool Name for Mirroring     | Yes      | string |
-
-##### Responses
-
-| Code | Description           | Schema                                                    |
-| ---- | --------------------- | --------------------------------------------------------- |
-| 200  | OK                    | [MirrorSetup](#MirrorSetup)                               |
-| 400  | Bad Request           | [HTTP400BadRequest](#HTTP400BadRequest)                   |
-| 404  | Not Found             | [HTTP404NotFound](#HTTP404NotFound)                       |
-| 500  | Internal Server Error | [HTTP500InternalServerError](#HTTP500InternalServerError) |
-
 #### GET
 
 ##### Summary:
@@ -347,7 +328,96 @@ Setup Mirroring Cluster
 
 ##### Description:
 
-Glue 의 미러링 클러스터를 설정합니다..
+Glue 의 미러링 클러스터를 설정합니다.
+
+##### Parameters
+
+| Name              | Located in | Description                 | Required | Schema |
+| ----------------- | ---------- | --------------------------- | -------- | ------ |
+| localClusterName  | formData   | Local Cluster Name          | Yes      | string |
+| remoteClusterName | formData   | Remote Cluster Name         | Yes      | string |
+| host              | formData   | Remote Cluster Host Address | Yes      | string |
+| privateKeyFile    | formData   | Remote Cluster PrivateKey   | Yes      | file   |
+| mirrorPool        | formData   | Pool Name for Mirroring     | Yes      | string |
+| moldUrl           | formData   | Mold Url                    | Yes      | string |
+| moldApiKey        | formData   | Mold Api Key                | Yes      | string |
+| moldSecretKey     | formData   | Mold Secret Key             | Yes      | string |
+
+##### Responses
+
+| Code | Description           | Schema                                                    |
+| ---- | --------------------- | --------------------------------------------------------- |
+| 200  | OK                    | [MirrorSetup](#MirrorSetup)                               |
+| 400  | Bad Request           | [HTTP400BadRequest](#HTTP400BadRequest)                   |
+| 404  | Not Found             | [HTTP404NotFound](#HTTP404NotFound)                       |
+| 500  | Internal Server Error | [HTTP500InternalServerError](#HTTP500InternalServerError) |
+
+#### PUT
+
+##### Summary:
+
+Put Mirroring Cluster
+
+##### Description:
+
+Glue 의 미러링 클러스터 설정을 변경합니다.
+
+##### Parameters
+
+| Name              | Located in | Description                 | Required | Schema |
+| ----------------- | ---------- | --------------------------- | -------- | ------ |
+| interval          | formData   | Mirroring Schedule Interval | Yes      | string |
+| moldUrl           | formData   | Mold API request URL        | Yes      | string |
+| moldApiKey        | formData   | Mold Admin Api Key          | Yes      | string |
+| moldSecretKey     | formData   | Mold Admin Secret Key       | Yes      | string |
+
+##### Responses
+
+| Code | Description           | Schema                                                    |
+| ---- | --------------------- | --------------------------------------------------------- |
+| 200  | OK                    | [MirrorSetup](#MirrorSetup)                               |
+| 400  | Bad Request           | [HTTP400BadRequest](#HTTP400BadRequest)                   |
+| 404  | Not Found             | [HTTP404NotFound](#HTTP404NotFound)                       |
+| 500  | Internal Server Error | [HTTP500InternalServerError](#HTTP500InternalServerError) |
+
+#### DELETE
+
+##### Summary:
+
+Delete Mirroring Cluster
+
+##### Description:
+
+Glue 의 미러링 클러스터를 제거합니다.
+
+##### Parameters
+
+| Name           | Located in | Description                 | Required | Schema |
+| -------------- | ---------- | --------------------------- | -------- | ------ |
+| host           | formData   | Remote Cluster Host Address | Yes      | string |
+| privateKeyFile | formData   | Remote Cluster PrivateKey   | Yes      | file   |
+| mirrorPool     | formData   | Pool Name for Mirroring     | Yes      | string |
+
+##### Responses
+
+| Code | Description           | Schema                                                    |
+| ---- | --------------------- | --------------------------------------------------------- |
+| 200  | OK                    | [MirrorSetup](#MirrorSetup)                               |
+| 400  | Bad Request           | [HTTP400BadRequest](#HTTP400BadRequest)                   |
+| 404  | Not Found             | [HTTP404NotFound](#HTTP404NotFound)                       |
+| 500  | Internal Server Error | [HTTP500InternalServerError](#HTTP500InternalServerError) |
+
+### /api/v1/mirror/{mirrorPool}
+
+#### POST
+
+##### Summary:
+
+Enable Mirroring Cluster
+
+##### Description:
+
+Glue 의 미러링 클러스터를 활성화합니다.
 
 ##### Parameters
 
@@ -368,17 +438,77 @@ Glue 의 미러링 클러스터를 설정합니다..
 | 404  | Not Found             | [HTTP404NotFound](#HTTP404NotFound)                       |
 | 500  | Internal Server Error | [HTTP500InternalServerError](#HTTP500InternalServerError) |
 
-### /api/v1/mirror/image
+#### DELETE
+
+##### Summary:
+
+Disable Mirroring Cluster
+
+##### Description:
+
+Glue 의 미러링 클러스터를 비활성화합니다.
+
+##### Parameters
+
+| Name           | Located in | Description                 | Required | Schema |
+| -------------- | ---------- | --------------------------- | -------- | ------ |
+| host           | formData   | Remote Cluster Host Address | Yes      | string |
+| privateKeyFile | formData   | Remote Cluster PrivateKey   | Yes      | file   |
+| mirrorPool     | formData   | Pool Name for Mirroring     | Yes      | string |
+
+##### Responses
+
+| Code | Description           | Schema                                                    |
+| ---- | --------------------- | --------------------------------------------------------- |
+| 200  | OK                    | [MirrorSetup](#MirrorSetup)                               |
+| 400  | Bad Request           | [HTTP400BadRequest](#HTTP400BadRequest)                   |
+| 404  | Not Found             | [HTTP404NotFound](#HTTP404NotFound)                       |
+| 500  | Internal Server Error | [HTTP500InternalServerError](#HTTP500InternalServerError) |
+
+### /api/v1/mirror/garbage
+
+#### DELETE
+
+##### Summary:
+
+Delete Garbage Mirroring Cluster
+
+##### Description:
+
+Glue 의 미러링 클러스터 가비지를 삭제합니다.
+
+##### Parameters
+
+| Name           | Located in | Description                 | Required | Schema |
+| -------------- | ---------- | --------------------------- | -------- | ------ |
+| mirrorPool     | path       | Pool Name for Mirroring     | Yes      | string |
+
+##### Responses
+
+| Code | Description           | Schema                                                    |
+| ---- | --------------------- | --------------------------------------------------------- |
+| 200  | OK                    | [MirrorSetup](#MirrorSetup)                               |
+| 400  | Bad Request           | [HTTP400BadRequest](#HTTP400BadRequest)                   |
+| 404  | Not Found             | [HTTP404NotFound](#HTTP404NotFound)                       |
+| 500  | Internal Server Error | [HTTP500InternalServerError](#HTTP500InternalServerError) |
+
+### /api/v1/mirror/image/{pool}
 
 #### GET
 
 ##### Summary:
 
-Show List of Mirrored Image
+Show List of Mirrored Snapshot
 
 ##### Description:
 
 미러링중인 이미지의 목록과 상태를 보여줍니다.
+
+##### Parameters
+
+| Name           | Located in | Description                 | Required | Schema |
+| -------------- | ---------- | --------------------------- | -------- | ------ |
+| mirrorPool     | path       | Pool Name for Mirroring     | Yes      | string |
 
 ##### Responses
 
@@ -389,24 +519,338 @@ Show List of Mirrored Image
 | 404  | Not Found             | [HTTP404NotFound](#HTTP404NotFound)                       |
 | 500  | Internal Server Error | [HTTP500InternalServerError](#HTTP500InternalServerError) |
 
-### /api/v1/mirror/image/{pool}/{imagename}
+### /api/v1/mirror/image/info/{pool}/{imageName}
+
+#### GET
+
+##### Summary:
+
+Show Mirroring Image Parent Info
+
+##### Description:
+
+Glue 의 이미지에 미러링 정보를 확인합니다.
+
+##### Parameters
+
+| Name           | Located in | Description                 | Required | Schema |
+| -------------- | ---------- | --------------------------- | -------- | ------ |
+| mirrorPool     | path       | Pool Name for Mirroring     | Yes      | string |
+| imageName      | path       | Image Name for Mirroring    | Yes      | string |
+
+##### Responses
+
+| Code | Description           | Schema                                                    |
+| ---- | --------------------- | --------------------------------------------------------- |
+| 200  | OK                    | [ImageInfo](#ImageInfo)                                 |
+| 400  | Bad Request           | [HTTP400BadRequest](#HTTP400BadRequest)                   |
+| 404  | Not Found             | [HTTP404NotFound](#HTTP404NotFound)                       |
+| 500  | Internal Server Error | [HTTP500InternalServerError](#HTTP500InternalServerError) |
+
+### /api/v1/mirror/image/status/{pool}/{imageName}
+
+#### GET
+
+##### Summary:
+
+Show Mirroring Image Status
+
+##### Description:
+
+Glue 의 이미지에 미러링상태를 확인합니다.
+
+##### Parameters
+
+| Name           | Located in | Description                 | Required | Schema |
+| -------------- | ---------- | --------------------------- | -------- | ------ |
+| mirrorPool     | path       | Pool Name for Mirroring     | Yes      | string |
+| imageName      | path       | Image Name for Mirroring    | Yes      | string |
+
+##### Responses
+
+| Code | Description           | Schema                                                    |
+| ---- | --------------------- | --------------------------------------------------------- |
+| 200  | OK                    | [ImageStatus](#ImageStatus)                                 |
+| 400  | Bad Request           | [HTTP400BadRequest](#HTTP400BadRequest)                   |
+| 404  | Not Found             | [HTTP404NotFound](#HTTP404NotFound)                       |
+| 500  | Internal Server Error | [HTTP500InternalServerError](#HTTP500InternalServerError) |
+
+### /api/v1/mirror/image/promote/{pool}/{imageName}
+
+#### POST
+
+##### Summary:
+
+Promote Image Mirroring
+
+##### Description:
+
+Glue 의 이미지를 Promote 합니다.
+
+##### Parameters
+
+| Name           | Located in | Description                 | Required | Schema |
+| -------------- | ---------- | --------------------------- | -------- | ------ |
+| mirrorPool     | path       | Pool Name for Mirroring     | Yes      | string |
+| imageName      | path       | Image Name for Mirroring    | Yes      | string |
+
+##### Responses
+
+| Code | Description           | Schema                                                    |
+| ---- | --------------------- | --------------------------------------------------------- |
+| 200  | OK                    | [Message](#Message)                                 |
+| 400  | Bad Request           | [HTTP400BadRequest](#HTTP400BadRequest)                   |
+| 404  | Not Found             | [HTTP404NotFound](#HTTP404NotFound)                       |
+| 500  | Internal Server Error | [HTTP500InternalServerError](#HTTP500InternalServerError) |
+
+### /api/v1/mirror/image/promote/peer/{pool}/{imageName}
+
+#### POST
+
+##### Summary:
+
+Promote Peer Image Mirroring
+
+##### Description:
+
+Peer Glue 의 이미지를 Promote 합니다.
+
+##### Parameters
+
+| Name           | Located in | Description                 | Required | Schema |
+| -------------- | ---------- | --------------------------- | -------- | ------ |
+| mirrorPool     | path       | Pool Name for Mirroring     | Yes      | string |
+| imageName      | path       | Image Name for Mirroring    | Yes      | string |
+
+##### Responses
+
+| Code | Description           | Schema                                                    |
+| ---- | --------------------- | --------------------------------------------------------- |
+| 200  | OK                    | [Message](#Message)                                 |
+| 400  | Bad Request           | [HTTP400BadRequest](#HTTP400BadRequest)                   |
+| 404  | Not Found             | [HTTP404NotFound](#HTTP404NotFound)                       |
+| 500  | Internal Server Error | [HTTP500InternalServerError](#HTTP500InternalServerError) |
+
+### /api/v1/mirror/image/demote/{pool}/{imageName}
 
 #### DELETE
 
 ##### Summary:
 
-Delete Mirrored Image
+Demote Image Mirroring
 
 ##### Description:
 
-이미지의 미러링을 비활성화 합니다.
+Glue 의 이미지를 Demote 합니다.
+
+##### Parameters
+
+| Name           | Located in | Description                 | Required | Schema |
+| -------------- | ---------- | --------------------------- | -------- | ------ |
+| mirrorPool     | path       | Pool Name for Mirroring     | Yes      | string |
+| imageName      | path       | Image Name for Mirroring    | Yes      | string |
+
+##### Responses
+
+| Code | Description           | Schema                                                    |
+| ---- | --------------------- | --------------------------------------------------------- |
+| 200  | OK                    | [Message](#Message)                                 |
+| 400  | Bad Request           | [HTTP400BadRequest](#HTTP400BadRequest)                   |
+| 404  | Not Found             | [HTTP404NotFound](#HTTP404NotFound)                       |
+| 500  | Internal Server Error | [HTTP500InternalServerError](#HTTP500InternalServerError) |
+
+### /api/v1/mirror/image/demote/peer/{pool}/{imageName}
+
+#### DELETE
+
+##### Summary:
+
+Demote Peer Image Mirroring
+
+##### Description:
+
+Peer Glue 의 이미지를 Demote 합니다.
+
+##### Parameters
+
+| Name           | Located in | Description                 | Required | Schema |
+| -------------- | ---------- | --------------------------- | -------- | ------ |
+| mirrorPool     | path       | Pool Name for Mirroring     | Yes      | string |
+| imageName      | path       | Image Name for Mirroring    | Yes      | string |
+
+##### Responses
+
+| Code | Description           | Schema                                                    |
+| ---- | --------------------- | --------------------------------------------------------- |
+| 200  | OK                    | [Message](#Message)                                 |
+| 400  | Bad Request           | [HTTP400BadRequest](#HTTP400BadRequest)                   |
+| 404  | Not Found             | [HTTP404NotFound](#HTTP404NotFound)                       |
+| 500  | Internal Server Error | [HTTP500InternalServerError](#HTTP500InternalServerError) |
+
+### /api/v1/mirror/image/resync/{pool}/{imageName}
+
+#### PUT
+
+##### Summary:
+
+Resync Image Mirroring
+
+##### Description:
+
+Glue 의 이미지를 Resync 합니다.
+
+##### Parameters
+
+| Name           | Located in | Description                 | Required | Schema |
+| -------------- | ---------- | --------------------------- | -------- | ------ |
+| mirrorPool     | path       | Pool Name for Mirroring     | Yes      | string |
+| imageName      | path       | Image Name for Mirroring    | Yes      | string |
+
+##### Responses
+
+| Code | Description           | Schema                                                    |
+| ---- | --------------------- | --------------------------------------------------------- |
+| 200  | OK                    | [Message](#Message)                                 |
+| 400  | Bad Request           | [HTTP400BadRequest](#HTTP400BadRequest)                   |
+| 404  | Not Found             | [HTTP404NotFound](#HTTP404NotFound)                       |
+| 500  | Internal Server Error | [HTTP500InternalServerError](#HTTP500InternalServerError) |
+
+### /api/v1/mirror/image/resync/peer/{pool}/{imageName}
+
+#### PUT
+
+##### Summary:
+
+Resync Peer Image Mirroring
+
+##### Description:
+
+Peer Glue 의 이미지를 Resync 합니다.
+
+##### Parameters
+
+| Name           | Located in | Description                 | Required | Schema |
+| -------------- | ---------- | --------------------------- | -------- | ------ |
+| mirrorPool     | path       | Pool Name for Mirroring     | Yes      | string |
+| imageName      | path       | Image Name for Mirroring    | Yes      | string |
+
+##### Responses
+
+| Code | Description           | Schema                                                    |
+| ---- | --------------------- | --------------------------------------------------------- |
+| 200  | OK                    | [Message](#Message)                                 |
+| 400  | Bad Request           | [HTTP400BadRequest](#HTTP400BadRequest)                   |
+| 404  | Not Found             | [HTTP404NotFound](#HTTP404NotFound)                       |
+| 500  | Internal Server Error | [HTTP500InternalServerError](#HTTP500InternalServerError) |
+
+### /api/v1/mirror/image/{pool}/{imagename}
+
+#### GET
+
+##### Summary:
+
+Show Information of Mirrored Snapshot
+
+##### Description:
+
+미러링중인 이미지의 정보를 보여줍니다.
 
 ##### Parameters
 
 | Name      | Located in | Description | Required | Schema |
 | --------- | ---------- | ----------- | -------- | ------ |
 | imageName | path       | imageName   | Yes      | string |
-| pool      | path       | pool        | Yes      | string |
+| mirrorPool| path       | mirrorPool  | Yes      | string |
+
+##### Responses
+
+| Code | Description           | Schema                                                    |
+| ---- | --------------------- | --------------------------------------------------------- |
+| 200  | OK                    | [ImageMirror](#ImageMirror)                               |
+| 400  | Bad Request           | [HTTP400BadRequest](#HTTP400BadRequest)                   |
+| 404  | Not Found             | [HTTP404NotFound](#HTTP404NotFound)                       |
+| 500  | Internal Server Error | [HTTP500InternalServerError](#HTTP500InternalServerError) |
+
+### /api/v1/mirror/image/{pool}/{imagename}
+
+#### DELETE
+
+##### Summary:
+
+Delete Mirrored Snapshot Schedule
+
+##### Description:
+
+이미지의 미러링 스케줄링을 비활성화 합니다.
+
+##### Parameters
+
+| Name      | Located in | Description | Required | Schema |
+| --------- | ---------- | ----------- | -------- | ------ |
+| imageName | path       | imageName   | Yes      | string |
+| mirrorPool| path       | mirrorPool  | Yes      | string |
+
+##### Responses
+
+| Code | Description           | Schema                                                    |
+| ---- | --------------------- | --------------------------------------------------------- |
+| 200  | OK                    | [Message](#Message)                                       |
+| 400  | Bad Request           | [HTTP400BadRequest](#HTTP400BadRequest)                   |
+| 404  | Not Found             | [HTTP404NotFound](#HTTP404NotFound)                       |
+| 500  | Internal Server Error | [HTTP500InternalServerError](#HTTP500InternalServerError) |
+
+### /api/v1/mirror/image/{pool}/{imagename}/{hostname}/{vmname}
+
+#### POST
+
+##### Summary:
+
+Setup Image Mirroring Schedule
+
+##### Description:
+
+Glue 의 이미지에 미러링 스케줄을 설정합니다.
+
+##### Parameters
+
+| Name      | Located in | Description                | Required | Schema |
+| --------- | ---------- | -------------------------- | -------- | ------ |
+| mirrorPool| path       | Pool Name of Mirroring     | Yes      | string |
+| imageName | path       | Image Name for Mirroring   | Yes      | string |
+| hostName  | path       | Host Name for Mirroring VM | Yes      | string |
+| vmName    | path       | VM Name for Mirroring Image| Yes      | string |
+| volType   | formData   | Volume Type                | Yes      | string |
+
+##### Responses
+
+| Code | Description           | Schema                                                    |
+| ---- | --------------------- | --------------------------------------------------------- |
+| 200  | OK                    | [Message](#Message)                                       |
+| 400  | Bad Request           | [HTTP400BadRequest](#HTTP400BadRequest)                   |
+| 404  | Not Found             | [HTTP404NotFound](#HTTP404NotFound)                       |
+| 500  | Internal Server Error | [HTTP500InternalServerError](#HTTP500InternalServerError) |
+
+### /api/v1/mirror/image/snapshot/{pool}/{imagename}
+
+#### POST
+
+##### Summary:
+
+Take Image Mirroring Snapshot or Setup Image Mirroring Snapshot Schedule
+
+##### Description:
+
+Glue의 이미지에 미러링 스냅샷을 생성하거나 스케줄을 설정합니다.
+
+##### Parameters
+
+| Name      | Located in | Description                              | Required | Schema |
+| --------- | ---------- | ---------------------------------------- | -------- | ------ |
+| mirrorPool| path       | Pool Name of Mirroring                   | Yes      | string |
+| vmName    | path       | VM Name for Mirroring Image              | Yes      | string |
+| hostName  | formData   | Host Name for Mirroring VM               | No       | string |
+| imageName | formData   | Image Name for Mirroring Image (Schedule)| No       | string |
+| imageList | formData   | Image List for Mirroring (Manual)        | No       | string |
 
 ##### Responses
 
@@ -1014,11 +1458,43 @@ API 의 버전을 보여줍니다.
 | code    | integer |             | No       |
 | message | string  |             | No       |
 
+#### ImageMirror
+
+| Name      | Type                                    | Description | Required |
+| --------- | --------------------------------------- | ----------- | -------- |
+| image     | string                                  |             | No       |
+| items     | [ [MirrorImageItem](#MirrorImageItem) ] |             | No       |
+| namespace | string                                  |             | No       |
+| pool      | string                                  |             | No       |
+
+#### ImageStatus
+
+| Name           | Type                                    | Description | Required |
+| -------------- | --------------------------------------- | ----------- | -------- |
+| daemon_service | object                                  |             | No       |
+| description    | string                                  |             | No       |
+| global_id      | string                                  |             | No       |
+| last_update    | string                                  |             | No       |
+| name           | string                                  |             | No       |
+| peer_sites     | array                                   |             | No       |
+| snapshots      | array                                   |             | No       |
+| state          | string                                  |             | No       |
+
 #### Message
 
 | Name    | Type   | Description | Required |
 | ------- | ------ | ----------- | -------- |
 | message | string |             | No       |
+
+#### ImageInfo
+
+| Name           | Type                                    | Description | Required |
+| -------------- | --------------------------------------- | ----------- | -------- |
+| name           | string                                  |             | No       |
+| id             | string                                  |             | No       |
+| size           | string                                  |             | No       |
+| snapshot_count | integer                                 |             | No       |
+| parent         | array                                   |             | No       |
 
 #### MirrorImage
 
@@ -1038,32 +1514,45 @@ API 의 버전을 보여줍니다.
 
 #### MirrorList
 
-| Name   | Type                            | Description | Required |
-| ------ | ------------------------------- | ----------- | -------- |
-| Local  | [ [MirrorImage](#MirrorImage) ] |             | No       |
-| Remote | [ [MirrorImage](#MirrorImage) ] |             | No       |
-| debug  | boolean (bool)                  | Debug info  | No       |
+| Name          | Type                                      | Description | Required |
+| ------------- | ----------------------------------------- | ----------- | -------- |
+| Summary       | object                                    |             | No       |
+| Daemons       | object                                    |             | No       |
+| Images        | [ [MirrorListImages](#MirrorListImages) ] |             | No       |
+| states        | string                                    |             | No       |
+
+#### MirrorListImages
+
+| Name           | Type                                      | Description | Required |
+| -------------- | ----------------------------------------- | ----------- | -------- |
+| name           | string                                    |             | No       |
+| global_id      | string                                    |             | No       |
+| state          | string                                    |             | No       |
+| description    | string                                    |             | No       |
+| daemon_service | string                                    |             | No       |
+| last_update    | string                                    |             | No       |
+| peer_sites     | array                                     |             | No       |
 
 #### MirrorSetup
 
 | Name              | Type   | Description | Required |
 | ----------------- | ------ | ----------- | -------- |
 | host              | string |             | No       |
-| localClusterName  | string | 미러링 상태 | No       |
+| localClusterName  | string | 미러링 상태    | No       |
 | localToken        | string |             | No       |
 | mirrorPool        | string |             | No       |
 | privateKeyFile    | object |             | No       |
-| remoteClusterName | string | 미러링 상태 | No       |
+| remoteClusterName | string | 미러링 상태    | No       |
 | remoteToken       | string |             | No       |
 
 #### MirrorStatus
 
 | Name          | Type   | Description      | Required |
 | ------------- | ------ | ---------------- | -------- |
-| daemon_health | string | 미러링 데몬 상태 | No       |
-| health        | string | 미러링 상태      | No       |
-| image_health  | string | 이미지 상태      | No       |
-| states        | object | 이미지 상세      | No       |
+| daemon_health | string | 미러링 데몬 상태     | No       |
+| health        | string | 미러링 상태         | No       |
+| image_health  | string | 이미지 상태         | No       |
+| states        | object | 이미지 상세         | No       |
 
 #### FsStatus
 

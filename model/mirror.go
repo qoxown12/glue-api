@@ -18,9 +18,39 @@ type MirrorImage struct {
 	Items     []MirrorImageItem `json:"items"`
 } //@name MirrorImage
 
+type MirrorListImages struct {
+	Name          string      `json:"name"`
+	GlobalId      string      `json:"global_id"`
+	State         string      `json:"state"`
+	Description   string      `json:"description"`
+	DaemonService interface{} `json:"daemon_service"`
+	LastUpdate    string      `json:"last_update"`
+	PeerSites     []struct {
+		SiteName    string `json:"site_name"`
+		MirrorUuids string `json:"mirror_uuids"`
+		State       string `json:"state"`
+		Description string `json:"description"`
+		LastUpdate  string `json:"last_update"`
+	} `json:"peer_sites"`
+} //@name MirrorListImages
+
 type MirrorList struct {
-	Local  []MirrorImage `json:"Local"`
-	Remote []MirrorImage `json:"Remote"`
+	Summary struct {
+		Health       string      `json:"health"`
+		DaemonHealth string      `json:"daemon_health"`
+		ImageHealth  string      `json:"image_health"`
+		States       interface{} `json:"states"`
+	} `json:"summary"`
+	Daemons []struct {
+		ServiceId   string `json:"service_id"`
+		InstanceId  string `json:"instance_id"`
+		ClientId    string `json:"client_id"`
+		Hostname    string `json:"hostname"`
+		CephVersion string `json:"ceph_version"`
+		Leader      bool   `json:"leader"`
+		Health      string `json:"health"`
+	} `json:"daemons"`
+	Images []MirrorListImages `json:"images"`
 } //@name MirrorList
 
 type MirrorSetup struct {
@@ -127,3 +157,16 @@ type ImageStatus struct {
 		MirrorPeerUuids []string `json:"mirror_peer_uuids"`
 	} `json:"snapshots"`
 } //@name ImageStatus
+
+type ImageInfo struct {
+	Name          string   `json:"name"`
+	Id            string   `json:"id"`
+	Size          int64    `json:"size"`
+	SnapshotCount int64    `json:"snapshot_count"`
+	Features      []string `json:"features"`
+	Parent        struct {
+		Pool     string `json:"pool"`
+		Image    string `json:"image"`
+		Snapshot string `json:"snapshot"`
+	} `json:"parent"`
+} //@name ImageInfo

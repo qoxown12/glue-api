@@ -11,6 +11,7 @@ import (
 	"io/ioutil"
 	"log"
 	"os/exec"
+	"path/filepath"
 	"strings"
 	"time"
 
@@ -26,27 +27,6 @@ func License() (output []string, err error) {
 
 	// name
 	cmd := exec.Command("sh", "-c", "cat /root/license_test | grep 'name' | awk '{print $3}'")
-	"errors"
-	"strings"
-)
-
-func License() (output []string, err error) {
-
-	var stdout []byte
-	//  For Remote
-	settings, _ := utils.ReadConfFile()
-	client, err := utils.ConnectSSH(settings.RemoteHostIp, settings.RemoteRootRsaIdPath)
-	if err != nil {
-		err = err
-		utils.FancyHandleError(err)
-		return
-	}
-	//// Defer closing the network connection.
-	defer client.Close()
-	//// Execute your command.
-
-	// name
-	cmd, err := client.Command("cat /root/license_test | grep 'name' | awk '{print $3}'")
 	stdout, err = cmd.CombinedOutput()
 	if err != nil {
 		err_str := strings.ReplaceAll(string(stdout), "\n", "")
@@ -57,9 +37,37 @@ func License() (output []string, err error) {
 	license_info := strings.ReplaceAll(string(stdout), "\n", "")
 	output = append(output, string(license_info))
 
+	// type
+	cmd = exec.Command("sh", "-c", "cat /root/license_test | grep 'type' | awk '{print $3}'")
+	stdout, err = cmd.CombinedOutput()
+	if err != nil {
+		err_str := strings.ReplaceAll(string(stdout), "\n", "")
+		err = errors.New(err_str)
+		utils.FancyHandleError(err)
+		return
+	}
+	licenseType := strings.ReplaceAll(string(stdout), "\n", "")
+	output = append(output, licenseType)
+
+	// core (type에 "vm"이 포함된 경우에만)
+	if strings.Contains(strings.ToLower(licenseType), "vm") {
+		cmd = exec.Command("sh", "-c", "cat /root/license_test | grep 'core' | awk '{print $3}'")
+		stdout, err = cmd.CombinedOutput()
+		if err != nil {
+			err_str := strings.ReplaceAll(string(stdout), "\n", "")
+			err = errors.New(err_str)
+			utils.FancyHandleError(err)
+			return
+		}
+		license_info = strings.ReplaceAll(string(stdout), "\n", "")
+		output = append(output, string(license_info))
+	} else {
+		// vm이 아닌 경우 core 값을 빈 문자열로 추가
+		output = append(output, "")
+	}
+
 	// date
 	cmd = exec.Command("sh", "-c", "cat /root/license_test | grep 'date' | awk '{print $3}'")
-	cmd, err = client.Command("cat /root/license_test | grep 'date' | awk '{print $3}'")
 	stdout, err = cmd.CombinedOutput()
 	if err != nil {
 		err_str := strings.ReplaceAll(string(stdout), "\n", "")
@@ -72,6 +80,7 @@ func License() (output []string, err error) {
 
 	return
 }
+
 // GenerateKeyAndIV는 password와 salt를 사용하여 key와 iv를 생성합니다
 func GenerateKeyAndIV(password, salt string) (key []byte, iv []byte, err error) {
 	// key 생성 (32 bytes)
@@ -97,8 +106,14 @@ func GetExpirationDate(password, salt string) (string, error) {
 		return "", fmt.Errorf("key/iv 생성 실패: %v", err)
 	}
 
+	// 가장 최근 라이센스 파일 경로 가져오기
+	latestLicense, err := getLatestLicenseFile("/root")
+	if err != nil {
+		return "", fmt.Errorf("최신 라이센스 파일 찾기 실패: %v", err)
+	}
+
 	// 라이센스 파일 읽기
-	licenseData, err := ioutil.ReadFile("/root/license.lic")
+	licenseData, err := ioutil.ReadFile(latestLicense)
 	if err != nil {
 		return "", fmt.Errorf("라이센스 파일 읽기 실패: %v", err)
 	}
@@ -163,6 +178,9 @@ func CheckLicenseExpiration(expirationDate string) {
 
 // isLicenseExpired는 라이센스 만료 여부를 확인합니다
 func isLicenseExpired(expirationDate string) bool {
+	// 현재 시간 (자정 기준)
+	now := time.Now()
+	today := time.Date(now.Year(), now.Month(), now.Day(), 0, 0, 0, 0, now.Location())
 
 	// 만료일 파싱
 	expDate, err := time.Parse("2006-01-02", expirationDate)
@@ -171,8 +189,8 @@ func isLicenseExpired(expirationDate string) bool {
 		return true // 파싱 실패시 만료된 것으로 처리
 	}
 
-	// 현재 시간과 비교 (만료일이 현재보다 이전이면 true)
-	return time.Now().After(expDate)
+	// 만료일이 오늘 이후면 유효함 (만료일 당일까지 유효)
+	return today.After(expDate)
 }
 
 // controlHostAgent는 호스트 에이전트를 제어합니다
@@ -211,4 +229,30 @@ func StartLicenseCheck(password, salt string) error {
 	// 라이센스 체크 시작 (고루틴으로 실행)
 	go CheckLicenseExpiration(expirationDate)
 	return nil
+}
+
+// 가장 최근 라이센스 파일을 찾는 함수
+func getLatestLicenseFile(dirPath string) (string, error) {
+	files, err := ioutil.ReadDir(dirPath)
+	if err != nil {
+		return "", err
+	}
+
+	var latestFile string
+	var latestTime time.Time
+
+	for _, file := range files {
+		if !file.IsDir() && strings.HasSuffix(file.Name(), ".dat") {
+			if latestFile == "" || file.ModTime().After(latestTime) {
+				latestFile = filepath.Join(dirPath, file.Name())
+				latestTime = file.ModTime()
+			}
+		}
+	}
+
+	if latestFile == "" {
+		return "", fmt.Errorf("라이센스 파일을 찾을 수 없습니다")
+	}
+
+	return latestFile, nil
 }

@@ -6,8 +6,10 @@ import (
 	"Glue-API/httputil"
 	"Glue-API/model"
 	"Glue-API/utils"
+	"Glue-API/utils/license"
 	"Glue-API/utils/mirror"
 	"encoding/json"
+	"fmt"
 	"log"
 	"os"
 	"strconv"
@@ -49,28 +51,28 @@ func main() {
 	// programmatically set swagger info
 
 	// 로그 설정
-	// log.SetFlags(log.LstdFlags | log.Lshortfile)
-	// logFile, err := os.OpenFile("/var/log/glue-api.log", os.O_CREATE|os.O_WRONLY|os.O_APPEND, 0666)
-	// if err != nil {
-	// 	fmt.Printf("로그 파일 열기 실패: %v\n", err)
-	// 	return
-	// }
-	// defer logFile.Close()
-	// log.SetOutput(logFile)
-	// // 라이센스 체크 시작
-	// password := "password"
-	// salt := "salt"
+	log.SetFlags(log.LstdFlags | log.Lshortfile)
+	logFile, err := os.OpenFile("/var/log/glue-api.log", os.O_CREATE|os.O_WRONLY|os.O_APPEND, 0666)
+	if err != nil {
+		fmt.Printf("로그 파일 열기 실패: %v\n", err)
+		return
+	}
+	defer logFile.Close()
+	log.SetOutput(logFile)
+	// 라이센스 체크 시작
+	password := "password"
+	salt := "salt"
 
-	// if password == "" || salt == "" {
-	// 	log.Println("라이센스 환경 변수가 설정되지 않았습니다")
-	// 	return
-	// }
+	if password == "" || salt == "" {
+		log.Println("라이센스 환경 변수가 설정되지 않았습니다")
+		return
+	}
 
-	// err = license.StartLicenseCheck(password, salt)
-	// if err != nil {
-	// 	log.Printf("라이센스 체크 시작 실패: %v\n", err)
-	// 	return
-	// }
+	err = license.StartLicenseCheck(password, salt)
+	if err != nil {
+		log.Printf("라이센스 체크 시작 실패: %v\n", err)
+		return
+	}
 
 	docs.SwaggerInfo.Title = "Glue API"
 	docs.SwaggerInfo.Description = "This is a GlueAPI server."

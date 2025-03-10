@@ -92,10 +92,10 @@ func GetToken() (output string, err error) {
 			TLSClientConfig: &tls.Config{InsecureSkipVerify: true},
 		},
 	}
-	
+
 	settings, _ := utils.ReadConfFile()
 	pw, err := utils.PasswordDecryption(settings.GluePw)
-	
+
 	user_json := model.UserInfo{
 		Username: settings.GlueUser,
 		Password: pw,
